@@ -19,8 +19,11 @@
 - `completions/Part-1-Phase-01-Completion.md` — Phase 1.01 completion report
 
 ## Application (`src/`)
-- `src/app/layout.tsx` — root layout: `lang="mk"`, fonts, Paper surface, skip link, header/footer shell, Vercel Analytics, site metadata (Phase 1.03)
-- `src/app/page.tsx` — minimal in-shell placeholder home (real homepage in Phase 1.05)
+- `src/app/layout.tsx` — **bare** root layout: `<html lang="mk">`/`<body>`, fonts, `globals.css`, Vercel Analytics, site metadata. Site chrome moved to the `(site)` group so `/studio` can escape it (Phase 1.04, D-1.04-3)
+- `src/app/(site)/layout.tsx` — public-site chrome: skip link + `SiteHeader` + `<main>` + `SiteFooter` (relocated verbatim from root layout, Phase 1.04)
+- `src/app/(site)/page.tsx` — minimal in-shell placeholder home (real homepage in Phase 1.05; moved from `src/app/page.tsx` in 1.04)
+- `src/app/studio/[[...tool]]/page.tsx` — embedded Sanity Studio at `/studio` (`NextStudio`); renders on the bare root (no site chrome) (Phase 1.04)
+- `src/app/debug-sanity/page.tsx` — ⚠️ **TEMPORARY** Sanity read-connection check at `/debug-sanity` (lists published seasons). Remove/replace in Phase 1.05. (Not `_debug-sanity`: a `_`-prefixed folder is a Next.js private folder, excluded from routing — see completion §4)
 - `src/app/fonts.ts` — Inter + Source Serif 4 via `next/font/google`, Cyrillic subsets (Phase 1.03)
 - `src/app/globals.css` — Tailwind 4 `@theme` driven by brand.md tokens; reduced-motion baseline; shadcn semantics repointed to brand; light-only (Phase 1.03)
 - `src/app/favicon.ico` — default favicon (placeholder)
@@ -29,12 +32,26 @@
 - `src/components/Container.tsx` — max-width (1200px) + page-gutter layout primitive (Phase 1.03)
 - `src/lib/nav.ts` — single source for nav items + `isActivePath()` (Phase 1.03)
 - `src/lib/utils.ts` — shadcn `cn()` class-merge helper
-- `src/sanity/` — Sanity schemas, client, queries (created in Phase 1.04)
+
+## Sanity (`src/sanity/`) — created Phase 1.04
+- `src/sanity/env.ts` — reads `NEXT_PUBLIC_SANITY_PROJECT_ID` / `_DATASET`, pinned `apiVersion`, `useCdn: true`
+- `src/sanity/client.ts` — read-only client (published perspective, no token)
+- `src/sanity/image.ts` — `@sanity/image-url` builder (`urlFor`) for `next/image`
+- `src/sanity/structure.ts` — Studio desk structure; `siteSettings` pinned as a singleton (D-1.04-5)
+- `src/sanity/schemaTypes/index.ts` — collects the schema types for the Studio config
+- `src/sanity/schemaTypes/siteSettings.ts` — singleton: site title, description, footer archive statement
+- `src/sanity/schemaTypes/season.ts` — season: title, slug, decade, story (PT), final table, squad, trainers, photos
+- `src/sanity/schemaTypes/match.ts` — match (minimal first pass): date, competition, opponent, home/away, score, season ref
+- `src/sanity/schemaTypes/person.ts` — person: name, slug, roles, playing years, bio (PT), career stats, photos
+- `src/sanity/schemaTypes/photo.ts` — photo: image (hotspot, required), caption, provenance (required), date, related season/person
 
 ## Build & tooling config (repo root)
 - `package.json` / `package-lock.json` — dependencies, all pinned exact; scripts (dev/build/start/lint)
 - `tsconfig.json` — TypeScript config; `@/*` path alias
-- `next.config.ts` — Next.js config (default)
+- `next.config.ts` — Next.js config; `images.remotePatterns` allows `cdn.sanity.io/images/**` for `next/image` (Phase 1.04)
+- `sanity.config.ts` — embedded Studio config (projectId/dataset via env, schema types, structure + vision plugins); read by `/studio` and the Sanity CLI (Phase 1.04)
+- `sanity.cli.ts` — Sanity CLI config (projectId/dataset from env; tolerant of missing values) (Phase 1.04)
+- `.env.local` — **git-ignored** (`.env*`); `NEXT_PUBLIC_SANITY_PROJECT_ID` / `_DATASET` / `_API_VERSION`. No token, not committed (Phase 1.04)
 - `eslint.config.mjs` — ESLint flat config (Next 15 `FlatCompat`: next/core-web-vitals + next/typescript)
 - `postcss.config.mjs` — PostCSS config (`@tailwindcss/postcss`)
 - `components.json` — shadcn/ui config (style new-york, base color neutral, Lucide icons)

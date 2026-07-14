@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import { inter, sourceSerif } from "./fonts";
-import { SiteHeader } from "@/components/SiteHeader";
-import { SiteFooter } from "@/components/SiteFooter";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -13,6 +11,9 @@ export const metadata: Metadata = {
   description: "Неофицијална архива посветена на историјата на ФК Беласица.",
 };
 
+// Bare root layout: <html>/<body>, fonts, global styles, analytics. The site
+// chrome (header/footer) lives in the (site) route group so the embedded Studio
+// at /studio renders full-screen without it. See D-1.04-3.
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -24,17 +25,7 @@ export default function RootLayout({
       className={`${inter.variable} ${sourceSerif.variable} h-full`}
     >
       <body className="flex min-h-full flex-col">
-        <a
-          href="#main"
-          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-card focus:bg-navy focus:px-4 focus:py-2 focus:text-small focus:font-medium focus:text-paper"
-        >
-          Прескокни на содржина
-        </a>
-        <SiteHeader />
-        <main id="main" className="flex-1">
-          {children}
-        </main>
-        <SiteFooter />
+        {children}
         <Analytics />
       </body>
     </html>

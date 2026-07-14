@@ -87,3 +87,28 @@ Notes:
 - Installed with `--save-exact` (repo has no `.npmrc`; all deps are pinned exact by hand). `@vercel/analytics@2.0.1` exports a `./next` subpath used as `import { Analytics } from "@vercel/analytics/next"`.
 - `next/font/google` downloads and self-hosts the font files at build time (13 `woff2` files produced); no font binaries are committed. See D-1.03-2. Build needs network to fonts.googleapis.com (Vercel has it).
 - No other dependencies added. `npm run build` and `npm run lint` both exit 0 on this stack.
+
+## 2026-07-15 — Phase 1.04 Sanity setup: dependency additions (exact pins)
+
+Runtime dependencies added (`package.json` → `dependencies`, all exact — no caret/tilde), installed with `--save-exact`:
+
+| Package | Version | Role |
+|---|---|---|
+| sanity | 4.22.0 | Sanity Studio (embedded at `/studio`) |
+| next-sanity | 11.6.13 | Next.js ↔ Sanity client + Studio helpers (`NextStudio`) |
+| @sanity/vision | 4.22.0 | GROQ playground plugin (Studio) |
+| @sanity/image-url | 2.1.1 | image-URL builder for `next/image` |
+| styled-components | 6.4.3 | Studio peer dependency |
+
+Transitive (not pinned directly; noted for reference): `@sanity/client` 7.23.1 (satisfies `next-sanity` peer `^7.13.2`); `sharp` 0.34.5 (image optimization, pulled by the toolchain).
+
+Version-selection rationale (see D-1.04-4 in `decisions.md`):
+- **Next 15 constraint.** The stack is pinned to Next.js **15.5.20** (D-1.01-1, the newest 15.x). `next-sanity` 12.x/13.x peer-require `next ^16`; only the **11.x** line supports Next 15 (`11.6.13` peers `next ^15.1.0-0 || ^16.0.0-0`).
+- **React 19.2 constraint.** `sanity`/`@sanity/vision` **5.x** peer `react ^19.2.2` and import React 19.2's `useEffectEvent`. Next 15.5.20 bundles a pre-19.2 React for the App Router client graph, so a `sanity@5` build fails: `'useEffectEvent' is not exported from 'react'` (even though the app's own react is 19.2.4). `sanity@4.22.0` peers `react ^18 || ^19`, so the Studio pins to the **4.22.0** line. `next-sanity@11.6.13` peers `sanity ^4.22.0 || ^5` → this set resolves with **no** `--legacy-peer-deps`.
+
+Config / env:
+- `.env.local` (git-ignored via `.env*`): `NEXT_PUBLIC_SANITY_PROJECT_ID=f8rmnfry`, `NEXT_PUBLIC_SANITY_DATASET=production`, `NEXT_PUBLIC_SANITY_API_VERSION=2026-07-15`. Same non-secret values must be set on Vercel (Production + Preview). No token anywhere (public dataset, D-1.04-2).
+- `apiVersion` pinned to `2026-07-15` in `src/sanity/env.ts` (overridable via env).
+- `next.config.ts`: `images.remotePatterns` now allows `https://cdn.sanity.io/images/**` for `next/image`.
+- Sanity project: existing **`belasica`** (id `f8rmnfry`), dataset `production`, public-read (D-1.04-1). CORS origins (credentials) on the project: `http://localhost:3000`, `https://belasica-v2.vercel.app` (+ the PR preview URL, added after deploy).
+- `npm run build` and `npm run lint` exit 0 on this stack.
