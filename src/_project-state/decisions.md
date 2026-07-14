@@ -129,3 +129,51 @@
 - **Alternatives considered:** Keep protection on — rejected: previews would be unshareable (Ace demo blocked) and the 200 gate only met behind auth. Password protection — rejected: adds friction for a public, no-secrets archive.
 - **Consequences:** Downside accepted: every preview deployment is world-readable. Acceptable because the repo is public and the content is an informational archive with no secrets. Preview URL verified 200 after the change.
 - **Links:** Phase 1.01; D-0.00-6; Vercel project settings → Deployment Protection.
+
+### D-0.00-12 · 2026-07-14 · Club colors confirmed (P0.3 resolved) — blue + white identity, orange accent
+- **Status:** Accepted (owner decision)
+- **Context:** P0.3 (club colors + crest source collection) was the open gate on Phase 1.02. Colors were collected and sampled into an approved direction in brand.md; exact-colour confirmation from a clean high-res crest was still owed. Owner now confirms the club colors are known.
+- **Decision:** Lock the club palette as the design foundation — Blue/Navy `#12294F` and white (Paper `#F7F4EC`) as the club identity, Orange `#E4741C` as the secondary/away accent (used sparingly). These are the values already carried in `brand.md` §Color.
+- **Alternatives considered:** Keep P0.3 open pending a cleaner high-res crest sample — rejected: the colors are known well enough to unblock Design, and the direction is already locked in brand.md.
+- **Consequences:** The P0.3 gate on Phase 1.02 is cleared. Downside accepted: if a future clean high-res crest yields materially different hexes, brand.md values get refined and this entry is superseded. Source note: values read from `brand.md` (working copy); the 1.02 handover file was never written to disk and the 1.01 completion report contains no colors.
+- **Links:** P0.3; Phase 1.02; brand.md §Color; current-state.md (P0.3 gate on 1.02).
+
+### D-1.03-1 · 2026-07-14 · Orange stays non-text in the shell; header active label is Paper, not navy
+- **Status:** Accepted
+- **Context:** The handover locks D-1.02-1 (orange never carries text on paper — 2.8:1 fails AA) but its component notes also read "active nav label stays navy" and describe "orange overline" strings. On the **navy** header bar a navy label is invisible, and an orange overline would be orange text (fails AA). The two readings conflict on dark/light surfaces.
+- **Decision:** Reserve orange for non-text roles only (underline, left-marker, rule). On the navy header, the active nav label is **Paper** (100% vs 72% default) with a 2px **orange underline**; the label never turns navy (invisible) or orange (fails AA). The footer `неофицијална архива` overline is rendered **navy/neutral-700**, not orange. This honors the locked rule D-1.02-1 over the looser component phrasing.
+- **Alternatives considered:** Literal "navy label" on the navy bar — rejected: invisible (navy-on-navy). Orange overline/label text — rejected: fails WCAG AA per D-1.02-1.
+- **Consequences:** Downside accepted: the handover's verbatim "label stays navy" / "orange overline" wording is not followed literally on the header; the intent (orange = marker only, AA holds) is preserved. Verified in-browser: active label `rgb(247,244,236)` (Paper), underline `rgb(228,116,28)` (Orange).
+- **Links:** Phase 1.03; D-1.02-1; brand.md §Color; SiteHeader.tsx; SiteFooter.tsx.
+
+### D-1.03-2 · 2026-07-14 · Fonts self-hosted via next/font/google (no vendored files)
+- **Status:** Accepted
+- **Context:** The brief requires the two fonts "self-hosted via next/font with Cyrillic subsets." `next/font/google` downloads the font files at build time and serves them from the app's own origin (no runtime request to Google) — i.e. it self-hosts. The alternative is `next/font/local` with font files committed to the repo.
+- **Decision:** Use `next/font/google` for Inter and Source Serif 4 with `subsets: ["latin","cyrillic"]` and the brand weights. No `.woff2` files are committed; Next produces 13 self-hosted `woff2` files at build.
+- **Alternatives considered:** `next/font/local` with vendored `.woff2` — rejected: adds binary assets and manual subset/version management for no benefit when the fonts are on Google Fonts; both approaches self-host the result. Google `<link>` CDN — rejected: not self-hosted, adds a third-party runtime request.
+- **Consequences:** Downside accepted: the production/preview build fetches fonts from Google Fonts at build time (network needed at build; Vercel has it). If Google Fonts is unreachable at build, the build fails — acceptable and standard for `next/font/google`.
+- **Links:** Phase 1.03; src/app/fonts.ts; brand.md §Typography; 00_stack-and-config.md.
+
+### D-1.03-3 · 2026-07-14 · Mobile nav is a disclosure menu (hamburger)
+- **Status:** Accepted
+- **Context:** The handover ships a mobile (390) frame but does not spell out the mobile nav mechanism. Six Cyrillic nav labels plus the wordmark do not fit one row at 375px.
+- **Decision:** Add an accessible disclosure menu — a hamburger button (`aria-expanded`/`aria-controls`, sr-only label, Menu/X icons) toggling a stacked navy panel below the bar. Items use an orange left-marker for the active state (the horizontal underline does not suit a vertical list). No transform/height animation (conditional render), so it stays within the motion budget and needs no reduced-motion special-casing.
+- **Alternatives considered:** Horizontal scroll / wrap of six items — rejected: cramped and unreadable at 375px. A full-screen overlay menu — rejected: heavier than a layout shell needs.
+- **Consequences:** `SiteHeader` is a client component (already required by `usePathname` for the active state). Minimal extra JS (`useState` + one icon swap).
+- **Links:** Phase 1.03; SiteHeader.tsx; handover §4/§7.
+
+### D-1.03-4 · 2026-07-14 · Single light theme — shadcn dark-mode block dropped
+- **Status:** Accepted
+- **Context:** The 1.01 scaffold's `globals.css` shipped shadcn's default `:root` + `.dark` OKLCH neutral tokens. The 1.02 design is a single warm light theme (Paper surface); there is no dark-mode design.
+- **Decision:** Replace the neutral tokens with the brand palette and remove the `.dark` override block. The shadcn semantic variables (`--background`, `--primary`, `--border`, …) are repointed to brand values so any future shadcn/ui component inherits the brand look. The dormant `@custom-variant dark` is kept (harmless; matches nothing).
+- **Alternatives considered:** Keep a `.dark` block mapped to brand values — rejected: no dark design exists to populate it; dead code. Author a full dark theme — rejected: out of scope, not designed.
+- **Consequences:** Downside accepted: adding dark mode later means designing and defining a `.dark` token set from scratch. No user-facing impact (site is light-only).
+- **Links:** Phase 1.03; src/app/globals.css; brand.md §Color; D-1.01-2.
+
+### D-1.03-5 · 2026-07-14 · Canonical top-level route slugs (Latin, per D-0.00-4)
+- **Status:** Accepted
+- **Context:** The nav needs `href`s. D-0.00-4 fixed Latin-transliterated slugs with Cyrillic content; the specific top-level slug set was not yet chosen. Target routes do not exist yet (the brief permits 404s).
+- **Decision:** Adopt `/` (Почетна), `/arhiva` (Архива), `/legendi` (Легенди), `/statistika` (Статистика), `/za-nas` (За нас), `/kontakt` (Контакт). Defined once in `src/lib/nav.ts` and consumed by header and footer.
+- **Alternatives considered:** Defer hrefs / use `#` placeholders — rejected: real hrefs let later phases drop pages onto known routes and make the nav genuinely navigable. Cyrillic slugs — rejected by D-0.00-4.
+- **Consequences:** Downside accepted: later phases must build pages at these exact slugs (or rename here and update `nav.ts`, the single source). Links 404 until their pages ship.
+- **Links:** Phase 1.03; D-0.00-4; src/lib/nav.ts.
