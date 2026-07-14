@@ -30,8 +30,8 @@ The project now has a real, public GitHub repository with a Next.js website skel
 - ✅ `current-state.md` first line reads exactly `NEXT: 1.02 — Design system`.
 - ✅ `file-map.md` lists every file that exists.
 - ✅ This completion report exists at `src/_project-state/completions/Part-1-Phase-01-Completion.md`.
-- ⏳ A PR is open from `phase-1.01-scaffold` → `main` — **PR #: _[filled after open — Task 11 update]_**.
-- ⏳ Vercel bot posted a preview URL on the PR and it returns 200 — **preview URL + status: _[filled after Vercel connect + PR — Task 11 update]_**.
+- ✅ A PR is open from `phase-1.01-scaffold` → `main` — **PR #1**: https://github.com/DinovLazar/belasica-v2/pull/1.
+- ✅ Vercel bot posted a preview URL on the PR and it returns 200 — preview `https://belasica-v2-git-phase-101-scaffold-dinovlazars-projects.vercel.app` → HTTP 200 (verified `curl`, serves the Next.js starter). Production `https://belasica-v2.vercel.app` → HTTP 200. The preview was initially 302 (Vercel Deployment Protection); protection was disabled so previews are publicly shareable (D-1.01-5).
 - ❌ Claude Code GitHub Action posted a review ending in `REVIEW RESULT:` — **N/A: the review Action was dropped for this project by owner decision (D-1.01-4). The Part-1 hard-gate DoD item is waived by the owner, not met.**
 - ✅ Default Next.js homepage untouched; no color, font, spacing value, or site copy written anywhere.
 
@@ -45,6 +45,7 @@ The project now has a real, public GitHub repository with a Next.js website skel
 - **D-1.01-2** · Initialized shadcn with CLI 3.8.5 (classic neutral base color) instead of 4.13.0 (which forces an opinionated theme preset — a design decision reserved for 1.02). Logged: yes.
 - **D-1.01-3** · Did not file the Phase 1.01 brief in `briefs/` — owner instruction. Kept the folder via `.gitkeep`. Logged: yes.
 - **D-1.01-4** · Did not set up the Claude Code GitHub Action review (App, workflow, token) — owner instruction; supersedes D-0.00-10. Logged: yes.
+- **D-1.01-5** · Disabled Vercel Deployment Protection so preview URLs are public (owner-approved) — required for shareable previews / the Ace demo and to satisfy the "returns 200" gate. Logged: yes.
 
 ## 4. Deviations from the brief
 - **Brief file not filed (D-1.01-3).** Task 5b requires `briefs/Part-1-Phase-01-Code.md`. When asked for the file path, the owner instructed to skip it. The folder is preserved with `.gitkeep`.
@@ -53,10 +54,10 @@ The project now has a real, public GitHub repository with a Next.js website skel
 - No design work, fonts, layout, Sanity, analytics, contact form, or homepage content were touched (all correctly out of scope).
 
 ## 5. Changed files / deliverables
-- Branch `phase-1.01-scaffold` → PR to `main` (PR link filled in §2 after open).
+- Branch `phase-1.01-scaffold` → PR #1 to `main`: https://github.com/DinovLazar/belasica-v2/pull/1.
 - First commit to `main` (bootstrap): full Next.js scaffold + all seed/state files (29 files).
 - Phase-branch changes: `src/_project-state/00_stack-and-config.md` (appended pins), `current-state.md` (rewritten snapshot), `file-map.md` (real tree), `decisions.md` (D-1.01-1…4 + D-0.00-10 superseded), this completion report.
-- Manual/browser (owner): Vercel connected to the repo (dashboard `vercel.com` → project `belasica-v2`). No secrets stored anywhere for this project.
+- Manual/browser (owner): Vercel connected to the repo (dashboard `vercel.com` → project `belasica-v2`); Deployment Protection disabled so previews are public (D-1.01-5). No secrets stored anywhere for this project.
 
 ## 6. State updates done (mandatory for Code phases)
 - [x] `current-state.md` overwritten to match reality, incl. registers (OV-1, PL-1…4 unchanged)

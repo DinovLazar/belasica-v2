@@ -121,3 +121,11 @@
 - **Alternatives considered:** Install the review Action as specified — rejected per owner instruction. Substitute a lighter CI lint/build gate — not requested; can be added later if wanted.
 - **Consequences:** Downside accepted: PRs merge with no automated review; the owner is sole reviewer of his own work — the exact risk the brief's gate covered. The Part-1 "a review posts before close" DoD item is waived by owner decision, not met. Re-enabling later means installing the App, adding the workflow, and setting the token secret.
 - **Links:** Phase 1.01; supersedes D-0.00-10; CLAUDE.md §Branch & PR rules.
+
+### D-1.01-5 · 2026-07-14 · Vercel Deployment Protection disabled so preview URLs are public
+- **Status:** Accepted (owner decision)
+- **Context:** Vercel protects preview deployments by default (Vercel Authentication), so preview URLs 302-redirect to a login wall. The plan (D-0.00-6) makes preview URLs Lazar's eyeball mechanism and the venue for the 1.06 Ace demo, where the viewer has no Vercel account; the DoD also requires the preview URL to return 200.
+- **Decision:** Disable Vercel Authentication for the project so preview (and production) URLs are publicly reachable and return 200.
+- **Alternatives considered:** Keep protection on — rejected: previews would be unshareable (Ace demo blocked) and the 200 gate only met behind auth. Password protection — rejected: adds friction for a public, no-secrets archive.
+- **Consequences:** Downside accepted: every preview deployment is world-readable. Acceptable because the repo is public and the content is an informational archive with no secrets. Preview URL verified 200 after the change.
+- **Links:** Phase 1.01; D-0.00-6; Vercel project settings → Deployment Protection.

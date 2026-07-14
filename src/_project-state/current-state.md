@@ -24,7 +24,7 @@ None beyond the create-next-app default page (`src/app/page.tsx`, untouched) and
 
 ## Integrations wired
 
-- Vercel — connected to the repo; production deploy on `main`, preview deploy + preview URL on every pull request. (D-0.00-6.)
+- Vercel — connected to the repo; production deploy on `main`, preview deploy + preview URL on every pull request. Preview deployments are public (Deployment Protection disabled, D-1.01-5). Production: https://belasica-v2.vercel.app (D-0.00-6.)
 - Claude Code GitHub Action — **not installed** (dropped by owner, D-1.01-4).
 - (Sequence for the rest: `Belasica-V2-Plan.md` §8.)
 
