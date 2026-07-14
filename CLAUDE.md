@@ -16,7 +16,7 @@ The unofficial FK Belasica archive site (Macedonian, informational). Next.js + S
 ## Branch & PR rules
 - Branch name: `phase-X.YY-<slug>`, cut from `main`.
 - One phase branch at a time. Never cut a new phase branch while a previous one is unmerged.
-- PR to `main`. Never merge a PR before the GitHub Action review posts. Never resolve a blocking review comment by dismissing it — fix or escalate to the orchestrator via the completion report.
+- PR to `main`. This project has no automated review gate (dropped for this project — see `decisions.md` D-1.01-4); before merging, review the diff yourself and confirm the Vercel preview loads. Never resolve a blocking review comment by dismissing it — fix or escalate to the orchestrator via the completion report.
 
 ## Decisions
 - Log every on-the-fly decision in `src/_project-state/decisions.md`, append-only.
