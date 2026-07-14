@@ -1,12 +1,12 @@
 # file-map.md — Belasica-V2
 
-> Location in repo: `src/_project-state/file-map.md`. Every meaningful file/folder, one line each: what it's for. Updated by the executor on **every** add, rename, or delete — a stale map lies. Real tree as of Phase 1.01 (node_modules, .next, and other gitignored paths omitted).
+> Location in repo: `src/_project-state/file-map.md`. Every meaningful file/folder, one line each: what it's for. Updated by the executor on **every** add, rename, or delete — a stale map lies. Real tree as of Phase 1.03 (node_modules, .next, and other gitignored paths omitted).
 
 ## Docs & rules (repo root)
 - `CLAUDE.md` — Code's standing rules (behavioral contract; under 150 lines)
 - `README.md` — public-facing repo overview; "unofficial archive" disclaimer; stack + layout
 - `facts.md` — verified business facts; the only legal source for factual claims on the site
-- `brand.md` — design tokens + brand rules; the only token source (still all SEED; filled in Phase 1.02)
+- `brand.md` — design tokens + brand rules; the only token source (confirmed 1.02 tokens written back in Phase 1.03; zero SEED)
 - `briefs/` — every phase brief, saved by Lazar; versioned instruction history (`.gitkeep` placeholder — the Phase 1.01 brief was not filed per owner decision, D-1.01-3)
 - `docs/design-handovers/` — Design's handover files; Code reads the matching one before any UI work (`.gitkeep` placeholder; first handover lands in Phase 1.02)
 
@@ -19,12 +19,16 @@
 - `completions/Part-1-Phase-01-Completion.md` — Phase 1.01 completion report
 
 ## Application (`src/`)
-- `src/app/layout.tsx` — root layout (create-next-app default; real shell built in Phase 1.03)
-- `src/app/page.tsx` — home page (create-next-app default starter, intentionally untouched)
-- `src/app/globals.css` — global styles + shadcn neutral CSS variables (`@import "tailwindcss"`; overwritten from brand.md in 1.02)
+- `src/app/layout.tsx` — root layout: `lang="mk"`, fonts, Paper surface, skip link, header/footer shell, Vercel Analytics, site metadata (Phase 1.03)
+- `src/app/page.tsx` — minimal in-shell placeholder home (real homepage in Phase 1.05)
+- `src/app/fonts.ts` — Inter + Source Serif 4 via `next/font/google`, Cyrillic subsets (Phase 1.03)
+- `src/app/globals.css` — Tailwind 4 `@theme` driven by brand.md tokens; reduced-motion baseline; shadcn semantics repointed to brand; light-only (Phase 1.03)
 - `src/app/favicon.ico` — default favicon (placeholder)
+- `src/components/SiteHeader.tsx` — navy header/nav; client component; active-state + accessible mobile menu (Phase 1.03)
+- `src/components/SiteFooter.tsx` — light footer; wordmark, nav links, mandatory unofficial-archive lines (Phase 1.03)
+- `src/components/Container.tsx` — max-width (1200px) + page-gutter layout primitive (Phase 1.03)
+- `src/lib/nav.ts` — single source for nav items + `isActivePath()` (Phase 1.03)
 - `src/lib/utils.ts` — shadcn `cn()` class-merge helper
-- `src/components/` — UI components, PascalCase, one per file (not yet created; first components in Phase 1.02+)
 - `src/sanity/` — Sanity schemas, client, queries (created in Phase 1.04)
 
 ## Build & tooling config (repo root)

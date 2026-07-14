@@ -67,3 +67,23 @@ Notes / deviations from the planning-stage table above:
 - `radix-ui`, `class-variance-authority`, `clsx`, `tailwind-merge`, and `tw-animate-css` were added by `shadcn init`.
 - **Claude Code GitHub Action review NOT installed** — dropped by owner decision for this project. No `CLAUDE_CODE_OAUTH_TOKEN` secret and no `.github/workflows/`. See D-1.01-3 / D-1.01-4.
 - `npm run build` and `npm run lint` both exit 0 on this stack.
+
+## 2026-07-14 — Phase 1.03 layout shell: dependency + font additions
+
+Runtime dependency added (`package.json` → `dependencies`, exact — no caret/tilde):
+
+| Package | Version |
+|---|---|
+| @vercel/analytics | 2.0.1 |
+
+Fonts (self-hosted via `next/font/google`, not npm dependencies — no package to pin; the family + subsets + weights are the config that matters):
+
+| Family | Import | Subsets | Weights |
+|---|---|---|---|
+| Inter | `next/font/google` → `Inter` | latin, cyrillic | 400, 500, 600, 700 |
+| Source Serif 4 | `next/font/google` → `Source_Serif_4` | latin, cyrillic | 400, 600, 700 |
+
+Notes:
+- Installed with `--save-exact` (repo has no `.npmrc`; all deps are pinned exact by hand). `@vercel/analytics@2.0.1` exports a `./next` subpath used as `import { Analytics } from "@vercel/analytics/next"`.
+- `next/font/google` downloads and self-hosts the font files at build time (13 `woff2` files produced); no font binaries are committed. See D-1.03-2. Build needs network to fonts.googleapis.com (Vercel has it).
+- No other dependencies added. `npm run build` and `npm run lint` both exit 0 on this stack.
