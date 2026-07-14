@@ -50,7 +50,7 @@ Also captured (not my decision, but handled): **D-0.00-12** (P0.3 club-colors re
 
 - **Added:** `src/app/fonts.ts`, `src/components/SiteHeader.tsx`, `src/components/SiteFooter.tsx`, `src/components/Container.tsx`, `src/lib/nav.ts`, this report.
 - **Edited:** `brand.md` (SEED → real tokens), `src/app/globals.css` (brand `@theme` + reduced-motion), `src/app/layout.tsx`, `src/app/page.tsx`, `package.json` + `package-lock.json` (`@vercel/analytics@2.0.1`), `src/_project-state/{current-state.md,file-map.md,00_stack-and-config.md,decisions.md}`.
-- **Branch:** `phase-1.03-layout-shell` · **PR:** <PR link — see §7> · **Preview:** <Vercel preview URL — see §7>.
+- **Branch:** `phase-1.03-layout-shell` · **PR:** https://github.com/DinovLazar/belasica-v2/pull/4 · **Preview:** https://belasica-v2-git-phase-103-layout-shell-dinovlazars-projects.vercel.app (verified HTTP 200 + renders on-brand).
 
 ## 6. State updates done (mandatory for Code phases)
 
