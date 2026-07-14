@@ -177,3 +177,43 @@
 - **Alternatives considered:** Defer hrefs / use `#` placeholders — rejected: real hrefs let later phases drop pages onto known routes and make the nav genuinely navigable. Cyrillic slugs — rejected by D-0.00-4.
 - **Consequences:** Downside accepted: later phases must build pages at these exact slugs (or rename here and update `nav.ts`, the single source). Links 404 until their pages ship.
 - **Links:** Phase 1.03; D-0.00-4; src/lib/nav.ts.
+
+### D-1.04-1 · 2026-07-15 · Reuse existing `belasica` Sanity project (f8rmnfry), not a new `belasica-v2`
+- **Status:** Accepted (owner decision)
+- **Context:** The brief (Task 3) says to create a project named `belasica-v2` and assumes no project exists yet ("a browser window opens — he authenticates"). In fact Lazar was already logged into the Sanity CLI on this machine, and an existing project **`belasica`** (id `f8rmnfry`, created 2026-07-12, 2 members = both operators) was already present, with a `production` dataset that is already **public and empty** (verified: unauthenticated GROQ `count` returns 0 docs, HTTP 200). This contradicts the brief's fresh-creation assumption.
+- **Decision:** Wire the app to the existing `belasica` project `f8rmnfry`, dataset `production`. Do not create a second project. Surfaced the discrepancy to Lazar; he chose reuse.
+- **Alternatives considered:** Create a fresh `belasica-v2` per the brief's literal name — rejected: it would leave two near-duplicate Belasica projects in the account, and the existing one is already correctly configured (public `production`, shared with both operators) and empty. Silently reuse without asking — rejected: the project pre-existed this phase and I did not create it, so the choice is the owner's.
+- **Consequences:** Downside accepted: the Sanity project id (`belasica`/f8rmnfry) does not match the repo/site name (`belasica-v2`); this is cosmetic — the project id is opaque and only referenced via env vars. If a clean-slate project is ever wanted, re-run `sanity init` and swap the env var.
+- **Links:** Phase 1.04; `.env.local`; `src/sanity/env.ts`.
+
+### D-1.04-2 · 2026-07-15 · Public dataset, readable without an API token
+- **Status:** Accepted (brief-mandated, logged per Task 3)
+- **Context:** The repo is public; committing a Sanity token would leak it. The site only needs to read published content.
+- **Decision:** The `production` dataset is **public-read**, so the site queries published documents with no token. Only the two `NEXT_PUBLIC_*` values + a pinned `apiVersion` are configured; no `SANITY_API_TOKEN` anywhere. The read client sets `perspective: "published"` and `useCdn: true`.
+- **Alternatives considered:** Private dataset + read token — rejected: a token in a public repo is a leak, and a token-in-Vercel-only setup adds secret management for content that is meant to be public anyway. Viewer/draft perspective — rejected: the public site shows only published content.
+- **Consequences:** Downside accepted: the dataset is world-readable (acceptable — it is an informational public archive with no secrets). Drafts remain private (they require an authenticated editor session, which is what the Studio provides). Editors still authenticate via their Sanity login in `/studio` (CORS-with-credentials origins), so writes are not public.
+- **Links:** Phase 1.04; `src/sanity/{env,client}.ts`; CORS origins on f8rmnfry.
+
+### D-1.04-3 · 2026-07-15 · Studio escapes the site chrome via a `(site)` route group
+- **Status:** Accepted
+- **Context:** The embedded Studio (`/studio`) needs the full viewport; the root layout wrapped every route in `SiteHeader` + `<main>` + `SiteFooter`. Rendering a CMS admin inside the public site nav is wrong, and nested layouts are additive (they cannot remove ancestor chrome). The brief says don't restyle the shell.
+- **Decision:** Reduce `src/app/layout.tsx` to the bare root (`<html>`/`<body>`, fonts, `globals.css`, `<Analytics/>`) and relocate the site chrome **verbatim** into a new `src/app/(site)/layout.tsx`; move `page.tsx` under `(site)`. `/studio` and the temporary `/_debug-sanity` live outside the group, so they render on the bare root. Route groups don't change URLs — `/` and all future site routes are unaffected.
+- **Alternatives considered:** Leave the Studio inside the header/footer — rejected: broken-looking admin surface for the person who uses it daily. Two duplicated root layouts (remove `app/layout.tsx`) — rejected: duplicates `<html>/<body>` and is more invasive. `position:fixed` overlay on the Studio — rejected: hacky, leaves the shell in the DOM below it. The `SiteHeader`/`SiteFooter` **components are untouched** — only their mount point moved.
+- **Consequences:** Downside accepted: site pages now sit under `src/app/(site)/`; future page phases add routes there (or at the top level for chrome-less pages). No visual change to the site.
+- **Links:** Phase 1.04; `src/app/layout.tsx`; `src/app/(site)/layout.tsx`.
+
+### D-1.04-4 · 2026-07-15 · Studio pinned to `sanity`/`@sanity/vision` 4.22.0, `next-sanity` 11.6.13 (Next 15 compatibility)
+- **Status:** Accepted
+- **Context:** The stack is pinned to Next.js 15.5.20 (D-1.01-1) and React 19.2.4. The newest `next-sanity` (13.x) and `next-sanity` 12.x require `next ^16`; only the `11.x` line supports Next 15 (`next-sanity@11.6.13` peers `next ^15.1.0 || ^16`). Separately, `sanity`/`@sanity/vision` **5.x** peer `react ^19.2.2` and import React 19.2's `useEffectEvent`; Next 15.5.20 (the newest 15.x) bundles a pre-19.2 React for the App Router client graph, so a `sanity@5` build fails with `'useEffectEvent' is not exported from 'react'` even though the app's own react is 19.2.4. `sanity@4.22.0` peers `react ^18 || ^19`, so it cannot hard-depend on that hook.
+- **Decision:** Pin `next-sanity@11.6.13` (last line supporting Next 15) with Studio at `sanity@4.22.0` + `@sanity/vision@4.22.0` (newest 4.x, React-19.1-safe). `next-sanity@11.6.13` peers `sanity ^4.22.0 || ^5`, so this set resolves cleanly with no `--legacy-peer-deps`. `@sanity/image-url@2.1.1`, `styled-components@6.4.3`.
+- **Alternatives considered:** `sanity@5.31.1` + `next-sanity@11.6.13` (first attempt) — rejected: build fails on `useEffectEvent`. Upgrade to Next 16 to unlock latest Sanity — rejected: out of scope; D-1.01-1 pinned Next 15 and later phase briefs assume it — a major-version bump is an owner-level decision, not a CMS-setup side effect. `--legacy-peer-deps` to force `sanity@5` on the older React — rejected: the missing export is a real runtime/build incompatibility, not a peer-range formality.
+- **Consequences:** Downside accepted: Studio runs the 4.22.0 line, one major behind latest (fully sufficient for schemas/structure/vision this phase). When Next moves to 16 (a future decision), `next-sanity`→13 and `sanity`→6 can be revisited together.
+- **Links:** Phase 1.04; D-1.01-1; `package.json`; `00_stack-and-config.md`.
+
+### D-1.04-5 · 2026-07-15 · `siteSettings` is a Studio singleton
+- **Status:** Accepted
+- **Context:** `siteSettings` holds global one-off strings (site title, description, footer statement). Left as an ordinary document type, an editor could create many `siteSettings` documents, and the site would have no canonical one to read.
+- **Decision:** Present `siteSettings` as a singleton via a custom `structureTool` structure — one fixed document (`documentId: "siteSettings"`) pinned at the top of the desk, filtered out of the normal type list. Other types (`season`, `match`, `person`, `photo`) list normally.
+- **Alternatives considered:** Ordinary document type — rejected: invites duplicate settings docs and an ambiguous query. Hard-code the strings in code — rejected: the brief requires them editable in Studio, seeded from the shell values.
+- **Consequences:** Downside accepted: a tiny bit of Studio structure config to maintain; querying uses the fixed id. First-pass model — revisited at the content-model lock (2.01).
+- **Links:** Phase 1.04; `src/sanity/structure.ts`; `src/sanity/schemaTypes/siteSettings.ts`.
