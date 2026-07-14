@@ -4,7 +4,7 @@ NEXT: 1.02 — Design system
 
 > Location in repo: `src/_project-state/current-state.md`. This is a **snapshot of the live repo, overwritten as things change** — not a log. The plan is aspirational; this file follows the code. Updated by the executor when closing every phase; the phase is not closed until this file matches reality.
 
-**Last updated:** 2026-07-14 · by Claude Code (Lazar's Mac), closing Phase 1.01
+**Last updated:** 2026-07-14 · by Cowork (P0.2 resolved — Ace confirmed Drive photo rights)
 
 ## Summary (plain language)
 
@@ -32,9 +32,11 @@ None beyond the create-next-app default page (`src/app/page.tsx`, untouched) and
 
 > Items the executor could not verify and owes to Lazar/Ace. At 3+ items, the next phase is a verification phase.
 
-| # | Item | Owed since | Owed by | Blocker for |
-|---|---|---|---|---|
-| OV-1 | Photo publishing rights for Drive material — Ace confirms what he owns / has permission for (P0.2) | 2026-07-14 | Ace via Lazar | Launch; publicly shipping any photo |
+Open items: none.
+
+**Resolved**
+
+- OV-1 · Photo publishing rights for Drive material (P0.2). Resolved 2026-07-14 — Ace confirmed (via Lazar) that he holds the rights to use the photos in the Drive. Unblocks publicly shipping Drive photos and removes the "Ace-owned photos only" demo constraint from D-0.00-8.
 
 ## Placeholder register
 
