@@ -129,3 +129,11 @@
 - **Alternatives considered:** Keep protection on — rejected: previews would be unshareable (Ace demo blocked) and the 200 gate only met behind auth. Password protection — rejected: adds friction for a public, no-secrets archive.
 - **Consequences:** Downside accepted: every preview deployment is world-readable. Acceptable because the repo is public and the content is an informational archive with no secrets. Preview URL verified 200 after the change.
 - **Links:** Phase 1.01; D-0.00-6; Vercel project settings → Deployment Protection.
+
+### D-0.00-12 · 2026-07-14 · Club colors confirmed (P0.3 resolved) — blue + white identity, orange accent
+- **Status:** Accepted (owner decision)
+- **Context:** P0.3 (club colors + crest source collection) was the open gate on Phase 1.02. Colors were collected and sampled into an approved direction in brand.md; exact-colour confirmation from a clean high-res crest was still owed. Owner now confirms the club colors are known.
+- **Decision:** Lock the club palette as the design foundation — Blue/Navy `#12294F` and white (Paper `#F7F4EC`) as the club identity, Orange `#E4741C` as the secondary/away accent (used sparingly). These are the values already carried in `brand.md` §Color.
+- **Alternatives considered:** Keep P0.3 open pending a cleaner high-res crest sample — rejected: the colors are known well enough to unblock Design, and the direction is already locked in brand.md.
+- **Consequences:** The P0.3 gate on Phase 1.02 is cleared. Downside accepted: if a future clean high-res crest yields materially different hexes, brand.md values get refined and this entry is superseded. Source note: values read from `brand.md` (working copy); the 1.02 handover file was never written to disk and the 1.01 completion report contains no colors.
+- **Links:** P0.3; Phase 1.02; brand.md §Color; current-state.md (P0.3 gate on 1.02).
