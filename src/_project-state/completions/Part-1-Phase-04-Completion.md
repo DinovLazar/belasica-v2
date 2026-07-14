@@ -23,7 +23,7 @@ Lazar can now open **`/studio`** (locally and, after this PR deploys, on the Ver
 - ✅ **`/debug-sanity` reads live published data; flagged temporary in `file-map.md`.** — route renders live (project `f8rmnfry`, dataset `production`); currently "no published seasons yet" (dataset empty) — proves the read pipeline works. **Path is `/debug-sanity`, not `/_debug-sanity`** (Next.js private-folder rule — see §4). Flagged for 1.05 removal in `file-map.md`.
 - ✅ **`npm run build` and `npm run lint` pass.** — build "✓ Compiled successfully"; 4 routes (`/`, `/_not-found`, `ƒ /debug-sanity`, `/studio/[[...tool]]`) generated; `lint` exits 0.
 - ✅ **Shell intact after the route-group refactor.** — in-browser `/` renders header (navy wordmark + menu), placeholder home, and footer (`неофицијална архива` + statement + nav). `SiteHeader`/`SiteFooter` unchanged.
-- ⏳ **PR opened; Vercel preview returns 200; `/studio` loads on preview.** — recorded in the follow-up docs commit (PR + preview URL + preview checks). See §5.
+- ✅ **PR opened; Vercel preview returns 200; `/studio` loads on preview.** — PR [#5](https://github.com/DinovLazar/belasica-v2/pull/5). Preview (stable git alias) `https://belasica-v2-git-phase-104-sanity-setup-dinovlazars-projects.vercel.app`: `/` → 200, `/studio` → 200 (Studio mounts), `/debug-sanity` → 200 and reads live Sanity ("Project f8rmnfry · dataset production … no published season documents … yet"). Preview URL added to Sanity CORS (credentials).
 
 **Owed to Lazar (manual, tracked — not blockers on the Code merge):**
 
@@ -52,8 +52,8 @@ All logged in `decisions.md`.
 - **Edited:** `src/app/layout.tsx` (reduced to bare root); `next.config.ts` (image `remotePatterns`); `package.json` + `package-lock.json` (5 deps); `src/_project-state/{current-state.md,file-map.md,00_stack-and-config.md,decisions.md}`; `briefs/Part-1-Phase-04-Code.md` (filed).
 - **Deleted / moved:** `src/app/page.tsx` → `src/app/(site)/page.tsx`.
 - **Not committed:** `.env.local` (git-ignored), `.vercel/` (git-ignored).
-- **Config outside the repo (where it lives, no secrets):** Sanity project `belasica`/`f8rmnfry` → dataset `production` (public); CORS origins (credentials) `http://localhost:3000`, `https://belasica-v2.vercel.app`. Vercel project `dinovlazars-projects/belasica-v2` → env vars `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET`, `NEXT_PUBLIC_SANITY_API_VERSION` on **Production + Preview** (values are public, non-secret).
-- **Branch:** `phase-1.04-sanity-setup` · **PR:** _recorded in follow-up docs commit_ · **Preview:** _recorded in follow-up docs commit_.
+- **Config outside the repo (where it lives, no secrets):** Sanity project `belasica`/`f8rmnfry` → dataset `production` (public); CORS origins (credentials) `http://localhost:3000`, `https://belasica-v2.vercel.app`, `https://belasica-v2-git-phase-104-sanity-setup-dinovlazars-projects.vercel.app`. Vercel project `dinovlazars-projects/belasica-v2` → env vars `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET`, `NEXT_PUBLIC_SANITY_API_VERSION` on **Production + Preview** (values are public, non-secret).
+- **Branch:** `phase-1.04-sanity-setup` · **PR:** https://github.com/DinovLazar/belasica-v2/pull/5 · **Preview:** https://belasica-v2-git-phase-104-sanity-setup-dinovlazars-projects.vercel.app (HTTP 200; `/`, `/studio`, `/debug-sanity` all verified 200).
 
 ## 6. State updates done (mandatory for Code phases)
 

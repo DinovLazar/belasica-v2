@@ -33,7 +33,7 @@ See `src/_project-state/00_stack-and-config.md` (only source; exact pins). Added
 
 ## Integrations wired
 
-- **Sanity** — wired. Project **`belasica`** (id `f8rmnfry`), dataset **`production`**, **public-read, no token** (D-1.04-1, D-1.04-2). The site reads published content server-side. `cdn.sanity.io/images/**` allowed for `next/image` in `next.config.ts`. CORS origins (credentials) on the project: `http://localhost:3000`, `https://belasica-v2.vercel.app` (PR preview URL added after the deploy is live). Env vars set in `.env.local` (git-ignored) **and on Vercel** (Production + Preview): the three non-secret `NEXT_PUBLIC_SANITY_*` values, no token.
+- **Sanity** — wired. Project **`belasica`** (id `f8rmnfry`), dataset **`production`**, **public-read, no token** (D-1.04-1, D-1.04-2). The site reads published content server-side. `cdn.sanity.io/images/**` allowed for `next/image` in `next.config.ts`. CORS origins (credentials) on the project: `http://localhost:3000`, `https://belasica-v2.vercel.app`, and the PR preview alias `https://belasica-v2-git-phase-104-sanity-setup-dinovlazars-projects.vercel.app`. Env vars set in `.env.local` (git-ignored) **and on Vercel** (Production + Preview): the three non-secret `NEXT_PUBLIC_SANITY_*` values, no token. PR [#5](https://github.com/DinovLazar/belasica-v2/pull/5); preview verified (`/`, `/studio`, `/debug-sanity` all 200, read pipeline live).
 - Vercel — connected; production `https://belasica-v2.vercel.app` (D-0.00-6); preview deploy per PR (public, D-1.01-5).
 - Vercel Web Analytics — `<Analytics/>` in root layout (cookieless).
 - Claude Code GitHub Action — **not installed** (D-1.01-4).
@@ -71,7 +71,7 @@ No new visible placeholders in 1.04 (`/debug-sanity` is a temporary internal rou
 - **Register the Studio host** on first `/studio` visit (Sanity 4.x shows a "Connect this studio" screen): "Register this studio" for the production URL, "Add development host" for localhost/preview. One-time per host, done in Lazar's own logged-in browser. (Walkthrough §A in the completion report.)
 - **Load demo content** in `/studio` and **publish**: `siteSettings` once; one real season (story, final table, squad, trainers); 2–3 legends; ~10 photos with `provenance`. Only facts present in the Drive; leave unknowns empty (content-truth). Confirm via `/debug-sanity`. (Walkthrough §B.)
 
-Done by the executor this phase (no longer owed): Vercel env vars (Production + Preview) are set; local + production CORS origins added.
+Done by the executor this phase (no longer owed): Vercel env vars (Production + Preview) are set; CORS origins added for localhost, production, and the PR preview; preview deploy verified (200 on `/`, `/studio`, `/debug-sanity`).
 
 ## Known issues
 
