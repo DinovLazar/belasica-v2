@@ -1,29 +1,32 @@
-NEXT: 1.01 — Scaffold
+NEXT: 1.02 — Design system
 
 # current-state.md — Belasica-V2
 
 > Location in repo: `src/_project-state/current-state.md`. This is a **snapshot of the live repo, overwritten as things change** — not a log. The plan is aspirational; this file follows the code. Updated by the executor when closing every phase; the phase is not closed until this file matches reality.
 
-**Last updated:** 2026-07-14 · by orchestrator (pre-repo seed)
+**Last updated:** 2026-07-14 · by Claude Code (Lazar's Mac), closing Phase 1.01
 
 ## Summary (plain language)
 
-- Works now: nothing — repo not yet created. Planning docs approved 2026-07-14.
-- Stubbed / not wired: everything.
-- Current phase: none open. Parallel track P0.1–P0.3 in progress.
-- Next: Phase 1.01 — Scaffold.
+- Works now: the Next.js 15 + TypeScript + Tailwind 4 + shadcn/ui skeleton builds, lints, and serves the default starter page. Every dependency is pinned to an exact version. The repo is public; `main` is protected (pull request required, force-push and deletion blocked, conversation resolution required). Vercel is connected and produces a preview URL on every pull request.
+- Stubbed / not wired: no real pages, layout, navigation, or footer (the default create-next-app page is untouched). No design tokens (brand.md is still all SEED). No fonts, no Sanity/CMS, no contact form, no analytics component, no domain.
+- Not set up (owner decision): the Claude Code GitHub Action review gate was dropped for this project (D-1.01-4). Pull requests have no automated review; the Vercel preview is the one automated safety rail.
+- Current phase: 1.01 — Scaffold, closing via pull request `phase-1.01-scaffold` → `main`.
+- Next: Phase 1.02 — Design system. **Additionally gated on P0.3** — Lazar confirming the club colors (collected from Drive + web, outside this repo) — before Design begins.
 
 ## Current stack
 
-See `src/_project-state/00_stack-and-config.md` (only source; pinned at scaffold).
+See `src/_project-state/00_stack-and-config.md` (only source; exact pins recorded for Phase 1.01). Next.js 15.5.20, React 19.2.4, Tailwind CSS 4.3.2, shadcn/ui (neutral base), Motion 12.42.2, Lucide 1.24.0.
 
 ## Built pages / components
 
-None.
+None beyond the create-next-app default page (`src/app/page.tsx`, untouched) and the shadcn `cn` helper (`src/lib/utils.ts`). `src/components/` has no components yet.
 
 ## Integrations wired
 
-None. (Sequence: `Belasica-V2-Plan.md` §8.)
+- Vercel — connected to the repo; production deploy on `main`, preview deploy + preview URL on every pull request. (D-0.00-6.)
+- Claude Code GitHub Action — **not installed** (dropped by owner, D-1.01-4).
+- (Sequence for the rest: `Belasica-V2-Plan.md` §8.)
 
 ## Owed-verification register
 
@@ -50,4 +53,4 @@ None.
 
 ## Known issues
 
-None — no code exists.
+None.
