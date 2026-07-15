@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { NAV_ITEMS } from "@/lib/nav";
@@ -15,12 +16,21 @@ export function SiteFooter() {
           <div className="max-w-measure">
             <Link
               href="/"
-              className={cn(
-                "font-serif text-h3 font-semibold tracking-tight text-navy",
-                focusRing,
-              )}
+              className={cn("inline-flex items-center gap-2.5 rounded-card", focusRing)}
             >
-              ФК Беласица
+              {/* Crest on a white tile (matches the header treatment). */}
+              <span className="flex shrink-0 items-center rounded-card bg-white p-1">
+                <Image
+                  src="/crest.png"
+                  alt=""
+                  width={40}
+                  height={57}
+                  className="h-9 w-auto"
+                />
+              </span>
+              <span className="font-serif text-h3 font-semibold tracking-tight text-navy">
+                ФК Беласица
+              </span>
             </Link>
             <p className="mt-4 text-overline uppercase tracking-overline text-neutral-700">
               неофицијална архива
