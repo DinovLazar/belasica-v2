@@ -10,6 +10,10 @@
 - `briefs/` — every phase brief, saved by Lazar; versioned instruction history (`.gitkeep` placeholder — the Phase 1.01 brief was not filed per owner decision, D-1.01-3)
 - `docs/design-handovers/` — Design's handover files; Code reads the matching one before any UI work
   - `Part-1-Phase-05-Homepage.md` — homepage §Layout spec, archived in-repo (Phase 1.05)
+- `docs/ace-demo/` — Ace demo kit (Phase 1.06); Phases 2.02 & 2.05 read `feedback.md` before they open
+  - `walkthrough.md` — demo script (spoken lines in Macedonian; incl. the OV-3 footer question)
+  - `feedback.md` — capture template for Ace's feedback (filled at the sit-down)
+  - `screenshots/homepage-desktop.png` · `homepage-mobile.png` — full-page live-site captures (current state; retake after portraits load)
 
 ## Project state (`src/_project-state/`)
 - `current-state.md` — live repo snapshot; NEXT line; owed-verification + placeholder registers
@@ -20,6 +24,7 @@
 - `completions/Part-1-Phase-01-Completion.md` — Phase 1.01 completion report
 - `completions/Part-1-Phase-04-Completion.md` — Phase 1.04 completion report
 - `completions/Part-1-Phase-05-Completion.md` — Phase 1.05 completion report
+- `completions/Part-1-Phase-06-Completion.md` — Phase 1.06 completion report (draft — pending the Ace sit-down + portraits before close)
 
 ## Application (`src/`)
 - `src/app/layout.tsx` — **bare** root layout: `<html lang="mk">`/`<body>`, fonts, `globals.css`, Vercel Analytics, site metadata. Site chrome moved to the `(site)` group so `/studio` can escape it (Phase 1.04, D-1.04-3)
