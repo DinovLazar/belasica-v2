@@ -4,7 +4,7 @@ NEXT: 1.06 — Verification + Ace demo
 
 > Location in repo: `src/_project-state/current-state.md`. This is a **snapshot of the live repo, overwritten as things change** — not a log. The plan is aspirational; this file follows the code. Updated by the executor when closing every phase; the phase is not closed until this file matches reality.
 
-**Last updated:** 2026-07-15 · by Code (Phase 1.05 — Homepage preview) on Lazar's machine
+**Last updated:** 2026-07-15 · by Code (Phase 1.05 — Homepage preview; + `chore-crest-logo`: crest logo/favicon) on Lazar's machine
 
 ## Summary (plain language)
 
@@ -12,7 +12,8 @@ NEXT: 1.06 — Verification + Ace demo
 - The dataset still reads **empty** (published `season`/`person`/`photo`/`siteSettings` counts are all 0 as of build time). By design, the homepage **degrades to registered `[PLACEHOLDER]` chips** for every section whose content is absent — it does not crash or invent filler. For a meaningful preview to show Ace, **Lazar publishes the demo content in `/studio`** (one season, 2–3 legends, ~10 photos, site settings) per §9 of the Phase 1.04 completion report, then re-opens the preview (ISR `revalidate = 60` → content appears within ~a minute, no redeploy). See Carryovers.
 - Design archived: the homepage §Layout spec is written to `docs/design-handovers/Part-1-Phase-05-Homepage.md`. New home components live under `src/components/home/` (PlaceholderChip, PhotoFrame, Reveal, SectionOverline).
 - OV-2 resolved: the on-page Cyrillic wordmark **ФК Беласица** is VERIFIED (owner, chat, 2026-07-15) in `facts.md`; moved to Resolved below. No component edit — the existing spelling was confirmed. **OV-3** (exact footer wording) stays open.
-- Stubbed / not wired: the Archive, Legends, Statistics, About, Contact pages (Part 2) — nav links to them still 404, as expected. No contact form, domain, favicon/OG work yet.
+- Club crest wired (chore-crest-logo, owner-supplied 2026-07-15): `public/crest.png` renders as the site logo beside the wordmark in the header (white tile on navy) and footer, and as the browser favicon (`src/app/icon.png`/`apple-icon.png`/`favicon.ico`, replacing the default). See D-crest-1. The crest's club blue sampled at ≈ `#125C9A` — brighter than the locked navy `#12294F`; **palette left unchanged** this pass (logo/favicon only), value recorded for a future owner-gated palette-refinement decision (keep dark navy for text — AA).
+- Stubbed / not wired: the Archive, Legends, Statistics, About, Contact pages (Part 2) — nav links to them still 404, as expected. No contact form, domain, or OG-image work yet (the browser favicon is now the club crest).
 - Current phase: 1.05 — Homepage preview, closing via pull request `phase-1.05-homepage` → `main`.
 - Next: Phase 1.06 — Verification + Ace demo.
 

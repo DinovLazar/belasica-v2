@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -21,12 +22,24 @@ export function SiteHeader() {
       <Container className="flex items-center justify-between gap-4 py-4">
         <Link
           href="/"
-          className={cn(
-            "font-serif text-h3 font-semibold tracking-tight text-paper",
-            focusRing,
-          )}
+          className={cn("flex items-center gap-2.5 rounded-card", focusRing)}
         >
-          ФК Беласица
+          {/* Crest on a white tile — the artwork has a white background and a
+              white left half, so it needs a light backdrop to read on the navy
+              bar. Decorative: the wordmark text carries the accessible name. */}
+          <span className="flex shrink-0 items-center rounded-card bg-white p-1">
+            <Image
+              src="/crest.png"
+              alt=""
+              width={40}
+              height={57}
+              priority
+              className="h-9 w-auto"
+            />
+          </span>
+          <span className="font-serif text-h3 font-semibold tracking-tight text-paper">
+            ФК Беласица
+          </span>
         </Link>
 
         {/* Desktop nav */}
