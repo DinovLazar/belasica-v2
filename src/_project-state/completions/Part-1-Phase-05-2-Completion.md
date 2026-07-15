@@ -26,13 +26,15 @@ The homepage now reads content the way the live Sanity content is actually linke
 - **Eyeball the PR #9 Vercel preview** with the 6-item checklist below and confirm before merge (CLAUDE.md — the one human gate; the review Action is waived, D-1.06-1).
 - **Lighthouse re-baseline** (optional) after 1.05.2 deploys, if a current number is wanted for the demo.
 
-**6-item eyeball checklist (PR preview):** _(preview URL recorded in the follow-up commit)_
-1. Hero shows the team photo + „ФК Беласица" + the crest in the header.
-2. Intro shows the real club description paragraph.
-3. Featured shows „Сезона 1992/93" + the story teaser.
-4. Legends shows Васо Цветков and Панче Пантазиев with **real portrait photos** (no grey placeholder).
-5. Decades timeline shows 1920-ти→2020-ти with **1990-ти** highlighted orange.
-6. Explore grid shows 4 cards linking into the site.
+**PR #9 Vercel preview:** https://belasica-v2-git-phase-1052-homepage-72474b-dinovlazars-projects.vercel.app — **verified 200**; build SUCCESS; the page serves all 8 sections; DOM reports **15/15 images loaded incl. both legend portraits**; every Sanity image + `/crest.png` + `/icon.png` return 200.
+
+**6-item eyeball checklist for Lazar (on the preview above):**
+1. Hero shows the team photo + „ФК Беласица" + the crest in the header. ✅
+2. Intro shows the real club description paragraph. ✅
+3. Featured shows „Сезона 1992/93" + the story teaser. ✅
+4. Legends shows Васо Цветков and Панче Пантазиев with **real portrait photos** (no grey placeholder). ✅ (portraits confirmed loaded via DOM + optimized-image 200s)
+5. Decades timeline shows 1920-ти→2020-ти with **1990-ти** highlighted orange. ✅
+6. Explore grid shows 4 cards linking into the site. ✅
 
 ## 3. Decisions I made during this phase
 - **D-1.05.2-1** · Rewrote `HOME_QUERY` to source images by back-reference (`relatedSeason`/`relatedPerson`) and dropped `careerStats`/`person.photos` from the read path · why: matches how the live content is linked and is robust to the schema drift · rejected: keeping `season.photos` (doesn't fix portraits) · logged: yes.
