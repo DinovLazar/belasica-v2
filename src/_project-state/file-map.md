@@ -1,6 +1,6 @@
 # file-map.md — Belasica-V2
 
-> Location in repo: `src/_project-state/file-map.md`. Every meaningful file/folder, one line each: what it's for. Updated by the executor on **every** add, rename, or delete — a stale map lies. Real tree as of Phase 1.03 (node_modules, .next, and other gitignored paths omitted).
+> Location in repo: `src/_project-state/file-map.md`. Every meaningful file/folder, one line each: what it's for. Updated by the executor on **every** add, rename, or delete — a stale map lies. Real tree as of Phase 1.05 (node_modules, .next, and other gitignored paths omitted).
 
 ## Docs & rules (repo root)
 - `CLAUDE.md` — Code's standing rules (behavioral contract; under 150 lines)
@@ -8,7 +8,8 @@
 - `facts.md` — verified business facts; the only legal source for factual claims on the site
 - `brand.md` — design tokens + brand rules; the only token source (confirmed 1.02 tokens written back in Phase 1.03; zero SEED)
 - `briefs/` — every phase brief, saved by Lazar; versioned instruction history (`.gitkeep` placeholder — the Phase 1.01 brief was not filed per owner decision, D-1.01-3)
-- `docs/design-handovers/` — Design's handover files; Code reads the matching one before any UI work (`.gitkeep` placeholder; first handover lands in Phase 1.02)
+- `docs/design-handovers/` — Design's handover files; Code reads the matching one before any UI work
+  - `Part-1-Phase-05-Homepage.md` — homepage §Layout spec, archived in-repo (Phase 1.05)
 
 ## Project state (`src/_project-state/`)
 - `current-state.md` — live repo snapshot; NEXT line; owed-verification + placeholder registers
@@ -17,19 +18,24 @@
 - `decisions.md` — append-only decision log, IDs `D-<phase>-<n>`
 - `completions/_TEMPLATE.md` — completion-report template
 - `completions/Part-1-Phase-01-Completion.md` — Phase 1.01 completion report
+- `completions/Part-1-Phase-04-Completion.md` — Phase 1.04 completion report
+- `completions/Part-1-Phase-05-Completion.md` — Phase 1.05 completion report
 
 ## Application (`src/`)
 - `src/app/layout.tsx` — **bare** root layout: `<html lang="mk">`/`<body>`, fonts, `globals.css`, Vercel Analytics, site metadata. Site chrome moved to the `(site)` group so `/studio` can escape it (Phase 1.04, D-1.04-3)
-- `src/app/(site)/layout.tsx` — public-site chrome: skip link + `SiteHeader` + `<main>` + `SiteFooter` (relocated verbatim from root layout, Phase 1.04)
-- `src/app/(site)/page.tsx` — minimal in-shell placeholder home (real homepage in Phase 1.05; moved from `src/app/page.tsx` in 1.04)
+- `src/app/(site)/layout.tsx` — public-site chrome: pre-paint `.js` flag script + skip link + `SiteHeader` + `<main>` + `SiteFooter` (relocated verbatim from root layout in 1.04; `.js` script added 1.05 for the reveal progressive-enhancement, D-1.05-5)
+- `src/app/(site)/page.tsx` — **the homepage** (Phase 1.05): 5 sections (hero, intro, featured season, legends, gallery) from live published Sanity content via the read client; graceful placeholders when empty; ISR `revalidate = 60` (D-1.05-4)
 - `src/app/studio/[[...tool]]/page.tsx` — embedded Sanity Studio at `/studio` (`NextStudio`); renders on the bare root (no site chrome) (Phase 1.04)
-- `src/app/debug-sanity/page.tsx` — ⚠️ **TEMPORARY** Sanity read-connection check at `/debug-sanity` (lists published seasons). Remove/replace in Phase 1.05. (Not `_debug-sanity`: a `_`-prefixed folder is a Next.js private folder, excluded from routing — see completion §4)
 - `src/app/fonts.ts` — Inter + Source Serif 4 via `next/font/google`, Cyrillic subsets (Phase 1.03)
-- `src/app/globals.css` — Tailwind 4 `@theme` driven by brand.md tokens; reduced-motion baseline; shadcn semantics repointed to brand; light-only (Phase 1.03)
+- `src/app/globals.css` — Tailwind 4 `@theme` driven by brand.md tokens; reduced-motion baseline; reveal-on-scroll (`.js [data-reveal]`) + placeholder-hatch utilities (1.05); shadcn semantics repointed to brand; light-only (Phase 1.03/1.05)
 - `src/app/favicon.ico` — default favicon (placeholder)
 - `src/components/SiteHeader.tsx` — navy header/nav; client component; active-state + accessible mobile menu (Phase 1.03)
 - `src/components/SiteFooter.tsx` — light footer; wordmark, nav links, mandatory unofficial-archive lines (Phase 1.03)
 - `src/components/Container.tsx` — max-width (1200px) + page-gutter layout primitive (Phase 1.03)
+- `src/components/home/PlaceholderChip.tsx` — placeholder chip (dashed mist border, hatch, mono `[PLACEHOLDER: …]`); the only legal way to show a missing display fact (Phase 1.05)
+- `src/components/home/PhotoFrame.tsx` — matted fixed-ratio photo frame (mist mat, 2px radius, hairline border); `next/image` via `urlFor`; greybox + chip when no image (Phase 1.05)
+- `src/components/home/Reveal.tsx` — client reveal-on-scroll wrapper; IntersectionObserver toggles `.is-visible`; 60ms stagger via `delayIndex` (Phase 1.05)
+- `src/components/home/SectionOverline.tsx` — section overline: orange rule + navy text on paper, orange text on navy (D-1.02-1) (Phase 1.05)
 - `src/lib/nav.ts` — single source for nav items + `isActivePath()` (Phase 1.03)
 - `src/lib/utils.ts` — shadcn `cn()` class-merge helper
 

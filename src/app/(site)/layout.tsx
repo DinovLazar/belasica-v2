@@ -11,6 +11,15 @@ export default function SiteLayout({
 }>) {
   return (
     <>
+      {/* Pre-paint flag: marks JS as available so the reveal-on-scroll hidden
+          state (globals.css `.js [data-reveal]`) applies only with JS. Without
+          it, content renders visible — motion stays a pure enhancement. Runs
+          before the content below it paints, so there is no flash. */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html: "document.documentElement.classList.add('js')",
+        }}
+      />
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-card focus:bg-navy focus:px-4 focus:py-2 focus:text-small focus:font-medium focus:text-paper"

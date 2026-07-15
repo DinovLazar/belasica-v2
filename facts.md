@@ -7,7 +7,7 @@ Verification source format: (who, where, date).
 ## Naming & identity
 
 - Club name as written on the site: **FK Belasica** — VERIFIED (owner, intake, 2026-07-14)
-- Cyrillic rendering for on-page use (ФК Беласица or other): UNVERIFIED — confirm exact preferred spelling with Ace before Phase 1.02
+- Cyrillic rendering for on-page use: **ФК Беласица** — VERIFIED (owner, chat, 2026-07-15). Resolves OV-2; this is the exact on-page wordmark rendered site-wide (header, footer, hero).
 - Site self-description: **unofficial archive** (неофицијална архива — exact Macedonian wording to be confirmed with Ace) — role VERIFIED (owner, intake, 2026-07-14); wording UNVERIFIED
 - Club founding year: UNVERIFIED — pull from Drive material, confirm with Ace
 - The site never mentions Ace's book — VERIFIED standing rule (owner, intake, 2026-07-14)
