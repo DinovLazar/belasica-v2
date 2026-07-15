@@ -29,7 +29,7 @@
 ## Application (`src/`)
 - `src/app/layout.tsx` — **bare** root layout: `<html lang="mk">`/`<body>`, fonts, `globals.css`, Vercel Analytics, site metadata. Site chrome moved to the `(site)` group so `/studio` can escape it (Phase 1.04, D-1.04-3)
 - `src/app/(site)/layout.tsx` — public-site chrome: pre-paint `.js` flag script + skip link + `SiteHeader` + `<main>` + `SiteFooter` (relocated verbatim from root layout in 1.04; `.js` script added 1.05 for the reveal progressive-enhancement, D-1.05-5)
-- `src/app/(site)/page.tsx` — **the homepage** (Phase 1.05): 5 sections (hero, intro, featured season, legends, gallery) from live published Sanity content via the read client; graceful placeholders when empty; ISR `revalidate = 60` (D-1.05-4)
+- `src/app/(site)/page.tsx` — **the homepage**: 8 sections (hero, intro, featured, decades timeline, legends, moment band, gallery, explore grid) from live published Sanity content via the read client; graceful placeholders when empty; ISR `revalidate = 60`. `HOME_QUERY` reconciled to the live model (photos via `relatedSeason`/`relatedPerson` back-refs); legends filtered to players (Phase 1.05; content-synced + 3 sections in 1.05.2, D-1.05.2-1..3)
 - `src/app/studio/[[...tool]]/page.tsx` — embedded Sanity Studio at `/studio` (`NextStudio`); renders on the bare root (no site chrome) (Phase 1.04)
 - `src/app/fonts.ts` — Inter + Source Serif 4 via `next/font/google`, Cyrillic subsets (Phase 1.03)
 - `src/app/globals.css` — Tailwind 4 `@theme` driven by brand.md tokens; reduced-motion baseline; reveal-on-scroll (`.js [data-reveal]`) + placeholder-hatch utilities (1.05); shadcn semantics repointed to brand; light-only (Phase 1.03/1.05)
@@ -43,6 +43,7 @@
 - `src/components/home/PhotoFrame.tsx` — matted fixed-ratio photo frame (mist mat, 2px radius, hairline border); `next/image` via `urlFor`; greybox + chip when no image (Phase 1.05)
 - `src/components/home/Reveal.tsx` — client reveal-on-scroll wrapper; IntersectionObserver toggles `.is-visible`; 60ms stagger via `delayIndex` (Phase 1.05)
 - `src/components/home/SectionOverline.tsx` — section overline: orange rule + navy text on paper, orange text on navy (D-1.02-1) (Phase 1.05)
+- `src/components/home/DecadeTimeline.tsx` — decades rail (fixed 1920-ти→2020-ти markers; orange node for decades with a published season; links to `/arhiva`; horizontal-scroll on mobile) (Phase 1.05.2, D-1.05.2-3)
 - `src/lib/nav.ts` — single source for nav items + `isActivePath()` (Phase 1.03)
 - `src/lib/utils.ts` — shadcn `cn()` class-merge helper
 

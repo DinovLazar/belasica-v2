@@ -80,3 +80,47 @@ is visible instantly and nothing is hidden.
 Every section degrades to registered placeholders when its query returns nothing — the
 page never crashes and never invents filler. This is the current preview state until the
 demo content is published in `/studio`.
+
+---
+
+## Phase 1.05.2 addendum — content-sync + three new sections
+
+> Extends the layout above. The homepage query was reconciled to the **live** content
+> model (photos attach outward via `photo.relatedSeason` / `photo.relatedPerson`; there
+> is no `season.photos`/`person.photos`/`careerStats` in the read path), and three
+> sections were added. DOM order top→bottom is now: Hero → Intro → **Featured** →
+> **Decades timeline** → **Legends** → **Moment band** → **Gallery** → **Explore grid** →
+> Footer. See decisions D-1.05.2-1..3.
+
+### Revised content selection (supersedes the D-1.05-1..3 note above)
+- **Hero / Featured images:** the featured season's related photos, `*[_type=="photo" &&
+  relatedSeason._ref == $seasonId] | order(coalesce(date,"9999") asc)`. Hero = `[0]`,
+  featured card = `[1]` (or `[0]` if only one). Absent → matted placeholder.
+- **Legends:** `*[_type=="person" && "player" in role && defined(slug.current)] |
+  order(name asc)[0...3]`. Portrait = `*[…photo && relatedPerson._ref==^._id][0].image`.
+  Meta = Cyrillic role label + `playingYears` (years absent → placeholder chip for the
+  years only; name + role still show).
+- **Gallery:** unchanged set (`*[_type=="photo" && defined(image)]`), ordered
+  `coalesce(date,"9999") asc, caption asc`.
+
+### 6 · Moment band — „Момент од историјата" (between Legends and Gallery)
+Full-bleed image (`aspect-[3/2]` mobile / `aspect-[16/6]` desktop) with the navy bottom
+gradient; orange `onNavy` overline + a `date` overline (paper/80) + serif caption (paper).
+Source: the featured season's related photo `[1]`. **Rendered only when that photo exists**
+— otherwise the whole section is omitted (never a placeholder band).
+
+### 7 · Decades timeline — „Низ децениите" (after Featured season)
+Overline (orange rule + navy). A fixed structural rail of decade markers **1920-ти →
+2020-ти** (club founded 1922 — structural, not a per-decade fact). Decades with ≥1
+published `season` (`array::unique(season.decade)`) get an **orange node + navy label**;
+others are muted (mist node + neutral-500). No milestone text. Every marker links to
+`/arhiva`. Rail scrolls horizontally inside its own container on narrow screens; the page
+body never scrolls sideways. `src/components/home/DecadeTimeline.tsx`.
+
+### 8 · Explore grid — „Истражи ја архивата" (just before the footer)
+Overline + a responsive card grid (2-col mobile / 4-col desktop) of four navigation cards
+to existing routes: Архива по сезони → `/arhiva`, Легенди → `/legendi`, Статистика →
+`/statistika`, За архивата → `/za-nas`. White (`bg-white`) card, mist border, serif label
++ small Inter sublabel + `ArrowUpRight`; hover = 2px lift + **orange underline on the label**
+(D-1.02-1: orange as marker, never as the text colour); brand focus ring. No images
+(content-truth risk zero). Sublabels are structural navigation copy, not fact claims.

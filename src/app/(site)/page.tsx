@@ -1,10 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import type { SanityImageSource } from "@sanity/image-url";
 import { client } from "@/sanity/client";
 import { urlFor } from "@/sanity/image";
 import { Container } from "@/components/Container";
+import { DecadeTimeline } from "@/components/home/DecadeTimeline";
 import { PhotoFrame } from "@/components/home/PhotoFrame";
 import { PlaceholderChip } from "@/components/home/PlaceholderChip";
 import { Reveal } from "@/components/home/Reveal";
@@ -17,11 +18,18 @@ export const revalidate = 60;
 
 /* ------------------------------------------------------------------ *
  * Content — GROQ against the read client (published only, no token).
- * Field names taken from src/sanity/schemaTypes/*. Selection rules:
- *  - featured season: newest by decade, then title (D-1.05-1)
- *  - legends: most-capped first, then name (D-1.05-2)
- *  - gallery: oldest season first, then date (D-1.05-3)
- * Everything degrades to placeholders when a query returns nothing.
+ * Reconciled to the LIVE content model (Phase 1.05.2, D-1.05.2-1); the
+ * old schema files / query were out of date:
+ *  - siteSettings: title, description (a full club paragraph).
+ *  - season: title, slug, decade, story (Portable Text). Photos attach
+ *    OUTWARD via photo.relatedSeason — we read them that way (robust and
+ *    degrades gracefully) rather than via any season.photos field. D-1.05.2-2.
+ *  - person: name, slug, role[], playingYears, bio. Portraits attach via
+ *    photo.relatedPerson (there is no person.photos / careerStats).
+ *  - photo: image, caption, date, provenance, relatedPerson, relatedSeason.
+ * Selection: featured season = newest by decade then title (D-1.05-1);
+ * legends = players only, by name (D-1.05.2-3); gallery = by date then
+ * caption. Everything degrades to placeholders when a query returns nothing.
  * ------------------------------------------------------------------ */
 const HOME_QUERY = /* groq */ `{
   "settings": *[_type == "siteSettings"][0]{ title, description },
@@ -31,26 +39,35 @@ const HOME_QUERY = /* groq */ `{
       "slug": slug.current,
       decade,
       "teaserSpans": story[0].children[].text,
-      "photos": photos[0...2]->{ "image": image, caption }
+      "seasonPhotos": *[_type == "photo" && relatedSeason._ref == ^._id]{
+        "image": image,
+        caption,
+        date
+      } | order(coalesce(date, "9999") asc)
     },
-  "legends": *[_type == "person" && defined(slug.current)]
-    | order(coalesce(careerStats.appearances, -1) desc, name asc)[0...3]{
+  "legends": *[_type == "person" && "player" in role && defined(slug.current)]
+    | order(name asc)[0...3]{
       name,
       "slug": slug.current,
       role,
-      "appearances": careerStats.appearances,
-      "portrait": photos[0]->image
+      playingYears,
+      "portrait": *[_type == "photo" && relatedPerson._ref == ^._id][0].image
     },
   "gallery": *[_type == "photo" && defined(image)]
-    | order(coalesce(relatedSeason->decade, 9999) asc, date asc)[0...10]{
+    | order(coalesce(date, "9999") asc, caption asc)[0...10]{
       "id": _id,
       "image": image,
       caption,
       date
-    }
+    },
+  "decades": array::unique(*[_type == "season" && defined(decade)].decade)
 }`;
 
-type PhotoRef = { image: SanityImageSource | null; caption: string | null };
+type SeasonPhoto = {
+  image: SanityImageSource | null;
+  caption: string | null;
+  date: string | null;
+};
 
 type HomeData = {
   settings: { title: string | null; description: string | null } | null;
@@ -59,13 +76,13 @@ type HomeData = {
     slug: string | null;
     decade: number | null;
     teaserSpans: (string | null)[] | null;
-    photos: PhotoRef[] | null;
+    seasonPhotos: SeasonPhoto[] | null;
   } | null;
   legends: {
     name: string | null;
     slug: string | null;
     role: string[] | null;
-    appearances: number | null;
+    playingYears: string | null;
     portrait: SanityImageSource | null;
   }[];
   gallery: {
@@ -74,6 +91,7 @@ type HomeData = {
     caption: string | null;
     date: string | null;
   }[];
+  decades: number[];
 };
 
 const EMPTY: HomeData = {
@@ -81,6 +99,7 @@ const EMPTY: HomeData = {
   featured: null,
   legends: [],
   gallery: [],
+  decades: [],
 };
 
 // Role values → Cyrillic labels (person.role list in the schema).
@@ -97,6 +116,15 @@ const HERO_SUBHEAD =
   "Неофицијална архива на историјата на клубот — сезона по сезона.";
 const INTRO_LEAD = "Историјата на клубот, собрана на едно место.";
 
+// Section 8 — navigation cards. Labels/sublabels are structural navigation
+// copy (what each section is), not factual claims — safe under content-truth.
+const EXPLORE_CARDS: { href: string; label: string; sub: string }[] = [
+  { href: "/arhiva", label: "Архива по сезони", sub: "Сезона по сезона" },
+  { href: "/legendi", label: "Легенди", sub: "Играчи и личности" },
+  { href: "/statistika", label: "Статистика", sub: "Табели и прегледи" },
+  { href: "/za-nas", label: "За архивата", sub: "За овој проект" },
+];
+
 const focusOnNavy =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange focus-visible:ring-offset-2 focus-visible:ring-offset-navy";
 const focusOnPaper =
@@ -112,20 +140,27 @@ export default async function Home() {
     data = EMPTY;
   }
 
-  const { settings, featured, legends, gallery } = data;
+  const { settings, featured, legends, gallery, decades } = data;
 
   const heroTitle = settings?.title?.trim() || "ФК Беласица";
-  const heroImage = featured?.photos?.[0]?.image ?? null;
-  const heroCaption = featured?.photos?.[0]?.caption ?? null;
+  const seasonPhotos = featured?.seasonPhotos ?? [];
+  const heroImage = seasonPhotos[0]?.image ?? null;
+  const heroCaption = seasonPhotos[0]?.caption ?? null;
 
   const description = settings?.description?.trim() || null;
 
+  // Featured card prefers the season's 2nd photo (so it differs from the hero),
+  // falling back to the 1st — brief: "[0] (or [1] if present)".
   const featuredCardImage =
-    featured?.photos?.[1]?.image ?? featured?.photos?.[0]?.image ?? null;
+    seasonPhotos[1]?.image ?? seasonPhotos[0]?.image ?? null;
   const featuredTitle = featured?.title?.trim() || null;
   const teaser = (featured?.teaserSpans ?? [])
     .filter((s): s is string => typeof s === "string" && s.trim().length > 0)
     .join("");
+
+  // Section 6 — full-bleed "moment" band: the season's 2nd related photo, or
+  // the section is omitted entirely (no placeholder band) when absent.
+  const bandPhoto = seasonPhotos[1] ?? null;
 
   return (
     <>
@@ -278,6 +313,24 @@ export default async function Home() {
         </Container>
       </section>
 
+      {/* 7 · Decades timeline — inserted after the featured season */}
+      <section
+        aria-labelledby="decades-heading"
+        className="border-t border-mist py-16 md:py-24"
+      >
+        <Container>
+          <Reveal>
+            <SectionOverline>Низ децениите</SectionOverline>
+            <h2 id="decades-heading" className="sr-only">
+              Низ децениите
+            </h2>
+          </Reveal>
+          <Reveal delayIndex={1}>
+            <DecadeTimeline activeDecades={decades} />
+          </Reveal>
+        </Container>
+      </section>
+
       {/* 4 · Legends */}
       <section
         aria-labelledby="legends-heading"
@@ -294,21 +347,19 @@ export default async function Home() {
           {legends.length > 0 ? (
             <ul className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
               {legends.map((person, i) => {
-                const roleLabels = (person.role ?? [])
+                const roleLabel = (person.role ?? [])
                   .map((r) => ROLE_LABEL[r])
-                  .filter(Boolean);
-                const metaParts = [
-                  roleLabels.join(", ") || null,
-                  person.appearances != null
-                    ? `${person.appearances} наст.`
-                    : null,
-                ].filter(Boolean);
+                  .filter(Boolean)
+                  .join(", ");
+                const years = person.playingYears?.trim() || null;
 
                 return (
                   <li key={person.slug ?? i}>
                     <Reveal delayIndex={i}>
                       <Link
-                        href={person.slug ? `/legendi/${person.slug}` : "/legendi"}
+                        href={
+                          person.slug ? `/legendi/${person.slug}` : "/legendi"
+                        }
                         className={`group block rounded-card transition-transform duration-150 ease-out hover:-translate-y-0.5 ${focusOnPaper}`}
                       >
                         <PhotoFrame
@@ -323,15 +374,18 @@ export default async function Home() {
                             <PlaceholderChip label="име на личноста" />
                           )}
                         </h3>
-                        {metaParts.length > 0 ? (
-                          <p className="mt-1 text-small text-neutral-500">
-                            {metaParts.join(" · ")}
-                          </p>
-                        ) : (
-                          <p className="mt-1">
-                            <PlaceholderChip label="улога · настапи" />
-                          </p>
-                        )}
+                        {/* Meta = role label + playing years. Role is always
+                            present (players filter); years may be absent → a
+                            registered placeholder for the years only. */}
+                        <p className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-small text-neutral-500">
+                          {roleLabel && <span>{roleLabel}</span>}
+                          {roleLabel && <span aria-hidden>·</span>}
+                          {years ? (
+                            <span>{years}</span>
+                          ) : (
+                            <PlaceholderChip label="години на играње" />
+                          )}
+                        </p>
                       </Link>
                     </Reveal>
                   </li>
@@ -340,11 +394,50 @@ export default async function Home() {
             </ul>
           ) : (
             <div className="mt-8">
-              <PlaceholderChip label="легенди (личности) — сѐ уште не се објавени" />
+              <PlaceholderChip label="легенди (играчи) — сѐ уште не се објавени" />
             </div>
           )}
         </Container>
       </section>
+
+      {/* 6 · Moment band — full-bleed; only rendered when a 2nd season photo exists */}
+      {bandPhoto?.image && (
+        <section aria-labelledby="moment-heading" className="relative w-full">
+          <div className="relative aspect-[3/2] w-full overflow-hidden bg-mist md:aspect-[16/6]">
+            <Image
+              src={urlFor(bandPhoto.image).width(2400).auto("format").url()}
+              alt={bandPhoto.caption || "Архивска фотографија на ФК Беласица"}
+              fill
+              sizes="100vw"
+              className="object-cover"
+            />
+            <div
+              aria-hidden
+              className="absolute inset-0 bg-linear-to-t from-navy/90 via-navy/35 to-transparent"
+            />
+            <Container className="absolute inset-x-0 bottom-0">
+              <Reveal className="max-w-measure pb-8 md:pb-12">
+                <SectionOverline variant="onNavy">
+                  Момент од историјата
+                </SectionOverline>
+                <h2 id="moment-heading" className="sr-only">
+                  Момент од историјата
+                </h2>
+                {bandPhoto.date && (
+                  <span className="mt-3 block text-overline uppercase tracking-overline text-paper/80">
+                    {bandPhoto.date}
+                  </span>
+                )}
+                {bandPhoto.caption && (
+                  <p className="mt-1 font-serif text-h3 font-semibold text-paper md:text-h2">
+                    {bandPhoto.caption}
+                  </p>
+                )}
+              </Reveal>
+            </Container>
+          </div>
+        </section>
+      )}
 
       {/* 5 · Gallery */}
       <section
@@ -396,6 +489,49 @@ export default async function Home() {
               <PlaceholderChip label="фотографии — сѐ уште не се објавени" />
             </div>
           )}
+        </Container>
+      </section>
+
+      {/* 8 · Explore grid — navigation into the site, just before the footer */}
+      <section
+        aria-labelledby="explore-heading"
+        className="border-t border-mist py-16 md:py-24"
+      >
+        <Container>
+          <Reveal>
+            <SectionOverline>Истражи ја архивата</SectionOverline>
+            <h2 id="explore-heading" className="sr-only">
+              Истражи ја архивата
+            </h2>
+          </Reveal>
+
+          <ul className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
+            {EXPLORE_CARDS.map((card, i) => (
+              <li key={card.href}>
+                <Reveal delayIndex={i}>
+                  <Link
+                    href={card.href}
+                    className={`group flex h-full flex-col justify-between gap-8 rounded-card border border-mist bg-white p-5 transition-transform duration-150 ease-out hover:-translate-y-0.5 ${focusOnPaper}`}
+                  >
+                    <div>
+                      <h3 className="font-serif text-h3 font-semibold text-navy">
+                        <span className="decoration-2 underline-offset-4 group-hover:underline group-hover:decoration-orange">
+                          {card.label}
+                        </span>
+                      </h3>
+                      <p className="mt-1 text-small text-neutral-500">
+                        {card.sub}
+                      </p>
+                    </div>
+                    <ArrowUpRight
+                      className="size-5 text-navy transition-transform duration-150 ease-out group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                      aria-hidden
+                    />
+                  </Link>
+                </Reveal>
+              </li>
+            ))}
+          </ul>
         </Container>
       </section>
     </>
