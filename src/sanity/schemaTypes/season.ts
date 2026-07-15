@@ -1,4 +1,5 @@
 import { defineType, defineField, defineArrayMember } from "sanity";
+import { isUniqueSlugPerType } from "../lib/isUniqueSlug";
 
 export const season = defineType({
   name: "season",
@@ -17,7 +18,9 @@ export const season = defineType({
       title: "Слаг (URL)",
       type: "slug",
       description: "Латиница, на пр. 1985-86 — се користи во адресата.",
-      options: { source: "title", maxLength: 96 },
+      // Unique per document type (D-2.01-3): the 2.09 ingestion derives one
+      // season slug per Drive folder, so two seasons must never collide.
+      options: { source: "title", maxLength: 96, isUnique: isUniqueSlugPerType },
       validation: (rule) => rule.required(),
     }),
     defineField({
@@ -26,6 +29,9 @@ export const season = defineType({
       type: "number",
       description:
         "Почетна година на деценијата за групирање во архивата, на пр. 1980.",
+      // Required (D-2.01-3): the archive is grouped by decade, and the
+      // ingestion derives it from every season folder — no season without one.
+      validation: (rule) => rule.required(),
     }),
     defineField({
       name: "story",
@@ -120,12 +126,11 @@ export const season = defineType({
       type: "array",
       of: [defineArrayMember({ type: "reference", to: [{ type: "person" }] })],
     }),
-    defineField({
-      name: "photos",
-      title: "Фотографии",
-      type: "array",
-      of: [defineArrayMember({ type: "reference", to: [{ type: "photo" }] })],
-    }),
+    // NB: the season→photos relationship is single-direction (D-2.01-1). A
+    // photo attaches to its season via `photo.relatedSeason`; season photos are
+    // read back with a GROQ back-reference (`*[_type=="photo" &&
+    // relatedSeason._ref == ^._id]`, see HOME_QUERY). The former `photos`
+    // forward array was removed here so the link is modelled once, not twice.
   ],
   preview: {
     select: { title: "title", subtitle: "slug.current" },

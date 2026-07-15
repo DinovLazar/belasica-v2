@@ -1,4 +1,5 @@
 import { defineType, defineField, defineArrayMember } from "sanity";
+import { isUniqueSlugPerType } from "../lib/isUniqueSlug";
 
 export const person = defineType({
   name: "person",
@@ -16,7 +17,9 @@ export const person = defineType({
       title: "Слаг (URL)",
       type: "slug",
       description: "Латиница, на пр. petar-petrov.",
-      options: { source: "name", maxLength: 96 },
+      // Unique per document type (D-2.01-3): person pages are addressed by
+      // slug, so two people must never share one.
+      options: { source: "name", maxLength: 96, isUnique: isUniqueSlugPerType },
       validation: (rule) => rule.required(),
     }),
     defineField({
@@ -45,6 +48,11 @@ export const person = defineType({
       type: "array",
       of: [defineArrayMember({ type: "block" })],
     }),
+    // careerStats is the AUTHORITATIVE career total shown on the person and
+    // statistics pages (D-2.01-3). Per-season appearances/goals detail lives in
+    // `season.squad`; the career aggregate is NOT recomputed from squad rows —
+    // it is entered here from the source docs. A missing total renders a
+    // placeholder on the page, never an invented or summed number.
     defineField({
       name: "careerStats",
       title: "Кариерна статистика",
@@ -55,12 +63,11 @@ export const person = defineType({
         defineField({ name: "goals", title: "Голови", type: "number" }),
       ],
     }),
-    defineField({
-      name: "photos",
-      title: "Фотографии",
-      type: "array",
-      of: [defineArrayMember({ type: "reference", to: [{ type: "photo" }] })],
-    }),
+    // NB: the person→photos relationship is single-direction (D-2.01-1). A
+    // portrait attaches via `photo.relatedPerson` and is read back with a GROQ
+    // back-reference (`*[_type=="photo" && relatedPerson._ref == ^._id][0]`,
+    // see HOME_QUERY). The former `photos` forward array was removed here so
+    // the link is modelled once, not twice.
   ],
   preview: {
     select: { title: "name", subtitle: "playingYears" },
