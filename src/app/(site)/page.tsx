@@ -453,36 +453,50 @@ export default async function Home() {
           </Reveal>
 
           {gallery.length > 0 ? (
-            <ul className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 md:gap-6 lg:grid-cols-4">
-              {gallery.map((photo, i) => (
-                <li key={photo.id}>
-                  <Reveal delayIndex={i % 4}>
-                    <figure>
-                      <PhotoFrame
-                        image={photo.image}
-                        alt={photo.caption || "Архивска фотографија"}
-                        ratio="3/2"
-                        sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
-                        placeholderLabel="фотографија"
-                      />
-                      {(photo.date || photo.caption) && (
-                        <figcaption className="mt-2">
-                          {photo.date && (
-                            <span className="block text-overline uppercase tracking-overline text-neutral-500">
-                              {photo.date}
-                            </span>
-                          )}
-                          {photo.caption && (
-                            <span className="mt-1 block text-small text-neutral-700">
-                              {photo.caption}
-                            </span>
-                          )}
-                        </figcaption>
-                      )}
-                    </figure>
-                  </Reveal>
-                </li>
-              ))}
+            // Editorial mosaic — the first photo is a 2×2 feature; the rest
+            // tile around it. Fixed row tracks (auto-rows) define the cell
+            // heights, so PhotoFrame runs in fill mode (h-full, object-cover)
+            // and every cell tiles cleanly regardless of caption length. One
+            // photo → just the feature; empty → the placeholder branch below.
+            <ul className="mt-8 grid auto-rows-[43vw] grid-cols-2 gap-4 sm:auto-rows-[27vw] md:auto-rows-[13rem] md:grid-cols-4 md:gap-6">
+              {gallery.map((photo, i) => {
+                const feature = i === 0;
+                return (
+                  <li
+                    key={photo.id}
+                    className={feature ? "col-span-2 row-span-2" : undefined}
+                  >
+                    <Reveal delayIndex={i % 4} className="h-full">
+                      <figure className="relative h-full">
+                        <PhotoFrame
+                          image={photo.image}
+                          alt={photo.caption || "Архивска фотографија"}
+                          sizes={
+                            feature
+                              ? "(min-width: 768px) 50vw, 100vw"
+                              : "(min-width: 768px) 25vw, 50vw"
+                          }
+                          placeholderLabel="фотографија"
+                        />
+                        {photo.image && (photo.date || photo.caption) && (
+                          <figcaption className="absolute inset-x-0 bottom-0 bg-linear-to-t from-navy/85 via-navy/30 to-transparent p-3 md:p-4">
+                            {photo.date && (
+                              <span className="block text-overline uppercase tracking-overline text-paper/80">
+                                {photo.date}
+                              </span>
+                            )}
+                            {photo.caption && (
+                              <span className="mt-1 line-clamp-2 text-small text-paper">
+                                {photo.caption}
+                              </span>
+                            )}
+                          </figcaption>
+                        )}
+                      </figure>
+                    </Reveal>
+                  </li>
+                );
+              })}
             </ul>
           ) : (
             <div className="mt-8">

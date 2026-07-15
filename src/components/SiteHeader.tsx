@@ -18,7 +18,7 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="bg-navy text-paper">
+    <header className="sticky top-0 z-40 border-b border-paper/10 bg-navy text-paper">
       <Container className="flex items-center justify-between gap-4 py-4">
         <Link
           href="/"

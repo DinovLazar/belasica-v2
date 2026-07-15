@@ -17,6 +17,10 @@ const RATIO: Record<"16/9" | "3/2" | "4/5", string> = {
  * hairline border. The image sits inside with object-cover (cropped, never
  * stretched). When no image is present the mist mat is the greybox and holds
  * a placeholder chip — the graceful empty state (no fabricated content).
+ *
+ * `ratio` fixes the frame's aspect. Omit it for **fill mode** (`h-full`): the
+ * frame fills the height its parent gives it — used by the gallery mosaic,
+ * where the CSS-grid row tracks define the cell heights (Phase 1.06b).
  */
 export function PhotoFrame({
   image,
@@ -30,7 +34,7 @@ export function PhotoFrame({
 }: {
   image?: SanityImageSource | null;
   alt: string;
-  ratio: "16/9" | "3/2" | "4/5";
+  ratio?: "16/9" | "3/2" | "4/5";
   sizes: string;
   width?: number;
   priority?: boolean;
@@ -41,7 +45,7 @@ export function PhotoFrame({
     <div
       className={cn(
         "relative w-full overflow-hidden rounded-photo border border-mist bg-mist",
-        RATIO[ratio],
+        ratio ? RATIO[ratio] : "h-full",
         className,
       )}
     >
