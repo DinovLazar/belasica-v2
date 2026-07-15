@@ -126,3 +126,51 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* ------------------------------------------------------------------ *
+ * Reveal-on-scroll — brand.md §Motion
+ * opacity 0→1 + translateY 10→0, 500ms cubic-bezier(.2,.7,.2,1),
+ * 60ms stagger (per-item via --reveal-delay). Transform + opacity only,
+ * to stay inside the Lighthouse budget (never layout-animated).
+ *
+ * Gated on `html.js` (added by a pre-paint inline script in the (site)
+ * layout): motion is pure enhancement. Without JS — or if the observer
+ * never fires — the hidden state is never applied and content shows
+ * normally. <Reveal> (src/components/home/Reveal.tsx) toggles
+ * `.is-visible` when the element scrolls into view.
+ * ------------------------------------------------------------------ */
+.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 500ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    transform 500ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.js [data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+}
+/* Reduced motion: nothing is ever hidden — content shows instantly,
+   with no dependence on the transition. The global rule above also
+   zeroes the duration. */
+@media (prefers-reduced-motion: reduce) {
+  .js [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* Placeholder-chip hatch fill — brand.md §Components (dashed mist border,
+   hatched fill, mono text). Mist hatch over the paper surface so the chip
+   reads on both paper and mist (greybox) backgrounds. Used by
+   <PlaceholderChip>. */
+.placeholder-hatch {
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 5px,
+    var(--color-mist) 5px,
+    var(--color-mist) 6px
+  );
+}

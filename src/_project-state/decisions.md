@@ -217,3 +217,51 @@
 - **Alternatives considered:** Ordinary document type — rejected: invites duplicate settings docs and an ambiguous query. Hard-code the strings in code — rejected: the brief requires them editable in Studio, seeded from the shell values.
 - **Consequences:** Downside accepted: a tiny bit of Studio structure config to maintain; querying uses the fixed id. First-pass model — revisited at the content-model lock (2.01).
 - **Links:** Phase 1.04; `src/sanity/structure.ts`; `src/sanity/schemaTypes/siteSettings.ts`.
+
+### D-1.05-1 · 2026-07-15 · Featured-season selection rule — newest by decade, then title
+- **Status:** Accepted
+- **Context:** The homepage features one season. The `season` schema has **no `featured` boolean** and no explicit "featured" marker; the deterministic candidates are `decade` (number) and `title` (string like „Сезона 1985/86“).
+- **Decision:** `*[_type=="season" && defined(slug.current)] | order(decade desc, title desc)[0]` — the most recent season by decade, breaking ties on the title string (same format sorts correctly desc).
+- **Alternatives considered:** Add a `featured` flag to the schema — rejected: the content model is **locked until 2.01** (out of scope this phase). Random/`_createdAt` — rejected: not meaningful and not stable across edits. Oldest-first — rejected: "recent" is the more natural lead for a demo.
+- **Consequences:** Downside accepted: seasons with a null `decade` sort last; if two seasons share a decade and title format differs, ordering is by raw string. Revisit when 2.01 may add an explicit editorial flag.
+- **Links:** Phase 1.05; `src/app/(site)/page.tsx` (HOME_QUERY); `season.ts`.
+
+### D-1.05-2 · 2026-07-15 · Legends selection rule — most-capped first, then name
+- **Status:** Accepted
+- **Context:** The Legends section shows up to three `person` docs. The schema's `role` array is player/trainer/president — **not** a "legend" marker. A meaningful, deterministic proxy for prominence is career appearances.
+- **Decision:** `order(coalesce(careerStats.appearances, -1) desc, name asc)[0...3]` — most appearances first (unknown appearances sort last via `-1`), ties broken by name.
+- **Alternatives considered:** First 3 by name (the brief's fallback) — rejected: alphabetical is arbitrary for "legends". Filter to `role == "player"` only — rejected: excludes legendary trainers/presidents the owner may want featured. A dedicated `isLegend` flag — rejected: model locked until 2.01.
+- **Consequences:** Downside accepted: people with no `careerStats.appearances` fall to the end; if the owner wants a specific three highlighted, that needs an editorial flag in 2.01. Missing name/role still renders a placeholder chip, never invented.
+- **Links:** Phase 1.05; `src/app/(site)/page.tsx`; `person.ts`.
+
+### D-1.05-3 · 2026-07-15 · Gallery selection rule — oldest season first, then date
+- **Status:** Accepted
+- **Context:** The gallery shows up to ~10 photos. `photo.date` is **free text** (e.g. „околу 1985“) and not reliably sortable alone; `relatedSeason->decade` is a clean numeric anchor when present.
+- **Decision:** `*[_type=="photo" && defined(image)] | order(coalesce(relatedSeason->decade, 9999) asc, date asc)[0...10]` — group by related-season decade (oldest first, archive-appropriate), then by the date string.
+- **Alternatives considered:** Order by `_createdAt` — rejected: reflects data-entry order, not history. Pure `date` string sort — rejected: free-text dates sort inconsistently with no season anchor. Newest-first — rejected: an archive reads oldest→newest.
+- **Consequences:** Downside accepted: photos with no related season sort last (`9999`); free-text dates within a decade sort lexically. Good enough for a curated ~10-photo demo grid; a structured date is a 2.01 candidate.
+- **Links:** Phase 1.05; `src/app/(site)/page.tsx`; `photo.ts`.
+
+### D-1.05-4 · 2026-07-15 · Homepage freshness via ISR `revalidate = 60`
+- **Status:** Accepted
+- **Context:** The precondition is that Lazar publishes demo content in `/studio` and **re-opens the preview URL**. With Next's default static rendering the homepage would be baked at build time and not reflect newly published content until a redeploy — breaking the demo flow. The read client uses `useCdn: true` (Sanity CDN caches ~60s).
+- **Decision:** Set `export const revalidate = 60` on the homepage (reusing the existing `src/sanity/client.ts`, no new client). Published content appears on the preview within ~a minute of publishing, no redeploy.
+- **Alternatives considered:** `force-dynamic` — rejected: a full server render on every request for content that changes rarely, and the Sanity CDN still caches ~60s so it buys little. `useCdn:false` + a second no-CDN client — rejected: the brief says reuse `client.ts`; extra client for marginal gain. Static (default) — rejected: content wouldn't update without a redeploy (breaks the Ace-demo flow).
+- **Consequences:** Downside accepted: up to ~60s (ISR) + ~60s (Sanity CDN) lag between publishing and the preview updating — acceptable; publish a moment before showing Ace. Revisit caching strategy when real ingestion volume lands (Part 2).
+- **Links:** Phase 1.05; `src/app/(site)/page.tsx`; `src/sanity/client.ts`.
+
+### D-1.05-5 · 2026-07-15 · Reveal-on-scroll gated on `html.js` (motion is pure enhancement); no `will-change`
+- **Status:** Accepted
+- **Context:** Reveal-on-scroll hides content (`opacity:0`) until it scrolls into view. If that hidden state is unconditional, a no-JS client — or a failed IntersectionObserver — gets a **blank page**. Separately, `will-change: opacity, transform` left permanently on the reveal elements keeps compositor layers alive and was observed to suppress paint in a headless renderer.
+- **Decision:** Scope the reveal hidden-state CSS to `html.js` (a class added by a tiny pre-paint inline script in `src/app/(site)/layout.tsx`). Without JS the class is absent → content renders visible. Drop `will-change` entirely (opacity/transform transitions are already compositor-friendly). `prefers-reduced-motion` forces the end-state with `!important`, independent of the transition.
+- **Alternatives considered:** framer-motion `whileInView` (the `motion` dep is present) — rejected: same SSR-hidden-without-JS risk, plus JS runtime cost for a CSS-doable effect. Unconditional `[data-reveal]{opacity:0}` — rejected: blank page without JS. Keep `will-change` — rejected: lingering layers + observed paint suppression, no benefit for a one-shot entrance. Inline script in the root layout — rejected: scoping it to `(site)` keeps `/studio` untouched.
+- **Consequences:** Downside accepted: one small inline `<script>` in the site layout (runs pre-paint, no flash); the effect depends on the `.js` flag being set. Net: content is never hidden without JS, and motion stays within the Lighthouse budget.
+- **Links:** Phase 1.05; `src/app/globals.css`; `src/app/(site)/layout.tsx`; `src/components/home/Reveal.tsx`; brand.md §Motion.
+
+### D-1.05-6 · 2026-07-15 · Hero primary button inverted (paper fill) on the dark hero
+- **Status:** Accepted
+- **Context:** `brand.md` defines the primary button as **navy fill / paper label**. On the hero, the button sits over the navy bottom gradient — a navy-fill button would be navy-on-navy (invisible / fails contrast).
+- **Decision:** On the hero only, invert the primary button to **paper fill / navy label** (both existing brand tokens, roles swapped) so it reads on the dark surface. The secondary hero action stays a paper text link with an orange hover underline. All other (paper-surface) links use the standard navy text-link treatment.
+- **Alternatives considered:** Keep navy fill on the hero — rejected: invisible on the navy gradient. Add a new accent-filled button token — rejected: no new tokens; orange-fill would carry navy text on orange (not a defined pairing) and drifts from the palette. Move the CTA off the image — rejected: weakens the hero.
+- **Consequences:** Downside accepted: the hero primary button differs from the on-paper primary (navy fill); this is a surface-driven inversion of existing tokens, not a new style. No orange text on paper anywhere (D-1.02-1 upheld).
+- **Links:** Phase 1.05; `src/app/(site)/page.tsx`; brand.md §Components / §Color.
