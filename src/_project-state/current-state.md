@@ -35,7 +35,7 @@ See `src/_project-state/00_stack-and-config.md` (only source; exact pins). **No 
 ## Integrations wired
 
 - **Sanity** — wired. Project **`belasica`** (id `f8rmnfry`), dataset **`production`**, **public-read, no token** (D-1.04-1/2). The homepage reads published content server-side (ISR 60s). `cdn.sanity.io/images/**` allowed for `next/image` in `next.config.ts`. Env vars set in `.env.local` (git-ignored) and on Vercel (Production + Preview): the three non-secret `NEXT_PUBLIC_SANITY_*` values, no token. The PR preview URL for `phase-1.05-homepage` must be added to Sanity CORS **only if** the Studio is opened on it (the homepage read needs no CORS — server-side, public dataset).
-- Vercel — connected; production `https://belasica-v2.vercel.app` (D-0.00-6); preview deploy per PR (public, D-1.01-5).
+- Vercel — connected; production `https://belasica-v2.vercel.app` (D-0.00-6); preview deploy per PR (public, D-1.01-5). Phase 1.05 PR [#6](https://github.com/DinovLazar/belasica-v2/pull/6); preview `https://belasica-v2-git-phase-105-homepage-dinovlazars-projects.vercel.app` (verified: `/` 200, `/studio` 200, `/debug-sanity` 404, all five homepage sections render).
 - Vercel Web Analytics — `<Analytics/>` in root layout (cookieless).
 - Claude Code GitHub Action — **not installed** (D-1.01-4).
 

@@ -22,7 +22,7 @@
 - ✅ **OV-2 VERIFIED in `facts.md` and moved to Resolved; OV-3 untouched.** — `facts.md` marks the wordmark `ФК Беласица` VERIFIED (owner, chat, 2026-07-15); `current-state.md` owed register moves OV-2 to Resolved, leaves OV-3 open. No component edit (existing spelling confirmed).
 - ✅ **`docs/design-handovers/Part-1-Phase-05-Homepage.md` written with the §Layout spec.** — archived in-repo.
 - ✅ **Empty-dataset path renders placeholders gracefully with no runtime error.** — verified in-browser on the empty dataset: hero greybox + chip, intro chip, featured greybox + chips, legends chip, gallery chip; page renders, no crash. A `try/catch` around the fetch falls back to the same empty-state render.
-- ⏳ **PR opened; Vercel preview 200 on `/`; homepage matches §Layout and brand.md.** — PR: <!-- PR_URL --> · Preview: <!-- PREVIEW_URL --> (filled after push; preview `/` verified 200).
+- ✅ **PR opened; Vercel preview 200 on `/`; homepage matches §Layout and brand.md.** — PR [#6](https://github.com/DinovLazar/belasica-v2/pull/6). Preview `https://belasica-v2-git-phase-105-homepage-dinovlazars-projects.vercel.app`: `/` → 200, `/studio` → 200, `/debug-sanity` → 404. Verified in-browser on the deployed preview: all five sections render in order with the correct empty-dataset placeholders, orange rules before navy overlines, serif headings, matted greyboxes — matches §Layout and `brand.md`.
 
 **Owed to Lazar (manual, tracked — not a blocker on the Code merge):**
 
@@ -53,7 +53,7 @@ All logged in `decisions.md`.
 - **Added (docs/state):** `docs/design-handovers/Part-1-Phase-05-Homepage.md`; this completion report.
 - **Edited:** `src/app/(site)/page.tsx` (placeholder home → real 5-section homepage); `src/app/(site)/layout.tsx` (pre-paint `.js` script); `src/app/globals.css` (reveal + placeholder-hatch utilities); `facts.md` (OV-2 VERIFIED); `src/_project-state/{current-state.md,file-map.md,decisions.md}`; `briefs/Part-1-Phase-05-Code.md` (filed).
 - **Deleted:** `src/app/debug-sanity/` (temporary read-check route).
-- **Branch:** `phase-1.05-homepage` · **PR:** <!-- PR_URL --> · **Preview:** <!-- PREVIEW_URL -->
+- **Branch:** `phase-1.05-homepage` · **PR:** https://github.com/DinovLazar/belasica-v2/pull/6 · **Preview:** https://belasica-v2-git-phase-105-homepage-dinovlazars-projects.vercel.app (HTTP 200 on `/`, `/studio`; `/debug-sanity` 404)
 
 ## 6. State updates done (mandatory for Code phases)
 
