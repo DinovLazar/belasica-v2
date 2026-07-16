@@ -30,6 +30,7 @@
 **Owed to Lazar (goes on the owed-verification register):**
 
 - **OV-4 · The Statistics tables have never rendered from real content (D-2.04-6).** Live `production` has no season with a `finalTable` and no player with `careerStats`, so the tables, the summary band, the coverage lines and the sorting are **fixture-verified only**. How to clear: in `/studio`, publish **one** player with `careerStats` (goals + appearances) and **one** season with a `finalTable` containing a Беласица row, then reload `/statistika` twice ~60s apart (ISR). Expect: the player appears in both rankings; the balance section replaces its notice with the band + coverage line + one season row. Clears naturally at **2.09**.
+- **The Vercel preview URL — not captured; the preview gate is still open.** The brief requires the preview URL in this report. **I could not supply it:** ~25 minutes after pushing, Vercel had created **no deployment** for `phase-2.04-statistics` (both branch-alias forms return `DEPLOYMENT_NOT_FOUND`, not a build error), and GitHub's own API was returning 500 „Unicorn!" pages throughout — so the branch push most likely never reached Vercel's webhook. `gh pr view 14` reports zero checks and zero comments. This is **infrastructure, not the code**: the same commit builds clean locally (`✓ Compiled successfully`, 10/10 static pages). **How Lazar clears it:** open [PR #14](https://github.com/DinovLazar/belasica-v2/pull/14) — if the Vercel check is still absent, push an empty commit (`git commit --allow-empty -m "chore: retrigger vercel" && git push`) or redeploy the branch from the Vercel dashboard; then confirm `<preview>/statistika` returns 200 and run the 5-item checklist below. **Per D-1.01-4 the preview returning 200 is one of only two review gates this project has, so it must pass before merge.**
 - **The 5-item eyeball checklist** is in the PR body and repeated in §7 below.
 
 ## 3. Decisions I made during this phase
@@ -80,7 +81,9 @@ All six logged in `decisions.md`.
 - **For 2.05:** `/statistika` links every ranked player to `/legendi/<slug>` — those 404 until 2.05 ships, which is expected and matches the season page's behaviour (handover §6.5). The moment 2.05 lands, the statistics tables become an entry point into the person pages.
 - **For 2.09:** this page is a shape waiting for content. No per-player or per-season work is needed — ingestion populates it. Worth publishing **one** season with a `finalTable` early in 2.09 to clear OV-4 before ~74 land.
 
-**5-item eyeball checklist for Lazar** (preview URL in the PR):
+- **⚠️ The Vercel preview never deployed during this session** (see §2) — so unlike 2.03, **no preview URL is on record for this phase** and the page has been verified only on `localhost:3000`. The preview gate is open and must be cleared before merge.
+
+**5-item eyeball checklist for Lazar** (run once the preview deploys — see §2):
 
 1. **`/statistika` loads** and the `Статистика` nav link resolves to it (was a 404).
 2. **All three sections show an empty notice + a `[PLACEHOLDER: …]` chip** — no zeros, no empty table shells, no invented rows. **Expected, not a bug.**
