@@ -98,9 +98,12 @@ Runtime dependencies added (`package.json` → `dependencies`, all exact — no 
 | next-sanity | 11.6.13 | Next.js ↔ Sanity client + Studio helpers (`NextStudio`) |
 | @sanity/vision | 4.22.0 | GROQ playground plugin (Studio) |
 | @sanity/image-url | 2.1.1 | image-URL builder for `next/image` |
+| @portabletext/react | 6.2.0 | renders `season.story` (Portable Text) on the Season page — **added Phase 2.03** (D-2.03-2) |
 | styled-components | 6.4.3 | Studio peer dependency |
 
-Transitive (not pinned directly; noted for reference): `@sanity/client` 7.23.1 (satisfies `next-sanity` peer `^7.13.2`); `sharp` 0.34.5 (image optimization, pulled by the toolchain).
+**Phase 2.03 — `@portabletext/react` 6.2.0 added (D-2.03-2).** The only dependency change in 2.03. It was already resolved in the tree as a transitive dependency of `sanity`, so declaring it added **one line** to `package-lock.json` and no new packages to the install; it is now pinned and upgraded deliberately rather than riding along with `sanity`. Needed by `src/components/archive/SeasonStory.tsx` for handover §6.3 (paragraphs, h2/h3, lists, blockquote, links, strong/em).
+
+Transitive (not pinned directly; noted for reference): `@portabletext/types` (comes with `@portabletext/react`; used for the `PortableTextBlock` type); `@sanity/client` 7.23.1 (satisfies `next-sanity` peer `^7.13.2`); `sharp` 0.34.5 (image optimization, pulled by the toolchain).
 
 Version-selection rationale (see D-1.04-4 in `decisions.md`):
 - **Next 15 constraint.** The stack is pinned to Next.js **15.5.20** (D-1.01-1, the newest 15.x). `next-sanity` 12.x/13.x peer-require `next ^16`; only the **11.x** line supports Next 15 (`11.6.13` peers `next ^15.1.0-0 || ^16.0.0-0`).
