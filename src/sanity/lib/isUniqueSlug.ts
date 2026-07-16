@@ -3,7 +3,7 @@ import { apiVersion } from "../env";
 
 // Slug uniqueness scoped to the document type (not dataset-wide).
 //
-// Added at the content-model lock (Phase 2.01, D-2.01-3) so `season.slug` and
+// Added at the content-model lock (Phase 2.01, D-2.01-6) so `season.slug` and
 // `person.slug` provably enforce uniqueness instead of relying on Sanity's
 // implicit default. The scripted ingestion in Phase 2.09 writes 74 season
 // shells whose slugs are folder-derived (`1985-86`, …) and, later, person

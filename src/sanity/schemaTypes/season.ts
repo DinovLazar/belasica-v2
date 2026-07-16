@@ -18,7 +18,7 @@ export const season = defineType({
       title: "Слаг (URL)",
       type: "slug",
       description: "Латиница, на пр. 1985-86 — се користи во адресата.",
-      // Unique per document type (D-2.01-3): the 2.09 ingestion derives one
+      // Unique per document type (D-2.01-6): the 2.09 ingestion derives one
       // season slug per Drive folder, so two seasons must never collide.
       options: { source: "title", maxLength: 96, isUnique: isUniqueSlugPerType },
       validation: (rule) => rule.required(),
@@ -29,7 +29,7 @@ export const season = defineType({
       type: "number",
       description:
         "Почетна година на деценијата за групирање во архивата, на пр. 1980.",
-      // Required (D-2.01-3): the archive is grouped by decade, and the
+      // Required (D-2.01-6): the archive is grouped by decade, and the
       // ingestion derives it from every season folder — no season without one.
       validation: (rule) => rule.required(),
     }),

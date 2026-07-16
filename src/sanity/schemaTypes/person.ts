@@ -17,7 +17,7 @@ export const person = defineType({
       title: "Слаг (URL)",
       type: "slug",
       description: "Латиница, на пр. petar-petrov.",
-      // Unique per document type (D-2.01-3): person pages are addressed by
+      // Unique per document type (D-2.01-6): person pages are addressed by
       // slug, so two people must never share one.
       options: { source: "name", maxLength: 96, isUnique: isUniqueSlugPerType },
       validation: (rule) => rule.required(),

@@ -132,7 +132,7 @@ output is **Latin/ASCII and URL-safe** (D-0.00-4) — no slashes, no spaces.
   is forbidden (content-truth).
 
 ### 3.7 Uniqueness is enforced by the schema
-`season.slug` and `person.slug` are now unique-per-type (D-2.01-3). If the
+`season.slug` and `person.slug` are now unique-per-type (D-2.01-6). If the
 mapping ever derives the same slug from two folders, the write **fails
 validation** rather than overwriting — a deliberate fail-loud. The script must
 surface such a collision to the operator, not swallow it.

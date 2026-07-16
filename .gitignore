@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Sanity CLI schema/manifest extract output (sanity schema deploy)
+/dist
