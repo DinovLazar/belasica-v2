@@ -1,10 +1,10 @@
-NEXT: 2.02 — Archive templates design  ·  (still owed from Part 1: the Ace sit-down + OV-3 — see Remaining human steps)
+NEXT: 2.02 — Archive templates design  ·  (unblocked — Ace sit-down captured 2026-07-16 in docs/ace-demo/feedback.md; OV-3 resolved; OV-1 resolved on Ace's word, see caveat)
 
 # current-state.md — Belasica-V2
 
 > Location in repo: `src/_project-state/current-state.md`. This is a **snapshot of the live repo, overwritten as things change** — not a log. The plan is aspirational; this file follows the code. Updated by the executor when closing every phase; the phase is not closed until this file matches reality.
 
-**Last updated:** 2026-07-15 · by Code (Phase 2.01 — content model lock) on Lazar's machine
+**Last updated:** 2026-07-16 · by Orchestrator (Ace sit-down capture — closes Part-1 owed items; OV-1/OV-3 resolved) on Lazar's machine
 
 ## Summary (plain language)
 
@@ -15,10 +15,10 @@ NEXT: 2.02 — Archive templates design  ·  (still owed from Part 1: the Ace si
 - **Crest is on `main` and deploying.** PR #7 (`chore-crest-logo`, crest header/footer logo + favicon, D-crest-1) is **merged** to `origin/main`; PR #8 (`phase-1.06-verification`, the 1.06 docs/state) is **merged** too. This phase (1.05.2) stacks on both and ships via **PR #9** (`phase-1.05.2-homepage-content-sync`). Once #9 merges, production shows the crest + the full 8-section homepage.
 - **Published demo content (live `production` dataset):** `siteSettings` (title „ФК Беласица" + full description); **1 season** „Сезона 1992/93" (decade 1990, 2 related photos); **5 persons** (Васо Цветков, Панче Пантазиев = players with `playingYears` + linked portraits; Петар Андреев = president with a linked portrait; Гоце Петровски, Илија Андреев = trainers); **8 photos** (all with `image` + `provenance`; 3 linked to a person, 2 to the season).
 - **Lighthouse baseline (1.06, homepage, v13.4.0):** Mobile Perf 93 · A11y 100 · BP 96 · SEO 100 (LCP 3.2s driver). Desktop Perf 99 · A11y 100 · BP 96 · SEO 100. Baseline only — the ≥95 gate is Phase 3.02. *Re-baseline after 1.05.2 (three more sections / images) if it matters for the demo.*
-- **Ace demo kit** at `docs/ace-demo/` (from 1.06): `walkthrough.md` (Macedonian demo script incl. the OV-3 footer question), `feedback.md` (capture template), `screenshots/homepage-{desktop,mobile}.png` (retake after 1.05.2 deploys — the page has three new sections + real portraits now).
-- OV-2 resolved (wordmark **ФК Беласица** VERIFIED). **OV-3** (exact footer wording) stays open — to be resolved at the Ace sit-down.
+- **Ace demo kit** at `docs/ace-demo/` (from 1.06): `walkthrough.md` (Macedonian demo script incl. the OV-3 footer question), `feedback.md` (**captured 2026-07-16** — Ace's reaction + the 2.02 direction), `screenshots/homepage-{desktop,mobile}.png` (still to retake — the page has three new sections + real portraits + the crest now).
+- OV-2 resolved (wordmark **ФК Беласица** VERIFIED). **OV-3 resolved** (2026-07-16) — Ace confirmed the current footer wording as correct at the sit-down; VERIFIED in `facts.md`, no code change needed. **OV-1 resolved** (2026-07-16) — Ace confirmed rights to all Drive photos (see register for the screenshot caveat).
 - Stubbed / not wired: the Archive, Legends, Statistics, About, Contact pages (Part 2) — nav links (incl. the new timeline/explore links to `/arhiva`, `/legendi`, `/statistika`, `/za-nas`) 404 by design. No contact form, domain, or OG-image work yet.
-- Current phase: **2.01 — content model lock** (this PR). Remaining Part-1 human work is still the **Ace sit-down + OV-3**; it did **not** block 2.01 (D-2.01-7) but **does** block **2.02** and **2.05**, which must read `docs/ace-demo/feedback.md` before they open.
+- Current phase: **2.01 — content model lock** (merged, PR #11). **The Ace sit-down is done (2026-07-16)** and captured in `docs/ace-demo/feedback.md` — this clears the last owed Part-1 human work and **unblocks 2.02 and 2.05**. Ace's verdict: likes the homepage, on the right path, nothing missing; Archive/Season pages should be **very similar to crnobelanostalgija.com** (→ 2.02); no Legends/About/Contact input yet (→ another sit-down in ~a week, feeds 2.05). The locked 4-type model held — Ace named no content need it cannot carry, so the D-2.01-7 risk is cleared (see Known issues).
 
 ## Current stack
 
@@ -49,15 +49,15 @@ See `src/_project-state/00_stack-and-config.md` (only source; exact pins). **No 
 
 > Items the executor could not verify and owes to Lazar/Ace. At 3+ items, the next phase is a verification phase.
 
-**Open items (2):**
+**Open items (0).** All owed-verification items resolved as of 2026-07-16.
 
-- **OV-1 (RE-OPENED at 2.01)** · **Photo publishing rights (P0.2).** This register listed OV-1 as Resolved 2026-07-14 ("Ace confirmed he holds the rights"), but **`facts.md` still says: "Photo publishing rights: UNVERIFIED — P0.2 … No photo ships publicly while this is UNVERIFIED."** The two contradict each other, and the **P0.1 audit found ~all archive photos are third-party screenshots** (Facebook / Messenger / newspaper) — i.e. *not* Ace's to license — which supports the stricter `facts.md` reading. **Treat rights as UNVERIFIED (the stricter of the two) until Ace resolves it.** This is a **hard launch blocker** and it gates the bulk ingestion: `docs/content-ingestion-plan.md` §5 keeps every ingested photo **unpublished** until this clears. **Plan:** resolve with Ace at the same sit-down as OV-3; then make `facts.md` and this register agree. *(The 8 already-published demo photos are Ace's own — permitted for the demo per `facts.md` — and are unaffected.)*
-- **OV-3** · Exact Macedonian wording of the footer unofficial-archive statement (role VERIFIED, wording UNVERIFIED per `facts.md`). **Plan:** resolve at the Ace sit-down — the walkthrough asks Ace to confirm/correct it. Current live wording: label „неофицијална архива"; line „Ова е неофицијална архива посветена на ФК Беласица. Не е официјалната страница на клубот." *If Ace confirms/corrects:* mark VERIFIED in `facts.md`, move to Resolved; a wording change ships via a **separate Code PR** (`SiteFooter.tsx` + `siteSettings`).
+> ⚠️ **OV-1 carries a caveat that is not a blocker but must be settled before bulk publish** — see the OV-1 Resolved entry below.
 
 **Resolved**
 
+- **OV-1** · **Photo publishing rights (P0.2).** Resolved 2026-07-16 — at the sit-down Ace confirmed he **has the right to use all photos in the Drive**; VERIFIED in `facts.md` (D-1.06-3). ⚠️ **Caveat kept on record:** the P0.1 audit found most archive photos are third-party screenshots (Facebook / Messenger / newspaper), for which "right to use" is legally nuanced. This is **not a launch blocker anymore**, but the specifics (ideally a written confirmation from Ace) should be nailed down before the bulk **2.09** ingestion is published — `docs/content-ingestion-plan.md` §5 already keeps every ingested photo **unpublished** until publish is explicitly cleared, so the gate holds procedurally regardless. *(The 8 already-published demo photos are Ace's own and were never in question.)*
+- **OV-3** · Exact Macedonian footer wording. Resolved 2026-07-16 — Ace confirmed the current wording as correct at the sit-down (label „неофицијална архива"; line „Ова е неофицијална архива посветена на ФК Беласица. Не е официјалната страница на клубот."); VERIFIED in `facts.md`. **No code change needed** (confirmed as-is, not corrected).
 - **OV-2** · Cyrillic wordmark **ФК Беласица**. Resolved 2026-07-15 — owner confirmed spelling (chat); VERIFIED in `facts.md`.
-- ~~OV-1 · Photo publishing rights (P0.2). Resolved 2026-07-14 — Ace confirmed he holds the rights.~~ → **MOVED BACK TO OPEN at 2.01** — contradicted by `facts.md` (still UNVERIFIED) and by the P0.1 finding that ~all photos are third-party screenshots. See Open items above.
 
 ## Placeholder register
 
@@ -82,22 +82,23 @@ See `src/_project-state/00_stack-and-config.md` (only source; exact pins). **No 
 - **[DONE] Load + publish demo content** in `/studio` — done (15 published docs; homepage renders them).
 - **[DONE] Register the Studio host** — not relevant; the homepage read is server-side (no CORS).
 
-## Remaining human steps (still owed from Part 1 — Lazar)
+## Remaining human steps (Lazar)
 
-> 2.01 shipped without these (owner decision, D-2.01-7). They still **block 2.02 and 2.05**, and OV-1 blocks the ingestion going public.
+> The Ace sit-down (2026-07-16) closed the Part-1 human work. **2.02 and 2.05 are unblocked.** What's left:
 
-1. **Run the Ace sit-down.** Walk `docs/ace-demo/walkthrough.md` on the live site; capture Ace's **actual words** into `docs/ace-demo/feedback.md` (still an empty template). Phases 2.02 & 2.05 read it before they open.
-2. **Resolve OV-3** from Ace's answer: mark the footer wording VERIFIED in `facts.md`. A correction ships via a **separate Code PR**.
-3. **Resolve OV-1 / P0.2 photo rights — launch blocker.** Settle the contradiction between this register (said Resolved) and `facts.md` (says UNVERIFIED), given P0.1 found ~all photos are third-party screenshots. Whatever Ace says, make `facts.md` and this register agree. **The bulk ingestion cannot go public until this clears** (`docs/content-ingestion-plan.md` §5).
-4. **Check the locked model against Ace's asks.** If the sit-down names a content need `siteSettings`/`season`/`person`/`photo` cannot hold, say so — it reopens the lock via a follow-up phase.
-5. **Re-take the demo screenshots** (`docs/ace-demo/screenshots/`) — the page has three new sections + real portraits + the crest. Confirm no `[PLACEHOLDER]` chip anywhere on `/`.
-6. *(Optional)* **Add the remaining portraits** (Петар Андреев renders on `/legendi` later; Гоце/Илија are trainers, excluded from Legends) — not needed for the homepage, which is placeholder-free as-is.
-7. **Formally close 1.06.**
+1. **[DONE 2026-07-16] Ace sit-down.** Captured in `docs/ace-demo/feedback.md`. Direction for 2.02: Archive/Season pages like crnobelanostalgija.com.
+2. **[DONE 2026-07-16] OV-3** — footer wording confirmed as-is, VERIFIED in `facts.md`. No code change needed.
+3. **[DONE 2026-07-16] OV-1 / P0.2 photo rights** — Ace confirmed rights to all Drive photos; VERIFIED in `facts.md` (D-1.06-3). ⚠️ Not a launch blocker anymore, but settle the screenshot-provenance specifics (ideally in writing) before **2.09** publishes ingested photos; the §5 unpublished-until-cleared gate holds meanwhile.
+4. **[DONE 2026-07-16] Locked model checked against Ace's asks** — Ace named no content need the 4 types cannot hold; the lock stands (D-1.06-4). Clears the D-2.01-7 risk.
+5. **[OPEN] Second Ace sit-down (~1 week)** — to gather Legends / About / Contact input; **2.05 reads that** before it opens. 2.02 does **not** wait on it.
+6. **[OPEN] Re-take the demo screenshots** (`docs/ace-demo/screenshots/`) — the page has three new sections + real portraits + the crest. Confirm no `[PLACEHOLDER]` chip anywhere on `/`. (Housekeeping — not a blocker for 2.02.)
+7. *(Optional)* **Add the remaining portraits** (Петар Андреев renders on `/legendi` later; Гоце/Илија are trainers, excluded from Legends) — not needed for the homepage, which is placeholder-free as-is.
+8. **[DONE] Part 1 formally closed** — all Part-1 owed items resolved; the project is in Part 2.
 
 ## Known issues
 
 - **Two schema manifests on `production` — tooling reads the wrong one by default (2.01).** Besides our `belasica-v2` workspace, a stray **Studio-deployed `default`** workspace holds a non-project model (`page`/`story`/`fullName`/`startYear`/`source`/`verified`). Any schema-aware tool that omits `workspaceName` resolves **`default`** and gets a schema that is not this project's (this bit the 2.01 verification on the first attempt). **Always pass `workspaceName: "belasica-v2"`.** Not deleted — out of scope and not ours to remove (D-2.01-8). Cleanup is an owner call; it matters most for **2.09**.
-- **The locked model was never checked against Ace's needs (2.01).** 2.01 ran with 1.06 still open (D-2.01-7): `docs/ace-demo/feedback.md` is still the empty template. If the sit-down surfaces a content need the four types can't hold, the lock reopens via a follow-up phase.
+- **~~The locked model was never checked against Ace's needs (2.01).~~ RESOLVED 2026-07-16.** The Ace sit-down happened and is captured in `docs/ace-demo/feedback.md`. Ace named **no** content need the four types (`siteSettings`/`season`/`person`/`photo`) cannot hold — nothing missing, and the only page-specific ask (Archive/Season like crnobelanostalgija.com) is a design/layout direction, not a new content shape. The D-2.01-7 risk is cleared; the lock stands (D-1.06-4).
 - **Crest club-blue vs. locked navy.** The crest's blue samples at ≈ **`#125C9A`**, brighter than the locked navy **`#12294F`** (D-crest-1). Palette **unchanged** (logo/favicon only). A future owner-gated palette refinement should use `#125C9A` as the crest blue but keep a **dark navy for text/links** (a brighter blue risks failing WCAG AA on paper, where navy passes at ~13:1).
 - **Pre-existing hydration warning (dev only):** the `.js` class added to `<html>` by the reveal pre-paint script (D-1.05-5) produces a React hydration-attribute warning in dev. Benign, predates 1.05.2 (main/crest show it too); a future fix is `suppressHydrationWarning` on `<html>` or setting the flag differently. Not a runtime bug.
 - **"Empty homepage" (1.06 phase-open blocker) — RESOLVED.** Stale ISR/CDN caching of the pre-content-load state; self-healed on revalidation. Env correct. See D-1.06-2. If it recurs after a content change, check ISR/CDN staleness first (wait ~2 min or redeploy), not env.
@@ -111,4 +112,5 @@ See `src/_project-state/00_stack-and-config.md` (only source; exact pins). **No 
 - **The content model is fixed, so Part 2 can build on a shape that won't move.** The Archive/Season, Legends and Statistics templates (2.02→2.05) can be designed and coded against four settled types, with the back-reference read pattern (`relatedSeason`/`relatedPerson`) as the template for every season/person page. 2.04 no longer has to decide where aggregate numbers come from — `person.careerStats` is authoritative, `season.squad` is the per-season detail (D-2.01-3).
 - **2.09 has a deterministic spec to build against.** `docs/content-ingestion-plan.md` fixes the Drive-folder→season mapping (grounded in the real audited folder names — hyphen `1992-93`, slash `1950/51`, single-year `1942`, era ranges `1922-26`/`1945-48 Илинден`, numbered thematic `NNN. Title`, and Ace's own `- не` exclude marker), the by-decade wave plan, and the provisional-provenance/rights gate. The script can be written and dry-run before a single document is written.
 - The homepage is a real, populated, placeholder-free 8-section content page ready for the Ace demo. The home components (`PlaceholderChip`, `PhotoFrame`, `Reveal`, `SectionOverline`, `DecadeTimeline`) and the reveal/placeholder CSS are reusable by the Part 2 content pages; the `relatedSeason`/`relatedPerson` back-reference read pattern is the template for the season/person pages.
-- **Phase 2.02 (Archive & Season templates) and Phase 2.05 (People & pages) MUST read `docs/ace-demo/feedback.md` before they open** — it carries Ace's homepage reaction and his asks for the Part 2 pages.
+- **Phase 2.02 (Archive & Season templates) and Phase 2.05 (People & pages) MUST read `docs/ace-demo/feedback.md` before they open** — now captured (2026-07-16). For 2.02 it carries the concrete direction: model the Archive/Season pages closely on **crnobelanostalgija.com** (modern, readable). For 2.05, feedback.md notes Ace has **not** given Legends/About/Contact input yet — that comes from a **second sit-down (~1 week)**, so 2.05 should wait for the updated feedback.md; 2.02 does not.
+- **2.02 is unblocked and is the next phase.** It is a design phase, so it runs sketch-first (rough direction in chat → Lazar iterates → then the brief), per D-0.00-2.
