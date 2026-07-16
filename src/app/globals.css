@@ -20,6 +20,11 @@
   --color-footer: #edeae0;
   --color-error: #b42318;
 
+  /* Stats-table surfaces (brand.md §Components → Stats table). Surfaces only —
+     they carry ink/navy text, never orange (D-1.02-1). */
+  --color-zebra: #fcfbf7; /* zebra row */
+  --color-highlight: #fbf3ea; /* ФК Беласица row */
+
   /* Faces — self-hosted via next/font (see src/app/fonts.ts) */
   --font-sans: var(--font-inter);
   --font-serif: var(--font-source-serif);
@@ -48,6 +53,13 @@
   /* Layout */
   --container-page: 75rem; /* 1200px content max-width */
   --container-measure: 68ch; /* body-copy measure */
+
+  /* Sticky site-header height (brand.md §Spacing & layout). Anything that
+     sticks BELOW the header offsets by this (`top-header`), and anchor targets
+     clear it with `scroll-mt-header`. Measured on the rendered SiteHeader at
+     both 375 and 1280: 16px + 44px crest tile + 16px + 1px border = 77px.
+     Keep in sync if SiteHeader's padding or crest size ever changes. */
+  --spacing-header: 4.8125rem; /* 77px */
 
   /* Corner radii — minimal rounding, archive dignity */
   --radius-photo: 2px;
