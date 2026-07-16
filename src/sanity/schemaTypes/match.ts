@@ -1,7 +1,18 @@
 import { defineType, defineField } from "sanity";
 
-// First-pass, minimal — kept intentionally small until the content model lock
-// (Phase 2.01) decides how much match-level detail the archive carries.
+// ⚠️ DEFERRED at the content-model lock (Phase 2.01, D-2.01-2). `match` is NOT
+// part of the launch model: it is intentionally left OUT of
+// `schemaTypes/index.ts`, so Studio does not list „Натпревар" and no match
+// documents can be created. Reason: the P0.1 Drive audit found only ~15 prose
+// documents in the whole archive and NO per-match source, so there is no
+// match-level dataset to model — statistics derive from season-level
+// aggregates (`season.finalTable` + `season.squad`), and career totals from
+// `person.careerStats` (D-2.01-3).
+//
+// The file is kept in-repo (not deleted, still `export`ed so it stays
+// lint-clean) so the model can return as its own future phase if match-level
+// Drive data ever surfaces — re-add it to `index.ts` at that point. Until then
+// this definition is dormant and unreferenced.
 export const match = defineType({
   name: "match",
   title: "Натпревар",
