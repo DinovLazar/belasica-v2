@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="mk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="mockup.css">
+<style>
+  .mock-note { font-size: 9px; text-align: left; }
+  .t-display { font-size: 34px; line-height: 1.08; }
+  .hero .cap .inner { padding-bottom: 32px; }
+
+  /* Mobile standings — horizontal scroll INSIDE a bordered frame.
+     # + Клуб stay sticky-left so every row keeps its identity. */
+  .mscroll { overflow-x: auto; }
+  .mscroll table { min-width: 560px; }
+  .mscroll thead th.s1 { position: sticky; left: 0; z-index: 2; }
+  .mscroll thead th.s2 { position: sticky; left: 44px; z-index: 2; }
+  .mscroll tbody td.s1 { position: sticky; left: 0; z-index: 1; background: var(--paper); }
+  .mscroll tbody td.s2 { position: sticky; left: 44px; z-index: 1; background: var(--paper); }
+  .mscroll tbody tr:nth-child(even) td.s1,
+  .mscroll tbody tr:nth-child(even) td.s2 { background: var(--zebra); }
+  .mscroll tbody tr.us td.s1, .mscroll tbody tr.us td.s2 { background: var(--highlight); }
+  .mscroll tbody td.s2 { box-shadow: inset -1px 0 0 0 var(--mist); }
+</style>
+</head>
+<body class="mobile">
+
+<div class="mock-note">МОКАП · 2.02 · Сезона — 375px · табела/состав се шематски (facts.md)</div>
+
+<header class="header">
+  <div class="container">
+    <div class="brand"><span class="crest">crest</span><span class="wordmark">ФК Беласица</span></div>
+    <span class="burger">☰</span>
+  </div>
+</header>
+
+<div class="container">
+  <div class="crumbs">
+    <a href="/">Почетна</a><span class="sep">/</span><a href="/arhiva">Архива</a><span class="sep">/</span><span class="cur">Сезона 1992/93</span>
+  </div>
+</div>
+
+<!-- hero — 4:5 on mobile -->
+<section class="hero r45">
+  <span class="fill-label">фотографија 4:5</span>
+  <div class="grad"></div>
+  <div class="cap">
+    <div class="container">
+      <div class="inner">
+        <p class="t-over orange-over">1990-ти</p>
+        <h1 class="t-display paper" style="margin-top:10px">Сезона 1992/93</h1>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="border-top:0">
+  <div class="container">
+    <div class="sec-head"><span class="orule"></span><h2 class="t-h2 navy">Приказна за сезоната</h2></div>
+    <p class="t-body n700">Овој пасус е шематски текст за приказ на ритамот на редовите. Вистинската приказна се внесува рачно во Studio од изворните документи — не се измислува.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="sec-head"><span class="orule"></span><h2 class="t-h2 navy">Конечна табела</h2></div>
+    <div class="tframe mscroll">
+      <table>
+        <thead>
+          <tr>
+            <th class="l s1" style="width:44px">#</th>
+            <th class="l s2">Клуб</th>
+            <th>Од</th><th>Поб</th><th>Нер</th><th>Пор</th><th>ДГ</th><th>ПГ</th><th>Бод</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="l s1">1</td><td class="l s2">Клуб А</td><td>30</td><td>20</td><td>6</td><td>4</td><td>58</td><td>24</td><td>46</td></tr>
+          <tr><td class="l s1">2</td><td class="l s2">Клуб Б</td><td>30</td><td>18</td><td>7</td><td>5</td><td>52</td><td>28</td><td>43</td></tr>
+          <tr class="us"><td class="l s1">3</td><td class="l s2">ФК Беласица</td><td>30</td><td>17</td><td>6</td><td>7</td><td>49</td><td>30</td><td>40</td></tr>
+          <tr><td class="l s1">4</td><td class="l s2">Клуб В</td><td>30</td><td>15</td><td>8</td><td>7</td><td>44</td><td>32</td><td>38</td></tr>
+          <tr><td class="l s1">5</td><td class="l s2">Клуб Г</td><td>30</td><td>13</td><td>—</td><td>—</td><td>—</td><td>—</td><td>34</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <span class="anno" style="font-size:10px">Скрол хоризонтално ВНАТРЕ во рамката. # + Клуб се лепливи лево. Ниту една колона не се крие — табелата е архивскиот артефакт.</span>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="sec-head"><span class="orule"></span><h2 class="t-h2 navy">Состав</h2></div>
+    <div class="squad">
+      <table>
+        <thead>
+          <tr>
+            <th class="l t-over">Играч</th>
+            <th class="t-over" style="width:64px">Наст.</th>
+            <th class="t-over" style="width:56px">Гол.</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="l"><a href="/legendi/igrac-a">Играч А</a></td><td>28</td><td>11</td></tr>
+          <tr><td class="l"><a href="/legendi/igrac-b">Играч Б</a></td><td>26</td><td>4</td></tr>
+          <tr><td class="l"><a href="/legendi/igrac-v">Играч В</a></td><td>24</td><td>—</td></tr>
+          <tr><td class="l"><a href="/legendi/igrac-g">Играч Г</a></td><td>—</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="sec-head"><span class="orule"></span><h2 class="t-h2 navy">Тренери</h2></div>
+    <div class="chips">
+      <a class="tchip" href="/legendi/trener-a"><span class="dot"></span>Тренер А</a>
+      <a class="tchip" href="/legendi/trener-b"><span class="dot"></span>Тренер Б</a>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="sec-head"><span class="orule"></span><h2 class="t-h2 navy">Фотографии</h2></div>
+    <div class="pgrid">
+      <figure>
+        <div class="frame r32"><span class="fill-label">скен 3:2</span></div>
+        <figcaption>
+          <p class="t-over date"><span class="o"></span>околу 1993</p>
+          <p class="t-small desc">Шематски опис на фотографијата (photo.caption).</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <div class="frame r32">
+          <div class="scan" style="width:46%;height:64%">мал скен</div>
+        </div>
+        <figcaption>
+          <p class="t-over date"><span class="o"></span>1993</p>
+          <p class="t-small desc">Мал скен: иста рамка, поширок мат.</p>
+        </figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <a class="backlink" href="/arhiva#d1990"><span class="u">Сите сезони од 1990-ти</span> →</a>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="wm">ФК Беласица</div>
+    <p class="un">неофицијална архива</p>
+  </div>
+</footer>
+
+</body>
+</html>

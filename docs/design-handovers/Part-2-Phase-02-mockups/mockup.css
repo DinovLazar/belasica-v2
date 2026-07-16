@@ -1,0 +1,238 @@
+/* Belasica-V2 — Phase 2.02 mockup stylesheet.
+   Every value below is copied from brand.md / globals.css @theme. No invented
+   values.
+   Note: zebra/highlight and the header height were flagged as missing tokens
+   when these mockups were built; they were added to globals.css @theme the same
+   day (D-2.02-16 / D-2.02-17), so `bg-zebra`, `bg-highlight`, `top-header` and
+   `scroll-mt-header` now exist for the real build. */
+
+:root {
+  --navy: #12294f;
+  --paper: #f7f4ec;
+  --orange: #e4741c;
+  --ink: #1b1b1a;
+  --mist: #e4e1d8;
+  --n700: #3a3a38;
+  --n500: #6b6a64;
+  --card: #ffffff;
+  --footer: #edeae0;
+
+  /* brand.md §Color → Tailwind `zebra` / `highlight` (added 2.02, D-2.02-16). */
+  --zebra: #fcfbf7;
+  --highlight: #fbf3ea;
+
+  --page: 1200px;
+  --measure: 68ch;
+
+  --r-photo: 2px;
+  --r-card: 4px;
+  --r-chip: 4px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Inter", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- type scale (brand.md §Typography) ---------- */
+.t-display { font-family: "Source Serif 4", serif; font-size: 60px; line-height: 1.02; font-weight: 600; }
+.t-h1  { font-family: "Source Serif 4", serif; font-size: 44px; line-height: 1.08; font-weight: 600; }
+.t-h2  { font-family: "Source Serif 4", serif; font-size: 30px; line-height: 1.15; font-weight: 600; }
+.t-h3  { font-family: "Source Serif 4", serif; font-size: 22px; line-height: 1.25; font-weight: 600; }
+.t-bodyl { font-size: 18px; line-height: 1.6; }
+.t-body  { font-size: 16px; line-height: 1.65; }
+.t-small { font-size: 14px; line-height: 1.5; }
+.t-over  { font-size: 12px; line-height: 1; text-transform: uppercase; letter-spacing: 0.14em; font-weight: 600; }
+
+.navy { color: var(--navy); }
+.n700 { color: var(--n700); }
+.n500 { color: var(--n500); }
+
+/* ---------- layout ---------- */
+.container { max-width: var(--page); margin: 0 auto; padding: 0 40px; width: 100%; }
+.mobile .container { padding: 0 20px; }
+.section { padding: 64px 0; border-top: 1px solid var(--mist); }
+.desktop .section { padding: 96px 0; }
+.measure { max-width: var(--measure); }
+
+/* ---------- mockup disclaimer strip ---------- */
+.mock-note {
+  background: var(--mist);
+  color: var(--n700);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  padding: 6px 12px;
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+
+/* ---------- simulated site chrome (built, Phase 1.03/1.06b) ---------- */
+.header {
+  background: var(--navy);
+  color: var(--paper);
+  border-bottom: 1px solid rgba(247, 244, 236, 0.1);
+}
+.header .container { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 16px; padding-bottom: 16px; }
+.brand { display: flex; align-items: center; gap: 10px; }
+.crest {
+  background: #fff; border-radius: var(--r-card); padding: 4px;
+  width: 32px; height: 44px; display: flex; align-items: center; justify-content: center;
+  font-size: 9px; color: var(--n500); font-family: ui-monospace, monospace; text-align: center; line-height: 1.1;
+}
+.wordmark { font-family: "Source Serif 4", serif; font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+.nav { display: flex; gap: 32px; }
+.nav a { color: rgba(247, 244, 236, 0.72); text-decoration: none; font-size: 14px; font-weight: 500; padding-bottom: 4px; border-bottom: 2px solid transparent; }
+.nav a.active { color: var(--paper); border-bottom-color: var(--orange); }
+.burger { color: var(--paper); font-size: 20px; }
+
+/* ---------- breadcrumb (brand.md §Components) ---------- */
+.crumbs { display: flex; align-items: center; gap: 8px; padding: 20px 0; font-size: 14px; flex-wrap: wrap; }
+.crumbs a { color: var(--navy); text-decoration: none; }
+.crumbs a:hover { text-decoration: underline; text-decoration-color: var(--orange); text-decoration-thickness: 2px; text-underline-offset: 4px; }
+.crumbs .sep { color: var(--mist); }
+.crumbs .cur { color: var(--n700); }
+
+/* ---------- section heading: orange rule marker + serif H2 (D-2.02-3) ---------- */
+.orule { display: block; width: 32px; height: 2px; background: var(--orange); }
+.sec-head { margin-bottom: 32px; }
+.sec-head .orule { margin-bottom: 16px; }
+
+/* overline w/ orange rule (existing SectionOverline, onPaper) */
+.overline-row { display: flex; align-items: center; gap: 12px; }
+.overline-row .orule { margin: 0; }
+.overline-row p { color: var(--navy); }
+
+/* ---------- photo frames (brand.md §Photo treatment) ---------- */
+.frame {
+  position: relative; width: 100%; overflow: hidden;
+  border-radius: var(--r-photo); border: 1px solid var(--mist); background: var(--mist);
+  display: flex; align-items: center; justify-content: center;
+}
+.r32 { aspect-ratio: 3 / 2; }
+.r169 { aspect-ratio: 16 / 9; }
+.r45 { aspect-ratio: 4 / 5; }
+.frame .fill-label {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px; color: var(--n500); letter-spacing: 0.04em;
+}
+/* a matted small scan — same outer frame, wider mat (brand.md mixed-quality) */
+.frame .scan {
+  background: #d8d5cb; border: 1px solid rgba(0,0,0,0.06);
+  display: flex; align-items: center; justify-content: center;
+  font-family: ui-monospace, monospace; font-size: 10px; color: #55534c;
+}
+
+/* ---------- placeholder chip (brand.md §Components) ---------- */
+.chip {
+  display: inline-flex; align-items: center; max-width: 100%;
+  border-radius: var(--r-chip); border: 1px dashed var(--mist); background: var(--paper);
+  padding: 4px 8px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px; line-height: 1.5; color: var(--n700); text-align: center;
+  background-image: repeating-linear-gradient(45deg, transparent, transparent 5px, var(--mist) 5px, var(--mist) 6px);
+}
+
+/* ---------- season card (brand.md §Components) ---------- */
+.card-grid { display: grid; gap: 32px; grid-template-columns: repeat(3, 1fr); }
+.mobile .card-grid { grid-template-columns: 1fr; gap: 24px; }
+.scard {
+  background: var(--card); border: 1px solid var(--mist); border-radius: var(--r-card);
+  overflow: hidden; display: block; text-decoration: none;
+}
+.scard .frame { border: 0; border-radius: 0; border-bottom: 1px solid var(--mist); }
+.scard .body { padding: 20px; }
+.scard .meta { color: var(--n500); }
+.scard .title { margin-top: 6px; color: var(--navy); }
+/* hover state, drawn on one card to show the 2px lift.
+   Lift ONLY — brand.md defines "Hover: 2px lift" and has no shadow token,
+   so no shadow is invented here. */
+.scard.hover { transform: translateY(-2px); }
+.scard.hover .title { text-decoration: underline; text-decoration-color: var(--orange); text-decoration-thickness: 2px; text-underline-offset: 4px; }
+
+/* ---------- decade section header (brand.md §Components) ---------- */
+.decade-head { margin-bottom: 32px; }
+.decade-head .row { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+.decade-head .count { color: var(--n500); white-space: nowrap; }
+.decade-head .rules { display: flex; align-items: center; gap: 0; margin-top: 12px; }
+.decade-head .rules .o { width: 64px; height: 2px; background: var(--orange); }
+.decade-head .rules .m { flex: 1; height: 1px; background: var(--mist); }
+
+/* ---------- decade jump nav ---------- */
+.jump { position: sticky; top: 77px; z-index: 30; background: var(--paper); border-bottom: 1px solid var(--mist); }
+.jump .container { display: flex; gap: 24px; padding-top: 12px; padding-bottom: 12px; overflow-x: auto; }
+.jump a { color: var(--navy); text-decoration: none; font-size: 14px; font-weight: 500; white-space: nowrap; padding-bottom: 6px; border-bottom: 2px solid transparent; }
+.jump a.cur { border-bottom-color: var(--orange); font-weight: 600; }
+.jump a.off { color: var(--n500); }
+
+/* ---------- stats table (brand.md §Components) ---------- */
+.tframe { border: 1px solid var(--mist); border-radius: var(--r-card); overflow: hidden; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+thead th { background: var(--navy); color: var(--paper); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.14em; padding: 12px 8px; text-align: right; }
+thead th.l { text-align: left; }
+tbody td { padding: 12px 8px; text-align: right; color: var(--n700); border-bottom: 1px solid var(--mist); font-variant-numeric: tabular-nums; }
+tbody td.l { text-align: left; }
+tbody tr:nth-child(even) td { background: var(--zebra); }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr.us td { background: var(--highlight); color: var(--ink); font-weight: 600; }
+/* Belasica marker = 2px orange LEFT BORDER, not orange text (D-2.02-4) */
+tbody tr.us td:first-child { box-shadow: inset 2px 0 0 0 var(--orange); color: var(--navy); }
+tbody tr.us td.l { color: var(--navy); }
+
+/* ---------- squad list ---------- */
+.squad { max-width: var(--measure); }
+.squad table { font-size: 16px; }
+.squad thead th { background: transparent; color: var(--n700); border-bottom: 1px solid var(--mist); padding: 0 8px 10px; }
+.squad tbody td { padding: 12px 8px; border-bottom: 1px solid var(--mist); }
+.squad a { color: var(--navy); text-decoration: none; font-weight: 500; }
+.squad a:hover { text-decoration: underline; text-decoration-color: var(--orange); text-decoration-thickness: 2px; text-underline-offset: 4px; }
+
+/* ---------- trainer chips ---------- */
+.chips { display: flex; flex-wrap: wrap; gap: 12px; }
+.tchip {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--card); border: 1px solid var(--mist); border-radius: var(--r-chip);
+  padding: 8px 14px; color: var(--navy); text-decoration: none; font-size: 14px; font-weight: 500;
+}
+.tchip .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--orange); }
+
+/* ---------- photo grid ---------- */
+.pgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+.mobile .pgrid { grid-template-columns: 1fr; gap: 24px; }
+figcaption { margin-top: 12px; }
+figcaption .date { color: var(--n500); display: flex; align-items: center; gap: 8px; }
+figcaption .date .o { width: 16px; height: 2px; background: var(--orange); flex: none; }
+figcaption .desc { color: var(--n700); margin-top: 6px; }
+
+/* ---------- hero ---------- */
+.hero { position: relative; width: 100%; overflow: hidden; background: var(--mist); }
+.hero.r169 { aspect-ratio: 16 / 9; }
+.hero.r45 { aspect-ratio: 4 / 5; }
+.hero .grad { position: absolute; inset: 0; background: linear-gradient(to top, rgba(18,41,79,0.95), rgba(18,41,79,0.45) 50%, transparent); }
+.hero .cap { position: absolute; inset-inline: 0; bottom: 0; }
+.hero .cap .inner { padding-bottom: 64px; max-width: var(--measure); }
+.hero .fill-label { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: ui-monospace, monospace; font-size: 12px; color: var(--n500); }
+.hero-navy { background: var(--navy); }
+.hero-navy .inner { padding: 64px 0; max-width: var(--measure); }
+.orange-over { color: var(--orange); }
+.paper { color: var(--paper); }
+
+/* ---------- empty-season notice ---------- */
+.notice { border: 1px solid var(--mist); border-radius: var(--r-card); background: var(--card); padding: 32px; max-width: var(--measure); }
+.notice .list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+.backlink { color: var(--navy); font-weight: 600; font-size: 14px; text-decoration: none; display: inline-flex; gap: 6px; align-items: center; margin-top: 24px; }
+.backlink .u { text-decoration: underline; text-decoration-color: var(--orange); text-decoration-thickness: 2px; text-underline-offset: 4px; }
+
+/* ---------- footer (simulated) ---------- */
+.footer { background: var(--footer); border-top: 1px solid var(--mist); padding: 40px 0; }
+.footer .wm { font-family: "Source Serif 4", serif; font-size: 22px; font-weight: 600; color: var(--navy); }
+.footer .un { color: var(--n700); font-size: 14px; margin-top: 8px; }
+
+/* ---------- annotation callouts (mockup only, not shipped UI) ---------- */
+.anno {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px;
+  color: var(--navy); background: rgba(228, 116, 28, 0.10);
+  border-left: 2px solid var(--orange); padding: 6px 10px; margin-top: 12px; display: inline-block;
+}

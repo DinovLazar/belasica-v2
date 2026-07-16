@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="mk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="mockup.css">
+<style>
+  .mock-note { font-size: 9px; text-align: left; }
+  .t-h1 { font-size: 34px; }
+  .jump { top: 77px; }
+  .jump .container { gap: 18px; }
+</style>
+</head>
+<body class="mobile">
+
+<div class="mock-note">МОКАП · 2.02 · Архива — 375px · содржината е шематска (facts.md)</div>
+
+<header class="header">
+  <div class="container">
+    <div class="brand"><span class="crest">crest</span><span class="wordmark">ФК Беласица</span></div>
+    <span class="burger">☰</span>
+  </div>
+</header>
+
+<div class="container">
+  <div class="crumbs">
+    <a href="/">Почетна</a><span class="sep">/</span><span class="cur">Архива</span>
+  </div>
+</div>
+
+<section style="padding-bottom:32px">
+  <div class="container">
+    <h1 class="t-h1 navy">Архива по сезони</h1>
+    <p class="t-body n700" style="margin-top:12px">Секоја сезона од историјата на клубот, подредена по деценија — од најновата наназад.</p>
+    <p class="t-small n500" style="margin-top:12px">74 сезони · 11 децении</p>
+  </div>
+</section>
+
+<!-- sticky jump-nav — horizontally scrollable rail (page body never scrolls sideways) -->
+<div class="jump">
+  <div class="container">
+    <a href="#d2020" class="cur">2020-ти</a>
+    <a href="#d2010">2010-ти</a>
+    <a href="#d2000">2000-ти</a>
+    <a href="#d1990">1990-ти</a>
+    <a href="#d1980">1980-ти</a>
+    <a href="#d1970">1970-ти</a>
+  </div>
+</div>
+
+<section class="section" id="d1990" style="border-top:0">
+  <div class="container">
+    <div class="decade-head">
+      <div class="row">
+        <h2 class="t-h2 navy">1990-ти</h2>
+        <span class="t-over count">10 сезони</span>
+      </div>
+      <div class="rules"><span class="o"></span><span class="m"></span></div>
+    </div>
+
+    <div class="card-grid">
+      <a class="scard" href="/arhiva/1998-99">
+        <div class="frame r32"><span class="fill-label">фотографија 3:2</span></div>
+        <div class="body">
+          <span class="t-over meta">1990-ти</span>
+          <h3 class="t-h3 title">Сезона 1998/99</h3>
+        </div>
+      </a>
+      <a class="scard" href="/arhiva/1992-93">
+        <div class="frame r32"><span class="fill-label">фотографија 3:2</span></div>
+        <div class="body">
+          <span class="t-over meta">1990-ти</span>
+          <h3 class="t-h3 title">Сезона 1992/93</h3>
+        </div>
+      </a>
+      <a class="scard" href="/arhiva/1991-92">
+        <div class="frame r32"><span class="chip" style="font-size:12px">[PLACEHOLDER: фотографија]</span></div>
+        <div class="body">
+          <span class="t-over meta">1990-ти</span>
+          <h3 class="t-h3 title">Сезона 1991/92</h3>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="d1980">
+  <div class="container">
+    <div class="decade-head">
+      <div class="row">
+        <h2 class="t-h2 navy">1980-ти</h2>
+        <span class="t-over count">9 сезони</span>
+      </div>
+      <div class="rules"><span class="o"></span><span class="m"></span></div>
+    </div>
+    <div class="card-grid">
+      <a class="scard" href="/arhiva/1985-86">
+        <div class="frame r32"><span class="fill-label">фотографија 3:2</span></div>
+        <div class="body">
+          <span class="t-over meta">1980-ти</span>
+          <h3 class="t-h3 title">Сезона 1985/86</h3>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="wm">ФК Беласица</div>
+    <p class="un">неофицијална архива</p>
+  </div>
+</footer>
+
+</body>
+</html>

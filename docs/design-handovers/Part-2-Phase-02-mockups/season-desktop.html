@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="mk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="mockup.css">
+</head>
+<body class="desktop">
+
+<div class="mock-note">МОКАП · Phase 2.02 · Сезона (/arhiva/1992-93) — 1200px. Табелата, составот и текстот се ШЕМАТСКИ — не се факти и не смеат да се копираат како содржина (facts.md). Фотографиите се греј-боксови (2.09).</div>
+
+<header class="header">
+  <div class="container">
+    <div class="brand"><span class="crest">crest</span><span class="wordmark">ФК Беласица</span></div>
+    <nav class="nav">
+      <a href="#">Почетна</a><a href="#" class="active">Архива</a><a href="#">Легенди</a><a href="#">Статистика</a><a href="#">За нас</a><a href="#">Контакт</a>
+    </nav>
+  </div>
+</header>
+
+<!-- 1 · breadcrumb — on paper, ABOVE the hero (D-2.02-5) -->
+<div class="container">
+  <div class="crumbs">
+    <a href="/">Почетна</a><span class="sep">/</span><a href="/arhiva">Архива</a><span class="sep">/</span><span class="cur">Сезона 1992/93</span>
+  </div>
+</div>
+
+<!-- 2 · hero — 16:9 desktop, navy bottom gradient -->
+<section class="hero r169">
+  <span class="fill-label">фотографија 16:9 — photo.relatedSeason[0], object-cover</span>
+  <div class="grad"></div>
+  <div class="cap">
+    <div class="container">
+      <div class="inner">
+        <p class="t-over orange-over">1990-ти</p>
+        <h1 class="t-display paper" style="margin-top:12px">Сезона 1992/93</h1>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 · story -->
+<section class="section" style="border-top:0">
+  <div class="container">
+    <div class="sec-head"><span class="orule"></span><h2 class="t-h2 navy">Приказна за сезоната</h2></div>
+    <div class="measure">
+      <p class="t-bodyl n700">Овој пасус е шематски текст за приказ на мерата (68ch) и ритамот на редовите. Вистинската приказна за сезоната се внесува рачно во Studio од изворните документи — не се генерира и не се измислува.</p>
+      <p class="t-bodyl n700" style="margin-top:24px">Полето <code>season.story</code> е Portable Text: параграфи, задебелен текст, наслови од трето ниво и списоци. Кога полето е празно, целата секција се изостава — без текст-placeholder.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 4 · final table -->
+<section class="section">
+  <div class="container">
+    <div class="sec-head"><span class="orule"></span><h2 class="t-h2 navy">Конечна табела</h2></div>
+    <div class="tframe">
+      <table>
+        <thead>
+          <tr>
+            <th class="l" style="width:44px">#</th>
+            <th class="l">Клуб</th>
+            <th>Од</th><th>Поб</th><th>Нер</th><th>Пор</th><th>ДГ</th><th>ПГ</th><th>Бод</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="l">1</td><td class="l">Клуб А</td><td>30</td><td>20</td><td>6</td><td>4</td><td>58</td><td>24</td><td>46</td></tr>
+          <tr><td class="l">2</td><td class="l">Клуб Б</td><td>30</td><td>18</td><td>7</td><td>5</td><td>52</td><td>28</td><td>43</td></tr>
+          <tr class="us"><td class="l">3</td><td class="l">ФК Беласица</td><td>30</td><td>17</td><td>6</td><td>7</td><td>49</td><td>30</td><td>40</td></tr>
+          <tr><td class="l">4</td><td class="l">Клуб В</td><td>30</td><td>15</td><td>8</td><td>7</td><td>44</td><td>32</td><td>38</td></tr>
+          <tr><td class="l">5</td><td class="l">Клуб Г</td><td>30</td><td>13</td><td>—</td><td>—</td><td>—</td><td>—</td><td>34</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <span class="anno">Ред 3 = ФК Беласица: подложка --highlight + 2px портокалова лева ознака (НЕ портокалов текст — D-1.02-1 / D-2.02-4). Ред 5 покажува непознати ќелии „—".</span>
+  </div>
+</section>
+
+<!-- 5 · squad -->
+<section class="section">
+  <div class="container">
+    <div class="sec-head"><span class="orule"></span><h2 class="t-h2 navy">Состав</h2></div>
+    <div class="squad">
+      <table>
+        <thead>
+          <tr>
+            <th class="l t-over">Играч</th>
+            <th class="t-over" style="width:110px">Настапи</th>
+            <th class="t-over" style="width:90px">Голови</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="l"><a href="/legendi/igrac-a">Играч А</a></td><td>28</td><td>11</td></tr>
+          <tr><td class="l"><a href="/legendi/igrac-b">Играч Б</a></td><td>26</td><td>4</td></tr>
+          <tr><td class="l"><a href="/legendi/igrac-v">Играч В</a></td><td>24</td><td>—</td></tr>
+          <tr><td class="l"><a href="/legendi/igrac-g">Играч Г</a></td><td>—</td><td>—</td></tr>
+          <tr><td class="l"><span class="chip">[PLACEHOLDER: име на играч]</span></td><td>19</td><td>2</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <span class="anno">Имињата се навигациски линкови кон /legendi/&lt;slug&gt; (целта се гради во 2.05 — до тогаш 404, очекувано). Ред 5: референцата кон личност недостига → чип, никогаш измислено име.</span>
+  </div>
+</section>
+
+<!-- 6 · trainers -->
+<section class="section">
+  <div class="container">
+    <div class="sec-head"><span class="orule"></span><h2 class="t-h2 navy">Тренери</h2></div>
+    <div class="chips">
+      <a class="tchip" href="/legendi/trener-a"><span class="dot"></span>Тренер А</a>
+      <a class="tchip" href="/legendi/trener-b"><span class="dot"></span>Тренер Б</a>
+    </div>
+  </div>
+</section>
+
+<!-- 7 · photos -->
+<section class="section">
+  <div class="container">
+    <div class="sec-head"><span class="orule"></span><h2 class="t-h2 navy">Фотографии</h2></div>
+    <div class="pgrid">
+      <figure>
+        <div class="frame r32"><span class="fill-label">скен 3:2 — object-contain</span></div>
+        <figcaption>
+          <p class="t-over date"><span class="o"></span>околу 1993</p>
+          <p class="t-small desc">Шематски опис на фотографијата — полето photo.caption.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <div class="frame r32">
+          <div class="scan" style="width:46%;height:64%">мал скен<br>(поширок мат)</div>
+        </div>
+        <figcaption>
+          <p class="t-over date"><span class="o"></span>1993</p>
+          <p class="t-small desc">Мал/нискорезолутен скен: истата надворешна рамка, поширок мат — редот не се крши (brand.md §Photo treatment).</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <div class="frame r32"><span class="fill-label">скен 3:2 — object-contain</span></div>
+        <figcaption>
+          <p class="t-small desc">Без датум и без опис → нема overline, нема опис. Рамката останува.</p>
+        </figcaption>
+      </figure>
+    </div>
+    <span class="anno">Описот стои ПОД рамката (не како overlay) — целиот текст е читлив, без отсекување. photo.provenance НЕ се прикажува (види Отворени прашања во handover-от).</span>
+  </div>
+</section>
+
+<!-- 8 · back to archive -->
+<section class="section">
+  <div class="container">
+    <a class="backlink" href="/arhiva#d1990"><span class="u">Сите сезони од 1990-ти</span> →</a><br>
+    <a class="backlink" href="/arhiva"><span class="u">Назад кон архивата</span></a>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="wm">ФК Беласица</div>
+    <p class="un">неофицијална архива</p>
+  </div>
+</footer>
+
+</body>
+</html>
