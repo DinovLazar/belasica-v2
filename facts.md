@@ -8,7 +8,7 @@ Verification source format: (who, where, date).
 
 - Club name as written on the site: **FK Belasica** — VERIFIED (owner, intake, 2026-07-14)
 - Cyrillic rendering for on-page use: **ФК Беласица** — VERIFIED (owner, chat, 2026-07-15). Resolves OV-2; this is the exact on-page wordmark rendered site-wide (header, footer, hero).
-- Site self-description: **unofficial archive** (неофицијална архива — exact Macedonian wording to be confirmed with Ace) — role VERIFIED (owner, intake, 2026-07-14); wording UNVERIFIED
+- Site self-description: **unofficial archive** (неофицијална архива) — role + wording VERIFIED (Ace, sit-down via Lazar, 2026-07-16). Resolves OV-3. Confirmed footer wording (exact, as rendered): label „неофицијална архива"; line „Ова е неофицијална архива посветена на ФК Беласица. Не е официјалната страница на клубот." Ace confirmed this current wording as correct — no change.
 - Club founding year: UNVERIFIED — pull from Drive material, confirm with Ace
 - The site never mentions Ace's book — VERIFIED standing rule (owner, intake, 2026-07-14)
 
@@ -30,7 +30,7 @@ Verification source format: (who, where, date).
 ## Content provenance
 
 - All historical content (texts, photos, stats) originates from Ace's Google Drive — VERIFIED (owner, intake, 2026-07-14)
-- Photo publishing rights: UNVERIFIED — P0.2, Ace to confirm. **No photo ships publicly while this is UNVERIFIED**, except photos Ace personally owns (permitted for the 1.05 demo preview only).
+- Photo publishing rights: VERIFIED — Ace confirmed he holds the right to use all photos in the Drive (Ace, sit-down via Lazar, 2026-07-16). Resolves OV-1. ⚠️ **Caveat on record:** the P0.1 Drive audit found most archive photos are third-party screenshots (Facebook / Messenger / newspaper); "right to use" for those is legally nuanced. The specifics (ideally a written confirmation) should be settled before the bulk 2.09 ingestion is published — `docs/content-ingestion-plan.md` §5 keeps ingested photos unpublished until publish is explicitly cleared. (The 8 already-published demo photos are Ace's own.)
 
 ## Historical facts (seasons, players, matches, stats)
 
