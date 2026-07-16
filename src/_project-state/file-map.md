@@ -12,8 +12,9 @@
   - `Part-1-Phase-05-Homepage.md` — homepage §Layout spec, archived in-repo (Phase 1.05)
 - `docs/ace-demo/` — Ace demo kit (Phase 1.06); Phases 2.02 & 2.05 read `feedback.md` before they open
   - `walkthrough.md` — demo script (spoken lines in Macedonian; incl. the OV-3 footer question)
-  - `feedback.md` — capture template for Ace's feedback (filled at the sit-down)
+  - `feedback.md` — capture template for Ace's feedback (**still the empty template** — the sit-down had not happened as of 2.01; D-2.01-7)
   - `screenshots/homepage-desktop.png` · `homepage-mobile.png` — full-page live-site captures (current state; retake after portraits load)
+- `docs/content-ingestion-plan.md` — **how the ~915 photos / ~74 seasons get into Sanity** (Phase 2.01, D-2.01-4): the hybrid approach (scripted shells+assets / manual editorial), the deterministic Drive-folder→season mapping rules, the by-decade wave plan, and the provisional-provenance / P0.2-rights gate. Phase 2.09 builds and runs against this.
 
 ## Project state (`src/_project-state/`)
 - `current-state.md` — live repo snapshot; NEXT line; owed-verification + placeholder registers
@@ -22,9 +23,12 @@
 - `decisions.md` — append-only decision log, IDs `D-<phase>-<n>`
 - `completions/_TEMPLATE.md` — completion-report template
 - `completions/Part-1-Phase-01-Completion.md` — Phase 1.01 completion report
+- `completions/Part-1-Phase-03-Completion.md` — Phase 1.03 completion report
 - `completions/Part-1-Phase-04-Completion.md` — Phase 1.04 completion report
 - `completions/Part-1-Phase-05-Completion.md` — Phase 1.05 completion report
+- `completions/Part-1-Phase-05-2-Completion.md` — Phase 1.05.2 completion report (homepage content-sync)
 - `completions/Part-1-Phase-06-Completion.md` — Phase 1.06 completion report (draft — pending the Ace sit-down + portraits before close)
+- `completions/Part-2-Phase-01-Completion.md` — Phase 2.01 completion report (content model lock)
 
 ## Application (`src/`)
 - `src/app/layout.tsx` — **bare** root layout: `<html lang="mk">`/`<body>`, fonts, `globals.css`, Vercel Analytics, site metadata. Site chrome moved to the `(site)` group so `/studio` can escape it (Phase 1.04, D-1.04-3)
@@ -47,17 +51,18 @@
 - `src/lib/nav.ts` — single source for nav items + `isActivePath()` (Phase 1.03)
 - `src/lib/utils.ts` — shadcn `cn()` class-merge helper
 
-## Sanity (`src/sanity/`) — created Phase 1.04
+## Sanity (`src/sanity/`) — created Phase 1.04; content model **LOCKED** at Phase 2.01
 - `src/sanity/env.ts` — reads `NEXT_PUBLIC_SANITY_PROJECT_ID` / `_DATASET`, pinned `apiVersion`, `useCdn: true`
 - `src/sanity/client.ts` — read-only client (published perspective, no token)
 - `src/sanity/image.ts` — `@sanity/image-url` builder (`urlFor`) for `next/image`
-- `src/sanity/structure.ts` — Studio desk structure; `siteSettings` pinned as a singleton (D-1.04-5)
-- `src/sanity/schemaTypes/index.ts` — collects the schema types for the Studio config
+- `src/sanity/structure.ts` — Studio desk structure; `siteSettings` pinned as a singleton (D-1.04-5). Every other type is auto-listed via `documentTypeListItems()`, so retiring `match` from `index.ts` drops it from the desk with no change here
+- `src/sanity/lib/isUniqueSlug.ts` — `isUniqueSlugPerType`: slug-uniqueness check scoped to the document type, wired into `season.slug` / `person.slug` via `options.isUnique`; excludes the doc's own draft/published pair (Phase 2.01, D-2.01-6)
+- `src/sanity/schemaTypes/index.ts` — the **locked** schema: `siteSettings`, `season`, `person`, `photo`. `match` is deliberately **not** registered (D-2.01-2)
 - `src/sanity/schemaTypes/siteSettings.ts` — singleton: site title, description, footer archive statement
-- `src/sanity/schemaTypes/season.ts` — season: title, slug, decade, story (PT), final table, squad, trainers, photos
-- `src/sanity/schemaTypes/match.ts` — match (minimal first pass): date, competition, opponent, home/away, score, season ref
-- `src/sanity/schemaTypes/person.ts` — person: name, slug, roles, playing years, bio (PT), career stats, photos
-- `src/sanity/schemaTypes/photo.ts` — photo: image (hotspot, required), caption, provenance (required), date, related season/person
+- `src/sanity/schemaTypes/season.ts` — season: title, slug (**unique**), decade (**required**), story (PT), final table, squad, trainers. **No `photos`** — photos attach via `photo.relatedSeason` and are read by GROQ back-reference (D-2.01-1)
+- `src/sanity/schemaTypes/match.ts` — **DEFERRED / unregistered** (D-2.01-2): kept in-repo with a deferral header, absent from `index.ts`, so Studio does not list „Натпревар". No match-level Drive source exists (P0.1); stats come from season aggregates. Re-add via a future phase if that changes
+- `src/sanity/schemaTypes/person.ts` — person: name, slug (**unique**), roles, playing years, bio (PT), `careerStats` (**authoritative** career total — D-2.01-3). **No `photos`** — portraits attach via `photo.relatedPerson` (D-2.01-1)
+- `src/sanity/schemaTypes/photo.ts` — photo: image (hotspot, required), caption, provenance (**required** — the rights paper-trail; carries the P0.1/P0.2 rights-gate comment), date, `relatedSeason` / `relatedPerson` — **the single, canonical direction** of both relationships (D-2.01-1)
 
 ## Build & tooling config (repo root)
 - `package.json` / `package-lock.json` — dependencies, all pinned exact; scripts (dev/build/start/lint)
