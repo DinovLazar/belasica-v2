@@ -44,7 +44,7 @@
 - `src/components/SiteFooter.tsx` — light footer; brand block (wordmark + mandatory unofficial-archive lines) beside **Навигација / Контакт / Следете нѐ** columns + copyright bottom bar; contact/social are **demo** values (PL-9, D-1.06b-1); crest on a white tile beside the wordmark (Phase 1.03; columns 1.06b; crest chore-crest-logo)
 - `src/components/Container.tsx` — max-width (1200px) + page-gutter layout primitive (Phase 1.03)
 - `src/components/home/PlaceholderChip.tsx` — placeholder chip (dashed mist border, hatch, mono `[PLACEHOLDER: …]`); the only legal way to show a missing display fact (Phase 1.05)
-- `src/components/home/PhotoFrame.tsx` — matted photo frame (mist mat, 2px radius, hairline border); `next/image` via `urlFor`; greybox + chip when no image; `ratio` optional — omit for fill mode (`h-full`) used by the gallery mosaic (Phase 1.05; fill mode 1.06b, D-1.06b-3)
+- `src/components/home/PhotoFrame.tsx` — matted photo frame (mist mat, 2px radius, hairline border); `next/image` via `urlFor`; greybox + chip when no image; `ratio` optional — omit for fill mode (`h-full`) used by the gallery mosaic (Phase 1.05; fill mode 1.06b, D-1.06b-3) · **2.03:** gained an additive `fit="cover"|"contain"` prop (default `cover`, no existing caller changed) so the archival photo grid can mat whole scans rather than crop them (D-2.02-7)
 - `src/components/home/Reveal.tsx` — client reveal-on-scroll wrapper; IntersectionObserver toggles `.is-visible`; 60ms stagger via `delayIndex` (Phase 1.05)
 - `src/components/home/SectionOverline.tsx` — section overline: orange rule + navy text on paper, orange text on navy (D-1.02-1) (Phase 1.05)
 - `src/components/home/DecadeTimeline.tsx` — decades rail (fixed 1920-ти→2020-ти markers; orange node for decades with a published season; links to `/arhiva`; horizontal-scroll on mobile) (Phase 1.05.2, D-1.05.2-3)
@@ -63,6 +63,23 @@
 - `src/sanity/schemaTypes/match.ts` — **DEFERRED / unregistered** (D-2.01-2): kept in-repo with a deferral header, absent from `index.ts`, so Studio does not list „Натпревар". No match-level Drive source exists (P0.1); stats come from season aggregates. Re-add via a future phase if that changes
 - `src/sanity/schemaTypes/person.ts` — person: name, slug (**unique**), roles, playing years, bio (PT), `careerStats` (**authoritative** career total — D-2.01-3). **No `photos`** — portraits attach via `photo.relatedPerson` (D-2.01-1)
 - `src/sanity/schemaTypes/photo.ts` — photo: image (hotspot, required), caption, provenance (**required** — the rights paper-trail; carries the P0.1/P0.2 rights-gate comment), date, `relatedSeason` / `relatedPerson` — **the single, canonical direction** of both relationships (D-2.01-1)
+
+## Archive templates (Phase 2.03)
+- `src/app/(site)/arhiva/page.tsx` — **Archive index** `/arhiva`: decade-grouped season cards from live Sanity content, newest decade first; page header + real „N сезони · M децении" counts, sticky decade jump-nav, 3/2/1-col card grid. ISR `revalidate = 60`. Zero seasons → one placeholder chip (handover §5.6)
+- `src/app/(site)/arhiva/[slug]/page.tsx` — **Season detail** `/arhiva/<slug>`: breadcrumb → hero (photo or navy band) → Приказна → Конечна табела → Состав → Тренери → Фотографии → back-links. `generateStaticParams` over every published season slug; unknown slug → `notFound()`. Every data section omits itself when empty (D-2.02-3); all five empty → one archive notice (D-2.02-8). ISR `revalidate = 60`
+- `src/components/archive/Breadcrumb.tsx` — `Почетна / Архива / <season>`; navy links, mist `/` separators, current crumb `aria-current`; unknown crumb → placeholder chip (D-2.02-5)
+- `src/components/archive/SectionHeading.tsx` — orange rule marker + serif H2; the archive templates' section label (D-2.02-3). Replaces `SectionOverline` on these pages only — the homepage's is untouched
+- `src/components/archive/DecadeSectionHeader.tsx` — serif decade + real „N сезони" count (neutral-500) + orange rule → mist hairline
+- `src/components/archive/SeasonCard.tsx` — 3:2 lead photo (or Mist greybox + chip), **neutral-500** decade overline (D-2.02-1), serif navy title; whole card is one `<a>`; 2px lift on hover. Wraps its own `Reveal` **inside** the `<li>`
+- `src/components/archive/DecadeJumpNav.tsx` — sticky decade rail, offset by `top-header` (D-2.02-17); only decades with ≥1 published season; mobile scrolls the rail, never the page body. Scroll-spy deliberately not built (optional per handover §5.3)
+- `src/components/archive/StandingsTable.tsx` — „Конечна табела": navy `<thead>`, `<th scope="col">` with abbreviation + `sr-only` full label (D-2.02-14), zebra body, ФК Беласица row = `bg-highlight` + inset 2px orange left marker + navy rank (D-2.02-4), unknown cells „—". Mobile keeps **all nine columns** and scrolls inside the frame with `#`+`Клуб` sticky-left (D-2.02-10)
+- `src/components/archive/SquadTable.tsx` — „Состав": light table in `max-w-measure` (D-2.02-11); names link to `/legendi/<slug>` (**404s until 2.05 — expected**); unresolved player → chip, unknown numbers „—"
+- `src/components/archive/PersonChip.tsx` — trainer chip → `/legendi/<slug>`; orange dot marker, navy label
+- `src/components/archive/SeasonStory.tsx` — Portable Text renderer for `season.story` via `@portabletext/react` (D-2.03-2); blockquote uses orange as a left rule only
+- `src/components/archive/PhotoGrid.tsx` — „Фотографии": matted `PhotoFrame fit="contain"` (D-2.02-7), renders **all** photos incl. the hero's (D-2.02-6); caption below the frame = orange rule marker + neutral-500 date overline + unclamped description (D-2.02-9). `provenance` never rendered
+- `src/components/archive/SeasonEmptyNotice.tsx` — the all-five-empty season notice + five chips (D-2.02-8); structural copy only
+- `src/lib/archive.ts` — archive display helpers: `decadeLabel`, `decadeAnchor`, `seasonCountLabel`/`decadeCountLabel` (pluralisation, D-2.02-12), `isBelasicaRow`, `statCell` (`—` for null, `0` preserved)
+- `src/lib/focus.ts` — shared `focusOnPaper` / `focusOnNavy` focus-ring strings. NB: the same strings remain inlined in `src/app/(site)/page.tsx` and `DecadeTimeline.tsx` (homepage files, out of scope for 2.03) — worth folding in during a later homepage phase
 
 ## Build & tooling config (repo root)
 - `package.json` / `package-lock.json` — dependencies, all pinned exact; scripts (dev/build/start/lint)

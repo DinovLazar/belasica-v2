@@ -42,11 +42,20 @@ function focalPosition(image?: SanityImageSource | null): string {
  * `ratio` fixes the frame's aspect. Omit it for **fill mode** (`h-full`): the
  * frame fills the height its parent gives it — used by the gallery mosaic,
  * where the CSS-grid row tracks define the cell heights (Phase 1.06b).
+ *
+ * `fit` picks the crop behaviour (D-2.02-7). `"cover"` (default) is for
+ * presentation surfaces — hero, season-card lead, homepage — where a filled
+ * frame matters more than the scan's true edges. `"contain"` is for the
+ * archival photo set, where the scan's own aspect *is* information: the image
+ * sits whole on the mist mat, so a smaller scan simply gets a wider mat while
+ * the outer frame stays identical across the grid. That is brand.md's
+ * mixed-quality rule — never upscale or crop a small scan to fill.
  */
 export function PhotoFrame({
   image,
   alt,
   ratio,
+  fit = "cover",
   sizes,
   width = 1200,
   priority = false,
@@ -57,13 +66,17 @@ export function PhotoFrame({
   image?: SanityImageSource | null;
   alt: string;
   ratio?: "16/9" | "3/2" | "4/5";
+  /** `"cover"` crops to fill (presentation); `"contain"` mats the whole scan
+   *  (archival sets). Default `"cover"` — existing callers are unaffected. */
+  fit?: "cover" | "contain";
   sizes: string;
   width?: number;
   priority?: boolean;
   placeholderLabel: string;
   className?: string;
   /** Override the cover crop's focal point (defaults to the Sanity hotspot,
-   *  else a top-biased crop that keeps faces in frame). */
+   *  else a top-biased crop that keeps faces in frame). Ignored when
+   *  `fit="contain"` — a contained image is never cropped. */
   objectPosition?: string;
 }) {
   return (
@@ -81,8 +94,12 @@ export function PhotoFrame({
           fill
           sizes={sizes}
           priority={priority}
-          className="object-cover"
-          style={{ objectPosition: objectPosition ?? focalPosition(image) }}
+          className={fit === "contain" ? "object-contain" : "object-cover"}
+          style={
+            fit === "contain"
+              ? undefined
+              : { objectPosition: objectPosition ?? focalPosition(image) }
+          }
         />
       ) : (
         <span className="absolute inset-0 flex items-center justify-center p-4 text-center">
