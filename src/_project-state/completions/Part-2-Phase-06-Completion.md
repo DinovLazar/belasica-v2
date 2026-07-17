@@ -34,8 +34,7 @@ Live content also **contradicts three of the brief's stated assumptions** — se
 
 - **OV-7 — Кариера has never rendered from real content.** How to clear: in `/studio`, publish one person with `careerStats` (e.g. Петар Андреев: appearances + goals); reload `/legendi/petar-andreev` twice ~60s apart (ISR 60). Expect a Кариера section with two tiles. **This is the same content step that clears OV-4**, so doing it once clears both. Then confirm the no-`0` rule on real data: a person with `appearances` but no `goals` must show **one** tile, never „0 голови".
 - **OV-6 — a populated Sanity field contradicts the VERIFIED OV-3 copy.** `siteSettings.footerUnofficialArchiveText` holds different, unverified, never-rendered wording. Decide which is right, then make the OV-3 string exist in exactly one place. Details in the register and D-2.06-9.
-- **Vercel preview URL** — see §4; not captured by the executor.
-- **5-item eyeball checklist** — §7.
+- **Diff review + the 5-item eyeball checklist (§7)** — the preview gate is satisfied, but `CLAUDE.md` also requires Lazar's own diff review before merge, and this phase's design was never seen (no mockup was supplied), so item 2 below matters more than usual.
 
 ## 3. Decisions I made during this phase
 
