@@ -93,6 +93,21 @@ All six logged in `decisions.md`.
 
 > To see the tables populated: publish one season with a `finalTable` or one player with `careerStats` in `/studio` — the page fills itself within ~a minute (ISR 60). This also clears OV-4.
 
+---
+
+## Addendum · 2026-07-17 · OV-5 resolved — production is live
+
+> Appended after filing. The report above stands as written; this records what changed.
+
+The Vercel/GitHub outage described in §2 and D-2.04-7 **cleared on its own**, and `main` deployed without anyone triggering a redeploy. Verified by direct check:
+
+- `https://belasica-v2.vercel.app/statistika` → **200**, serving the real page: all three headings (`Најдобри стрелци`, `Најмногу настапи`, `Севкупен биланс на клубот`) and the three expected `[PLACEHOLDER]` chips (`голови по играч`, `настапи по играч`, `конечни табели по сезони`).
+- `https://belasica-v2.vercel.app/` and `/arhiva` → **200**. No route regressed.
+
+**OV-5 is resolved; no owner action is needed.** The risk D-2.04-7 accepted — that a Vercel-only failure (env vars, image domains, ISR on their runtime) would surface first in production because the page had never been served by Vercel — **did not materialise**; production matches what was verified on `localhost`. The waived preview gate cost nothing here, but it remains a one-off waiver for a third-party outage, not a precedent.
+
+**Still open: OV-4.** This addendum clears the *deployment* gap only. The tables, summary band and sorting have still **never rendered from real content** — the live page correctly shows its empty notices, which is exactly why OV-4 stands. The 5-item checklist above is now runnable against production; items 2–5 are the ones it can actually confirm today.
+
 ## 8. What's now possible that wasn't before
 
 The archive has its statistics layer — the thing the reference site is known for — built ahead of its data, so 2.09's ingestion fills it automatically, and five of six top-level nav links now resolve.
