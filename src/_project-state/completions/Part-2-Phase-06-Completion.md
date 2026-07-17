@@ -1,6 +1,8 @@
 # Part 2 · Phase 06 · Code — Completion Report
 
-**Date:** 2026-07-17 · **Executor:** Claude Code (Opus 4.8), Lazar's machine · **Outcome (one line):** `/legendi`, `/legendi/<slug>` and `/za-nas` are live from Sanity, so every person link the site already renders — squad names, trainer chips, both `/statistika` rankings — now lands on a real page instead of a 404.
+**Date:** 2026-07-17 · **Executor:** Claude Code (Opus 4.8), Lazar's machine · **PR:** [#15](https://github.com/DinovLazar/belasica-v2/pull/15) · **Preview:** https://belasica-v2-9uhscvnhp-dinovlazars-projects.vercel.app
+
+**Outcome (one line):** `/legendi`, `/legendi/<slug>` and `/za-nas` are live from Sanity, so every person link the site already renders — squad names, trainer chips, both `/statistika` rankings — now lands on a real page instead of a 404.
 
 ## 1. What shipped (plain language)
 
@@ -25,6 +27,7 @@ Live content also **contradicts three of the brief's stated assumptions** — se
 - ✅ **No schema change; no existing home/archive/stats component changed; `/kontakt` not built.** Evidence: `git diff --stat` touches no `schemaTypes/`, no `components/{home,archive,stats}/`, no `SiteFooter`. Additive reuse only.
 - ✅ **All three routes ISR `revalidate = 60`; every person link now resolves.** Evidence: build output shows `1m` revalidate on `/legendi`, `/legendi/[slug]`, `/za-nas`.
 - ✅ **`npm run build` + `npm run lint` clean; verified at 1280 and 375; every new text/bg pair ≥ 4.5:1, ratios recorded.** All **22** new pairs pass; worst **4.94:1** (neutral-500 on paper — brand.md's documented 4.9:1). Table below. No horizontal overflow at 375 on any route (`scrollWidth === clientWidth === 375`, zero offending elements). Focus ring measured on a **real keyboard tab**, not `.focus()`: `:focus-visible` matches, computed `box-shadow` = `rgb(247,244,236) 0 0 0 2px, rgb(18,41,79) 0 0 0 4px` — navy 2px ring, 2px paper offset, exactly `brand.md`.
+- ✅ **Vercel PR preview captured; `/legendi`, one `/legendi/<slug>` and `/za-nas` return 200.** [PR #15](https://github.com/DinovLazar/belasica-v2/pull/15) · preview: https://belasica-v2-9uhscvnhp-dinovlazars-projects.vercel.app · Vercel check `SUCCESS`, PR `MERGEABLE`. All seven routes 200 (`/legendi`, `/legendi/petar-andreev`, `/legendi/goce-petrovski`, `/za-nas`, `/arhiva/1992-93`, `/statistika`, `/`) — no existing route regressed. **Content-verified on Vercel's runtime, not just status codes:** `/legendi` serves Играчи „3 играчи" + Тренери „2 тренери" with the ГП/ИА monograms and **no Раководство**; `/legendi/goce-petrovski` serves the „Сезона 1992/93" chip + „Сите легенди" and omits Кариера; `/za-nas` serves the OV-3 line verbatim + all four chips.
 - ✅ **State synced; report filed.** §6.
 
 **Owed to Lazar (on the owed-verification register):**
@@ -60,7 +63,7 @@ All nine logged in `decisions.md`. Full context/alternatives/downsides are there
 - **The mockup was never supplied.** The handover names `People & Pages.dc.html` for all four routes at 1280/375; it was not in `~/Downloads` and is not in the repo. Built from the handover's prose alone — so the visual design was, strictly, never seen. Worth Lazar's eye (§7).
 - **`/kontakt` not built** — per scope.
 - **The contextual „← Назад на сезону …" back-link (handover §3.7) was not built.** It is marked „natural, optional" and needs referrer state a static page doesn't have; „Сите легенди" always renders.
-- **Vercel preview URL not captured.** The executor cannot open the PR (no `gh` auth confirmed in-session) — the branch is pushed and the PR/preview step is Lazar's. `CLAUDE.md` requires the preview to load before merge; **that gate is open**, and after D-2.04-7 it should not be waived twice.
+- **~~Vercel preview URL not captured~~ — resolved.** `gh` turned out to be authenticated, so [PR #15](https://github.com/DinovLazar/belasica-v2/pull/15) was opened and the preview verified: https://belasica-v2-9uhscvnhp-dinovlazars-projects.vercel.app — **the gate `CLAUDE.md` requires is satisfied, and was not waived** (unlike D-2.04-7). Merging is still Lazar's call after a diff review + the §7 eyeball checklist.
 
 ## 5. Changed files / deliverables
 
