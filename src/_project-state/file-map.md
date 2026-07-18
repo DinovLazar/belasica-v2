@@ -31,6 +31,7 @@
 - `completions/Part-1-Phase-05-2-Completion.md` — Phase 1.05.2 completion report (homepage content-sync)
 - `completions/Part-1-Phase-06-Completion.md` — Phase 1.06 completion report (draft — pending the Ace sit-down + portraits before close)
 - `completions/Part-2-Phase-01-Completion.md` — Phase 2.01 completion report (content model lock)
+- `completions/Part-2-Phase-07-Completion.md` — Phase 2.07 completion report (Contact page `/kontakt`)
 
 ## Application (`src/`)
 - `src/app/layout.tsx` — **bare** root layout: `<html lang="mk">`/`<body>`, fonts, `globals.css`, Vercel Analytics, site metadata. Site chrome moved to the `(site)` group so `/studio` can escape it (Phase 1.04, D-1.04-3)
@@ -97,13 +98,19 @@
 - `src/lib/facts.ts` — VERIFIED copy from `facts.md` as constants: the OV-3 `UNOFFICIAL_ARCHIVE_LABEL` + `UNOFFICIAL_ARCHIVE_STATEMENT`, transcribed byte-identically. NB: `SiteFooter` still hardcodes its own copy of both (out of scope), and `siteSettings.footerUnofficialArchiveText` holds **different, unverified, unrendered** text — see **OV-6** / D-2.06-9
 - `src/lib/stats.ts` — `aggregateClubBalance` (sums **only** `isBelasicaRow` rows across seasons with a `finalTable`; per-metric `contributing` counts make a partial aggregate detectable), `formatGoalDifference`, `formatWinRate`. Presentation-free (D-2.04-1 / D-2.04-4)
 
+## Contact page (Phase 2.07)
+- `src/app/(site)/kontakt/page.tsx` — **Contact** `/kontakt` (Phase 2.07) — **provisional** (D-2.05-1): breadcrumb → H1 „Контакт" + intro → provisional banner → two-column body (form left, direct-contact block right with `border-l border-mist`; single column at 375, form first, direct block below `border-t border-mist`). **Server component**; reads `NEXT_PUBLIC_FORMSPREE_ENDPOINT` and passes it to `ContactForm` (D-2.07-2). Direct block is all placeholders: email chip (PL-3) + socials chip (PL-15), the footer's demo values deliberately not propagated (D-2.07-4). No Sanity read; the title is a direct `<h1>` not `SectionHeading` (D-2.07-6). ISR `revalidate = 60`. **The last 404 in the nav — the six-item nav is now complete.**
+- `src/components/contact/ContactForm.tsx` — **client** component (the repo's second, after `StatTable`): the `idle → submitting → success | error` state machine (D-2.05-3). Plain `fetch` POST to the endpoint with `Accept: application/json`, `FormData` body — no form/validation library. Macedonian copy „Испрати" / „Се испраќа…" / „Ви благодариме!" / „Испрати повторно" (D-2.07-1). Labelled inputs, `type=email` + `required` native validation, `role="alert"` (error, above the form, input retained) / `role="status"` `aria-live="polite"` (success, form replaced), `focusOnPaper` ring, submit min-width reserves space (no layout shift). **Endpoint unset → the whole form renders inside a disabled `<fieldset>` with a notice + `PlaceholderChip` (PL-14); no `<form>`, so no submission is possible** (D-2.07-3). Reuses `PlaceholderChip`, not an „amber" chip (D-2.07-5)
+
 ## Build & tooling config (repo root)
 - `package.json` / `package-lock.json` — dependencies, all pinned exact; scripts (dev/build/start/lint)
 - `tsconfig.json` — TypeScript config; `@/*` path alias
 - `next.config.ts` — Next.js config; `images.remotePatterns` allows `cdn.sanity.io/images/**` for `next/image` (Phase 1.04)
 - `sanity.config.ts` — embedded Studio config (projectId/dataset via env, schema types, structure + vision plugins); read by `/studio` and the Sanity CLI (Phase 1.04)
 - `sanity.cli.ts` — Sanity CLI config (projectId/dataset from env; tolerant of missing values) (Phase 1.04)
-- `.env.local` — **git-ignored** (`.env*`); `NEXT_PUBLIC_SANITY_PROJECT_ID` / `_DATASET` / `_API_VERSION`. No token, not committed (Phase 1.04)
+- `.env.local` — **git-ignored** (`.env*`); `NEXT_PUBLIC_SANITY_PROJECT_ID` / `_DATASET` / `_API_VERSION`. No token, not committed (Phase 1.04). `NEXT_PUBLIC_FORMSPREE_ENDPOINT` is **not** set here — 3.03's step (D-2.07-2)
+- `.env.example` — **committed** template (Phase 2.07): `NEXT_PUBLIC_FORMSPREE_ENDPOINT=` (empty) + a one-line comment. Trackable because `.gitignore` carries `!.env.example` after `.env*`; every other `.env*` stays ignored (D-2.07-2). No secret
+- `.gitignore` — Next default + `/dist` (2.01) + **`!.env.example`** negation (2.07, D-2.07-2)
 - `eslint.config.mjs` — ESLint flat config (Next 15 `FlatCompat`: next/core-web-vitals + next/typescript)
 - `postcss.config.mjs` — PostCSS config (`@tailwindcss/postcss`)
 - `components.json` — shadcn/ui config (style new-york, base color neutral, Lucide icons)
