@@ -115,3 +115,17 @@ Config / env:
 - `next.config.ts`: `images.remotePatterns` now allows `https://cdn.sanity.io/images/**` for `next/image`.
 - Sanity project: existing **`belasica`** (id `f8rmnfry`), dataset `production`, public-read (D-1.04-1). CORS origins (credentials) on the project: `http://localhost:3000`, `https://belasica-v2.vercel.app` (+ the PR preview URL, added after deploy).
 - `npm run build` and `npm run lint` exit 0 on this stack.
+
+## 2026-07-18 — Phase 2.09 content ingestion: dev dependency added (exact pin)
+
+Dev dependency added (`package.json` → `devDependencies`, exact — no caret/tilde), installed with `--save-dev --save-exact`:
+
+| Package | Version | Role |
+|---|---|---|
+| @sanity/client | 7.23.1 | Write client for the Phase 2.09 ingestion script (`scripts/ingest/`) — build-time/local only, never in the site runtime |
+
+**Phase 2.09 — `@sanity/client` 7.23.1 added as a devDependency (D-2.09-5).** The only dependency change in 2.09, and the one the brief permits. It was **already resolved in the tree at 7.23.1** as a transitive of `next-sanity`, so pinning it as a direct devDependency dedupes with that copy and added **one line** to `package-lock.json` and no new packages to the install. Pinned to **7.23.1** (the resolved version) rather than npm-latest **7.23.2** to avoid a second resolved version for a one-patch gain. A pre-existing nested `@sanity/client@6.29.1` under `@sanity/mutate` (a transitive of `@sanity/visual-editing` → `next-sanity`) is unrelated and unchanged.
+
+- Used only by `scripts/ingest/run.mjs` (plain Node ESM, no TypeScript, no build step). The **site itself stays token-free** (D-1.04-2): `@sanity/client` here is a *devDependency* and the write token lives only in `.env.local` (git-ignored), never in the site bundle or on Vercel.
+- New env var (SECRET, local only): `SANITY_API_WRITE_TOKEN` — Sanity token with Editor on `production`, read by the ingestion script's `--commit` mode. Documented (empty) in `.env.example`; **not** set in `.env.local` or Vercel this phase (the ingestion waves have not run — see D-2.09-3). Never `NEXT_PUBLIC`, never committed.
+- `npm run build` and `npm run lint` exit 0 on this stack (the script is not part of the Next build graph).
