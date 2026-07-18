@@ -66,7 +66,7 @@ All logged in `decisions.md` (D-2.09-1…-7). One line each:
 - **New — `src/_project-state/completions/`:** `Part-2-Phase-05-Completion.md` (back-fill), `Part-2-Phase-09-Completion.md` (this).
 - **Edited:** `.env.example` (added empty `SANITY_API_WRITE_TOKEN=` + comment), `package.json` / `package-lock.json` (`@sanity/client@7.23.1` devDependency), `src/_project-state/decisions.md` (D-2.05-1/-2/-3 back-fill + D-2.09-1…-7), `00_stack-and-config.md` (dep entry), `file-map.md` (sync), `current-state.md` (snapshot).
 - **Secrets:** none committed. The write token is **not** valued anywhere — documented empty in `.env.example`; the real value belongs only in `.env.local` (git-ignored), placed by Lazar, never on Vercel.
-- Branch `phase-2.09-content-ingestion`. PR: deferred to Lazar's call (phase mid-flight).
+- Branch `phase-2.09-content-ingestion`. Ships via [PR #18](https://github.com/DinovLazar/belasica-v2/pull/18) — **partial** (tooling + docs; the ingestion run is tracked as OV-9).
 
 ## 6. State updates done (mandatory for Code phases)
 
