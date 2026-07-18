@@ -122,6 +122,17 @@ function sha1(s) {
   return crypto.createHash("sha1").update(s).digest("hex");
 }
 
+// The document id a photo's relatedSeason must point to. A to-create season is
+// created with the deterministic id `season-<slug>`; but an ALREADY-PRESENT
+// season (e.g. the hand-entered „Сезона 1992/93") has its own random id, NOT
+// `season-<slug>` — so its photos must reference that existing id, or they would
+// dangle. resolveSeasons() records it on `_existingId`.
+function seasonDocId(s) {
+  return s._status === "already-present" && s._existingId
+    ? s._existingId
+    : `season-${s.slug}`;
+}
+
 // Build the classified model of the whole mirror.
 function scanMirror(sourceRoot) {
   const entries = fs.readdirSync(sourceRoot, { withFileTypes: true });
@@ -380,7 +391,7 @@ async function commitPhotoWave(writeClient, sourceRoot, seasonsInWave) {
         _type: "photo",
         image: { _type: "image", asset: { _type: "reference", _ref: asset._id } },
         provenance: provenance(s.folderName),
-        relatedSeason: { _type: "reference", _ref: `season-${s.slug}` },
+        relatedSeason: { _type: "reference", _ref: seasonDocId(s) },
       });
       created++;
       if (batch.length >= BATCH) await flush();
