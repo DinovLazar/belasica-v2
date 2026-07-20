@@ -114,15 +114,16 @@ Other relevant (unchanged) pairs on `/`, from `brand.md` §Contrast: Navy on Pap
 
 ## 9. Lighthouse baseline (Task 9 — record only; gate is 3.02)
 
-_(Run on the Vercel preview — production-like, comparable to the prior production baseline of Mobile Perf 93 / A11y 100 / BP 96 / SEO 100.)_
+Run on the Vercel preview (Lighthouse **13.4.1**, headless Chrome):
+- **Mobile:** Perf **88** · A11y **100** · BP **100** · SEO **63** *
+- **Desktop:** Perf **99** · A11y **100** · BP **100** · SEO **63** *
 
-- **Mobile:** Perf __ · A11y __ · BP __ · SEO __
-- **Desktop:** Perf __ · A11y __ · BP __ · SEO __
+\* **SEO is depressed only because the preview deployment is `noindex`** — Lighthouse's `is-crawlable` audit = 0 („Page is blocked from indexing"), an artifact of every Vercel preview URL, **not** a page regression. Production is indexable, where the prior baseline was SEO 100. The real numbers: mobile Perf **88** (vs the 1.06 baseline 93 — the hero is now a full photograph rather than a lighter graphic), desktop Perf **99**, A11y + BP **100** on both. Record only; the ≥95 gate is 3.02.
 
 ## PR & preview
 
-- **PR:** _(to be filled)_
-- **Vercel preview:** _(to be filled)_ — `/` verified at 1280 + 375; other five routes 200.
+- **PR:** [#20](https://github.com/DinovLazar/belasica-v2/pull/20)
+- **Vercel preview:** `https://belasica-v2-git-phase-208-homepage-811363-dinovlazars-projects.vercel.app/` — `/` verified at 1280 + 375 (hero = the real squad photo, featured block has no story chip, 11 decades, no horizontal scroll, gallery captioned-first); the other five routes 200. Preview matched the local prod render exactly (a second independent build reading the same deterministic query).
 
 ## Owner eyeball checklist (5 items)
 
