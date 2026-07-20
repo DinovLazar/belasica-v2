@@ -3,6 +3,10 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { NAV_ITEMS } from "@/lib/nav";
 import { Container } from "@/components/Container";
+import {
+  UNOFFICIAL_ARCHIVE_LABEL,
+  UNOFFICIAL_ARCHIVE_STATEMENT,
+} from "@/lib/facts";
 
 // ⚠️ DEMO / PLACEHOLDER DATA — NOT verified facts. Replace or remove before
 // launch. Added at owner's request (D-1.06b-1) to make the footer read fuller
@@ -63,11 +67,10 @@ export function SiteFooter() {
               </span>
             </Link>
             <p className="mt-4 text-overline uppercase tracking-overline text-neutral-700">
-              неофицијална архива
+              {UNOFFICIAL_ARCHIVE_LABEL}
             </p>
             <p className="mt-3 max-w-measure text-small text-neutral-700">
-              Ова е неофицијална архива посветена на ФК Беласица. Не е
-              официјалната страница на клубот.
+              {UNOFFICIAL_ARCHIVE_STATEMENT}
             </p>
           </div>
 
