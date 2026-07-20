@@ -889,3 +889,43 @@
 - **Alternatives considered:** *Add a `--publish` flag to `run.mjs`* — rejected: bakes the rights-gate override into the reusable tooling, inviting an accidental future bulk-publish. *Publish via 36 batched MCP `publish_documents` calls* — rejected: slower and noisier than one batched transaction; the scratchpad script is cleaner and equally auditable (recorded here + in the run report).
 - **Consequences:** Downside accepted: the publish is not reproducible from the repo alone — it is documented in `2.09-run-report.md` §5 and here. `@sanity/client` resolves only inside the repo, so the script was run from the repo root then removed (verified absent from `git status`).
 - **Links:** D-2.09R-2; `scripts/ingest/run.mjs`; `docs/ingestion/2.09-run-report.md` §5.
+
+### D-2.08-1 · 2026-07-21 · Photo rights confirmed by the owner; all 889 published photos stay public (closes OV-RIGHTS)
+- **Status:** Accepted (owner decision, via the Phase 2.08 orchestrator)
+- **Context:** 2.09-Run published 881 mostly-third-party-screenshot photos (D-2.09R-2) ahead of a written rights settlement, opening the urgent OV-RIGHTS item. The homepage draws from the full published photo set.
+- **Decision:** The owner confirms the project holds the rights to all archive photos; all 889 published photos remain public with no restriction. Recorded as a dated VERIFIED entry in `facts.md`, and OV-RIGHTS moved to Resolved (this phase).
+- **Alternatives considered:** *Restrict the homepage to the 8 original Ace-owned photos* — rejected by the owner. *Un-publish the 881 back to drafts* — rejected by the owner (a scripted reverse of D-2.09R-5 was available).
+- **Consequences:** Downside accepted: the `provenance` string on all 881 ingested photo documents still reads „…НЕПОТВРДЕНИ…", so the per-document record now lags the owner's confirmation. Fixed only at the `facts.md` level this phase; a bulk `provenance` rewrite is a separate ingestion-tooling job (owed item OV-10).
+- **Links:** Phase 2.08 brief (Decisions §1, Task 7); D-2.09R-2; `facts.md` (Content provenance); OV-RIGHTS → Resolved.
+
+### D-2.08-2 · 2026-07-21 · Featured season stays automatic (newest); the story teaser self-omits with no placeholder chip
+- **Status:** Accepted (owner/orchestrator decision)
+- **Context:** The featured-season selector is `order(decade desc, title desc)[0]` → today `2025-26`. No published season has a `story`, so the featured block previously rendered a visible `[PLACEHOLDER: приказна за сезоната]` chip (confirmed at the production baseline).
+- **Decision:** Keep the newest-first selector. When the featured season has no `story`, render the section with title + decade + photo + „Погледни ја сезоната" link, and **omit the teaser paragraph entirely — no placeholder chip**. Verified in the rendered DOM (no „приказна за сезоната" text on `/`).
+- **Alternatives considered:** *Pin a hand-picked season slug as a code constant* — rejected (brittle, not curation). *Add a `featuredSeason` reference to `siteSettings`* — rejected: a schema change on a locked model (Phase 2.01), explicitly out of scope.
+- **Consequences:** Downside accepted: the featured season is whatever is newest, not a curator's pick, and the block is thinner than designed until stories exist. Every other placeholder branch (hero, intro, featured title, legends portrait/years) is unchanged.
+- **Links:** Phase 2.08 brief (Decisions §2, Task 4); `src/app/(site)/page.tsx` (featured section); D-1.05-1.
+
+### D-2.08-3 · 2026-07-21 · Deterministic photo ordering (non-empty caption → date asc → _id asc); captions drive curation
+- **Status:** Accepted (owner/orchestrator decision)
+- **Context:** All 881 ingested photos share null `date` + null `caption`, so the old `order(coalesce(date,"9999") asc, caption asc)` was effectively arbitrary and could shuffle the hero/gallery between reads. Applied to both the featured season's `seasonPhotos` and the `gallery`.
+- **Decision:** Order by `select(defined(caption) && caption != "" => 0, 1) asc, coalesce(date, "9999") asc, _id asc` — non-empty caption first, then date ascending (nulls last via coalesce), then `_id` ascending as a stable total-order tiebreak. Two consecutive cold reads return identical hero / moment-band / gallery (demonstrated: readA ≡ readB against `production`). Gallery stays constrained in-query via `[0...10]` (one round trip; no JS slicing). Captioning a photo in Studio is therefore the lever that promotes it onto the homepage — curation without a schema change.
+- **Alternatives considered:** *Leave the ordering as-is* — rejected (non-reproducible hero). *Add a `featured`/`order` field to `photo`* — rejected: a schema change on a locked model.
+- **Consequences:** Downside accepted: until captions land, the hero is stable-but-arbitrary. This phase applies the lever once (D-2.08-5).
+- **Links:** Phase 2.08 brief (Decisions §3, Task 3); `src/app/(site)/page.tsx` (`HOME_QUERY`).
+
+### D-2.08-4 · 2026-07-21 · The editorial content slice is captions only
+- **Status:** Accepted (owner/orchestrator decision)
+- **Context:** The homepage surfaces ~12 photos; the full editorial pass (96 stories, tables, squads, trainers) is a separate phase that must not block 2.10.
+- **Decision:** Task 5 captions only the photos the homepage actually surfaces (and only those that can be captioned truthfully). No season stories, no final tables, no squads.
+- **Alternatives considered:** *Transcribe a season story for the featured block* — rejected: unnecessary once D-2.08-2 makes the teaser self-omit. *Bundle the full editorial handoff* — rejected: many hours of transcription, blocks 2.10.
+- **Consequences:** Downside accepted: the featured-season block ships without a story.
+- **Links:** Phase 2.08 brief (Decisions §4, Task 5); `docs/ingestion/2.09-editorial-handoff.md`.
+
+### D-2.08-5 · 2026-07-21 · Exactly one caption published — the genuine 2025-26 squad photo — to promote it into the hero
+- **Status:** Accepted (executor decision, under the D-2.08-3 lever)
+- **Context:** The featured season `2025-26` has exactly **2** photos, both uncaptioned, so the deterministic order put `photo-64b01ef6` (`formacija.jpg`) at `[0]`/hero — but that image is a **buildlineup.com fan-made lineup graphic** (not a photograph; surnames + „2025 есен" unverifiable). The other, `photo-f8662e1c` (`ekipa.jpeg`), is a genuine modern **FK Belasica squad photo** with the club crest plainly visible on the kit (verified via a high-res crop). Content-truth allows a caption only for what is plainly visible; the brief's whole point is a truthful front door, and D-2.08-3 makes a caption the curation lever.
+- **Decision:** Publish exactly one caption — `photo-f8662e1c` → „Екипа на ФК Беласица" (describes only what is plainly visible; asserts no name/date/score/opponent/competition). Its caption promotes it to `[0]` = the hero, replacing the fan graphic with a real archival photograph. Leave uncaptioned: `photo-64b01ef6` (fan graphic — cannot caption truthfully); `photo-00345ef3` (a Macedonian-League final-table screenshot, left empty to keep the captioned-vs-uncaptioned sort visible in the gallery top-10); `photo-007e764c` (a vintage „BELASICA-FUDBALSKI BUTIK" clipping that dropped out of the gallery top-10 once ekipa was promoted, so it is not surfaced).
+- **Alternatives considered:** *Leave all four uncaptioned* — rejected: ships the fan graphic as the hero, defeating the phase goal. *Caption the fan graphic* — rejected: its content is unverifiable (content-truth). *Caption both featured photos* — rejected: with both captioned the `_id` tiebreak (`64b01ef6` < `f8662e1c`) puts the fan graphic back at `[0]`.
+- **Consequences:** Downside accepted: with ekipa at `[0]`, `seasonPhotos[1]` = the fan graphic now fills the featured-season **card** (contextually apt — its own header reads „Беласица 2025 есен") **and** the full-bleed **moment band** („Момент од историјата"), which is cosmetically weak; and ekipa now appears twice on the page (hero + gallery slot 9), matching the page's pre-existing property that the featured season's photos repeat (card + band both use `seasonPhotos[1]`). No gallery de-dup added (partial de-dup would be inconsistent with the existing card/band repeat). Root cause — `2025-26` holds only 2 images, one a fan graphic — is flagged to the owner (OV-11), as is the folder misfiling of `ekipa.jpeg`/`FB_IMG…` (OV-12 spot-check).
+- **Links:** Phase 2.08 brief (Task 5, content-truth rule); D-2.08-3; `facts.md`; `docs/ingestion/2.09-editorial-handoff.md` §6.
