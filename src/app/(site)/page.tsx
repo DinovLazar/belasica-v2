@@ -28,8 +28,15 @@ export const revalidate = 60;
  *    photo.relatedPerson (there is no person.photos / careerStats).
  *  - photo: image, caption, date, provenance, relatedPerson, relatedSeason.
  * Selection: featured season = newest by decade then title (D-1.05-1);
- * legends = players only, by name (D-1.05.2-3); gallery = by date then
- * caption. Everything degrades to placeholders when a query returns nothing.
+ * legends = players only, by name (D-1.05.2-3). Photo ordering — the
+ * featured season's photos AND the gallery — is DETERMINISTIC (D-2.08-3):
+ * non-empty caption first → date ascending (nulls last via coalesce) → _id
+ * ascending as a stable final tiebreak. This makes the hero, moment band and
+ * gallery reproducible across cold reads (881 ingested photos share null
+ * date + null caption, so the old date/caption sort was effectively
+ * arbitrary), and it makes captioning a photo in Studio the lever that
+ * promotes it onto the homepage — curation without a schema change.
+ * Everything degrades to placeholders when a query returns nothing.
  * ------------------------------------------------------------------ */
 const HOME_QUERY = /* groq */ `{
   "settings": *[_type == "siteSettings"][0]{ title, description },
@@ -43,7 +50,7 @@ const HOME_QUERY = /* groq */ `{
         "image": image,
         caption,
         date
-      } | order(coalesce(date, "9999") asc)
+      } | order(select(defined(caption) && caption != "" => 0, 1) asc, coalesce(date, "9999") asc, _id asc)
     },
   "legends": *[_type == "person" && "player" in role && defined(slug.current)]
     | order(name asc)[0...3]{
@@ -54,7 +61,7 @@ const HOME_QUERY = /* groq */ `{
       "portrait": *[_type == "photo" && relatedPerson._ref == ^._id][0].image
     },
   "gallery": *[_type == "photo" && defined(image)]
-    | order(coalesce(date, "9999") asc, caption asc)[0...10]{
+    | order(select(defined(caption) && caption != "" => 0, 1) asc, coalesce(date, "9999") asc, _id asc)[0...10]{
       "id": _id,
       "image": image,
       caption,
@@ -286,15 +293,17 @@ export default async function Home() {
                 </p>
               )}
 
-              <div className="mt-5">
-                {teaser ? (
+              {/* Story teaser self-omits when the season has no `story`
+                  (D-2.08-2): no paragraph and NO placeholder chip — the
+                  title, decade line, photo and season link still render. No
+                  published season has a story yet, so this is the live path. */}
+              {teaser && (
+                <div className="mt-5">
                   <p className="line-clamp-4 text-body-l text-neutral-700">
                     {teaser}
                   </p>
-                ) : (
-                  <PlaceholderChip label="приказна за сезоната" />
-                )}
-              </div>
+                </div>
+              )}
 
               {featured?.slug && (
                 <Link
