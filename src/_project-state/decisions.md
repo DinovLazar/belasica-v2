@@ -1025,3 +1025,51 @@
 - **Alternatives considered:** *Owner fills everything manually in Studio* — rejected: 96 seasons is too much manual work. *Claude fills and auto-publishes without review* — rejected: violates content-truth; factual claims need owner verification.
 - **Consequences:** The fill is assisted but gated on owner approval, so it is slower than unattended but stays truthful. 3.01 provides the empty fields/type this fill writes into.
 - **Links:** D-3.01-1; `facts.md` (content-truth); Phase 3.01 brief; Phase 3.02.
+
+### D-3.02-1 · 2026-07-21 · Photo selection — open & classify every pilot photo; posed-squad rule with per-season overrides
+- **Status:** Accepted
+- **Context:** Each 2020s season links 2–11 photos. Filenames hint the kind (Екипа/Табела/Шема), but the brief requires **opening** each to classify, because using a buildlineup fan graphic (or a „FULL TIME" result graphic / a table screenshot) as the lead is the exact bug this project fixes (D-2.08-5).
+- **Decision:** Downloaded and visually classified all **37** pilot photos (per-season contact sheets). `teamPhoto` = the genuine **posed squad** photograph, preferring Ace's own „Екипа"-named file when it is a real lineup. Overrides made after looking: **2021-22** — the first „екипа.jpg" is a training-walk shot, so used „екипа 2 слика" (the posed squad); **2022-23** — no posed lineup exists in the folder, so used Ace's „Екипа" (a warm-up shot) and flagged it; **2025-26** — no final-table image exists, so `tablePhoto` left empty. Every Шема/формација/formacija fan graphic, every „FULL TIME" result graphic and every news screenshot was rejected as `teamPhoto`.
+- **Alternatives considered:** *Trust filenames blindly* — rejected: would have set the 2021-22 training walk and missed the real squad photo. *Leave 2022-23 `teamPhoto` empty for want of a posed lineup* — rejected: Ace's warm-up „Екипа" is a genuine team photograph (not a prohibited graphic) and better than empty; flagged in the report for the owner to replace.
+- **Consequences:** All six `teamPhoto`s are genuine photographs — **zero** fan/result/table graphics used. Downside accepted: the 2022-23 lead is a warm-up shot (not a posed lineup) and 2025-26 has no table image; both noted for the owner.
+- **Links:** Phase 3.02 brief (Task A, guardrails); D-2.08-5; review report `docs/ace-demo/Part-3-Phase-02-pilot-review.html`.
+
+### D-3.02-2 · 2026-07-21 · Multiple successive coaches held in the single `trainer` string, comma-separated
+- **Status:** Accepted
+- **Context:** `season.trainer` is one string (D-3.01-4), but „Тренери на Беласица.docx" lists several successive coaches for some 2020s seasons (2020/21 has four; 2022/23 and 2023/24 two each).
+- **Decision:** List **all** documented coaches for a season, comma-separated, in the document's order (e.g. „Ване Милков, Шефки Арифовски, Ѓоре Јовановски, Андреј Чернишов"). Applied one obvious spacing fix — „ВанеМилков" → „Ване Милков" (the name is correctly spaced elsewhere in the same doc). 2024/25 and 2025/26 are **not** in the doc → `trainer` left empty.
+- **Alternatives considered:** *Record only the season-opening coach* — rejected: silently drops documented facts. *Invent a head/assistant split* — rejected: the source states no roles; that would be invention.
+- **Consequences:** A multi-coach season renders a comma list; faithful to the source. Two seasons have an empty `trainer` (correct — not documented; the section self-hides).
+- **Links:** Phase 3.02 brief (Task B); D-3.01-4; „Тренери на Беласица.docx".
+
+### D-3.02-3 · 2026-07-21 · `lineupAndStats` = documented season top-scorer only; `results` empty for all six
+- **Status:** Accepted
+- **Context:** The main history docx („…гордоста на Струмица…") per-season coverage **ends ~1995/96** — zero mentions of any 2020s season, and no 2020s squad/appearances or match-by-match source exists. The only documented 2020s player stat is the **season top scorer** (Најдобри стрелци doc, which runs through 2022/23).
+- **Decision:** Populate `lineupAndStats` with only the documented top scorer — 2020/21 „А. Калановски — 8 гола", 2021/22 „А. Коцев — 12 гола", 2022/23 „А. Милушев — 8 гола"; leave it empty for 2023/24–2025/26 (no scorer documented). Leave `results` empty for **all six** (no documented per-match source). No full squad was invented.
+- **Alternatives considered:** *Transcribe final position / results text from the `tablePhoto` and news screenshots* — rejected: those are images, not the named source docs, and the `tablePhoto` already conveys the standings; deriving prose risks over-reach. *Leave `lineupAndStats` empty everywhere* — rejected: the top scorer **is** documented and is a legitimate season stat, so including it is more faithful than omitting it.
+- **Consequences:** The 2020s „Состав и статистика" is thin (one sourced line where available); „Резултати" is empty everywhere (expected per the brief). Every gap is listed in the review report.
+- **Links:** Phase 3.02 brief (Task B); „Најдобри стрелци на Беласица.docx"; main history docx.
+
+### D-3.02-4 · 2026-07-21 · Curated set of 7 `clubRecord` docs, each cited; no uncitable record created
+- **Status:** Accepted
+- **Context:** Task C wants a small set of clearly-documented all-time records from the stats/history docs.
+- **Decision:** Created **7** — four **honours** (шампион 1982/83, 1987/88; вицешампион 1963/64, 2001/02, 2002/03; полуфинале на купот 2002/03, 2019/20; југословенски второлигаш ×5 сезони) from the narrative's „Најголеми успеси на Беласица" list; one **appearances** record (Петар Андреев — 555 натпревари / 22 сезони) from the narrative's 1995/96 passage („апсолутен рекордер… вкупно 555"); two **scorers** records (Бобан Мариќ 38 во сезона; Љупчо Мафков 27 во Прва мак. лига) from the „Најдобри стрелци" footnotes. Transcribed the Мафков footnote's „Прва мак. лига" label **exactly** despite its era oddity (faithful to source).
+- **Alternatives considered:** *Add a „most seasons as coach" record for Благој Истатов (who appears across many seasons)* — rejected: the doc never states it as a record with a count; counting it myself is deriving/inventing. *Add every per-competition sub-record (Втора мак., Трета/Втора југ.)* — rejected: kept the set small and highest-value; noted in the report that more exist.
+- **Consequences:** 7 records, each citable to a named doc; nothing invented or self-computed. `/statistika` records section is now populatable when redesigned.
+- **Links:** Phase 3.02 brief (Task C); D-3.01-5; „Најдобри стрелци на Беласица.docx"; main history docx.
+
+### D-3.02-5 · 2026-07-21 · The 881-photo provenance rewrite ran via a throwaway script (not MCP); wording is a faithful `facts.md` transcription
+- **Status:** Accepted
+- **Context:** All 881 ingested photos still carried the outdated „…НЕПОТВРДЕНИ…" provisional provenance (OV-10). The brief said "use the Sanity MCP tools"; `facts.md` holds the **VERIFIED** rights fact but **no** ready-made Macedonian provenance string to copy.
+- **Decision:** **(a) Method** — did the bulk rewrite with a throwaway Node script (scratchpad, never committed) using the existing local `SANITY_API_WRITE_TOKEN`, mirroring the D-2.09R-5 publish script and **OV-10's own prescribed method** ("a mirror of the D-2.09R-5 publish script"), because MCP `patch_documents` caps at **25 docs/call** — 881 would need ~36 hand-built calls with embedded per-doc strings (error-prone, and no string-surgery to preserve each photo's source-folder name). The 6 pilot seasons + 7 `clubRecord`s were done via MCP. **(b) Wording** — the new provenance is a faithful Macedonian transcription of the two VERIFIED `facts.md` entries (source = Ace's Drive; rights confirmed by owner 2026-07-21), swapping **only** the rights clause and preserving each folder attribution; no new rights claim was composed. Dry-run first (881 matched, 0 anomalies), then committed; verified **0** НЕПОТВРДЕНИ remain and **881** carry the confirmed-rights text.
+- **Alternatives considered:** *36 hand-built MCP patch calls* — rejected: impractical, error-prone, and would lose folder names. *Ask the owner for the exact string before writing* — rejected: there is a content-truth-compliant default (transcribe the verified fact), the DoD requires the rewrite this phase, provenance is **not** rendered on the public site, and the change is fully re-runnable; the exact wording is surfaced in the review report for approval instead. *Set a uniform string dropping folder names* — rejected: loses provenance granularity.
+- **Consequences:** OV-10 cleared. The wording is my faithful rendering of a VERIFIED fact, pending owner sign-off via the review report; one script re-run changes it if the owner prefers different phrasing. Because provenance is not surfaced publicly, no public-facing claim changed.
+- **Links:** Phase 3.02 brief (Task D); OV-10; D-2.09R-5; `facts.md` (Content provenance, 2026-07-21 VERIFIED entry); content-ingestion-plan.md §5.
+
+### D-3.02-6 · 2026-07-21 · Review report delivered as a self-contained HTML file in `docs/ace-demo/`
+- **Status:** Accepted
+- **Context:** Deliverable E is an owner-facing report to approve the pilot pattern before the 90-season run.
+- **Decision:** Built a **self-contained** HTML file (base64-embedded thumbnails; on-brand navy/paper) at `docs/ace-demo/Part-3-Phase-02-pilot-review.html` — the owner-review-kit location alongside the demo walkthrough/screenshots. Verified it renders (header + 6 season cards + 7-row records table + provenance before/after, all 11 images loaded).
+- **Alternatives considered:** *Publish as a claude.ai Artifact (hosted link)* — not done here, to keep the deliverable a committable repo file the owner can open directly; can be published later if a link is wanted. *Reference `cdn.sanity.io` image URLs instead of base64* — rejected: not self-contained (the brief asked for self-contained).
+- **Consequences:** A ~562 KB HTML file that opens in any browser, offline-capable, committed with the phase. Downside: base64 makes the file large; acceptable for a review artifact.
+- **Links:** Phase 3.02 brief (Task E); `docs/ace-demo/Part-3-Phase-02-pilot-review.html`.
