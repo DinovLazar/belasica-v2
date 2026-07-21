@@ -929,3 +929,99 @@
 - **Alternatives considered:** *Leave all four uncaptioned* — rejected: ships the fan graphic as the hero, defeating the phase goal. *Caption the fan graphic* — rejected: its content is unverifiable (content-truth). *Caption both featured photos* — rejected: with both captioned the `_id` tiebreak (`64b01ef6` < `f8662e1c`) puts the fan graphic back at `[0]`.
 - **Consequences:** Downside accepted: with ekipa at `[0]`, `seasonPhotos[1]` = the fan graphic now fills the featured-season **card** (contextually apt — its own header reads „Беласица 2025 есен") **and** the full-bleed **moment band** („Момент од историјата"), which is cosmetically weak; and ekipa now appears twice on the page (hero + gallery slot 9), matching the page's pre-existing property that the featured season's photos repeat (card + band both use `seasonPhotos[1]`). No gallery de-dup added (partial de-dup would be inconsistent with the existing card/band repeat). Root cause — `2025-26` holds only 2 images, one a fan graphic — is flagged to the owner (OV-11), as is the folder misfiling of `ekipa.jpeg`/`FB_IMG…` (OV-12 spot-check).
 - **Links:** Phase 2.08 brief (Task 5, content-truth rule); D-2.08-3; `facts.md`; `docs/ingestion/2.09-editorial-handoff.md` §6.
+
+### D-3.01-1 · 2026-07-21 · Re-open the 2.01-locked content model for Part 3 (additive-only; re-locks after 3.06)
+- **Status:** Accepted
+- **Context:** The content model was formally locked at Phase 2.01 (D-2.01-1..6) and "changing it needs its own phase". Part 3 needs each season to hold a real team photo, a table image, a trainer name and prose lineup/results blocks, plus a curated records holder for `/statistika` — none of which the four locked types express.
+- **Decision:** Deliberately re-open the model for Part 3 and make **only additive, optional** changes (five optional `season` fields + one new `clubRecord` type). The model is considered re-locked once Part 3's template phases (3.04–3.06) ship. No existing field is removed, renamed, or made required, so this is a compatible extension rather than a redesign.
+- **Alternatives considered:** *Keep the model frozen and encode the new data in existing fields (e.g. cram the table image into `story`, the trainer into `trainers`)* — rejected: overloads fields, defeats the picker/rendering, and hides the table image the redesign needs. *A larger breaking redesign of `season`* — rejected: would invalidate 96 live seasons and gate the whole of Part 3 on a migration.
+- **Consequences:** Downside accepted: the model is briefly "open" again across 3.01–3.06, so a later phase could add more fields before re-locking; the discipline is "additive/optional only until re-lock". No content or runtime impact this phase.
+- **Links:** Phase 3.01 brief (Scope, Task 1/2); D-2.01-1; `src/sanity/schemaTypes/`.
+
+### D-3.01-2 · 2026-07-21 · Season league table shown as an image (`tablePhoto`); structured `finalTable` retained as legacy
+- **Status:** Accepted (owner direction, D-0.00-14)
+- **Context:** The locked model stored the final table as `finalTable` (an array of 9-column `tableRow` objects). Filling that by hand for ~96 seasons is a large transcription job, and the source material is mostly screenshots of tables, not typed data. The owner decided the table should be shown as an image.
+- **Decision:** Add `tablePhoto` (a `reference → photo`) as the primary way to show a season's final table — a screenshot of the standings. Keep `finalTable` in the schema **unchanged in shape**, marked legacy in its description ("Задржано за компатибилност…"), so the one season that already has a real `finalTable` (`1982-83`) and the `/statistika` balance aggregate that reads it keep working.
+- **Alternatives considered:** *Keep typing structured tables for every season* — rejected: far too much manual work for 96 seasons and error-prone against screenshot sources. *Delete `finalTable` outright* — rejected: it holds one real row that `/statistika` sums, and deletion would be a breaking change against the additive-only rule (D-3.01-1).
+- **Consequences:** Downside accepted: a table shown as an image is not machine-readable, so season-by-season standings can't be auto-aggregated from `tablePhoto` (this is why `/statistika` moves to curated records + person rankings — D-3.01-5 / D-0.00-15). Two representations of "the table" now coexist (legacy structured + new image); the redesign (3.04–3.06) will prefer the image.
+- **Links:** Phase 3.01 brief (Task 1, Decisions §2); D-0.00-14; D-3.01-5; `src/sanity/schemaTypes/season.ts`.
+
+### D-3.01-3 · 2026-07-21 · Team/table photos are references ON the season to existing `photo` docs (not a tag on `photo`)
+- **Status:** Accepted
+- **Context:** A season needs a designated team photo and a designated table image, chosen from the photos already ingested for that season (linked via `photo.relatedSeason`). Two shapes were possible: a reference on the `season`, or a `role`/`kind` string tag on `photo` that the season reads back.
+- **Decision:** Model `teamPhoto` and `tablePhoto` as `reference → photo` fields **on the season**, each with an `options.filter` scoping the picker to photos whose `relatedSeason` is the current season (D-3.01-7). The season points at its lead/table photo directly and unambiguously.
+- **Alternatives considered:** *A `role`/`kind` tag on `photo` (e.g. `photo.kind == "team"`)* — rejected: more ambiguous (nothing stops two photos in a season both being tagged "team"), needs an ordering tiebreak to pick one, and reads back via a less obvious GROQ query. *A free "lead"/order number on `photo`* — rejected: same ambiguity, and it was the exact gap flagged at 2.03 (D-2.03-3) that a direct reference now closes cleanly.
+- **Consequences:** Downside accepted: the season→photo link is now modelled in **two** directions for these two slots (the general back-reference `photo.relatedSeason` **and** these forward references) — a deliberate, narrow exception to the single-direction rule (D-2.01-1) justified because these are curated singletons, not the full photo set. The picker filter depends on `relatedSeason` being set on the candidate photos (the ingestion sets it).
+- **Links:** Phase 3.01 brief (Task 1, Decisions §3); D-2.01-1; D-2.03-3; D-3.01-7; `src/sanity/schemaTypes/season.ts`.
+
+### D-3.01-4 · 2026-07-21 · Trainer as a string; lineup/stats and results as portable text (not fully structured)
+- **Status:** Accepted
+- **Context:** Beyond the table, a season carries a head-coach name, a squad-with-appearances/goals block, and a match-results block. The source documents for these are prose and screenshots, not clean structured data. The locked model already has a structured `squad` (player refs + numbers) and `trainers` (person refs).
+- **Decision:** Add `trainer` as a plain **string** (the new primary field; the older `trainers` reference array stays for compatibility), and `lineupAndStats` + `results` as **portable text** (same `block` config as `story`). These capture the source material as readable prose without forcing transcription into typed rows.
+- **Alternatives considered:** *Fully structured squad/results (player references, per-match objects)* — rejected: heavy transcription for 96 seasons against prose/screenshot sources, and much of it can't be resolved to `person` documents. *Reuse the existing structured `squad`/`trainers` only* — rejected: they require per-player references the fill phase can't reliably produce at scale; the prose fields let the content land now and be structured later if ever needed.
+- **Consequences:** Downside accepted: `trainer` (string) and `trainers` (references) now both exist and can disagree — `trainer` is declared primary; and `lineupAndStats`/`results` are not machine-queryable (can't rank from them). The prose approach matches the source and unblocks the 3.02 fill.
+- **Links:** Phase 3.01 brief (Task 1, Decisions §4); D-2.01-3; `src/sanity/schemaTypes/season.ts`.
+
+### D-3.01-5 · 2026-07-21 · New `clubRecord` type for curated Statistics records; person `careerStats` rankings retained
+- **Status:** Accepted (owner direction, D-0.00-15)
+- **Context:** Once season tables are stored as images (D-3.01-2), the Statistics page can no longer auto-aggregate all-time records from structured standings. The owner wants `/statistika` to be curated records + person-based rankings.
+- **Decision:** Add a small `clubRecord` document type — `label` (req), `value` (req), `category` (radio: scorers/appearances/honours/other), `order` — to hold hand-curated all-time records ("best all-time scorer", trophy counts, …). The existing `person.careerStats` continues to back the scorer/appearance ranking tables (D-2.01-3). Registered in `schemaTypes/index.ts` and listed in the desk as „Клупски рекорди".
+- **Alternatives considered:** *Season-by-season auto-aggregation of records* — rejected: impossible once tables are images, and it was already fragile (only 1 of 96 seasons has a structured `finalTable`). *Fields on `siteSettings`* — rejected: records are a repeating list of documents, not global singletons; a document type gives ordering, categories and clean editing.
+- **Consequences:** Downside accepted: records are manually curated (they can go stale if not maintained) and are unverified until an editor enters them under content-truth. Empty this phase (0 documents) — populated in 3.02+.
+- **Links:** Phase 3.01 brief (Task 2, Decisions §5); D-0.00-15; D-2.01-3; `src/sanity/schemaTypes/clubRecord.ts`; `src/sanity/structure.ts`.
+
+### D-3.01-6 · 2026-07-21 · All new `season` fields optional so the 96 existing seasons stay valid
+- **Status:** Accepted
+- **Context:** 96 seasons are already published. Any new **required** field would instantly make all of them invalid in Studio and could block edits/publishes.
+- **Decision:** Ship all five new `season` fields (`teamPhoto`, `tablePhoto`, `trainer`, `lineupAndStats`, `results`) as **optional** — no `validation: (rule) => rule.required()`. Only `clubRecord.label`/`clubRecord.value` are required, and that type starts empty so nothing is retroactively invalidated.
+- **Alternatives considered:** *Make `teamPhoto` required to force a real lead photo everywhere* — rejected: would invalidate all 96 seasons at once and fight the incremental fill; the curated lead is a goal, not a day-one constraint.
+- **Consequences:** Downside accepted: a season can be published with none of the new fields set, so the redesign templates (3.04–3.06) must self-omit empty sections (the pattern already used at 2.03). No existing document changed state.
+- **Links:** Phase 3.01 brief (Task 1, Decisions §6); D-2.02-3 (self-omit pattern); `src/sanity/schemaTypes/season.ts`.
+
+### D-3.01-7 · 2026-07-21 · Reference picker filtered to the same season via `options.filter` — shipped, no fallback needed
+- **Status:** Accepted
+- **Context:** `teamPhoto`/`tablePhoto` should let an editor pick only from **that season's** photos, not all 889. The brief specified an `options.filter` returning `{ filter: '_type == "photo" && relatedSeason._ref == $id', params: { id: document._id.replace(/^drafts\./, "") } }`, with a baked-in fallback: if the parent-id filter did not resolve cleanly on `sanity@4.22.0`, ship the two fields as **plain unfiltered** `photo` references and log the deviation.
+- **Decision:** Ship the **filtered** version. The function-valued `options.filter` compiled cleanly (TypeScript accepted `document._id` on `SanityDocument`) and the production build + Studio mount succeeded, so the fallback was **not** used — the picker is season-scoped. The `drafts.` prefix is stripped so the filter matches the published `relatedSeason._ref` the ingestion set.
+- **Alternatives considered:** *Unfiltered `photo` references (the fallback)* — not needed; would have let an editor pick any of 889 photos, so it was avoided. *A hard-coded GROQ string filter with no params* — rejected: can't reference the current document's id.
+- **Consequences:** Downside accepted: because `options.filter` is a **function**, it is not serialized into the deployed Content-Lake manifest (verified via `get_schema` — the filter is absent there); it runs only in the code-bundled `/studio` at edit time. That is correct and expected — the manifest is for tooling, the Studio bundles from code. No fallback deviation to report to Lazar; the picker **is** season-scoped.
+- **Links:** Phase 3.01 brief (Task 1, Decisions §7, "Owed to Lazar"); D-2.01-8 (manifest-vs-code); `src/sanity/schemaTypes/season.ts`.
+
+### D-3.01-8 · 2026-07-21 · State-file reconciliation — the repo code was ahead of its own `current-state.md`
+- **Status:** Accepted
+- **Context:** The committed `src/_project-state/current-state.md` was stale: its `NEXT:` line pointed at `2.10 — Verification + preview` and framed 2.08 as the current phase, while the live repo + Sanity had shipped through 2.08 + 2.09-Run and moved into Part 3. (The brief's own "ground truth" flagged an even older stale state; the committed file was mid-stale.) There is no 2.10 completion report.
+- **Decision:** Treat the **repo code + live Sanity + `completions/`** as the source of truth (per the `syncing-project-state` skill) and overwrite the stale parts of `current-state.md`: `NEXT: 3.02 — Content ingestion & photo tagging (Cowork)`, Part 1 + Part 2 recorded complete on `main`, live content counts corrected (96 seasons, 889 photos, 7 persons; 1 season each with finalTable/story/squad; 2 persons with careerStats; 9 captioned photos), and the 3.01 schema change recorded. `file-map.md` and `00_stack-and-config.md` updated to match.
+- **Alternatives considered:** *Trust `current-state.md` and "resume" from 2.10* — rejected: it contradicts the code and live data (the skill's rule: the live code wins, surface the gap). *Leave the stale file and only add a 3.01 note* — rejected: a snapshot that still points `NEXT` at a done/skipped phase misleads the next agent and the owner.
+- **Consequences:** Downside accepted: some forward-looking Part-2 retrospective prose ("What's now possible") is left as history and is not a live claim; the authoritative current state is the top summary + detail, which now mirror reality. 2.10 is recorded as skipped (project moved to Part 3), not as pending.
+- **Links:** Phase 3.01 brief (Task 6); `syncing-project-state` skill; `src/_project-state/current-state.md`, `file-map.md`, `00_stack-and-config.md`.
+
+### D-0.00-13 · 2026-07-21 · Part 3 restructured to "redesign, restructure, fill & launch" (four stages)
+- **Status:** Accepted (owner decision)
+- **Context:** Part 3 was originally scoped as "Polish & cutover" (D-0.00-1). After Part 2 shipped the full site + ingestion, the owner reframed Part 3's goal around a crnobelanostalgija-style season layout, a curated Statistics page, and a real content fill — bigger than "polish".
+- **Decision:** Restructure Part 3 into four stages: **foundation** (schema — this phase 3.01) → **fill** (bulk content + photo tagging, 3.02) → **redesign** (season/statistics/legends templates, ~3.04–3.06) → **launch** (domain, SEO, cutover). 3.01 is the foundation the rest builds on.
+- **Alternatives considered:** *Keep Part 3 as light polish + cutover* — rejected by the owner: the reference-site season layout and the content fill are the point of Part 3, not cosmetic polish.
+- **Consequences:** Part 3 is larger and multi-phase; the model had to be re-opened (D-3.01-1) before the redesign could begin. Sequencing: model → content → design → launch, so each stage has real data/shape to build on.
+- **Links:** D-0.00-1; Phase 3.01 brief ("Owner-confirmed planning decisions"); Part-3 phase plan.
+
+### D-0.00-14 · 2026-07-21 · League table shown as an image, not typed data
+- **Status:** Accepted (owner decision)
+- **Context:** Deciding how season standings are represented for Part 3. Source material is overwhelmingly screenshots of tables; typing structured standings for ~96 seasons is a large, error-prone manual job.
+- **Decision:** Show each season's final table as an **image** (a screenshot), modelled as `season.tablePhoto` (D-3.01-2). Structured `finalTable` is retained only as legacy.
+- **Alternatives considered:** *Transcribe every table into structured rows* — rejected by the owner: disproportionate effort against screenshot sources. *Skip tables entirely* — rejected: the table is core archive content.
+- **Consequences:** Standings become human-readable but not machine-aggregatable; this drives the Statistics-page approach (D-0.00-15). Implemented at 3.01 as `tablePhoto` (D-3.01-2).
+- **Links:** D-3.01-2; D-0.00-15; Phase 3.01 brief.
+
+### D-0.00-15 · 2026-07-21 · Statistics page = curated records + person-based rankings (not season aggregation)
+- **Status:** Accepted (owner decision)
+- **Context:** With tables stored as images (D-0.00-14), `/statistika` can't auto-aggregate all-time figures from season standings. A decision was needed on what the Statistics page is built from.
+- **Decision:** `/statistika` is **curated records** (a hand-maintained `clubRecord` list — D-3.01-5) plus **person-based rankings** read from `person.careerStats` (D-2.01-3). It is not an automatic season-by-season aggregation.
+- **Alternatives considered:** *Auto-aggregate club totals/records from season tables* — rejected: impossible once tables are images, and already unreliable (1 of 96 seasons has structured data). 
+- **Consequences:** Records are curated and must be maintained by hand; rankings stay honest (a player with no `careerStats` is omitted, never shown as 0 — D-2.04-5). Backed at 3.01 by the new `clubRecord` type.
+- **Links:** D-3.01-5; D-0.00-14; D-2.01-3; Phase 3.01 brief.
+
+### D-0.00-16 · 2026-07-21 · Bulk content fill done by Claude from the Drive + history docs, owner approves each
+- **Status:** Accepted (owner decision)
+- **Context:** The editorial fields (stories, tables, trainers, lineups, results, records) are almost entirely empty across 96 seasons. Someone has to populate them from the Drive material and history documents.
+- **Decision:** Claude performs the bulk content fill (Phase 3.02+) from the Drive folders and history docs, and the **owner approves each** entry before it is treated as verified content (content-truth: only VERIFIED claims render; missing facts become visible placeholders).
+- **Alternatives considered:** *Owner fills everything manually in Studio* — rejected: 96 seasons is too much manual work. *Claude fills and auto-publishes without review* — rejected: violates content-truth; factual claims need owner verification.
+- **Consequences:** The fill is assisted but gated on owner approval, so it is slower than unattended but stays truthful. 3.01 provides the empty fields/type this fill writes into.
+- **Links:** D-3.01-1; `facts.md` (content-truth); Phase 3.01 brief; Phase 3.02.

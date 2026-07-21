@@ -39,10 +39,72 @@ export const season = defineType({
       type: "array",
       of: [defineArrayMember({ type: "block" })],
     }),
+    // ── Part 3 photo-slot + text fields (additive, all OPTIONAL — D-3.01-1/-6).
+    // Re-opens the 2.01-locked model for Part 3; re-locked after 3.06. The
+    // league table is now shown as an IMAGE (`tablePhoto`), with the structured
+    // `finalTable` kept as legacy (D-3.01-2). Team/table photos are REFERENCES
+    // to existing `photo` docs (D-3.01-3), not a `role` tag on `photo`.
+    defineField({
+      name: "teamPhoto",
+      title: "Тимска фотографија",
+      type: "reference",
+      to: [{ type: "photo" }],
+      description:
+        "Главната екипна фотографија за сезоната. Се користи и како водечка слика на картичката во архивата.",
+      // Limit the picker to photos already linked to THIS season (D-3.01-7);
+      // strip the `drafts.` prefix so the filter matches the published id the
+      // ingestion set on `photo.relatedSeason`.
+      options: {
+        filter: ({ document }) => ({
+          filter: '_type == "photo" && relatedSeason._ref == $id',
+          params: { id: document._id.replace(/^drafts\./, "") },
+        }),
+      },
+    }),
+    defineField({
+      name: "tablePhoto",
+      title: "Фотографија од табелата",
+      type: "reference",
+      to: [{ type: "photo" }],
+      description: "Слика (скриншот) од конечната табела на сезоната.",
+      options: {
+        filter: ({ document }) => ({
+          filter: '_type == "photo" && relatedSeason._ref == $id',
+          params: { id: document._id.replace(/^drafts\./, "") },
+        }),
+      },
+    }),
+    defineField({
+      name: "trainer",
+      title: "Тренер",
+      type: "string",
+      description:
+        "Име на тренерот во сезоната (на пр. „Миодраг Јешиќ“). Ново примарно поле; постариот „Тренери“ (референци) останува за компатибилност.",
+    }),
+    defineField({
+      name: "lineupAndStats",
+      title: "Состав и статистика",
+      type: "array",
+      of: [defineArrayMember({ type: "block" })],
+      description:
+        "Состав и статистика на играчите (настапи/голови), преземено од изворните документи.",
+    }),
+    defineField({
+      name: "results",
+      title: "Резултати",
+      type: "array",
+      of: [defineArrayMember({ type: "block" })],
+      description:
+        "Резултати од натпреварите во сезоната. Секцијата се крие ако е празна.",
+    }),
+    // LEGACY (D-3.01-2): retained for back-compat; new seasons use `tablePhoto`
+    // + „Состав и статистика“ instead of typing the table/squad by hand.
     defineField({
       name: "finalTable",
       title: "Конечна табела",
       type: "array",
+      description:
+        "Задржано за компатибилност — новите сезони ја користат сликата од табелата и „Состав и статистика“.",
       of: [
         defineArrayMember({
           type: "object",
@@ -77,10 +139,14 @@ export const season = defineType({
         }),
       ],
     }),
+    // LEGACY (D-3.01-2): retained for back-compat; new seasons use „Состав и
+    // статистика“ (`lineupAndStats`) instead of typing the squad by hand.
     defineField({
       name: "squad",
       title: "Состав",
       type: "array",
+      description:
+        "Задржано за компатибилност — новите сезони ја користат сликата од табелата и „Состав и статистика“.",
       of: [
         defineArrayMember({
           type: "object",
