@@ -16,6 +16,7 @@
   - `walkthrough.md` — demo script (spoken lines in Macedonian; incl. the OV-3 footer question)
   - `feedback.md` — capture template for Ace's feedback (**still the empty template** — the sit-down had not happened as of 2.01; D-2.01-7)
   - `screenshots/homepage-desktop.png` (1280-wide) · `homepage-mobile.png` (375-wide) — full-page captures of the finished homepage, **regenerated at 2.08** from the local prod build (reveal forced via `prefers-reduced-motion`)
+  - `Part-3-Phase-02-pilot-review.html` — **self-contained** visual review report (Phase 3.02): the 6 pilot seasons' chosen team+table thumbnails, trainer/stats text, per-season gaps, the 7 `clubRecord`s + sources, and the 881-provenance-rewrite before→after. For the owner to approve the pilot pattern before the 90-season run.
 - `docs/content-ingestion-plan.md` — **how the ~915 photos / ~74 seasons get into Sanity** (Phase 2.01, D-2.01-4): the hybrid approach (scripted shells+assets / manual editorial), the deterministic Drive-folder→season mapping rules, the by-decade wave plan, and the provisional-provenance / P0.2-rights gate. Phase 2.09 builds and runs against this.
 - `docs/ingestion/` — Phase 2.09 ingestion reports + hand-off:
   - `README.md` — run procedure + „verify no draft leaked" check
@@ -48,6 +49,8 @@
 - `completions/Part-2-Phase-07-Completion.md` — Phase 2.07 completion report (Contact page `/kontakt`)
 - `completions/Part-2-Phase-09-Completion.md` — Phase 2.09 completion report (content ingestion — script built; waves blocked on the missing mirror, D-2.09-3)
 - `completions/Part-2-Phase-09-Run-Completion.md` — Phase 2.09-**Run** completion report (the actual ingestion: 96 seasons + 889 published photos; OV-4/-6/-7/-9 cleared; the owner-directed publish D-2.09R-2)
+- `completions/Part-3-Phase-01-Completion.md` — Phase 3.01 completion report (content model update: 5 optional `season` fields + `clubRecord` type; schema deployed)
+- `completions/Part-3-Phase-02-Completion.md` — Phase 3.02 completion report (content fill — 2020s pilot: 6 seasons tagged + trainer/top-scorer text, 7 `clubRecord`s, 881 photo `provenance` rewritten → OV-10 cleared)
 
 ## Application (`src/`)
 - `src/app/layout.tsx` — **bare** root layout: `<html lang="mk">`/`<body>`, fonts, `globals.css`, Vercel Analytics, site metadata. Site chrome moved to the `(site)` group so `/studio` can escape it (Phase 1.04, D-1.04-3)
