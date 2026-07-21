@@ -129,3 +129,15 @@ Dev dependency added (`package.json` → `devDependencies`, exact — no caret/t
 - Used only by `scripts/ingest/run.mjs` (plain Node ESM, no TypeScript, no build step). The **site itself stays token-free** (D-1.04-2): `@sanity/client` here is a *devDependency* and the write token lives only in `.env.local` (git-ignored), never in the site bundle or on Vercel.
 - New env var (SECRET, local only): `SANITY_API_WRITE_TOKEN` — Sanity token with Editor on `production`, read by the ingestion script's `--commit` mode. Documented (empty) in `.env.example`; **not** set in `.env.local` or Vercel this phase (the ingestion waves have not run — see D-2.09-3). Never `NEXT_PUBLIC`, never committed.
 - `npm run build` and `npm run lint` exit 0 on this stack (the script is not part of the Next build graph).
+
+## 2026-07-21 — Phase 3.01 content model update: schema change (NO dependency change)
+
+**No npm dependency was added, upgraded, or removed this phase.** Stack unchanged: Next.js 15.5.20, React 19.2.4, Tailwind CSS 4.3.2, `sanity` 4.22.0, `next-sanity` 11.6.13, `@sanity/vision` 4.22.0, `@sanity/image-url` 2.1.1, `@portabletext/react` 6.2.0, `@vercel/analytics` 2.0.1, `@sanity/client` 7.23.1 (dev). Recorded here per the append-only rule because the phase changed the deployed **schema/config**, which this log also tracks.
+
+Schema / Studio changes (Part 3, D-3.01-1..7 — additive & optional; model re-opened after the 2.01 lock, re-locks after 3.06):
+- `season` gained five **optional** fields (Studio order, immediately after `story`): `teamPhoto` + `tablePhoto` (`reference → photo`, `options.filter` scopes the picker to the same season), `trainer` (string), `lineupAndStats` + `results` (portable text, same `block` config as `story`). Legacy `finalTable`/`squad`/`trainers` are unchanged in shape (descriptions marked legacy).
+- New document type `clubRecord` (`label` req, `value` req, `category` radio, `order`), registered in `schemaTypes/index.ts`, exposed in `structure.ts` as „Клупски рекорди".
+- **Schema deployed to the Content Lake:** `npx sanity schema deploy --workspace belasica-v2` → `_.schemas.belasica-v2` (project `f8rmnfry`, dataset `production`). Always the `belasica-v2` workspace, **never** the stray Studio-deployed `default` (D-2.01-8). The embedded `/studio` bundles its schema from code, so it reflects the change on the next Vercel deploy; the deployed manifest is for tooling (schema-aware MCP / typegen).
+- The reference `options.filter` is a **function** (`({ document }) => …`), so it is **not** serialized into the deployed tooling manifest — it runs only in the code-bundled Studio at edit time. It compiled cleanly on `sanity@4.22.0`; the brief's unfiltered fallback was **not** needed.
+- `.env` / tokens: no change; no new env var; the site stays token-free.
+- `npm run build` (115 pages) and `npm run lint` exit 0 on this stack.

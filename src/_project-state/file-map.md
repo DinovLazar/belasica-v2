@@ -70,15 +70,16 @@
 - `src/lib/nav.ts` — single source for nav items + `isActivePath()` (Phase 1.03)
 - `src/lib/utils.ts` — shadcn `cn()` class-merge helper
 
-## Sanity (`src/sanity/`) — created Phase 1.04; content model **LOCKED** at Phase 2.01
+## Sanity (`src/sanity/`) — created Phase 1.04; model **LOCKED** at 2.01, **re-opened additively at 3.01** (re-locks after 3.06)
 - `src/sanity/env.ts` — reads `NEXT_PUBLIC_SANITY_PROJECT_ID` / `_DATASET`, pinned `apiVersion`, `useCdn: true`
 - `src/sanity/client.ts` — read-only client (published perspective, no token)
 - `src/sanity/image.ts` — `@sanity/image-url` builder (`urlFor`) for `next/image`
-- `src/sanity/structure.ts` — Studio desk structure; `siteSettings` pinned as a singleton (D-1.04-5). Every other type is auto-listed via `documentTypeListItems()`, so retiring `match` from `index.ts` drops it from the desk with no change here
+- `src/sanity/structure.ts` — Studio desk structure; `siteSettings` pinned as a singleton (D-1.04-5). season/person/photo are auto-listed via `documentTypeListItems()` (so retiring `match` from `index.ts` drops it with no change here); **`clubRecord` is listed explicitly so its desk entry reads the plural „Клупски рекорди"** (schema title is the singular „Клупски рекорд") — 3.01, D-3.01-5
 - `src/sanity/lib/isUniqueSlug.ts` — `isUniqueSlugPerType`: slug-uniqueness check scoped to the document type, wired into `season.slug` / `person.slug` via `options.isUnique`; excludes the doc's own draft/published pair (Phase 2.01, D-2.01-6)
-- `src/sanity/schemaTypes/index.ts` — the **locked** schema: `siteSettings`, `season`, `person`, `photo`. `match` is deliberately **not** registered (D-2.01-2)
+- `src/sanity/schemaTypes/index.ts` — the schema `types` array: `siteSettings`, `season`, `person`, `photo`, **`clubRecord`** (added 3.01). `match` is deliberately **not** registered (D-2.01-2)
 - `src/sanity/schemaTypes/siteSettings.ts` — singleton: site title, description, footer archive statement
-- `src/sanity/schemaTypes/season.ts` — season: title, slug (**unique**), decade (**required**), story (PT), final table, squad, trainers. **No `photos`** — photos attach via `photo.relatedSeason` and are read by GROQ back-reference (D-2.01-1)
+- `src/sanity/schemaTypes/season.ts` — season: title, slug (**unique**), decade (**required**), story (PT), **then five 3.01 optional fields (D-3.01-1..7): `teamPhoto` + `tablePhoto` (`reference → photo`, picker filtered to the same season via `options.filter`), `trainer` (string), `lineupAndStats` + `results` (PT, same `block` config as `story`)**, then legacy `finalTable`/`squad`/`trainers` (unchanged shape; descriptions now note „Задржано за компатибилност…", D-3.01-2). **No `photos`** — photos attach via `photo.relatedSeason` and are read by GROQ back-reference (D-2.01-1)
+- `src/sanity/schemaTypes/clubRecord.ts` — **new at 3.01 (D-3.01-5)**: curated Statistics records. `label` (**req**), `value` (**req**), `category` (string, radio list: scorers/appearances/honours/other), `order` (number), preview (label/value). Empty until 3.02+; person `careerStats` still backs the ranking tables
 - `src/sanity/schemaTypes/match.ts` — **DEFERRED / unregistered** (D-2.01-2): kept in-repo with a deferral header, absent from `index.ts`, so Studio does not list „Натпревар". No match-level Drive source exists (P0.1); stats come from season aggregates. Re-add via a future phase if that changes
 - `src/sanity/schemaTypes/person.ts` — person: name, slug (**unique**), roles, playing years, bio (PT), `careerStats` (**authoritative** career total — D-2.01-3). **No `photos`** — portraits attach via `photo.relatedPerson` (D-2.01-1)
 - `src/sanity/schemaTypes/photo.ts` — photo: image (hotspot, required), caption, provenance (**required** — the rights paper-trail; carries the P0.1/P0.2 rights-gate comment), date, `relatedSeason` / `relatedPerson` — **the single, canonical direction** of both relationships (D-2.01-1)
