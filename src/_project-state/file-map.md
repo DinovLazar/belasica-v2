@@ -17,6 +17,7 @@
   - `feedback.md` — capture template for Ace's feedback (**still the empty template** — the sit-down had not happened as of 2.01; D-2.01-7)
   - `screenshots/homepage-desktop.png` (1280-wide) · `homepage-mobile.png` (375-wide) — full-page captures of the finished homepage, **regenerated at 2.08** from the local prod build (reveal forced via `prefers-reduced-motion`)
   - `Part-3-Phase-02-pilot-review.html` — **self-contained** visual review report (Phase 3.02): the 6 pilot seasons' chosen team+table thumbnails, trainer/stats text, per-season gaps, the 7 `clubRecord`s + sources, and the 881-provenance-rewrite before→after. For the owner to approve the pilot pattern before the 90-season run.
+  - `Part-3-Phase-02-Run-review.html` — **self-contained** full-archive review report (Phase 3.02-Run): all 90 `decade!=2020` seasons over 10 decade sections, each with team+table thumbnails, trainer + top scorer, gaps, and 3 review-flags (77 team / 82 table photos). 2.3 MB.
 - `docs/content-ingestion-plan.md` — **how the ~915 photos / ~74 seasons get into Sanity** (Phase 2.01, D-2.01-4): the hybrid approach (scripted shells+assets / manual editorial), the deterministic Drive-folder→season mapping rules, the by-decade wave plan, and the provisional-provenance / P0.2-rights gate. Phase 2.09 builds and runs against this.
 - `docs/ingestion/` — Phase 2.09 ingestion reports + hand-off:
   - `README.md` — run procedure + „verify no draft leaked" check
@@ -51,6 +52,7 @@
 - `completions/Part-2-Phase-09-Run-Completion.md` — Phase 2.09-**Run** completion report (the actual ingestion: 96 seasons + 889 published photos; OV-4/-6/-7/-9 cleared; the owner-directed publish D-2.09R-2)
 - `completions/Part-3-Phase-01-Completion.md` — Phase 3.01 completion report (content model update: 5 optional `season` fields + `clubRecord` type; schema deployed)
 - `completions/Part-3-Phase-02-Completion.md` — Phase 3.02 completion report (content fill — 2020s pilot: 6 seasons tagged + trainer/top-scorer text, 7 `clubRecord`s, 881 photo `provenance` rewritten → OV-10 cleared)
+- `completions/Part-3-Phase-02-Run-Completion.md` — Phase 3.02-**Run** completion report (the remaining 90 seasons: 77 team + 82 table photos, 63 trainers, 66 top-scorers; photos classified by 8 parallel subagents + validated; main narrative→`story` deferred, D-3.02R-3)
 
 ## Application (`src/`)
 - `src/app/layout.tsx` — **bare** root layout: `<html lang="mk">`/`<body>`, fonts, `globals.css`, Vercel Analytics, site metadata. Site chrome moved to the `(site)` group so `/studio` can escape it (Phase 1.04, D-1.04-3)
