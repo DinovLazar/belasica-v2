@@ -1105,3 +1105,35 @@
 - **Alternatives considered:** *MCP patch in ~4 batches of 25* — rejected: hand-building 87 Cyrillic patch objects (incl. portable-text + references) is error-prone and unvalidated. *Set-then-publish two-step* — unnecessary; patching published directly is what the site reads.
 - **Consequences:** One reviewable data file + one dry-run gate before 87 writes; membership validation caught that 0 picks were mis-assigned. Same script pattern as the provenance rewrite. Scripts never committed.
 - **Links:** Phase 3.02-Run; D-3.02-5; D-2.09R-5; completion report §5.
+
+### D-3.02S-1 · 2026-07-21 · Per-season history narrative extracted by 5 parallel era-subagents (verbatim), then verified against the raw source
+- **Status:** Accepted
+- **Context:** After the photo/trainer/scorer run, the owner directed „content fill all the other seasons missing". The biggest remaining documented content is the club's 229 K-char history book (1922→~1992), which is `season.story` (Приказна) material.
+- **Decision:** Sliced the narrative into 5 era files and gave each to a subagent under a strict **verbatim-only** rule (no paraphrase/summary/translation/omission; only remove markdown escapes + separator lines; join paragraphs). Each agent wrote its `story_raw/eraN.json` to disk and returned a short summary. I then **verified every era against the raw text** with a multi-probe check (sampled phrases per season must appear verbatim — 66/66 passed) and preserved source OCR typos exactly.
+- **Alternatives considered:** *Read + transcribe all 229 K chars myself* — rejected: would exhaust context and serialize. *Let agents summarize/clean the prose* — rejected: summarizing ≠ faithful transcription (content-truth). *Anchor/offset slicing* — considered; agents returning verbatim-to-file + my raw-text verification was simpler and equally faithful.
+- **Consequences:** Fast + faithful; a transient API/network outage (ENOTFOUND) killed 4 of 5 mid-run — era1/era4 had already written (recovered + verified), era2/era3 were relaunched with a „write the file before replying" instruction and completed. All 66 verified verbatim.
+- **Links:** Phase 3.02-Story; D-3.02R-1; completion report §2.
+
+### D-3.02S-2 · 2026-07-21 · `story` = per-season prose (fill-empty-only); squads → `lineupAndStats`; `results` empty
+- **Status:** Accepted
+- **Context:** At 3.02-Run I flagged the narrative→field mapping as an owner-gated question. The owner's „content fill all the other seasons missing" resolved it.
+- **Decision:** Put each season's narrative **prose** into the existing, already-rendered **`story`** field, and the **squad roster** (players + apps/goals) into **`lineupAndStats`** (appended after the top-scorer line). Only fill `story` where currently **empty** — the 1992-93 demo `story` was preserved, not overwritten. `results` left empty (see D-3.02S-3).
+- **Alternatives considered:** *Put everything (prose + results + squad) in `story`* — rejected: squads belong in `lineupAndStats`; results have their own field. *Overwrite the 1992-93 demo with the narrative version* — rejected: don't clobber curated content without the owner's call.
+- **Consequences:** `story` (a pre-3.01 field) renders immediately on the live season pages — the first visible public change in the 3.02 series (verified on production). `lineupAndStats`/`trainer`/`teamPhoto`/`tablePhoto` still await the redesign to render.
+- **Links:** Phase 3.02-Story; D-3.02R-3; `src/components/archive/SeasonStory`; completion report §4.
+
+### D-3.02S-3 · 2026-07-21 · Accepted + flagged minor extraction inconsistencies rather than re-run good work
+- **Status:** Accepted
+- **Context:** The 5 era-agents made slightly different (individually reasonable) calls on non-prose blocks.
+- **Decision:** Accept and **flag** three nuances instead of re-running (which risked more API failures and wasted verified work): (1) round-by-round **result listings** are interwoven in `story` for 1922-1941 + 1983-1992 but were left out for the other eras — so `results` is empty everywhere and a uniform results-field pass is a recommended follow-on; (2) **trailing photo captions** sit in `story` for 4 seasons (1958-59…1961-62), verbatim, as their own paragraph; (3) **source OCR typos preserved** verbatim (content-truth).
+- **Alternatives considered:** *Re-run era1/era4 prose-only for consistency* — rejected: risks re-failure, drops documented results from those seasons, and some very early seasons would be left with almost no prose. *Silently correct typos / drop captions* — rejected: content-truth forbids silent edits/omissions.
+- **Consequences:** All content is verbatim + truthful; presentation is slightly uneven (some stories richer than others). Normalizing (split results into `results`, copy-edit typos, move captions) is a clean, owner-visible future step, not a silent one.
+- **Links:** Phase 3.02-Story; `facts.md` (content-truth); completion report §4, §7.
+
+### D-3.02S-4 · 2026-07-21 · Story coverage stops at 1995/96 — no story fabricated for 1996+
+- **Status:** Accepted
+- **Context:** The history book's detailed per-season prose ends at 1995/96; the „1992–2006" section is a thin ~18 K-char summary that stops after the 1995/96 squad list.
+- **Decision:** Fill `story` for the 66 seasons the narrative actually covers (1922-26 → 1995/96); leave the 30 seasons 1996/97→2025/26 with **no** story (empty), because no narrative source exists for them.
+- **Alternatives considered:** *Compose brief stories for 1996+ from tables/scorers/results* — rejected: that is invention/derivation, not transcription (content-truth); empty is the honest state.
+- **Consequences:** 66/96 seasons have a story; the gap is a genuine source limitation, recorded for the owner. New source material would be needed to fill 1996+.
+- **Links:** Phase 3.02-Story; content-truth; completion report §7.

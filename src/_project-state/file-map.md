@@ -53,6 +53,7 @@
 - `completions/Part-3-Phase-01-Completion.md` — Phase 3.01 completion report (content model update: 5 optional `season` fields + `clubRecord` type; schema deployed)
 - `completions/Part-3-Phase-02-Completion.md` — Phase 3.02 completion report (content fill — 2020s pilot: 6 seasons tagged + trainer/top-scorer text, 7 `clubRecord`s, 881 photo `provenance` rewritten → OV-10 cleared)
 - `completions/Part-3-Phase-02-Run-Completion.md` — Phase 3.02-**Run** completion report (the remaining 90 seasons: 77 team + 82 table photos, 63 trainers, 66 top-scorers; photos classified by 8 parallel subagents + validated; main narrative→`story` deferred, D-3.02R-3)
+- `completions/Part-3-Phase-02-Story-Completion.md` — Phase 3.02-**Story** completion report (`season.story` filled for 66 seasons 1922→1995/96 from the history narrative, verbatim via 5 era-subagents; +squad rosters in `lineupAndStats`; first 3.02 change visible on the live site, D-3.02S-1…-4)
 
 ## Application (`src/`)
 - `src/app/layout.tsx` — **bare** root layout: `<html lang="mk">`/`<body>`, fonts, `globals.css`, Vercel Analytics, site metadata. Site chrome moved to the `(site)` group so `/studio` can escape it (Phase 1.04, D-1.04-3)
