@@ -1073,3 +1073,35 @@
 - **Alternatives considered:** *Publish as a claude.ai Artifact (hosted link)* — not done here, to keep the deliverable a committable repo file the owner can open directly; can be published later if a link is wanted. *Reference `cdn.sanity.io` image URLs instead of base64* — rejected: not self-contained (the brief asked for self-contained).
 - **Consequences:** A ~562 KB HTML file that opens in any browser, offline-capable, committed with the phase. Downside: base64 makes the file large; acceptable for a review artifact.
 - **Links:** Phase 3.02 brief (Task E); `docs/ace-demo/Part-3-Phase-02-pilot-review.html`.
+
+### D-3.02R-1 · 2026-07-21 · Photo classification for the 90-season run delegated to 8 parallel per-decade subagents
+- **Status:** Accepted
+- **Context:** The 3.02-Run (owner-approved after the pilot) had to classify **846** photos across 90 seasons for `teamPhoto`/`tablePhoto`. Opening all of them in the main context would exhaust it; doing them serially would be very slow.
+- **Decision:** Fanned out **8 background subagents** (one per decade group), each given the exact pilot rubric (genuine posed squad only; exclude buildlineup/formation graphics, „FULL TIME" result graphics, table screenshots, portraits, signings, roster forms, prose, webpage screenshots) and required to return the chosen photo's **filename + a one-line description** so picks could be cross-checked. Content-truth control retained centrally: (a) the write script **validated every one of the 159 picked photo ids belongs to its season** (0 anomalies), and (b) a **cross-era visual spot-check** of 10 picks (incl. the two borderline cases) confirmed all genuine.
+- **Alternatives considered:** *Classify all 846 myself via contact sheets* — rejected: ~26+ large sheets would bloat context and serialize the slowest part. *Trust filenames only* — rejected: the pilot already proved filenames mislead (training-walk „екипа.jpg"); the agents viewed every image. *Let subagents write to Sanity* — rejected: kept all writes central for content-truth + to avoid concurrent-write races.
+- **Consequences:** Fast, parallel, and verifiable; the agents' notes surfaced real nuances (celebration/action shots, montages, two-team lineups, mid-season tables) that a filename pass would have missed. Downside: token-heavy (8 × ~110 K), and I relied on delegated visual judgement — mitigated by the membership validation + spot-check.
+- **Links:** Phase 3.02-Run; D-3.02-1 (pilot rubric); completion report §2–3.
+
+### D-3.02R-2 · 2026-07-21 · `teamPhoto`/`tablePhoto` set only where a genuine image exists; borderline picks flagged, not hidden
+- **Status:** Accepted
+- **Context:** Many older seasons have no posed squad photo and/or no standings-table image — only prose clippings, roster forms, action shots, or mid-season tables.
+- **Decision:** Set `teamPhoto` on **77/90** and `tablePhoto` on **82/90**, leaving the rest empty (13 seasons no team, 8 no table — the war years, earliest decades, and 2007–2011 where only action/webpage shots exist). Three borderline-but-genuine team images were **used and flagged** in the review report rather than dropped or silently used: **1950** (youth „подмладок" squad — the only team image), **1955-56** (a „БЕЛАСИЦА 1955-1956" headshot montage/poster), **1988-89** (a two-team pre-match lineup Бокељ–Беласица).
+- **Alternatives considered:** *Force a photo on every season* — rejected: would mean using a graphic or an unrelated image (content-truth violation). *Drop the 3 borderline images* — rejected: they are genuine Belasica squad images and better than empty; flagging lets the owner decide.
+- **Consequences:** Empty slots are honest gaps (invisible on the redesigned page); the 3 flagged cases are owner-review items. No fan/result/table graphic used as a team photo anywhere in the 90.
+- **Links:** Phase 3.02-Run; D-3.02-1; `docs/ace-demo/Part-3-Phase-02-Run-review.html`.
+
+### D-3.02R-3 · 2026-07-21 · Run scope = trainer + top-scorer only; the main narrative (1922–1992) is `story` content, left out of scope
+- **Status:** Accepted
+- **Context:** The pilot's Task B populates `trainer`/`lineupAndStats`/`results`. For the older seasons the main history docx („…гордоста на Струмица…", 229 K chars) narrates 1922→~1992 in detail (squads, results, context) — much richer than the 2020s had.
+- **Decision:** Wrote `trainer` (63/90, from „Тренери…") and `lineupAndStats` = season top scorer (66/90, from „Најдобри стрелци…") for every documented season; left `results` empty for all 90. The main-narrative prose was **not** transcribed, because it is **`season.story` (Приказна)** content — a field **outside the pilot's Tasks A/B** and never part of the owner-approved pilot pattern. Flagged as a recommended separate „narrative → story" phase.
+- **Alternatives considered:** *Dump the narrative into `results`* — rejected: `results` is for match results, not history prose; and it would be a huge unreviewed scope jump the owner never saw in the pilot. *Summarize the narrative myself* — rejected: summarizing ≠ faithful transcription (content-truth). *Skip trainer/scorer too and defer everything* — rejected: those are bounded, high-confidence, and exactly the approved pattern.
+- **Consequences:** The run faithfully reproduces the approved pilot pattern at scale; the archive's richest content (per-season history) is surfaced as an explicit, owner-gated follow-on rather than silently done or silently skipped. The 3 dedicated per-season squad docx (1971-72, 1972-73, 1981-82) are likewise flagged for a richer `lineupAndStats` later.
+- **Links:** Phase 3.02-Run; D-3.02-3; completion report §4, §7.
+
+### D-3.02R-4 · 2026-07-21 · 90-season write done via a throwaway script (text-JSON + picks-JSON), patching published docs directly
+- **Status:** Accepted
+- **Context:** 90 seasons × up to 4 fields (two reference objects, a Cyrillic string, a portable-text block) is far too error-prone to hand-type through MCP `patch_documents` (25/call, manual JSON).
+- **Decision:** Authored the trainer + top-scorer text as a reviewed **`season-text.json`** (transcribed from the two docs), merged the 8 agents' picks into **`photo-picks.json`**, and ran a throwaway **`build-seasons.mjs`** that joins them, validates photo membership, **dry-runs**, then patches the **published** season docs directly (token from `.env.local`; D-2.09R-5 / D-3.02-5 precedent). Only fields with data are set; empty fields are left untouched.
+- **Alternatives considered:** *MCP patch in ~4 batches of 25* — rejected: hand-building 87 Cyrillic patch objects (incl. portable-text + references) is error-prone and unvalidated. *Set-then-publish two-step* — unnecessary; patching published directly is what the site reads.
+- **Consequences:** One reviewable data file + one dry-run gate before 87 writes; membership validation caught that 0 picks were mis-assigned. Same script pattern as the provenance rewrite. Scripts never committed.
+- **Links:** Phase 3.02-Run; D-3.02-5; D-2.09R-5; completion report §5.
