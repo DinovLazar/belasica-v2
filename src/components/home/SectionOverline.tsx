@@ -1,11 +1,16 @@
 import { cn } from "@/lib/utils";
 
 /**
- * Section overline. Brand rule D-1.02-1: orange never carries text on the
- * paper surface (2.8:1 fails AA). So:
- *  - onPaper  → short orange rule (marker) + navy overline text.
- *  - onNavy   → orange overline text (4.6:1 on navy passes AA), no rule.
- * See brand.md §Color and the Phase 1.05 handover §Layout.
+ * Section overline. Brand rule D-1.02-1: orange only carries text where it
+ * reaches AA. So the variant follows the surface:
+ *  - onPaper  → short orange rule (marker) + navy overline text (13:1).
+ *  - onNavy   → orange overline text on SOLID navy (4.6:1 passes AA), no rule.
+ *  - onPhoto  → short orange rule (marker) + PAPER overline text, for overlays
+ *    on a photo+navy-gradient (hero, moment band). Orange text there is NOT
+ *    reliable — behind the overline can sit a light photo pixel, where even a
+ *    heavy gradient leaves orange at ~3.7:1 (measured). Paper stays ≥ 6.8:1, so
+ *    the text carries in paper and orange is kept purely as the marker.
+ * See brand.md §Color / §Contrast and the Phase 1.05 handover §Layout.
  */
 export function SectionOverline({
   children,
@@ -13,7 +18,7 @@ export function SectionOverline({
   className,
 }: {
   children: React.ReactNode;
-  variant?: "onPaper" | "onNavy";
+  variant?: "onPaper" | "onNavy" | "onPhoto";
   className?: string;
 }) {
   if (variant === "onNavy") {
@@ -29,10 +34,17 @@ export function SectionOverline({
     );
   }
 
+  const textColor = variant === "onPhoto" ? "text-paper" : "text-navy";
+
   return (
     <div className={cn("flex items-center gap-3", className)}>
       <span aria-hidden className="h-0.5 w-8 shrink-0 bg-orange" />
-      <p className="text-overline font-semibold uppercase tracking-overline text-navy">
+      <p
+        className={cn(
+          "text-overline font-semibold uppercase tracking-overline",
+          textColor,
+        )}
+      >
         {children}
       </p>
     </div>

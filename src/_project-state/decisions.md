@@ -1137,3 +1137,51 @@
 - **Alternatives considered:** *Compose brief stories for 1996+ from tables/scorers/results* — rejected: that is invention/derivation, not transcription (content-truth); empty is the honest state.
 - **Consequences:** 66/96 seasons have a story; the gap is a genuine source limitation, recorded for the owner. New source material would be needed to fill 1996+.
 - **Links:** Phase 3.02-Story; content-truth; completion report §7.
+
+### D-3.03-1 · 2026-07-23 · Design + build combined in one phase; the Vercel PR preview is the review gate (owner decision)
+- **Status:** Accepted (owner decision, 2026-07-21)
+- **Context:** The plan had a separate design-mockup phase (3.03-Design → `Part-3-Phase-03-Design.md`) before the build. The owner chose to skip the mockup-only phase and do design + build together, using `designing-and-coding-branded-web-ui` in both its design and code modes, with the Vercel PR preview (reviewed at 1280 + 375) as the sole review gate before merge.
+- **Decision:** Design and build the redesigned homepage, footer, and navbar in this single phase; ship to a PR + Vercel preview; the owner reviews the built preview and can request changes before merge. This brief supersedes the design-only `Part-3-Phase-03-Design.md`.
+- **Alternatives considered:** *Keep the separate mockup phase* — rejected by the owner: cheap mockup-only iteration is traded away, but design decisions are validated on the real built page against real Sanity content instead of a static mockup (which is closer to what actually ships — V1's lesson was that rendered quality is the risk).
+- **Consequences:** No mockup artifact exists for this phase; iteration happens on the built preview. The design skill's pre-ship audit + `design:accessibility-review` were run on the built page (see §5).
+- **Links:** Phase 3.03 brief; supersedes `Part-3-Phase-03-Design.md`; D-0.00-2.
+
+### D-3.03-2 · 2026-07-23 · Homepage legends marquee ordered portraits-first, then Cyrillic name
+- **Status:** Accepted
+- **Context:** The legends band shows the club's players (5 today). Only 3 of the 5 have a portrait (Васо, Панче, Петар); the other two (Роберт, Љупчо) use the navy-initials tile. A deterministic order is needed and the marquee should look deliberate with a handful.
+- **Decision:** Sort `hasPortrait desc, name asc` (Cyrillic `localeCompare("mk")`) — real portraits lead the row, the navy-initials tiles follow, then alphabetical. Reuses the existing `LegendCard` (portrait-or-navy-initials-tile, role chips, playing years) so the homepage and `/legendi` never drift.
+- **Alternatives considered:** *Pure name order (as D-1.05.2-3)* — rejected: interleaves initials tiles among portraits, which reads less intentional in a marquee. *By career appearances/goals* — rejected: the strongest-stat players (Роберт 175, Љупчо 115) have no portrait, so a stats order would lead the marquee with initials tiles. *Show only the 3 with portraits* — rejected: hides real legends and the navy-initials tile is a deliberate brand element, not a gap.
+- **Consequences:** The marquee leads with the vintage B&W portraits and the two navy monogram tiles read as intentional. Deterministic across cold reads. Content dependency (thin legends set, some without portraits/years) flagged in §7.
+- **Links:** Phase 3.03; `LegendCard` (D-2.06-7); D-1.05.2-3; completion report §4.
+
+### D-3.03-3 · 2026-07-23 · `clubRecord` order = category priority (honours→appearances→scorers) then `order`; championship pulled out as a feature
+- **Status:** Accepted
+- **Context:** The brief says render the records "ordered by `category` then `order`". Strict alphabetical category order (appearances < honours < scorers) would bury the two league titles behind the appearances record; the `order` field was authored as a global 1–7 sequence that already leads with honours.
+- **Decision:** Order by a category **priority** — honours (0) → appearances (1) → scorers (2) → other (3) — then by `order` within each, with a Cyrillic-name final tiebreak for determinism. The first record (Шампион на Македонија, order 1) is rendered as a full-width feature; the remaining six fall into an even 3-column ledger. Neither `label` nor `value` is reformatted (a record is a factual claim, shipped as curated).
+- **Alternatives considered:** *Strict alphabetical category then order* — rejected: leads with the appearances record and buries the titles; not the owner's evident intent (the global `order` starts at the championship). *Order by `order` alone* — equivalent result today; the explicit category-priority is more robust if new records are added with local `order` values.
+- **Consequences:** The navy records band leads with the two titles, reads as a records board, and stays deterministic. If a future record needs a different position, set its `category` + `order`.
+- **Links:** Phase 3.03; `src/components/home/ClubRecords.tsx`; D-3.01-5; completion report §4.
+
+### D-3.03-4 · 2026-07-23 · "Момент од историјата" photo selected deterministically: captioned + season-anchored + landscape, oldest era then widest crop
+- **Status:** Accepted
+- **Context:** Section 6 is "one full-bleed real published archival photograph." It must be deterministic, genuinely historical, and distinct from the hero (the modern 2025/26 team photo).
+- **Decision:** Select in GROQ: `photo` with a non-empty `caption`, a `relatedSeason`, and landscape aspect (`aspectRatio > 1.2`), ordered `relatedSeason->decade asc, aspectRatio desc, _id asc`, take `[0]`. This resolves today to the 1993 Macedonian-Cup photo („Младата екипа на Беласица со Купот на Македонија, 1993"). A caption is the editor's curation signal (the 2.08 lever); ordering oldest-era-first structurally excludes the modern hero photo and yields a genuinely historical moment; widest-crop-first prefers a photo that reads well full-bleed.
+- **Alternatives considered:** *Reuse the featured season's 2nd photo (the old homepage rule)* — rejected: not necessarily historical, and could collide with the hero. *Hardcode the photo `_id`* — rejected: brittle; a GROQ rule survives content edits. *Any captioned photo (no season anchor)* — rejected: a season anchor gives a real date/era and keeps it archival.
+- **Consequences:** Deterministic and evocative today; if a new older captioned landscape season-photo is published it would take precedence — an acceptable, content-driven change (logged so a future reader knows the moment is rule-selected, not fixed).
+- **Links:** Phase 3.03; `HOME_QUERY` (`moment`); D-2.08-3 (caption-as-curation); completion report §4.
+
+### D-3.03-5 · 2026-07-23 · New `SectionOverline` variant `onPhoto` — orange marker + PAPER text over photos (orange text there fails AA)
+- **Status:** Accepted
+- **Context:** brand.md §Components describes the hero overline as an "orange overline", and the pre-3.03 `SectionOverline` `onNavy` variant renders orange text (valid on SOLID navy at 4.6:1). But the hero and the moment band are orange text over a **photo + navy gradient**. Pixel-sampling the built hero showed the overline sits over a light photo pixel `[224,206,184]` where even a heavy gradient leaves orange at ~3.7:1 — below the 4.5 AA floor for 12px text. This is exactly the case D-1.02-1 forbids (orange text only where AA holds).
+- **Decision:** Add an `onPhoto` variant: the orange **rule marker** (non-text, always fine) + **paper** overline text (measured ≥ 6.8:1 over the worst-case pixel with the chosen gradient). Use it on the hero and the moment band; keep `onNavy` (orange text) only on the SOLID-navy records band (4.68:1, measured). D-1.02-1 (AA) wins over brand.md's looser "orange overline" phrasing — same reconciliation as D-1.03-1.
+- **Alternatives considered:** *Darken the gradient until orange reaches AA* — rejected: would require near-solid navy over the overline band, killing the photo-forward hero. *Keep orange text and accept ~3.7:1* — rejected: an AA failure and a D-1.02-1 violation. *Drop the overline* — rejected: it carries the "неофицијална архива" identity the brief wants in/near the hero.
+- **Consequences:** The hero/moment overlines read in paper with the orange marker preserved; orange text survives only where it truly passes (solid navy). Hero and moment gradients were tuned (`via-navy/75 via-60%` / `via-navy/70 via-55%`) to keep the photo visible while paper text stays ≥ AA.
+- **Links:** Phase 3.03; `src/components/home/SectionOverline.tsx`; D-1.02-1; D-1.03-1; brand.md §Contrast; completion report §5.
+
+### D-3.03-6 · 2026-07-23 · Retired `DecadeTimeline` (dot rail) for `DecadeExplore` (decade grid with real counts)
+- **Status:** Accepted
+- **Context:** The old homepage used `DecadeTimeline` — a horizontal dot rail marking which decades have seasons, all linking to `/arhiva`. The brief's section 5 wants "a clean entry into the 1922→2025 span" grouping seasons by decade.
+- **Decision:** Replace the rail with `DecadeExplore` — a grid of decade tiles, each showing the decade label + a real season count (`seasonCountLabel`, Macedonian pluralisation) and deep-linking to that decade's section on `/arhiva` (`#d{decade}`, which the archive already renders as an `id`). `DecadeTimeline.tsx` (homepage-only) was deleted.
+- **Alternatives considered:** *Keep the dot rail* — rejected: it conveys less (no counts, no per-decade entry) and reads more like a decoration than an archive doorway. *Keep both* — rejected: two decade widgets on one page is redundant.
+- **Consequences:** A more useful, information-bearing archive entry; one fewer component to maintain. `file-map.md` updated (removed `DecadeTimeline`, added `DecadeExplore` + `ClubRecords`).
+- **Links:** Phase 3.03; `src/components/home/DecadeExplore.tsx`; removed `DecadeTimeline.tsx`; D-1.05.2-3; completion report §4.
