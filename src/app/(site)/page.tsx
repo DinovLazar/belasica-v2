@@ -5,183 +5,175 @@ import type { SanityImageSource } from "@sanity/image-url";
 import { client } from "@/sanity/client";
 import { urlFor } from "@/sanity/image";
 import { Container } from "@/components/Container";
-import { DecadeTimeline } from "@/components/home/DecadeTimeline";
-import { PhotoFrame } from "@/components/home/PhotoFrame";
+import { ClubRecords, type ClubRecordData } from "@/components/home/ClubRecords";
+import { DecadeExplore } from "@/components/home/DecadeExplore";
 import { PlaceholderChip } from "@/components/home/PlaceholderChip";
 import { Reveal } from "@/components/home/Reveal";
 import { SectionOverline } from "@/components/home/SectionOverline";
+import { LegendCard } from "@/components/legends/LegendCard";
+import { focusOnNavy, focusOnPaper } from "@/lib/focus";
 
-// Re-read published Sanity content ~every 60s, so demo content published in
-// /studio appears on the preview without a redeploy (Lazar publishes, then
-// re-opens this URL for the Ace demo). See D-1.05-4.
+// Re-read published Sanity content ~every 60s (D-1.05-4) — new editorial
+// content (a captioned photo, a fresh clubRecord) surfaces on the preview
+// without a redeploy. ISR stays 60 through the Part-3 redesign.
 export const revalidate = 60;
 
 /* ------------------------------------------------------------------ *
- * Content — GROQ against the read client (published only, no token).
- * Reconciled to the LIVE content model (Phase 1.05.2, D-1.05.2-1); the
- * old schema files / query were out of date:
- *  - siteSettings: title, description (a full club paragraph).
- *  - season: title, slug, decade, story (Portable Text). Photos attach
- *    OUTWARD via photo.relatedSeason — we read them that way (robust and
- *    degrades gracefully) rather than via any season.photos field. D-1.05.2-2.
- *  - person: name, slug, role[], playingYears, bio. Portraits attach via
- *    photo.relatedPerson (there is no person.photos / careerStats).
- *  - photo: image, caption, date, provenance, relatedPerson, relatedSeason.
- * Selection: featured season = newest by decade then title (D-1.05-1);
- * legends = players only, by name (D-1.05.2-3). Photo ordering — the
- * featured season's photos AND the gallery — is DETERMINISTIC (D-2.08-3):
- * non-empty caption first → date ascending (nulls last via coalesce) → _id
- * ascending as a stable final tiebreak. This makes the hero, moment band and
- * gallery reproducible across cold reads (881 ingested photos share null
- * date + null caption, so the old date/caption sort was effectively
- * arbitrary), and it makes captioning a photo in Studio the lever that
- * promotes it onto the homepage — curation without a schema change.
- * Everything degrades to placeholders when a query returns nothing.
+ * Homepage content — one GROQ round trip against the read client
+ * (published only, no token). Part 3.03 redesign: the page leads with the
+ * club's identity and its legends, so the query is rebuilt around that flow.
+ *
+ *  - HERO: the `teamPhoto` of the most recent season that has one
+ *    (`order(decade desc, title desc)`, deterministic) — today the 2025/26
+ *    squad. `heroFallbackPhoto` is the newest published photo, used only if no
+ *    season carries a teamPhoto (defensive — 83/96 do today).
+ *  - STORY: the verified `siteSettings.description` (owner-authored club copy).
+ *  - LEGENDS: the club's players; portraits attach via `photo.relatedPerson`.
+ *    Sorted portraits-first (real faces lead the marquee) then name (D-3.03-2).
+ *  - RECORDS: the curated `clubRecord` documents (D-3.01-5).
+ *  - DECADES: every season's `decade`, reduced to per-decade counts for the
+ *    archive doorway.
+ *  - MOMENT: one real, captioned, season-anchored, landscape archival photo,
+ *    oldest era first then widest crop (D-3.03-4) — today the 1993 Cup photo.
+ *    Ordering oldest-first structurally excludes the modern hero photo.
+ *
+ * Everything degrades to a visible placeholder (never invented) when a query
+ * returns nothing — content-truth.
  * ------------------------------------------------------------------ */
 const HOME_QUERY = /* groq */ `{
   "settings": *[_type == "siteSettings"][0]{ title, description },
-  "featured": *[_type == "season" && defined(slug.current)]
+  "heroSeason": *[_type == "season" && defined(teamPhoto)]
     | order(decade desc, title desc)[0]{
       title,
-      "slug": slug.current,
-      decade,
-      "teaserSpans": story[0].children[].text,
-      "seasonPhotos": *[_type == "photo" && relatedSeason._ref == ^._id]{
-        "image": image,
-        caption,
-        date
-      } | order(select(defined(caption) && caption != "" => 0, 1) asc, coalesce(date, "9999") asc, _id asc)
+      "photo": teamPhoto->{ "image": image, caption }
     },
-  "legends": *[_type == "person" && "player" in role && defined(slug.current)]
-    | order(name asc)[0...3]{
-      name,
-      "slug": slug.current,
-      role,
-      playingYears,
-      "portrait": *[_type == "photo" && relatedPerson._ref == ^._id][0].image
+  "heroFallbackPhoto": *[_type == "photo" && defined(image)]
+    | order(select(defined(caption) && caption != "" => 0, 1) asc, coalesce(date, "9999") asc, _id asc)[0]{
+      "image": image, caption
     },
-  "gallery": *[_type == "photo" && defined(image)]
-    | order(select(defined(caption) && caption != "" => 0, 1) asc, coalesce(date, "9999") asc, _id asc)[0...10]{
-      "id": _id,
-      "image": image,
-      caption,
-      date
-    },
-  "decades": array::unique(*[_type == "season" && defined(decade)].decade)
+  "legends": *[_type == "person" && "player" in role && defined(slug.current)]{
+    name,
+    "slug": slug.current,
+    role,
+    playingYears,
+    "portrait": *[_type == "photo" && relatedPerson._ref == ^._id][0].image,
+    "hasPortrait": defined(*[_type == "photo" && relatedPerson._ref == ^._id][0].image)
+  },
+  "records": *[_type == "clubRecord"]{ label, value, category, order },
+  "decadeValues": *[_type == "season" && defined(decade)].decade,
+  "moment": *[_type == "photo"
+      && defined(caption) && caption != ""
+      && defined(relatedSeason)
+      && image.asset->metadata.dimensions.aspectRatio > 1.2]
+    | order(coalesce(relatedSeason->decade, 9999) asc, image.asset->metadata.dimensions.aspectRatio desc, _id asc)[0]{
+      "image": image, caption, date
+    }
 }`;
 
-type SeasonPhoto = {
-  image: SanityImageSource | null;
-  caption: string | null;
-  date: string | null;
+type Photo = { image: SanityImageSource | null; caption: string | null };
+
+type Legend = {
+  name: string | null;
+  slug: string | null;
+  role: string[] | null;
+  playingYears: string | null;
+  portrait: SanityImageSource | null;
+  hasPortrait: boolean;
 };
 
 type HomeData = {
   settings: { title: string | null; description: string | null } | null;
-  featured: {
-    title: string | null;
-    slug: string | null;
-    decade: number | null;
-    teaserSpans: (string | null)[] | null;
-    seasonPhotos: SeasonPhoto[] | null;
-  } | null;
-  legends: {
-    name: string | null;
-    slug: string | null;
-    role: string[] | null;
-    playingYears: string | null;
-    portrait: SanityImageSource | null;
-  }[];
-  gallery: {
-    id: string;
-    image: SanityImageSource | null;
-    caption: string | null;
-    date: string | null;
-  }[];
-  decades: number[];
+  heroSeason: { title: string | null; photo: Photo | null } | null;
+  heroFallbackPhoto: Photo | null;
+  legends: Legend[];
+  records: ClubRecordData[];
+  decadeValues: number[];
+  moment: { image: SanityImageSource | null; caption: string | null; date: string | null } | null;
 };
 
 const EMPTY: HomeData = {
   settings: null,
-  featured: null,
+  heroSeason: null,
+  heroFallbackPhoto: null,
   legends: [],
-  gallery: [],
-  decades: [],
-};
-
-// Role values → Cyrillic labels (person.role list in the schema).
-const ROLE_LABEL: Record<string, string> = {
-  player: "Играч",
-  trainer: "Тренер",
-  president: "Претседател",
+  records: [],
+  decadeValues: [],
+  moment: null,
 };
 
 // Structural (non-fact) copy. The wordmark ФК Беласица is VERIFIED (owner,
-// 2026-07-15, OV-2); these lines describe what the archive is and make no
-// factual claim about seasons, people, or stats.
-const HERO_SUBHEAD =
-  "Неофицијална архива на историјата на клубот — сезона по сезона.";
-const INTRO_LEAD = "Историјата на клубот, собрана на едно место.";
+// 2026-07-15, OV-2). These lines describe what the archive IS — they make no
+// claim about a founding year, a season count, or any stat (content-truth):
+// the hero must never assert „од 1922" or „96 сезони".
+const HERO_HERITAGE =
+  "Сезоните, легендите и рекордите на клубот — собрани и зачувани на едно место.";
+const STORY_LEAD = "Историјата на клубот, собрана на едно место.";
 
-// Section 8 — navigation cards. Labels/sublabels are structural navigation
-// copy (what each section is), not factual claims — safe under content-truth.
-const EXPLORE_CARDS: { href: string; label: string; sub: string }[] = [
-  { href: "/arhiva", label: "Архива по сезони", sub: "Сезона по сезона" },
+// Section 7 — quick links. Labels/sublabels are navigation copy (what each
+// destination is), not factual claims — safe under content-truth.
+const QUICK_LINKS: { href: string; label: string; sub: string }[] = [
+  { href: "/arhiva", label: "Архива", sub: "Сезона по сезона" },
   { href: "/legendi", label: "Легенди", sub: "Играчи и личности" },
-  { href: "/statistika", label: "Статистика", sub: "Табели и прегледи" },
-  { href: "/za-nas", label: "За архивата", sub: "За овој проект" },
+  { href: "/statistika", label: "Статистика", sub: "Рекорди и табели" },
+  { href: "/za-nas", label: "За нас", sub: "За овој проект" },
 ];
 
-const focusOnNavy =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange focus-visible:ring-offset-2 focus-visible:ring-offset-navy";
-const focusOnPaper =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2 focus-visible:ring-offset-paper";
+/** Reduce the flat list of season decades to sorted per-decade counts. */
+function toDecadeCounts(values: number[]): { decade: number; count: number }[] {
+  const counts = new Map<number, number>();
+  for (const d of values) counts.set(d, (counts.get(d) ?? 0) + 1);
+  return [...counts.entries()]
+    .map(([decade, count]) => ({ decade, count }))
+    .sort((a, b) => a.decade - b.decade);
+}
 
 export default async function Home() {
   let data: HomeData = EMPTY;
   try {
     data = await client.fetch<HomeData>(HOME_QUERY);
   } catch {
-    // Graceful: a failed/empty read renders the placeholder homepage rather
-    // than crashing (content-truth — never invent filler).
+    // Graceful: a failed read renders the placeholder homepage rather than
+    // crashing (content-truth — never invent filler).
     data = EMPTY;
   }
 
-  const { settings, featured, legends, gallery, decades } = data;
+  const { settings, heroSeason, heroFallbackPhoto, records, moment } = data;
 
   const heroTitle = settings?.title?.trim() || "ФК Беласица";
-  const seasonPhotos = featured?.seasonPhotos ?? [];
-  const heroImage = seasonPhotos[0]?.image ?? null;
-  const heroCaption = seasonPhotos[0]?.caption ?? null;
+  const heroPhoto = heroSeason?.photo?.image ?? heroFallbackPhoto?.image ?? null;
+  const heroAlt =
+    heroSeason?.photo?.caption ||
+    heroFallbackPhoto?.caption ||
+    "Архивска фотографија на ФК Беласица";
 
   const description = settings?.description?.trim() || null;
 
-  // Featured card prefers the season's 2nd photo (so it differs from the hero),
-  // falling back to the 1st — brief: "[0] (or [1] if present)".
-  const featuredCardImage =
-    seasonPhotos[1]?.image ?? seasonPhotos[0]?.image ?? null;
-  const featuredTitle = featured?.title?.trim() || null;
-  const teaser = (featured?.teaserSpans ?? [])
-    .filter((s): s is string => typeof s === "string" && s.trim().length > 0)
-    .join("");
+  // Legends: portraits first (real faces lead the marquee), then Cyrillic name
+  // order (D-3.03-2). Only people with a slug (a real detail page) are shown.
+  const legends = [...data.legends]
+    .filter((p): p is Legend & { slug: string } => Boolean(p.slug))
+    .sort((a, b) => {
+      if (a.hasPortrait !== b.hasPortrait) return a.hasPortrait ? -1 : 1;
+      return (a.name ?? "").localeCompare(b.name ?? "", "mk");
+    });
 
-  // Section 6 — full-bleed "moment" band: the season's 2nd related photo, or
-  // the section is omitted entirely (no placeholder band) when absent.
-  const bandPhoto = seasonPhotos[1] ?? null;
+  const decades = toDecadeCounts(data.decadeValues);
 
   return (
     <>
-      {/* 1 · Hero — full-bleed lead photo, navy bottom gradient, text in-column */}
+      {/* 1 · Hero — the club itself: crest + wordmark + heritage line over the
+          most-recent team photo, navy gradient for AA-legible paper text. */}
       <section aria-labelledby="hero-heading" className="relative w-full">
-        <div className="relative aspect-[4/5] w-full overflow-hidden bg-mist md:aspect-[16/9]">
-          {heroImage ? (
+        <div className="relative min-h-[34rem] w-full overflow-hidden bg-navy md:min-h-[42rem]">
+          {heroPhoto ? (
             <Image
-              src={urlFor(heroImage).width(2000).auto("format").url()}
-              alt={heroCaption || "Архивска фотографија на ФК Беласица"}
+              src={urlFor(heroPhoto).width(2400).auto("format").url()}
+              alt={heroAlt}
               fill
               priority
               sizes="100vw"
               className="object-cover"
+              style={{ objectPosition: "50% 30%" }}
             />
           ) : (
             <span className="absolute inset-0 flex items-center justify-center p-6 text-center">
@@ -189,27 +181,47 @@ export default async function Home() {
             </span>
           )}
 
-          {/* Navy bottom gradient — keeps the in-column text AA-legible */}
+          {/* Navy bottom gradient — strong navy through the lower ~60% where the
+              text sits (paper overline + heritage → measured ≥ 6.8:1 over the
+              worst-case light photo pixel), fading to reveal the photo up top. */}
           <div
             aria-hidden
-            className="absolute inset-0 bg-linear-to-t from-navy/95 via-navy/45 to-transparent"
+            className="absolute inset-0 bg-linear-to-t from-navy via-navy/75 via-60% to-transparent"
           />
 
           <Container className="absolute inset-x-0 bottom-0">
-            <div className="max-w-measure pb-10 md:pb-16">
-              <SectionOverline variant="onNavy">
+            <div className="max-w-measure pb-12 pt-28 md:pb-16">
+              <SectionOverline variant="onPhoto">
                 Неофицијална архива
               </SectionOverline>
-              <h1
-                id="hero-heading"
-                className="mt-3 font-serif text-h1 font-semibold text-paper md:text-display"
-              >
-                {heroTitle}
-              </h1>
-              <p className="mt-4 max-w-measure text-body-l text-paper/90">
-                {HERO_SUBHEAD}
+
+              <div className="mt-4 flex items-center gap-3 md:gap-4">
+                {/* Crest on a white tile — the artwork has a white ground, so it
+                    needs a light backdrop to read over the photo. Decorative:
+                    the wordmark carries the accessible name. */}
+                <span className="flex shrink-0 items-center rounded-card bg-white p-1.5">
+                  <Image
+                    src="/crest.png"
+                    alt=""
+                    width={64}
+                    height={91}
+                    priority
+                    className="h-10 w-auto md:h-14"
+                  />
+                </span>
+                <h1
+                  id="hero-heading"
+                  className="font-serif text-h1 font-semibold tracking-tight text-paper md:text-display"
+                >
+                  {heroTitle}
+                </h1>
+              </div>
+
+              <p className="mt-5 max-w-measure text-body-l text-paper/90">
+                {HERO_HERITAGE}
               </p>
-              <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3">
+
+              <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
                 <Link
                   href="/arhiva"
                   className={`inline-flex items-center justify-center rounded-card bg-paper px-5 py-3 text-small font-semibold text-navy transition-colors hover:bg-white ${focusOnNavy}`}
@@ -217,10 +229,10 @@ export default async function Home() {
                   Разгледај ја архивата
                 </Link>
                 <Link
-                  href="/za-nas"
+                  href="/legendi"
                   className={`inline-flex items-center text-small font-medium text-paper decoration-2 underline-offset-4 hover:underline hover:decoration-orange ${focusOnNavy}`}
                 >
-                  За архивата
+                  Легенди на клубот
                 </Link>
               </div>
             </div>
@@ -228,17 +240,17 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 2 · Intro strip — what the archive is */}
-      <section aria-labelledby="intro-heading" className="py-16 md:py-24">
+      {/* 2 · The club's story — the verified siteSettings.description */}
+      <section aria-labelledby="story-heading" className="py-16 md:py-24">
         <Container>
-          <Reveal className="grid gap-8 md:grid-cols-2 md:gap-16">
+          <Reveal className="grid gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] md:gap-16">
             <div>
-              <SectionOverline>За архивата</SectionOverline>
+              <SectionOverline>За клубот</SectionOverline>
               <h2
-                id="intro-heading"
+                id="story-heading"
                 className="mt-4 max-w-measure font-serif text-h2 font-semibold text-navy"
               >
-                {INTRO_LEAD}
+                {STORY_LEAD}
               </h2>
             </div>
             <div className="max-w-measure">
@@ -249,197 +261,127 @@ export default async function Home() {
               ) : (
                 <PlaceholderChip label="опис на архивата (Поставки на сајтот)" />
               )}
+              <Link
+                href="/za-nas"
+                className={`group mt-6 inline-flex items-center gap-1.5 text-small font-semibold text-navy decoration-2 underline-offset-4 hover:underline hover:decoration-orange ${focusOnPaper}`}
+              >
+                За архивата
+                <ArrowRight
+                  className="size-4 transition-transform duration-150 ease-out group-hover:translate-x-0.5"
+                  aria-hidden
+                />
+              </Link>
             </div>
           </Reveal>
         </Container>
       </section>
 
-      {/* 3 · Featured season */}
-      <section
-        aria-labelledby="featured-heading"
-        className="border-t border-mist py-16 md:py-24"
-      >
-        <Container>
-          <Reveal>
-            <SectionOverline>Издвоена сезона</SectionOverline>
-          </Reveal>
-          <div className="mt-8 grid items-start gap-8 md:grid-cols-2 md:gap-12">
-            <Reveal>
-              <PhotoFrame
-                image={featuredCardImage}
-                alt={
-                  featuredTitle
-                    ? `${featuredTitle} — фотографија`
-                    : "Архивска фотографија на сезоната"
-                }
-                ratio="3/2"
-                sizes="(min-width: 768px) 50vw, 100vw"
-                placeholderLabel="фотографија од сезоната"
-              />
-            </Reveal>
-            <Reveal delayIndex={1} className="max-w-measure">
-              <h2
-                id="featured-heading"
-                className="font-serif text-h2 font-semibold text-navy"
-              >
-                {featuredTitle ?? (
-                  <PlaceholderChip label="наслов на сезоната" />
-                )}
-              </h2>
-
-              {featured?.decade != null && (
-                <p className="mt-3 text-small text-neutral-500">
-                  Деценија {featured.decade}
-                </p>
-              )}
-
-              {/* Story teaser self-omits when the season has no `story`
-                  (D-2.08-2): no paragraph and NO placeholder chip — the
-                  title, decade line, photo and season link still render. No
-                  published season has a story yet, so this is the live path. */}
-              {teaser && (
-                <div className="mt-5">
-                  <p className="line-clamp-4 text-body-l text-neutral-700">
-                    {teaser}
-                  </p>
-                </div>
-              )}
-
-              {featured?.slug && (
-                <Link
-                  href={`/arhiva/${featured.slug}`}
-                  className={`group mt-6 inline-flex items-center gap-1.5 text-small font-semibold text-navy decoration-2 underline-offset-4 hover:underline hover:decoration-orange ${focusOnPaper}`}
-                >
-                  Погледни ја сезоната
-                  <ArrowRight
-                    className="size-4 transition-transform duration-150 ease-out group-hover:translate-x-0.5"
-                    aria-hidden
-                  />
-                </Link>
-              )}
-            </Reveal>
-          </div>
-        </Container>
-      </section>
-
-      {/* 7 · Decades timeline — inserted after the featured season */}
-      <section
-        aria-labelledby="decades-heading"
-        className="border-t border-mist py-16 md:py-24"
-      >
-        <Container>
-          <Reveal>
-            <SectionOverline>Низ децениите</SectionOverline>
-            <h2 id="decades-heading" className="sr-only">
-              Низ децениите
-            </h2>
-          </Reveal>
-          <Reveal delayIndex={1}>
-            <DecadeTimeline activeDecades={decades} />
-          </Reveal>
-        </Container>
-      </section>
-
-      {/* 4 · Legends */}
+      {/* 3 · Legends — the marquee band, high on the page */}
       <section
         aria-labelledby="legends-heading"
         className="border-t border-mist py-16 md:py-24"
       >
         <Container>
-          <Reveal>
-            <SectionOverline>Легенди</SectionOverline>
-            <h2 id="legends-heading" className="sr-only">
-              Легенди
-            </h2>
+          <Reveal className="flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
+            <div>
+              <SectionOverline>Легенди</SectionOverline>
+              <h2
+                id="legends-heading"
+                className="mt-4 max-w-measure font-serif text-h2 font-semibold text-navy"
+              >
+                Луѓето што ја одбележаа историјата
+              </h2>
+            </div>
+            <Link
+              href="/legendi"
+              className={`group inline-flex items-center gap-1.5 text-small font-semibold text-navy decoration-2 underline-offset-4 hover:underline hover:decoration-orange ${focusOnPaper}`}
+            >
+              Сите легенди
+              <ArrowRight
+                className="size-4 transition-transform duration-150 ease-out group-hover:translate-x-0.5"
+                aria-hidden
+              />
+            </Link>
           </Reveal>
 
           {legends.length > 0 ? (
-            <ul className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-              {legends.map((person, i) => {
-                const roleLabel = (person.role ?? [])
-                  .map((r) => ROLE_LABEL[r])
-                  .filter(Boolean)
-                  .join(", ");
-                const years = person.playingYears?.trim() || null;
-
-                return (
-                  <li key={person.slug ?? i}>
-                    <Reveal delayIndex={i}>
-                      <Link
-                        href={
-                          person.slug ? `/legendi/${person.slug}` : "/legendi"
-                        }
-                        className={`group block rounded-card transition-transform duration-150 ease-out hover:-translate-y-0.5 ${focusOnPaper}`}
-                      >
-                        <PhotoFrame
-                          image={person.portrait}
-                          alt={person.name ? person.name : "Архивски портрет"}
-                          ratio="4/5"
-                          sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                          placeholderLabel="портрет"
-                        />
-                        <h3 className="mt-4 font-serif text-h3 font-semibold text-navy">
-                          {person.name ?? (
-                            <PlaceholderChip label="име на личноста" />
-                          )}
-                        </h3>
-                        {/* Meta = role label + playing years. Role is always
-                            present (players filter); years may be absent → a
-                            registered placeholder for the years only. */}
-                        <p className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-small text-neutral-500">
-                          {roleLabel && <span>{roleLabel}</span>}
-                          {roleLabel && <span aria-hidden>·</span>}
-                          {years ? (
-                            <span>{years}</span>
-                          ) : (
-                            <PlaceholderChip label="години на играње" />
-                          )}
-                        </p>
-                      </Link>
-                    </Reveal>
-                  </li>
-                );
-              })}
+            // Equalise card heights on the marquee row (Петар carries two role
+            // chips, so his card is tallest). LegendCard renders `<li><Reveal
+            // div><Link a>`; stretching those two descendants to h-full makes
+            // every white card the same height with content top-aligned. Scoped
+            // to this grid so the shared /legendi component stays untouched.
+            <ul className="mt-10 grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-5 [&>li>div>a]:h-full [&>li>div]:h-full">
+              {legends.map((person, i) => (
+                <LegendCard key={person.slug} person={person} delayIndex={i % 5} />
+              ))}
             </ul>
           ) : (
-            <div className="mt-8">
+            <div className="mt-10">
               <PlaceholderChip label="легенди (играчи) — сѐ уште не се објавени" />
             </div>
           )}
         </Container>
       </section>
 
-      {/* 6 · Moment band — full-bleed; only rendered when a 2nd season photo exists */}
-      {bandPhoto?.image && (
+      {/* 4 · The club in numbers — records strip (navy anchor) */}
+      <ClubRecords records={records} />
+
+      {/* 5 · Explore the archive by decade */}
+      <section
+        aria-labelledby="decades-heading"
+        className="border-t border-mist py-16 md:py-24"
+      >
+        <Container>
+          <Reveal>
+            <SectionOverline>Архива</SectionOverline>
+            <h2
+              id="decades-heading"
+              className="mt-4 max-w-measure font-serif text-h2 font-semibold text-navy"
+            >
+              Разгледај по децении
+            </h2>
+            <p className="mt-3 max-w-measure text-body-l text-neutral-700">
+              Сезоните од целата историја на клубот, групирани по децении.
+            </p>
+          </Reveal>
+          <Reveal delayIndex={1} className="mt-10">
+            <DecadeExplore decades={decades} />
+          </Reveal>
+        </Container>
+      </section>
+
+      {/* 6 · A moment from history — one full-bleed real archival photograph */}
+      {moment?.image && (
         <section aria-labelledby="moment-heading" className="relative w-full">
-          <div className="relative aspect-[3/2] w-full overflow-hidden bg-mist md:aspect-[16/6]">
+          <div className="relative aspect-[3/2] w-full overflow-hidden bg-navy md:aspect-[16/6]">
             <Image
-              src={urlFor(bandPhoto.image).width(2400).auto("format").url()}
-              alt={bandPhoto.caption || "Архивска фотографија на ФК Беласица"}
+              src={urlFor(moment.image).width(2400).auto("format").url()}
+              alt={moment.caption || "Архивска фотографија на ФК Беласица"}
               fill
               sizes="100vw"
               className="object-cover"
+              style={{ objectPosition: "50% 35%" }}
             />
             <div
               aria-hidden
-              className="absolute inset-0 bg-linear-to-t from-navy/90 via-navy/35 to-transparent"
+              className="absolute inset-0 bg-linear-to-t from-navy via-navy/70 via-55% to-transparent"
             />
             <Container className="absolute inset-x-0 bottom-0">
               <Reveal className="max-w-measure pb-8 md:pb-12">
-                <SectionOverline variant="onNavy">
+                <SectionOverline variant="onPhoto">
                   Момент од историјата
                 </SectionOverline>
                 <h2 id="moment-heading" className="sr-only">
                   Момент од историјата
                 </h2>
-                {bandPhoto.date && (
+                {moment.date && (
                   <span className="mt-3 block text-overline uppercase tracking-overline text-paper/80">
-                    {bandPhoto.date}
+                    {moment.date}
                   </span>
                 )}
-                {bandPhoto.caption && (
+                {moment.caption && (
                   <p className="mt-1 font-serif text-h3 font-semibold text-paper md:text-h2">
-                    {bandPhoto.caption}
+                    {moment.caption}
                   </p>
                 )}
               </Reveal>
@@ -448,88 +390,24 @@ export default async function Home() {
         </section>
       )}
 
-      {/* 5 · Gallery */}
+      {/* 7 · Quick links — into the rest of the site, just before the footer */}
       <section
-        aria-labelledby="gallery-heading"
+        aria-labelledby="quicklinks-heading"
         className="border-t border-mist py-16 md:py-24"
       >
         <Container>
           <Reveal>
-            <SectionOverline>Галерија</SectionOverline>
-            <h2 id="gallery-heading" className="sr-only">
-              Галерија
+            <SectionOverline>Истражи</SectionOverline>
+            <h2
+              id="quicklinks-heading"
+              className="mt-4 max-w-measure font-serif text-h2 font-semibold text-navy"
+            >
+              Каде понатаму
             </h2>
           </Reveal>
 
-          {gallery.length > 0 ? (
-            // Editorial mosaic — the first photo is a 2×2 feature; the rest
-            // tile around it. Fixed row tracks (auto-rows) define the cell
-            // heights, so PhotoFrame runs in fill mode (h-full, object-cover)
-            // and every cell tiles cleanly regardless of caption length. One
-            // photo → just the feature; empty → the placeholder branch below.
-            <ul className="mt-8 grid auto-rows-[43vw] grid-cols-2 gap-4 sm:auto-rows-[27vw] md:auto-rows-[13rem] md:grid-cols-4 md:gap-6">
-              {gallery.map((photo, i) => {
-                const feature = i === 0;
-                return (
-                  <li
-                    key={photo.id}
-                    className={feature ? "col-span-2 row-span-2" : undefined}
-                  >
-                    <Reveal delayIndex={i % 4} className="h-full">
-                      <figure className="relative h-full">
-                        <PhotoFrame
-                          image={photo.image}
-                          alt={photo.caption || "Архивска фотографија"}
-                          sizes={
-                            feature
-                              ? "(min-width: 768px) 50vw, 100vw"
-                              : "(min-width: 768px) 25vw, 50vw"
-                          }
-                          placeholderLabel="фотографија"
-                        />
-                        {photo.image && (photo.date || photo.caption) && (
-                          <figcaption className="absolute inset-x-0 bottom-0 bg-linear-to-t from-navy/85 via-navy/30 to-transparent p-3 md:p-4">
-                            {photo.date && (
-                              <span className="block text-overline uppercase tracking-overline text-paper/80">
-                                {photo.date}
-                              </span>
-                            )}
-                            {photo.caption && (
-                              <span className="mt-1 line-clamp-2 text-small text-paper">
-                                {photo.caption}
-                              </span>
-                            )}
-                          </figcaption>
-                        )}
-                      </figure>
-                    </Reveal>
-                  </li>
-                );
-              })}
-            </ul>
-          ) : (
-            <div className="mt-8">
-              <PlaceholderChip label="фотографии — сѐ уште не се објавени" />
-            </div>
-          )}
-        </Container>
-      </section>
-
-      {/* 8 · Explore grid — navigation into the site, just before the footer */}
-      <section
-        aria-labelledby="explore-heading"
-        className="border-t border-mist py-16 md:py-24"
-      >
-        <Container>
-          <Reveal>
-            <SectionOverline>Истражи ја архивата</SectionOverline>
-            <h2 id="explore-heading" className="sr-only">
-              Истражи ја архивата
-            </h2>
-          </Reveal>
-
-          <ul className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
-            {EXPLORE_CARDS.map((card, i) => (
+          <ul className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
+            {QUICK_LINKS.map((card, i) => (
               <li key={card.href}>
                 <Reveal delayIndex={i}>
                   <Link
