@@ -59,7 +59,7 @@ export function SiteHeader() {
                   focusRing,
                   active
                     ? "border-orange text-paper"
-                    : "border-transparent text-paper/[0.72] hover:text-paper",
+                    : "border-transparent text-paper/[0.72] hover:border-paper/40 hover:text-paper",
                 )}
               >
                 {item.label}
@@ -75,7 +75,10 @@ export function SiteHeader() {
           aria-expanded={open}
           aria-controls="mobile-nav"
           className={cn(
-            "inline-flex items-center justify-center rounded-card p-2 text-paper md:hidden",
+            // p-2.5 → 24px icon + 20px padding = 44px tap target (WCAG 2.2),
+            // matching the 44px crest tile so the sticky-header height token
+            // (--spacing-header, 77px) is unchanged.
+            "inline-flex items-center justify-center rounded-card p-2.5 text-paper md:hidden",
             focusRing,
           )}
         >
@@ -109,7 +112,7 @@ export function SiteHeader() {
                     focusRing,
                     active
                       ? "border-orange text-paper"
-                      : "border-transparent text-paper/[0.72] hover:text-paper",
+                      : "border-transparent text-paper/[0.72] hover:border-paper/40 hover:text-paper",
                   )}
                 >
                   {item.label}
