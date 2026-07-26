@@ -1,3 +1,7 @@
+// ⚠️ LEGACY — in-repo but NOT RENDERED since 3.04 (D-3.04-6). The season's
+// trainer is now the `season.trainer` string (D-3.01-4), rendered in the
+// heading of „Тренер и статистика"; the legacy `trainers` reference array this
+// chip displays is no longer read. Kept unrendered; see `StandingsTable.tsx`.
 import Link from "next/link";
 import { PlaceholderChip } from "@/components/home/PlaceholderChip";
 import { focusOnPaper } from "@/lib/focus";

@@ -1,25 +1,24 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { PortableTextBlock } from "@portabletext/types";
 import { client } from "@/sanity/client";
-import { urlFor } from "@/sanity/image";
 import { Container } from "@/components/Container";
 import { Breadcrumb } from "@/components/archive/Breadcrumb";
-import { PersonChip, type PersonRef } from "@/components/archive/PersonChip";
+import { MattedPhoto, type LeadPhoto } from "@/components/archive/MattedPhoto";
 import { PhotoGrid, type ArchivePhoto } from "@/components/archive/PhotoGrid";
+import {
+  SeasonAnchorNav,
+  type SeasonAnchor,
+} from "@/components/archive/SeasonAnchorNav";
 import { SeasonEmptyNotice } from "@/components/archive/SeasonEmptyNotice";
+import {
+  SeasonNeighbourNav,
+  type SeasonNeighbour,
+} from "@/components/archive/SeasonNeighbourNav";
+import { SeasonRecordList } from "@/components/archive/SeasonRecordList";
 import { SeasonStory } from "@/components/archive/SeasonStory";
 import { SectionHeading } from "@/components/archive/SectionHeading";
-import {
-  SquadTable,
-  type SquadMember,
-} from "@/components/archive/SquadTable";
-import {
-  StandingsTable,
-  type StandingsRow,
-} from "@/components/archive/StandingsTable";
 import { PlaceholderChip } from "@/components/home/PlaceholderChip";
 import { Reveal } from "@/components/home/Reveal";
 import { SectionOverline } from "@/components/home/SectionOverline";
@@ -28,37 +27,76 @@ import { focusOnPaper } from "@/lib/focus";
 import { cn } from "@/lib/utils";
 
 // Match the homepage (D-1.05-4): hand-curated season content appears without a
-// redeploy — the seasons are shells at first and are filled in over time.
+// redeploy. The Cowork content pass is filling `results` season by season, so
+// each one surfaces here on its own within ~a minute of publish.
 export const revalidate = 60;
 
-/**
- * The season, its people dereferenced, and its photos by back-reference
- * (`photo.relatedSeason`, D-2.01-1 — there is no `season.photos` array).
- * Photos order by `coalesce(date,"9999") asc`, the same key the homepage and
- * the archive index use; `[0]` is the hero.
- */
+/* ------------------------------------------------------------------ *
+ * The season document, in one round trip (Phase 3.04).
+ *
+ *  - `teamPhoto` / `tablePhoto` are references (D-3.01-3) and are
+ *    dereferenced here along with the asset's intrinsic dimensions, which
+ *    `MattedPhoto` needs to mat each scan at its own aspect (D-3.04-3).
+ *  - `gallery` is the season's remaining photos by back-reference
+ *    (`photo.relatedSeason`, D-2.01-1 — there is no `season.photos` array),
+ *    with the two lead photos excluded by `_id` so nothing appears twice
+ *    (D-3.04-2). Ordering is the deterministic 2.08 key: a non-empty caption
+ *    first (the editor's curation lever), then date, then `_id` as a stable
+ *    total order (D-2.08-3).
+ *  - `previousSeason` / `nextSeason` walk the archive spine by
+ *    `decade`, then `slug.current` — the slug key the archive index already
+ *    orders by (D-2.02-2). Ordering by `title` (as the brief says) puts
+ *    „Беласица 1945–1948“ before „Сезона 1940/41“, because Б sorts before С;
+ *    the slug key is chronologically correct for all 96 seasons (D-3.04-1).
+ *  - The legacy `finalTable` / `squad` / `trainers` are deliberately NOT read:
+ *    the table is now an image (D-3.01-2) and the squad lives in
+ *    `lineupAndStats` (D-3.04-6).
+ * ------------------------------------------------------------------ */
+const LEAD_PHOTO_PROJECTION = /* groq */ `{
+    "image": image,
+    caption,
+    date,
+    "width": image.asset->metadata.dimensions.width,
+    "height": image.asset->metadata.dimensions.height
+  }`;
+
 const SEASON_QUERY = /* groq */ `
 *[_type == "season" && slug.current == $slug][0]{
   title,
   "slug": slug.current,
   decade,
+  trainer,
+  lineupAndStats,
+  results,
   story,
-  finalTable[]{
-    position, club, played, wins, draws, losses, goalsFor, goalsAgainst, points
-  },
-  squad[]{
-    appearances,
-    goals,
-    "name": player->name,
-    "slug": player->slug.current
-  },
-  "trainers": trainers[]->{ name, "slug": slug.current },
-  "photos": *[_type == "photo" && relatedSeason._ref == ^._id]
-    | order(coalesce(date, "9999") asc){
+  "teamPhoto": teamPhoto->${LEAD_PHOTO_PROJECTION},
+  "tablePhoto": tablePhoto->${LEAD_PHOTO_PROJECTION},
+  "gallery": *[_type == "photo"
+      && relatedSeason._ref == ^._id
+      && !(_id in [^.teamPhoto._ref, ^.tablePhoto._ref])]
+    | order(
+        select(defined(caption) && caption != "" => 0, 1) asc,
+        coalesce(date, "9999") asc,
+        _id asc
+      ){
       "id": _id,
       "image": image,
       caption,
       date
+    },
+  "previousSeason": *[_type == "season" && defined(slug.current)
+      && (decade < ^.decade
+          || (decade == ^.decade && slug.current < ^.slug.current))]
+    | order(decade desc, slug.current desc)[0]{
+      title,
+      "slug": slug.current
+    },
+  "nextSeason": *[_type == "season" && defined(slug.current)
+      && (decade > ^.decade
+          || (decade == ^.decade && slug.current > ^.slug.current))]
+    | order(decade asc, slug.current asc)[0]{
+      title,
+      "slug": slug.current
     }
 }`;
 
@@ -66,12 +104,36 @@ type SeasonData = {
   title: string | null;
   slug: string;
   decade: number | null;
+  trainer: string | null;
+  lineupAndStats: PortableTextBlock[] | null;
+  results: PortableTextBlock[] | null;
   story: PortableTextBlock[] | null;
-  finalTable: StandingsRow[] | null;
-  squad: SquadMember[] | null;
-  trainers: PersonRef[] | null;
-  photos: ArchivePhoto[] | null;
+  teamPhoto: LeadPhoto | null;
+  tablePhoto: LeadPhoto | null;
+  gallery: ArchivePhoto[] | null;
+  previousSeason: SeasonNeighbour | null;
+  nextSeason: SeasonNeighbour | null;
 };
+
+/** The five anchorable sections, in page order. The nav lists only the ones
+ *  that actually rendered, so it can never point at a self-omitted heading. */
+const SECTIONS = {
+  table: { id: "tabela", label: "Табела", heading: "Табела" },
+  staff: {
+    id: "trener",
+    label: "Тренер",
+    heading: "Тренер и статистика",
+  },
+  results: { id: "rezultati", label: "Резултати", heading: "Резултати" },
+  story: {
+    id: "prikazna",
+    label: "Приказна",
+    heading: "Приказна за сезоната",
+  },
+  gallery: { id: "fotografii", label: "Фотографии", heading: "Фотографии" },
+} as const;
+
+type SectionKey = keyof typeof SECTIONS;
 
 export async function generateStaticParams() {
   const slugs = await client.fetch<string[]>(
@@ -111,57 +173,69 @@ export default async function SeasonPage({
     season = await client.fetch<SeasonData | null>(SEASON_QUERY, { slug });
   } catch {
     // A failed read must not crash the route or invent filler. There is nothing
-    // truthful to show for this slug right now, so it 404s (§10).
+    // truthful to show for this slug right now, so it 404s (2.02 §10).
     season = null;
   }
 
   if (!season) notFound();
 
-  const story = season.story ?? [];
-  const finalTable = season.finalTable ?? [];
-  const squad = season.squad ?? [];
-  const trainers = season.trainers ?? [];
-  const photos = season.photos ?? [];
-
-  const heroPhoto = photos[0] ?? null;
+  const title = season.title;
   const decade = season.decade;
 
-  // Every data-bearing section omits itself when empty (D-2.02-3) — no heading,
-  // no placeholder prose. When ALL five are empty the sections would leave the
-  // hero floating above the footer, so the page shows one archive notice
-  // instead (D-2.02-8). This is the normal post-2.09 state, not an edge case.
-  const hasStory = story.length > 0;
-  const hasTable = finalTable.length > 0;
-  const hasSquad = squad.length > 0;
-  const hasTrainers = trainers.length > 0;
-  const hasPhotos = photos.length > 0;
-  const isEmpty =
-    !hasStory && !hasTable && !hasSquad && !hasTrainers && !hasPhotos;
+  // A reference can resolve to a photo whose asset is missing; treat that as
+  // absent rather than rendering an empty frame.
+  const teamPhoto = season.teamPhoto?.image ? season.teamPhoto : null;
+  const tablePhoto = season.tablePhoto?.image ? season.tablePhoto : null;
+  const trainer = season.trainer?.trim() || null;
+  const lineup = season.lineupAndStats ?? [];
+  const results = season.results ?? [];
+  const story = season.story ?? [];
+  const gallery = season.gallery ?? [];
 
-  const title = season.title;
+  // Every data section omits itself when empty (D-2.02-3 / D-3.01-6): no
+  // heading, no placeholder prose, no greybox. A sparse season must read as
+  // deliberate — most of the 96 are sparse in at least one field, and that is
+  // a genuine source gap, not a defect.
+  const present: Record<SectionKey, boolean> = {
+    table: Boolean(tablePhoto),
+    staff: Boolean(trainer) || lineup.length > 0,
+    results: results.length > 0,
+    story: story.length > 0,
+    gallery: gallery.length > 0,
+  };
 
-  // Section cadence (§4.2): `border-t border-mist` + `py-16 md:py-24`, except
-  // the FIRST section under the hero — the hero already terminates that band,
-  // so a rule there would read as a stray line. Which section is first depends
-  // on what this season actually has, so resolve it from the same flags that
-  // decide what renders.
-  const order = [
-    isEmpty && "empty",
-    hasStory && "story",
-    hasTable && "table",
-    hasSquad && "squad",
-    hasTrainers && "trainers",
-    hasPhotos && "photos",
-    !isEmpty && "backlinks",
-  ].filter((key): key is string => typeof key === "string");
+  const order = (Object.keys(SECTIONS) as SectionKey[]).filter(
+    (key) => present[key],
+  );
 
+  const anchors: SeasonAnchor[] = order.map((key) => ({
+    id: SECTIONS[key].id,
+    label: SECTIONS[key].label,
+  }));
+
+  // With every section AND the lead photo empty, the sections would leave the
+  // title band floating on the footer, so the page shows one archive notice
+  // instead (D-2.02-8).
+  const isEmpty = !teamPhoto && order.length === 0;
+
+  const hasNeighbours = Boolean(
+    season.previousSeason?.slug || season.nextSeason?.slug,
+  );
+
+  // Section cadence (2.02 §4.2): `border-t border-mist` + `py-16 md:py-24`,
+  // except the FIRST paper section — the navy band (or the anchor rail's own
+  // bottom rule) already terminates that edge, so a rule there reads as a
+  // stray line.
+  const firstSection = isEmpty ? "empty" : order[0];
   const sectionClass = (key: string) =>
-    cn("py-16 md:py-24", key !== order[0] && "border-t border-mist");
+    cn(
+      "scroll-mt-header py-16 md:py-24",
+      key !== firstSection && "border-t border-mist",
+    );
 
   return (
     <>
-      {/* Breadcrumb on paper, above the hero (D-2.02-5) — one treatment that
-          works for both the photo and the photo-less hero. */}
+      {/* Breadcrumb on paper, above the title band (D-2.02-5). */}
       <Container className="py-5">
         <Breadcrumb
           items={[
@@ -172,37 +246,64 @@ export default async function SeasonPage({
         />
       </Container>
 
-      {/* Hero. Not revealed — it is above the fold (matches the homepage). */}
-      <section aria-labelledby="season-heading" className="relative w-full">
-        {heroPhoto?.image ? (
-          <div className="relative aspect-[4/5] w-full overflow-hidden bg-mist md:aspect-[16/9]">
-            <Image
-              src={urlFor(heroPhoto.image).width(2000).auto("format").url()}
-              alt={heroPhoto.caption || "Архивска фотографија на ФК Беласица"}
-              fill
-              priority
-              sizes="100vw"
-              className="object-cover"
-            />
-            <div
-              aria-hidden
-              className="absolute inset-0 bg-linear-to-t from-navy/95 via-navy/45 to-transparent"
-            />
-            <Container className="absolute inset-x-0 bottom-0">
-              <SeasonHeroText title={title} decade={decade} />
-            </Container>
+      {/* 1 · Title band + the season's lead photograph (D-3.04-4).
+          Not revealed — it is above the fold (matches the homepage).
+
+          The 2.02 hero cover-cropped the season's first photo full-bleed. That
+          worked when the lead was one hand-picked image; `teamPhoto` is now a
+          curated reference across 83 seasons whose scans run from 0.49 to 2.63
+          in aspect, and a fixed 16:9 cover crop slices most of a portrait
+          squad photo away. So the band carries the title, and the scan sits
+          whole on a mist mat beneath it — mounted, not cropped. A season with
+          no `teamPhoto` is the same band without the photo: a deliberate title
+          band, never a greybox at hero scale (2.02 §6.2b). */}
+      <section aria-labelledby="season-heading" className="bg-navy">
+        {/* Without a photo the band is the whole lead, so it takes the taller
+            padding 2.02 §6.2b specifies for the photo-less hero — a thin strip
+            would read as a stray bar rather than a deliberate title band. */}
+        <Container
+          className={teamPhoto ? "py-12 md:py-16" : "py-16 md:py-24"}
+        >
+          <div className="max-w-measure">
+            {decade != null && (
+              <SectionOverline variant="onNavy">
+                {decadeLabel(decade)}
+              </SectionOverline>
+            )}
+            <h1
+              id="season-heading"
+              className="mt-3 font-serif text-h1 font-semibold text-paper md:text-display"
+            >
+              {/* `title` is required in the model, so this should never fire —
+                  but a document could still be published without one, and an
+                  invented fallback („Сезона") would be a made-up name on an
+                  archive page. Show the gap instead (content-truth). */}
+              {title ?? <PlaceholderChip label="наслов на сезоната" />}
+            </h1>
           </div>
-        ) : (
-          // Photo-less hero: a solid navy band, never a greybox at hero scale
-          // (D-2.02-2). It reads as a deliberate title band rather than as a
-          // missing image — which matters, because most seasons have no photo.
-          <div className="bg-navy py-16 md:py-24">
-            <Container>
-              <SeasonHeroText title={title} decade={decade} inBand />
-            </Container>
-          </div>
-        )}
+
+          {teamPhoto && (
+            <div className="mt-10 md:mt-14">
+              <MattedPhoto
+                photo={teamPhoto}
+                alt={
+                  teamPhoto.caption ||
+                  (title
+                    ? `Екипна фотографија на ФК Беласица — ${title}`
+                    : "Екипна фотографија на ФК Беласица")
+                }
+                sizes="(min-width: 1280px) 1120px, (min-width: 768px) 88vw, 100vw"
+                renderWidth={1600}
+                maxHeightRem={40}
+                priority
+                tone="onNavy"
+              />
+            </div>
+          )}
+        </Container>
       </section>
+
+      <SeasonAnchorNav anchors={anchors} />
 
       {isEmpty ? (
         <section className={sectionClass("empty")}>
@@ -214,12 +315,135 @@ export default async function SeasonPage({
         </section>
       ) : (
         <>
-          {hasStory && (
-            <section aria-labelledby="story-heading" className={sectionClass("story")}>
+          {/* 2 · Табела — the league table as an IMAGE (D-3.01-2), matching the
+              reference site. The structured `finalTable` is legacy and is not
+              rendered here. No height cap: a standings scan that cannot be read
+              defeats the point of showing it. */}
+          {/* `tablePhoto` alone, not `present.table` — the two are the same
+              condition (`present.table = Boolean(tablePhoto)`) and this form
+              also narrows the type, so the nav and the section cannot drift. */}
+          {tablePhoto && (
+            <section
+              id={SECTIONS.table.id}
+              aria-labelledby="table-heading"
+              className={sectionClass("table")}
+            >
+              <Container>
+                <Reveal>
+                  <SectionHeading id="table-heading">
+                    {SECTIONS.table.heading}
+                  </SectionHeading>
+                </Reveal>
+                <Reveal delayIndex={1} className="mt-8">
+                  <MattedPhoto
+                    photo={tablePhoto}
+                    // The standings are shown as a scan by owner decision
+                    // (D-3.01-2) and 95 of 96 seasons have no typed table to
+                    // fall back on, so no full text alternative can be built
+                    // without inventing one. The alt therefore says exactly
+                    // what the image is and where it comes from, and names the
+                    // season, rather than pretending to convey the figures.
+                    alt={
+                      tablePhoto.caption ||
+                      (title
+                        ? `Фотографија од табелата за ${title}, скенирана од изворниот документ`
+                        : "Фотографија од табелата на сезоната, скенирана од изворниот документ")
+                    }
+                    sizes="(min-width: 1280px) 1120px, (min-width: 768px) 88vw, 100vw"
+                    renderWidth={1400}
+                  />
+                </Reveal>
+              </Container>
+            </section>
+          )}
+
+          {/* 3 · Тренер и статистика — the trainer name in the heading (the
+              reference site's treatment), then the season's lineup/stats. Each
+              half renders only if it has content. */}
+          {present.staff && (
+            <section
+              id={SECTIONS.staff.id}
+              aria-labelledby="staff-heading"
+              className={sectionClass("staff")}
+            >
+              <Container>
+                <Reveal>
+                  <SectionHeading id="staff-heading">
+                    {SECTIONS.staff.heading}
+                  </SectionHeading>
+                </Reveal>
+
+                {trainer && (
+                  <Reveal delayIndex={1} className="mt-8">
+                    {/* 2px orange LEFT-EDGE marker — the same marker the
+                        standings row uses (D-2.02-4). The label and the name
+                        both stay navy/neutral: orange on a white card is
+                        3.1:1 and fails AA (D-1.02-1). */}
+                    <div className="max-w-measure rounded-card border border-mist border-l-2 border-l-orange bg-white p-6 md:p-8">
+                      {/* `text-h3`, not `text-h2` — an <h3> must not render at
+                          its section <h2>'s size, or the type stops carrying
+                          the hierarchy (brand.md §Typography). The card, the
+                          orange edge and the muted label do the emphasis. */}
+                      <h3 className="font-serif text-h3 font-semibold text-navy">
+                        <span className="font-normal text-neutral-500">
+                          Тренер:{" "}
+                        </span>
+                        {trainer}
+                      </h3>
+                    </div>
+                  </Reveal>
+                )}
+
+                {lineup.length > 0 && (
+                  <Reveal delayIndex={2} className="mt-10">
+                    <h3 className="font-serif text-h3 font-semibold text-navy">
+                      Состав и статистика
+                    </h3>
+                    <SeasonRecordList
+                      blocks={lineup}
+                      variant="roster"
+                      className="mt-5"
+                    />
+                  </Reveal>
+                )}
+              </Container>
+            </section>
+          )}
+
+          {/* 4 · Резултати — match by match. The Cowork content pass is filling
+              this field season by season (10 of 96 at the time of writing), and
+              ISR 60 surfaces each one here — section, jump-link and all —
+              without a code change or a redeploy. */}
+          {present.results && (
+            <section
+              id={SECTIONS.results.id}
+              aria-labelledby="results-heading"
+              className={sectionClass("results")}
+            >
+              <Container>
+                <Reveal>
+                  <SectionHeading id="results-heading">
+                    {SECTIONS.results.heading}
+                  </SectionHeading>
+                </Reveal>
+                <Reveal delayIndex={1} className="mt-8">
+                  <SeasonRecordList blocks={results} variant="results" />
+                </Reveal>
+              </Container>
+            </section>
+          )}
+
+          {/* 5 · Приказна за сезоната — the documentary tail. */}
+          {present.story && (
+            <section
+              id={SECTIONS.story.id}
+              aria-labelledby="story-heading"
+              className={sectionClass("story")}
+            >
               <Container>
                 <Reveal>
                   <SectionHeading id="story-heading">
-                    Приказна за сезоната
+                    {SECTIONS.story.heading}
                   </SectionHeading>
                   <div className="mt-8">
                     <SeasonStory blocks={story} />
@@ -229,68 +453,24 @@ export default async function SeasonPage({
             </section>
           )}
 
-          {hasTable && (
-            <section aria-labelledby="table-heading" className={sectionClass("table")}>
-              <Container>
-                <Reveal>
-                  <SectionHeading id="table-heading">
-                    Конечна табела
-                  </SectionHeading>
-                  <div className="mt-8">
-                    <StandingsTable
-                      rows={finalTable}
-                      seasonTitle={title ?? "сезоната"}
-                    />
-                  </div>
-                </Reveal>
-              </Container>
-            </section>
-          )}
-
-          {hasSquad && (
-            <section aria-labelledby="squad-heading" className={sectionClass("squad")}>
-              <Container>
-                <Reveal>
-                  <SectionHeading id="squad-heading">Состав</SectionHeading>
-                  <div className="mt-8 max-w-measure">
-                    <SquadTable
-                      members={squad}
-                      seasonTitle={title ?? "сезоната"}
-                    />
-                  </div>
-                </Reveal>
-              </Container>
-            </section>
-          )}
-
-          {hasTrainers && (
-            <section aria-labelledby="trainers-heading" className={sectionClass("trainers")}>
-              <Container>
-                <Reveal>
-                  <SectionHeading id="trainers-heading">Тренери</SectionHeading>
-                  <ul className="mt-8 flex flex-wrap gap-3">
-                    {trainers.map((trainer, i) => (
-                      <PersonChip key={trainer.slug ?? i} person={trainer} />
-                    ))}
-                  </ul>
-                </Reveal>
-              </Container>
-            </section>
-          )}
-
-          {hasPhotos && (
-            <section aria-labelledby="photos-heading" className={sectionClass("photos")}>
+          {/* 6 · Фотографии — everything else linked to this season. The two
+              lead photos are excluded in GROQ, so no photo appears twice
+              (D-3.04-2, superseding D-2.02-6: the lead now carries its own
+              caption, so excluding it hides no archive data). */}
+          {present.gallery && (
+            <section
+              id={SECTIONS.gallery.id}
+              aria-labelledby="photos-heading"
+              className={sectionClass("gallery")}
+            >
               <Container>
                 <Reveal>
                   <SectionHeading id="photos-heading">
-                    Фотографии
+                    {SECTIONS.gallery.heading}
                   </SectionHeading>
                 </Reveal>
                 <div className="mt-8">
-                  {/* All photos, including the hero's (D-2.02-6) — the hero
-                      shows no caption, so excluding [0] would hide its caption
-                      and date for good. */}
-                  <PhotoGrid photos={photos} />
+                  <PhotoGrid photos={gallery} />
                 </div>
               </Container>
             </section>
@@ -298,67 +478,54 @@ export default async function SeasonPage({
         </>
       )}
 
-      {/* Back-links — navigation, not content. Omitted on the fully-empty
-          season: its notice already ends with the same back-link. */}
-      {!isEmpty && (
-      <section aria-label="Навигација низ архивата" className={sectionClass("backlinks")}>
-        <Container>
-          <ul className="flex flex-col gap-3">
-            {decade != null && (
-              <li>
-                <Link
-                  href={`/arhiva#${decadeAnchor(decade)}`}
-                  className={`text-small text-navy decoration-2 underline-offset-4 hover:underline hover:decoration-orange ${focusOnPaper}`}
-                >
-                  Сите сезони од {decadeLabel(decade)}
-                </Link>
-              </li>
-            )}
-            <li>
-              <Link
-                href="/arhiva"
-                className={`text-small text-navy decoration-2 underline-offset-4 hover:underline hover:decoration-orange ${focusOnPaper}`}
+      {/* 7 · Prev/next season + back-links — navigation, not content.
+          The prev/next pair renders even on a fully-empty season: the archive
+          spine is the one thing that must not break, and walking past a sparse
+          season is exactly when it earns its keep. The back-links are omitted
+          there instead, because the empty notice already ends with the same
+          „Назад кон архивата" link (D-2.02-8). */}
+      {(hasNeighbours || !isEmpty) && (
+        <section
+          aria-label="Навигација низ архивата"
+          className="border-t border-mist py-16 md:py-24"
+        >
+          <Container>
+            <Reveal>
+              <SeasonNeighbourNav
+                previous={season.previousSeason}
+                next={season.nextSeason}
+              />
+            </Reveal>
+            {!isEmpty && (
+              <ul
+                className={cn(
+                  "flex flex-col gap-3",
+                  hasNeighbours && "mt-10",
+                )}
               >
-                Назад кон архивата
-              </Link>
-            </li>
-          </ul>
-        </Container>
-      </section>
+                {decade != null && (
+                  <li>
+                    <Link
+                      href={`/arhiva#${decadeAnchor(decade)}`}
+                      className={`text-small text-navy decoration-2 underline-offset-4 hover:underline hover:decoration-orange ${focusOnPaper}`}
+                    >
+                      Сите сезони од {decadeLabel(decade)}
+                    </Link>
+                  </li>
+                )}
+                <li>
+                  <Link
+                    href="/arhiva"
+                    className={`text-small text-navy decoration-2 underline-offset-4 hover:underline hover:decoration-orange ${focusOnPaper}`}
+                  >
+                    Назад кон архивата
+                  </Link>
+                </li>
+              </ul>
+            )}
+          </Container>
+        </section>
       )}
     </>
-  );
-}
-
-/**
- * Hero overline + H1, shared by the photo and photo-less variants so the two
- * can never drift apart. Orange text is legal here and only here: on navy it
- * measures 4.6:1 and passes AA (D-1.02-1).
- */
-function SeasonHeroText({
-  title,
-  decade,
-  inBand = false,
-}: {
-  title: string | null;
-  decade: number | null;
-  inBand?: boolean;
-}) {
-  return (
-    <div className={inBand ? "max-w-measure" : "max-w-measure pb-10 md:pb-16"}>
-      {decade != null && (
-        <SectionOverline variant="onNavy">{decadeLabel(decade)}</SectionOverline>
-      )}
-      <h1
-        id="season-heading"
-        className="mt-3 font-serif text-h1 font-semibold text-paper md:text-display"
-      >
-        {/* `title` is required in the model, so this should never fire — but a
-            document could still be published without one, and an invented
-            fallback („Сезона") would be a made-up name on an archive page.
-            Show the gap instead (handover §2, content-truth). */}
-        {title ?? <PlaceholderChip label="наслов на сезоната" />}
-      </h1>
-    </div>
   );
 }

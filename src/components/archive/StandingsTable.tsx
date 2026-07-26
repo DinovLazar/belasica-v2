@@ -1,3 +1,12 @@
+// ⚠️ LEGACY — in-repo but NOT RENDERED since 3.04 (D-3.04-6). The season page
+// now shows the league table as an image (`season.tablePhoto`, D-3.01-2), so
+// nothing imports this component today. It is kept, unrendered, for the same
+// reason `season.finalTable` is kept in the schema ("Задржано за
+// компатибилност") and on the same precedent as the unregistered `match.ts`
+// (D-2.01-2): the legacy field still holds a real row (`1982-83`), which
+// `/statistika` reads to build its all-time balance — with its own components,
+// not this one — and this is the only component that can display that row as a
+// table. Delete it together with the field when the model re-locks after 3.06.
 import { cn } from "@/lib/utils";
 import { isBelasicaRow, statCell } from "@/lib/archive";
 
