@@ -24,16 +24,26 @@ export const metadata: Metadata = {
  * Seasons for the index. Per season we need only `title`, `slug`, `decade` and
  * the **lead photo** — the rest of the model belongs to the detail page.
  *
- * Photos come by back-reference (`photo.relatedSeason`, D-2.01-1) — there is no
- * `season.photos` array. `[0]` after `coalesce(date,"9999") asc` is the lead,
- * the same ordering key the homepage uses (§4.5).
+ * The lead photo is the season's curated **`teamPhoto`** (D-3.04b-2). That
+ * reference is what 3.01 modelled and 3.02/3.04-Cowork filled precisely so a
+ * curator could choose each season's face, and until now this page ignored it:
+ * it took `[0]` of the season's photos ordered by `coalesce(date,"9999") asc`,
+ * which on this data is arbitrary — 886 of the 889 photos have no `date` — so
+ * **69 of the 96 cards were showing something other than the chosen photo**
+ * (a newspaper clipping, a table screenshot, a formation graphic). The season
+ * page has read `teamPhoto` since 3.04, so index and detail disagreed too.
+ *
+ * The old back-reference stays as the **fallback** for the 13 seasons that have
+ * no `teamPhoto`, but now ordered by the deterministic 2.08 key (a non-empty
+ * caption first — the curator's other lever — then date, then `_id` as a stable
+ * total order, D-2.08-3) rather than the unstable date-only key.
  *
  * Ordering is `slug.current desc`, not `title` (D-2.02-2): every slug starts
  * with a 4-digit year (`1992-93`, `1950`, `1922-26`), so lexical desc is
  * chronological desc for all folder shapes, whereas titles are not uniform
  * („Беласица 1922–1926" vs „Сезона 1950") and would sort wrongly.
  *
- * ~74 seasons × 1 image is comfortably one query; the page is static + ISR.
+ * 96 seasons × 1 image is comfortably one query; the page is static + ISR.
  */
 const ARCHIVE_QUERY = /* groq */ `
 *[_type == "season" && defined(slug.current) && defined(decade)]
@@ -41,11 +51,18 @@ const ARCHIVE_QUERY = /* groq */ `
     title,
     "slug": slug.current,
     decade,
-    "leadPhoto": *[_type == "photo" && relatedSeason._ref == ^._id]
-      | order(coalesce(date, "9999") asc)[0]{
-        "image": image,
-        caption
-      }
+    "leadPhoto": coalesce(
+      teamPhoto->{ "image": image, caption },
+      *[_type == "photo" && relatedSeason._ref == ^._id]
+        | order(
+            select(defined(caption) && caption != "" => 0, 1) asc,
+            coalesce(date, "9999") asc,
+            _id asc
+          )[0]{
+          "image": image,
+          caption
+        }
+    )
   }`;
 
 type ArchiveSeason = {
