@@ -28,7 +28,7 @@ Sparse seasons look deliberate rather than broken: a section with no content sim
   - **Heading order:** sweep asserts no skipped level inside `<main>` on all 96 pages, and that the first heading is the `<h1>`. On `1985-86`: H1 „Сезона 1985/86“ → H2 Табела → H2 Тренер и статистика → H3 „Тренер: Благој Истатов" → H3 Состав и статистика → H2 Приказна за сезоната → H2 Фотографии.
   - **Alt text:** sweep asserts every `<img>` in `<main>` has a non-empty `alt` — **0 failures across 96 pages** (13 images on `1985-86`).
   - **Focus ring:** measured on a real focused element — `box-shadow: rgb(247,244,236) 0 0 0 2px, rgb(18,41,79) 0 0 0 4px` on the rail links, the prev/next cards, the back-links and the breadcrumb — i.e. brand.md's „navy 2px, 2px offset".
-- ⏳ **PR opened, Vercel preview verified 200 and rendering correctly, preview URL + 5-item checklist in the report (gate not waived)** — see §10. *(Filled in below once the preview deploys — the gate is not waived.)*
+- ✅ **PR opened, Vercel preview verified 200 and rendering correctly, preview URL + checklist in the report (gate NOT waived)** — [PR #26](https://github.com/DinovLazar/belasica-v2/pull/26); preview `https://belasica-v2-git-phase-304-season-redesign-dinovlazars-projects.vercel.app` (Vercel check `pass`). Verified **on the preview, not only locally**: all 12 checked routes 200 and `/arhiva/nema-vakva` 404; five season pages render the new structure with their sections and jump-rail matching each season's live data — `1985-86` → tabela/trener/prikazna/fotografii · `1938-39` → tabela/**rezultati**/prikazna/fotografii · `1940-41` → rezultati/prikazna/fotografii on the navy band with no lead photo · `2025-26` → fotografii only, **no rail** (one section), „Претходна" only · `1945-48` → trener/prikazna/fotografii with the correct era-range neighbours. Every image alt'd on all five. At **375**: no horizontal scroll (`scrollWidth == innerWidth == 375`), heading scale measured H1 44 → H2 30 → H3 22.
 - ✅ **Completion report filed; decisions logged `D-3.04-<n>`** — 11 entries, `D-3.04-1` … `D-3.04-11`, appended to `decisions.md`; `D-2.02-6`'s Status changed to „Superseded by D-3.04-2" (only its Status, per the append-only rule).
 
 ## 3. Decisions I made during this phase
@@ -63,7 +63,7 @@ Two smaller calls, deliberately not given their own entries:
 
 ## 5. Changed files / deliverables
 
-**Branch:** `phase-3.04-season-redesign` → PR to `main`. **Commit / PR:** see §10.
+**Branch:** `phase-3.04-season-redesign`. **Commit:** `b26d9ea`. **PR:** [#26](https://github.com/DinovLazar/belasica-v2/pull/26) → `main`.
 
 Code — rewritten:
 - `src/app/(site)/arhiva/[slug]/page.tsx` — the season template (new GROQ, new section order, anchor rail, prev/next).
@@ -179,8 +179,8 @@ The archive reads as a documentary rather than a directory: every season is a pa
 
 ## 10. Vercel preview + eyeball checklist for Lazar
 
-**PR:** _pending_
-**Preview URL:** _pending_
+**PR:** [#26 — Phase 3.04 · Season page redesign & restructure](https://github.com/DinovLazar/belasica-v2/pull/26)
+**Preview URL:** https://belasica-v2-git-phase-304-season-redesign-dinovlazars-projects.vercel.app — **verified before this report was filed** (Vercel check `pass`; 12 routes 200, unknown slug 404, structure and mobile layout checked on the preview itself). The gate was **not** waived.
 
 Six things to look at, at 1280 and then at 375:
 
