@@ -1281,3 +1281,52 @@
 - **Alternatives considered:** *Fix `cn` globally with `extendTailwindMerge({ extend: { classGroups: { "font-size": [...] } } })`* — the correct one-file fix, and it would repair all **8** remaining pre-existing call sites at once — but **rejected for this phase**: those 8 sites are in `SiteHeader`, `SiteFooter`, `PlaceholderChip`, `SectionOverline`, `ContactForm` and `RoleChips`, so the change would alter rendered type sizes on the homepage, the footer, the navbar, `/kontakt`, `/legendi` and `/statistika` — every one of which this brief lists as **do not touch** — and it would ship those visual changes unreviewed. *Fix the 8 sites individually here* — rejected for the same scope reason, and it leaves the trap in place for the next component. *Leave my own files broken too, for consistency* — rejected: a known-wrong render is not consistency.
 - **Consequences:** Downside accepted: the repo still has 8 call sites rendering at the wrong size — most visibly **every `[PLACEHOLDER: …]` chip** (16px instead of 14px) and **every `SectionOverline`** (16px instead of 12px, which is why the season page's „1980-ТИ" decade label looks larger than the 12px the token specifies). That is a **pre-existing** defect, not introduced here, and it is now measured, listed and handed to the next phase with a one-file fix. A `// NB` comment in `MattedPhoto.tsx` warns the next author at the point where it bites.
 - **Links:** Phase 3.04; `src/lib/utils.ts`; `src/components/archive/MattedPhoto.tsx`; `SeasonRecordList.tsx`; brand.md §Typography; `globals.css @theme`; completion report §7.
+
+
+### D-3.04C-1 · 2026-07-26 · Phase 3.04-Cowork ran in the cloud from Sanity assets + Google Drive + MCP writes (not the local mirror + token script)
+- **Status:** Accepted
+- **Context:** The phase prompt assumed the local photo mirror `~/belasica-ingest-source/` and a local `SANITY_API_WRITE_TOKEN` scratchpad script (the D-2.09R-5 / D-3.02 precedent). This is a cloud Cowork session with no local folder connected to the device bridge.
+- **Decision:** Classify photos from their already-ingested Sanity `photo` documents (CDN thumbnails downloaded + built into per-season contact sheets), read the source `.docx`/`.xlsx` from Ace's Google Drive (fully accessible via the connector), and write via the Sanity MCP under the project owner's OAuth session (`patch_documents` → `publish_documents`).
+- **Alternatives considered:** Request device-bridge access to the local mirror + local token — rejected: no folder is connected and the desktop went offline mid-phase; unnecessary because every photo is already a `photo` doc with a CDN URL and a resolved `relatedSeason`. Fabricate/skip the docx sources — rejected: Drive holds them.
+- **Consequences:** No local token was used or created (nothing to leak). The MCP caps at 25 docs per `patch_documents` call, so the 10 results were written in two calls; trivial. Same `production` dataset updated and verified via GROQ.
+- **Links:** Phase 3.04-Cowork; supersedes the *method* (not the intent) of D-2.09R-5 / D-3.02-5 for this phase.
+
+### D-3.04C-2 · 2026-07-26 · Photo re-verification by 8 parallel per-decade agents over per-season contact sheets
+- **Status:** Accepted
+- **Context:** Re-verifying team+table photos for all 96 seasons means viewing ~883 source images — too much for one context, too slow serially.
+- **Decision:** Reuse the proven D-3.02R-1 pattern: 8 per-decade subagents, each viewing labelled per-season montages (contact sheets built from CDN thumbnails) and returning structured picks; a single central step validates every picked `_id` against the photo's real `relatedSeason` and applies the writes.
+- **Alternatives considered:** Classify all images in the main context — rejected: context blow-up, serialised. Let subagents write to Sanity — rejected: keep all writes central to avoid races and to run one validation pass.
+- **Consequences:** Fast and parallel; the agents surfaced 5 era-misfiled photos and confirmed the 3 old borderline flags. Downside: delegated visual judgement — mitigated by the 0-anomaly `_id` validation, my own spot-checks (2007-08, 1943, 1982-83), and the owner-review artifact.
+- **Links:** Phase 3.04-Cowork; D-3.02R-1; D-3.02-1 (rubric).
+
+### D-3.04C-3 · 2026-07-26 · Wrong images corrected by clearing / repointing the season reference (photo docs left as-is, re-flagged)
+- **Status:** Accepted
+- **Context:** Four seasons' current picks were wrong on inspection: 1952 `teamPhoto` is the 1951 squad photo reused on the 1952 book page; 1991-92 `tablePhoto` is a penultimate (not final) table; 1999-2000 and 2000-01 `tablePhoto` were penultimate/round-25 tables while the true „КОНЕЧНА ТАБЕЛА" exists in the same folder.
+- **Decision:** Clear the two that have no valid replacement (1952 team, 1991-92 table) and repoint the two that do (1999-2000, 2000-01 → the final table). Do **not** edit any photo's `relatedSeason` (out of the season-field scope) — re-flag the 5 misfiled photos for Lazar to re-file in Studio.
+- **Alternatives considered:** Leave the wrong images (ships a 1951 squad labelled 1952 and non-final tables labelled final) — rejected on content-truth. Re-`relatedSeason` the misfiled photos myself — rejected: photo-document edits are out of scope and higher-risk.
+- **Consequences:** Two seasons lose a currently-set image (reversible; nothing renders publicly yet). Data is now source-true. Five photos remain mis-filed in their season galleries until Lazar moves them (owed item, OV-12 extended).
+- **Links:** Phase 3.04-Cowork; OV-12; D-3.02R-2.
+
+### D-3.04C-4 · 2026-07-26 · Borderline team images kept and flagged where no posed squad exists
+- **Status:** Accepted
+- **Context:** A few seasons have no posed squad photo at all — only a youth-team shot, a portrait montage, a two-team pre-match photo, or a goal celebration.
+- **Decision:** Use the best genuine Belasica team image and flag it, rather than leave the season with no team photo: 1950 (youth „подмладок"), 1955-56 (composite portrait montage), 1988-89 (two-team Bokelj–Belasica), 2007-08 (on-pitch goal celebration).
+- **Alternatives considered:** Null those seasons — rejected: loses a genuine, if imperfect, team image the owner may accept. Substitute a rejected type (formation graphic, roster form) — rejected on content-truth.
+- **Consequences:** Four "team photos" are not posed squads; each is a flagged owner-review item and self-omits cleanly on the redesign if the owner clears it. No fan/result/table graphic was ever used as a team photo.
+- **Links:** Phase 3.04-Cowork; D-3.02R-2 (same principle).
+
+### D-3.04C-5 · 2026-07-26 · `results` extracted only from a genuine pre-structured listing, verbatim; prose-embedded scores left in `story`
+- **Status:** Accepted
+- **Context:** Round-by-round results sit inside `story` for parts of the archive (D-3.02S-3). Some seasons open with a clean structured match list; others mention scores only inside narrative sentences.
+- **Decision:** Fill `season.results` only for the 10 seasons whose `story` begins with a genuine structured listing (1930-31 → 1940-41), extracting the leading story blocks **programmatically and verbatim** (verified each published `results` is a verbatim substring of its source `story`). Leave `results` empty for seasons where scores appear only in prose (the 1980s–early-90s qualification runs, 1942/1943/1948-49).
+- **Alternatives considered:** Reconstruct results lists from prose sentences — rejected: reformatting narrative into a match list is fabrication under content-truth. Hand-retype the lists — rejected: transcription risk; programmatic block extraction is exact.
+- **Consequences:** Results coverage is 10/96 (correct — most seasons genuinely have no clean per-match source). The extracted lists duplicate the leading portion of `story` (list in „Резултати" + narrative in „Приказна"); `story` was left untouched (scope = fill `results` only). A future pass could trim the leading list from `story` if the redesign prefers no overlap.
+- **Links:** Phase 3.04-Cowork; D-3.02S-3.
+
+### D-3.04C-6 · 2026-07-26 · Trainer/lineup gap-fill bounded to named sources; pre-1950 prose squad names not promoted to `lineupAndStats`
+- **Status:** Accepted
+- **Context:** 29 seasons had no `trainer` and 16 no `lineupAndStats`. „Тренери на Беласица.docx" is blank for all 29 gaps and „Најдобри стрелци…docx" names none of the 16; a few pre-1950 stories name a squad in prose but with no appearances/goals.
+- **Decision:** Fill only what a source actually names: 1957-58 `trainer` = „Коста Ефински" (the history book names him succeeding Чедо Хаџиски; the trainer docx had left it blank). Leave the other 28 trainer gaps and all 16 `lineupAndStats` gaps empty; do **not** promote pre-1950 prose squad *names* into `lineupAndStats`.
+- **Alternatives considered:** Add prose squad names as `lineupAndStats` — rejected: duplicates `story`, carries no apps/goals, and is inconsistent with 3.02-Story (which added rosters only where apps/goals existed).
+- **Consequences:** Task C nets 1 trainer fill and 0 lineup fills — the correct, expected outcome (most early gaps are genuine). Early-season squad names remain available in `story` prose for a future structuring pass if wanted.
+- **Links:** Phase 3.04-Cowork; D-3.02-2; D-3.02S-2.
