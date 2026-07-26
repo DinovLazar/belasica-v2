@@ -1,3 +1,7 @@
+// ⚠️ LEGACY — in-repo but NOT RENDERED since 3.04 (D-3.04-6). The season's
+// squad now lives in `season.lineupAndStats` (portable text, D-3.01-4) and is
+// rendered by `SeasonRecordList`. Kept unrendered alongside the legacy
+// `season.squad` field it displays; see the note in `StandingsTable.tsx`.
 import Link from "next/link";
 import { PlaceholderChip } from "@/components/home/PlaceholderChip";
 import { statCell } from "@/lib/archive";
