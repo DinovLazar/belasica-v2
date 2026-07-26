@@ -17,6 +17,7 @@ import {
   type SeasonNeighbour,
 } from "@/components/archive/SeasonNeighbourNav";
 import { SeasonRecordList } from "@/components/archive/SeasonRecordList";
+import { SeasonSectionEmpty } from "@/components/archive/SeasonSectionEmpty";
 import { SeasonStory } from "@/components/archive/SeasonStory";
 import { SectionHeading } from "@/components/archive/SectionHeading";
 import { PlaceholderChip } from "@/components/home/PlaceholderChip";
@@ -115,22 +116,47 @@ type SeasonData = {
   nextSeason: SeasonNeighbour | null;
 };
 
-/** The five anchorable sections, in page order. The nav lists only the ones
- *  that actually rendered, so it can never point at a self-omitted heading. */
+/**
+ * The five sections, in page order. Since 3.04b **every one of them renders on
+ * every season page** (D-3.04b-1) — a section with no content shows `empty`
+ * instead of vanishing — so the jump rail is the same five links everywhere and
+ * two season pages can be compared side by side.
+ *
+ * `empty` is structural copy: it states what the archive does not hold, and
+ * claims no fact about the club.
+ */
 const SECTIONS = {
-  table: { id: "tabela", label: "Табела", heading: "Табела" },
+  table: {
+    id: "tabela",
+    label: "Табела",
+    heading: "Табела",
+    empty: "Во архивата сѐ уште нема табела за оваа сезона.",
+  },
   staff: {
     id: "trener",
     label: "Тренер",
     heading: "Тренер и статистика",
+    empty:
+      "Во архивата сѐ уште нема податоци за тренерот и составот во оваа сезона.",
   },
-  results: { id: "rezultati", label: "Резултати", heading: "Резултати" },
+  results: {
+    id: "rezultati",
+    label: "Резултати",
+    heading: "Резултати",
+    empty: "Во архивата сѐ уште нема резултати од натпреварите во оваа сезона.",
+  },
   story: {
     id: "prikazna",
     label: "Приказна",
     heading: "Приказна за сезоната",
+    empty: "Во архивата сѐ уште нема напишана приказна за оваа сезона.",
   },
-  gallery: { id: "fotografii", label: "Фотографии", heading: "Фотографии" },
+  gallery: {
+    id: "fotografii",
+    label: "Фотографии",
+    heading: "Фотографии",
+    empty: "Во архивата нема други фотографии од оваа сезона.",
+  },
 } as const;
 
 type SectionKey = keyof typeof SECTIONS;
@@ -192,10 +218,11 @@ export default async function SeasonPage({
   const story = season.story ?? [];
   const gallery = season.gallery ?? [];
 
-  // Every data section omits itself when empty (D-2.02-3 / D-3.01-6): no
-  // heading, no placeholder prose, no greybox. A sparse season must read as
-  // deliberate — most of the 96 are sparse in at least one field, and that is
-  // a genuine source gap, not a defect.
+  // Which sections have real content. Since 3.04b this no longer decides
+  // whether a section RENDERS (they all do — D-3.04b-1); it decides whether the
+  // section shows its content or its one-line empty note. Most of the 96
+  // seasons are sparse in at least one field, and those are genuine source
+  // gaps, not defects — the note says so rather than inventing filler.
   const present: Record<SectionKey, boolean> = {
     table: Boolean(tablePhoto),
     staff: Boolean(trainer) || lineup.length > 0,
@@ -204,19 +231,18 @@ export default async function SeasonPage({
     gallery: gallery.length > 0,
   };
 
-  const order = (Object.keys(SECTIONS) as SectionKey[]).filter(
-    (key) => present[key],
-  );
+  const order = Object.keys(SECTIONS) as SectionKey[];
 
   const anchors: SeasonAnchor[] = order.map((key) => ({
     id: SECTIONS[key].id,
     label: SECTIONS[key].label,
   }));
 
-  // With every section AND the lead photo empty, the sections would leave the
-  // title band floating on the footer, so the page shows one archive notice
-  // instead (D-2.02-8).
-  const isEmpty = !teamPhoto && order.length === 0;
+  // The one case that still collapses: a season with no lead photo AND nothing
+  // in any of the five sections would otherwise stack five identical empty
+  // notes. One archive notice reads better and is the established treatment
+  // (D-2.02-8). No published season is in this state today — it is a guard.
+  const isEmpty = !teamPhoto && !Object.values(present).some(Boolean);
 
   const hasNeighbours = Boolean(
     season.previousSeason?.slug || season.nextSeason?.slug,
@@ -303,7 +329,7 @@ export default async function SeasonPage({
         </Container>
       </section>
 
-      <SeasonAnchorNav anchors={anchors} />
+      <SeasonAnchorNav anchors={isEmpty ? [] : anchors} />
 
       {isEmpty ? (
         <section className={sectionClass("empty")}>
@@ -319,22 +345,19 @@ export default async function SeasonPage({
               reference site. The structured `finalTable` is legacy and is not
               rendered here. No height cap: a standings scan that cannot be read
               defeats the point of showing it. */}
-          {/* `tablePhoto` alone, not `present.table` — the two are the same
-              condition (`present.table = Boolean(tablePhoto)`) and this form
-              also narrows the type, so the nav and the section cannot drift. */}
-          {tablePhoto && (
-            <section
-              id={SECTIONS.table.id}
-              aria-labelledby="table-heading"
-              className={sectionClass("table")}
-            >
-              <Container>
-                <Reveal>
-                  <SectionHeading id="table-heading">
-                    {SECTIONS.table.heading}
-                  </SectionHeading>
-                </Reveal>
-                <Reveal delayIndex={1} className="mt-8">
+          <section
+            id={SECTIONS.table.id}
+            aria-labelledby="table-heading"
+            className={sectionClass("table")}
+          >
+            <Container>
+              <Reveal>
+                <SectionHeading id="table-heading">
+                  {SECTIONS.table.heading}
+                </SectionHeading>
+              </Reveal>
+              <Reveal delayIndex={1} className="mt-8">
+                {tablePhoto ? (
                   <MattedPhoto
                     photo={tablePhoto}
                     // The standings are shown as a scan by owner decision
@@ -352,28 +375,38 @@ export default async function SeasonPage({
                     sizes="(min-width: 1280px) 1120px, (min-width: 768px) 88vw, 100vw"
                     renderWidth={1400}
                   />
-                </Reveal>
-              </Container>
-            </section>
-          )}
+                ) : (
+                  <SeasonSectionEmpty note={SECTIONS.table.empty} />
+                )}
+              </Reveal>
+            </Container>
+          </section>
 
           {/* 3 · Тренер и статистика — the trainer name in the heading (the
-              reference site's treatment), then the season's lineup/stats. Each
-              half renders only if it has content. */}
-          {present.staff && (
-            <section
-              id={SECTIONS.staff.id}
-              aria-labelledby="staff-heading"
-              className={sectionClass("staff")}
-            >
-              <Container>
-                <Reveal>
-                  <SectionHeading id="staff-heading">
-                    {SECTIONS.staff.heading}
-                  </SectionHeading>
-                </Reveal>
+              reference site's treatment), then the season's lineup/stats.
+              The SECTION always renders (D-3.04b-1); its two halves still
+              self-omit individually, so a season with a trainer but no roster
+              shows the trainer and nothing else — one empty note per section,
+              never two stacked inside one. */}
+          <section
+            id={SECTIONS.staff.id}
+            aria-labelledby="staff-heading"
+            className={sectionClass("staff")}
+          >
+            <Container>
+              <Reveal>
+                <SectionHeading id="staff-heading">
+                  {SECTIONS.staff.heading}
+                </SectionHeading>
+              </Reveal>
 
-                {trainer && (
+              {!present.staff && (
+                <Reveal delayIndex={1} className="mt-8">
+                  <SeasonSectionEmpty note={SECTIONS.staff.empty} />
+                </Reveal>
+              )}
+
+              {trainer && (
                   <Reveal delayIndex={1} className="mt-8">
                     {/* 2px orange LEFT-EDGE marker — the same marker the
                         standings row uses (D-2.02-4). The label and the name
@@ -394,87 +427,94 @@ export default async function SeasonPage({
                   </Reveal>
                 )}
 
-                {lineup.length > 0 && (
-                  <Reveal delayIndex={2} className="mt-10">
-                    <h3 className="font-serif text-h3 font-semibold text-navy">
-                      Состав и статистика
-                    </h3>
-                    <SeasonRecordList
-                      blocks={lineup}
-                      variant="roster"
-                      className="mt-5"
-                    />
-                  </Reveal>
-                )}
-              </Container>
-            </section>
-          )}
+              {lineup.length > 0 && (
+                <Reveal delayIndex={2} className="mt-10">
+                  <h3 className="font-serif text-h3 font-semibold text-navy">
+                    Состав и статистика
+                  </h3>
+                  <SeasonRecordList
+                    blocks={lineup}
+                    variant="roster"
+                    className="mt-5"
+                  />
+                </Reveal>
+              )}
+            </Container>
+          </section>
 
           {/* 4 · Резултати — match by match. The Cowork content pass is filling
               this field season by season (10 of 96 at the time of writing), and
               ISR 60 surfaces each one here — section, jump-link and all —
               without a code change or a redeploy. */}
-          {present.results && (
-            <section
-              id={SECTIONS.results.id}
-              aria-labelledby="results-heading"
-              className={sectionClass("results")}
-            >
-              <Container>
-                <Reveal>
-                  <SectionHeading id="results-heading">
-                    {SECTIONS.results.heading}
-                  </SectionHeading>
-                </Reveal>
-                <Reveal delayIndex={1} className="mt-8">
+          <section
+            id={SECTIONS.results.id}
+            aria-labelledby="results-heading"
+            className={sectionClass("results")}
+          >
+            <Container>
+              <Reveal>
+                <SectionHeading id="results-heading">
+                  {SECTIONS.results.heading}
+                </SectionHeading>
+              </Reveal>
+              <Reveal delayIndex={1} className="mt-8">
+                {present.results ? (
                   <SeasonRecordList blocks={results} variant="results" />
-                </Reveal>
-              </Container>
-            </section>
-          )}
+                ) : (
+                  <SeasonSectionEmpty note={SECTIONS.results.empty} />
+                )}
+              </Reveal>
+            </Container>
+          </section>
 
           {/* 5 · Приказна за сезоната — the documentary tail. */}
-          {present.story && (
-            <section
-              id={SECTIONS.story.id}
-              aria-labelledby="story-heading"
-              className={sectionClass("story")}
-            >
-              <Container>
-                <Reveal>
-                  <SectionHeading id="story-heading">
-                    {SECTIONS.story.heading}
-                  </SectionHeading>
-                  <div className="mt-8">
+          <section
+            id={SECTIONS.story.id}
+            aria-labelledby="story-heading"
+            className={sectionClass("story")}
+          >
+            <Container>
+              <Reveal>
+                <SectionHeading id="story-heading">
+                  {SECTIONS.story.heading}
+                </SectionHeading>
+                <div className="mt-8">
+                  {present.story ? (
                     <SeasonStory blocks={story} />
-                  </div>
-                </Reveal>
-              </Container>
-            </section>
-          )}
+                  ) : (
+                    <SeasonSectionEmpty note={SECTIONS.story.empty} />
+                  )}
+                </div>
+              </Reveal>
+            </Container>
+          </section>
 
           {/* 6 · Фотографии — everything else linked to this season. The two
               lead photos are excluded in GROQ, so no photo appears twice
               (D-3.04-2, superseding D-2.02-6: the lead now carries its own
               caption, so excluding it hides no archive data). */}
-          {present.gallery && (
-            <section
-              id={SECTIONS.gallery.id}
-              aria-labelledby="photos-heading"
-              className={sectionClass("gallery")}
-            >
-              <Container>
-                <Reveal>
-                  <SectionHeading id="photos-heading">
-                    {SECTIONS.gallery.heading}
-                  </SectionHeading>
-                </Reveal>
-                <div className="mt-8">
+          <section
+            id={SECTIONS.gallery.id}
+            aria-labelledby="photos-heading"
+            className={sectionClass("gallery")}
+          >
+            <Container>
+              <Reveal>
+                <SectionHeading id="photos-heading">
+                  {SECTIONS.gallery.heading}
+                </SectionHeading>
+              </Reveal>
+              <div className="mt-8">
+                {present.gallery ? (
                   <PhotoGrid photos={gallery} />
-                </div>
-              </Container>
-            </section>
-          )}
+                ) : (
+                  <Reveal>
+                    <SeasonSectionEmpty note={SECTIONS.gallery.empty} />
+                  </Reveal>
+                )}
+              </div>
+            </Container>
+          </section>
         </>
       )}
 
