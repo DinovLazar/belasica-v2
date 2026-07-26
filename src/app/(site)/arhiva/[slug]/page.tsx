@@ -262,9 +262,7 @@ export default async function SeasonPage({
             padding 2.02 §6.2b specifies for the photo-less hero — a thin strip
             would read as a stray bar rather than a deliberate title band. */}
         <Container
-          className={cn(
-            teamPhoto ? "py-12 md:py-16" : "py-16 md:py-24",
-          )}
+          className={teamPhoto ? "py-12 md:py-16" : "py-16 md:py-24"}
         >
           <div className="max-w-measure">
             {decade != null && (
@@ -321,7 +319,10 @@ export default async function SeasonPage({
               reference site. The structured `finalTable` is legacy and is not
               rendered here. No height cap: a standings scan that cannot be read
               defeats the point of showing it. */}
-          {present.table && tablePhoto && (
+          {/* `tablePhoto` alone, not `present.table` — the two are the same
+              condition (`present.table = Boolean(tablePhoto)`) and this form
+              also narrows the type, so the nav and the section cannot drift. */}
+          {tablePhoto && (
             <section
               id={SECTIONS.table.id}
               aria-labelledby="table-heading"
@@ -409,9 +410,10 @@ export default async function SeasonPage({
             </section>
           )}
 
-          {/* 4 · Резултати — match by match. Empty on every season today; the
-              Cowork content pass fills it, and ISR 60 surfaces each one here
-              without a redeploy. */}
+          {/* 4 · Резултати — match by match. The Cowork content pass is filling
+              this field season by season (10 of 96 at the time of writing), and
+              ISR 60 surfaces each one here — section, jump-link and all —
+              without a code change or a redeploy. */}
           {present.results && (
             <section
               id={SECTIONS.results.id}
