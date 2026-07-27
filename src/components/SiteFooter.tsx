@@ -15,8 +15,11 @@ const focusRing =
 
 // Footer text link: navy label, orange underline on hover (D-1.02-1 — orange
 // never carries text on a light surface). Shared by every link in the footer.
+// `py-1 -my-1` pads the hit area to ≥24px tall (WCAG 2.5.8) while the
+// negative margin cancels it out of the layout, so the column rhythm
+// (gap-3 between text lines) is unchanged.
 const footerLink = cn(
-  "inline-flex w-fit font-sans text-small text-navy underline-offset-4 decoration-2 transition-colors hover:underline hover:decoration-orange",
+  "inline-flex w-fit py-1 -my-1 font-sans text-small text-navy underline-offset-4 decoration-2 transition-colors hover:underline hover:decoration-orange",
   focusRing,
 );
 

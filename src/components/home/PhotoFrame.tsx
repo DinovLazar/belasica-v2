@@ -94,6 +94,9 @@ export function PhotoFrame({
           fill
           sizes={sizes}
           priority={priority}
+          // `priority` marks the LCP candidate but Next 15.5 does not
+          // priority-hint the request by itself; the explicit prop does.
+          fetchPriority={priority ? "high" : undefined}
           className={fit === "contain" ? "object-contain" : "object-cover"}
           style={
             fit === "contain"

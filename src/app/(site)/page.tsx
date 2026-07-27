@@ -171,6 +171,10 @@ export default async function Home() {
               alt={heroAlt}
               fill
               priority
+              // `priority` alone preloads but does not priority-hint in Next
+              // 15.5 — the explicit prop is what puts fetchpriority="high" on
+              // the LCP request (measured: mobile LCP 3.5s without it).
+              fetchPriority="high"
               sizes="100vw"
               className="object-cover"
               style={{ objectPosition: "50% 30%" }}
@@ -312,7 +316,14 @@ export default async function Home() {
             // to this grid so the shared /legendi component stays untouched.
             <ul className="mt-10 grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-5 [&>li>div>a]:h-full [&>li>div]:h-full">
               {legends.map((person, i) => (
-                <LegendCard key={person.slug} person={person} delayIndex={i % 5} />
+                <LegendCard
+                  key={person.slug}
+                  person={person}
+                  delayIndex={i % 5}
+                  // Matches THIS grid's tracks (2 → md:3 → lg:5), not the
+                  // /legendi default — halves the mobile portrait request.
+                  sizes="(min-width:1024px) 20vw, (min-width:768px) 33vw, 50vw"
+                />
               ))}
             </ul>
           ) : (

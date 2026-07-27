@@ -38,7 +38,12 @@ export function Breadcrumb({ items }: { items: Crumb[] }) {
               ) : (
                 <Link
                   href={item.href}
-                  className={`text-navy decoration-2 underline-offset-4 hover:underline hover:decoration-orange ${focusOnPaper}`}
+                  // `py-0.5 -my-0.5` lifts the 21px text line to a 25px hit
+                  // area (WCAG 2.5.8) without moving anything: the negative
+                  // margin cancels the padding out of the layout. py-0.5 is
+                  // the ceiling here — anything larger overlaps hit areas
+                  // across wrapped rows (gap-y-1).
+                  className={`py-0.5 -my-0.5 text-navy decoration-2 underline-offset-4 hover:underline hover:decoration-orange ${focusOnPaper}`}
                 >
                   {item.label}
                 </Link>

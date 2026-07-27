@@ -27,10 +27,10 @@ import { cn } from "@/lib/utils";
  * transcribed text (source OCR quirks included) renders verbatim.
  */
 function componentsFor(variant: "roster" | "results"): PortableTextComponents {
-  // `text-body` lives here rather than on the wrapper: the wrapper carries the
-  // text colour, and `tailwind-merge` (which `cn` uses) does not know this
-  // project's custom type scale — it reads `text-body` as a text COLOUR, so a
-  // single `cn("text-body … text-neutral-700")` would silently drop the size.
+  // `text-body` lives here so each variant owns its full row treatment. (It
+  // no longer needs to dodge cn(): the custom type scale is registered in
+  // src/lib/utils.ts, so size and colour merge correctly — D-3.04-12,
+  // fixed at 3.04d.)
   const row =
     variant === "results"
       ? "border-b border-mist py-2.5 text-body last:border-b-0"

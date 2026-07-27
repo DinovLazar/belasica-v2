@@ -32,9 +32,14 @@ export type LegendCardData = {
 export function LegendCard({
   person,
   delayIndex = 0,
+  // Default matches /legendi's RoleBandGrid (1 col → sm:2 → lg:3). A grid
+  // with other tracks (the homepage 2/3/5 marquee) passes its own string —
+  // the default overfetches ~106 KiB there (Lighthouse image-delivery).
+  sizes = "(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw",
 }: {
   person: LegendCardData;
   delayIndex?: number;
+  sizes?: string;
 }) {
   const roles = orderedRoles(person.role);
   const years = person.playingYears?.trim() || null;
@@ -58,7 +63,7 @@ export function LegendCard({
               alt={person.name ?? "Архивски портрет"}
               ratio="4/5"
               fit="cover"
-              sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"
+              sizes={sizes}
               width={800}
               placeholderLabel="портрет"
               // Flush to the card's top edge: the card already supplies the
