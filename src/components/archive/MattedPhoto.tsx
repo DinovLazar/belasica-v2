@@ -89,6 +89,9 @@ export function MattedPhoto({
             height={photo.height!}
             sizes={sizes}
             priority={priority}
+            // Same reason as PhotoFrame: `priority` alone does not put
+            // fetchpriority="high" on the request in Next 15.5.
+            fetchPriority={priority ? "high" : undefined}
             className="h-auto w-full rounded-photo"
           />
         </div>
@@ -116,12 +119,10 @@ export function MattedPhoto({
         // neutral-700 and on navy it is paper — orange text would fail AA on
         // paper at 2.8:1 (D-1.02-1 / D-2.02-9).
         //
-        // NB the size class sits on the wrapper and the colour on the text,
-        // never both in one `cn()` call: `tailwind-merge` does not know this
-        // project's custom type scale, so it reads the size tokens as text
-        // COLOURS and silently keeps only the last one. Splitting them keeps
-        // both. (Eight pre-existing call sites elsewhere still hit this — see
-        // the Phase 3.04 completion report §7.)
+        // Size on the wrapper, colour on the text — a layout choice, not a
+        // merge workaround: cn()'s tailwind-merge is configured with the
+        // project type scale in src/lib/utils.ts, so size and colour may
+        // safely share one cn() call (D-3.04-12, fixed at 3.04d).
         <figcaption className="mt-3">
           {photo.date && (
             <div className="flex items-center gap-2 text-overline">
