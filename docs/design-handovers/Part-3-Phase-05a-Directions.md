@@ -160,8 +160,10 @@ the live site recorded as D-3.03-5.
 ### Intent
 
 A bold contemporary club identity. Oversized condensed Cyrillic caps, hard-edged navy/orange
-blocking, a crest-forward hero where the badge is set at display scale on its own line, and a
-scoreboard stat strip. The page alternates full-bleed navy and paper blocks that butt directly
+blocking, a crest-forward hero built as a matchday poster, and a scoreboard stat strip. The hero
+leads with the photograph full-bleed; the crest is a white block capped by the same 6px orange bar
+that opens the header, pinned over the picture's bottom edge, with the wordmark locked to it and
+sitting on solid navy. (This hero replaced a first cut the owner rejected — see D-3.05a-10.) The page alternates full-bleed navy and paper blocks that butt directly
 against each other, so it reads as stacked panels rather than a scroll of sections. It is the
 tightest rhythm and the loudest of the three, and the only one with a sticky header and a mobile
 menu — it behaves like a contemporary club site.
@@ -180,7 +182,7 @@ editor wrote it.
 | Muted | `neutral-500` | `#5E5C55` | 6.1:1 on paper |
 | Display face | Source Serif 4 | **Oswald** 600/700, uppercase | condensed terrace caps with a real Cyrillic |
 | Body face | Inter | **Golos Text** 400/700 | a modern Cyrillic-first grotesque |
-| Display size | 60 | up to **112px**, line-height 0.86 | oversized as briefed |
+| Display size | 60 | section headings up to **112px**, line-height 0.86; the hero wordmark has its own clamp to **92px** so it holds one line beside the badge | oversized as briefed |
 | Radius | 2 / 4 / 4 | **0 everywhere** | hard blocks |
 | Content width | 1200 | **1248** | wider; blocks want room |
 | Section rhythm | `py-16 md:py-24` | `clamp(3rem, 5vw, 4.5rem)` | the tightest of the three |
@@ -210,8 +212,10 @@ edge turned a card decoration into a motif that bands the whole page.)
 - `SiteFooter` — restyle.
 - Cards (`SeasonCard`, `LegendCard`, quick links, decade tiles) — new hover/focus model.
 - `StatTable` — the zebra/highlight row tokens need re-deriving against the darker blocks.
-- Long Macedonian headings must be re-checked in a condensed uppercase face: „БЕЛАСИЦА" already
-  had to be capped at 112px to stay inside the hero column.
+- Long Macedonian headings must be re-checked in a condensed uppercase face: the hero wordmark
+  needed its own size clamp to hold one line beside the badge.
+- The hero's badge block (white panel + orange cap, pinned over a photograph's bottom edge) is a
+  reusable pattern — it is what a season-page or person-page hero would inherit.
 - **Cost note:** the cheapest of the three to adopt. It keeps the light/dark relationship, the
   sticky header and the header height token, so the 2.02–3.04d layout arithmetic survives.
 

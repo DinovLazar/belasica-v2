@@ -423,6 +423,75 @@
   color: var(--pc-orange);
 }
 
+/* ---- Hero (rebuilt on owner feedback, D-3.05a-10) -------------------- *
+ * A poster: the photograph leads full-bleed, and the crest is a paper block
+ * pinned over its bottom edge — a badge on the hoarding, not an image floating
+ * on navy. All hero text sits on solid navy below it, so contrast never
+ * depends on which team photo ISR happens to serve. */
+.pc-hero-photo {
+  position: relative;
+  width: 100%;
+  background: var(--pc-navy);
+}
+
+/* Badge + wordmark, bottom-aligned. Only the crest is pulled up, so it is the
+   one element over the picture and the <h1> stays on navy. */
+.pc-hero-lockup {
+  display: flex;
+  align-items: flex-end;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+@media (min-width: 1024px) {
+  .pc-hero-lockup {
+    gap: 2rem;
+  }
+}
+
+.pc-hero-crest {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  /* WHITE, not paper: the crest artwork carries its own white ground, so on a
+     cream block it reads as a white card inside a cream card. Matching the
+     block to the artwork makes the two one shape. */
+  background: var(--pc-white);
+  /* Pulls the badge up onto the photograph. */
+  margin-top: -3.25rem;
+}
+@media (min-width: 768px) {
+  .pc-hero-crest {
+    margin-top: -4.25rem;
+  }
+}
+@media (min-width: 1024px) {
+  .pc-hero-crest {
+    margin-top: -4.75rem;
+  }
+}
+.pc-hero-crest-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.875rem 1.125rem;
+}
+@media (min-width: 1024px) {
+  .pc-hero-crest-inner {
+    padding: 1.125rem 1.5rem;
+  }
+}
+
+/* The wordmark sits on the lockup's baseline beside the badge. Slightly
+   smaller than the page's display maximum so „ФК БЕЛАСИЦА" holds one line from
+   `lg` up next to a ~150px badge. */
+.pc-hero-name {
+  /* Floor 3.25rem: below `lg` the lockup wraps and the wordmark gets the full
+     column, where „ФК БЕЛАСИЦА" measures ~315px of the 335px available at
+     375 — so it fills the line instead of sitting small under the badge. */
+  font-size: clamp(3.25rem, 8vw, 5.75rem);
+  padding-bottom: 0.15em;
+}
+
 /* ---- Moment ---------------------------------------------------------- */
 .pc-moment-caption {
   background: var(--pc-navy);

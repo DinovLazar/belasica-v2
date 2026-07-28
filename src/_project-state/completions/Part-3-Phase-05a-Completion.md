@@ -73,6 +73,7 @@ All nine are logged in `decisions.md`.
 | **D-3.05a-7** | В's tile accent moved from left border to top bar | Impeccable detector finding, verified in context; the rotation turned a card tell into a page-wide motif. |
 | **D-3.05a-8** | Chip hatch alpha 0.18, measured against the hatch stroke | The stroke is where the text actually sits; four of six states were failing unmeasured. |
 | **D-3.05a-9** | Intermittent build failure diagnosed and recorded, not worked around | It is an upstream Sanity timeout on a file this phase may not touch; a catch would silently ship an incomplete season page. |
+| **D-3.05a-10** | В's hero rebuilt as a matchday poster after the owner rejected the first cut | It repeated the crest AND wordmark the sticky header carries 60px above, put the badge on a plain white rectangle, and used none of the direction's blocking. Rejected: dropping the crest (the brief calls for crest-forward) and setting the wordmark over the photo (contrast would depend on whichever `teamPhoto` ISR serves). |
 
 ## 4. Deviations from the brief
 
@@ -112,6 +113,18 @@ Branch `phase-3.05a-direction-exploration` · **[PR #29](https://github.com/Dino
 5. **The automated contrast sweep has a blind spot**: it skips any element whose ancestor paints a background image, which silently exempts every placeholder chip and everything over a photo. Both were caught here only because they were checked separately (D-3.05a-5, D-3.05a-8). The same blind spot applies to the live site's own audits.
 6. **The founding-year dependency is unchanged and still open.** All three variants show „основан на 13 август 1922" because it is inside the owner-authored `siteSettings.description`, which is already live on the homepage. `facts.md` still lists the founding year UNVERIFIED. Flagged since 3.03; worth confirming into `facts.md` at the next Ace sit-down.
 7. **These routes are disposable.** Once the pick is made, delete the two losers and the `(predlozi)` group; the winner's tokens go into `brand.md` and `globals.css`, not into a copy of this code.
+
+## 7a. Post-review change — В's hero rebuilt (2026-07-28)
+
+Lazar reviewed the three proposals, **picked В „Трибина"** as the direction he likes, and rejected its hero. Diagnosed against the rendered page, the hero had three faults, none of them what makes В good:
+
+1. It repeated **both** the crest and the wordmark that the sticky header carries ~60px above it — it read as a mistake, not a hierarchy.
+2. The crest sat on a plain white rectangle: a sticker pasted onto navy, the least considered element on the page.
+3. It used **none** of the direction's own vocabulary — a plain two-column split with a photo rectangle beside a vertical text stack, while hard navy/orange blocking is what makes the rest of В work.
+
+**Rebuilt as a matchday poster** (D-3.05a-10): the photograph leads full-bleed (`4/5` → `16/10` → `21/8`); the crest is now a white **block** capped by the same 6px orange bar that opens the header, closes the footer and tops every tile, pinned over the photograph's bottom edge; badge and wordmark form one bottom-aligned lockup where only the crest carries the negative margin, so the `<h1>` sits entirely on solid navy (14.95:1 — deterministic, not dependent on whichever `teamPhoto` ISR serves); kicker, heritage line and both CTAs sit on one row beneath.
+
+Verified: wordmark holds **one line** from `lg` up beside the badge (92px at 1280) and wraps to a full-width line on mobile (52px at 375); everything through the CTAs is **above the fold** at 1280×860 (CTA bottom 803px), which the first cut missed; **0 problems** at 1280 and 375 (contrast, headings, alt, targets, overflow); `npm run build` + `npm run lint` clean. **А and Б are untouched.**
 
 ## 8. What's now possible that wasn't before
 

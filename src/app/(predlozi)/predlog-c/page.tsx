@@ -57,43 +57,72 @@ export default async function PredlogC() {
       <TerraceHeader />
 
       <main id="main" className="flex-1">
-        {/* ── 1 · Crest-forward hero ─────────────────────────────────── */}
+        {/* ── 1 · Hero — the matchday poster ─────────────────────────── *
+         * Rebuilt on owner feedback (D-3.05a-10). The first cut put a small
+         * crest on a white rectangle above the wordmark, in the left half of a
+         * two-column split — which repeated the crest AND the wordmark the
+         * sticky header carries ~60px above it, made the badge read as a
+         * sticker, and used none of this direction's blocking.
+         *
+         * Now the photograph leads full-bleed and the crest is a paper BLOCK
+         * pinned over its bottom edge — a badge on the hoarding, part of the
+         * navy/paper/orange blocking rather than an image floating on navy.
+         * Every word still sits on solid navy, so contrast is deterministic
+         * (paper on `--pc-navy` = 14.95:1) rather than dependent on whichever
+         * team photo ISR happens to serve. */}
         <section aria-labelledby="pc-hero" className="pc-block-navy">
-          <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
-            <div className="pc-wrap py-10 md:py-16 lg:mr-0 lg:ml-auto lg:max-w-[39rem] lg:pr-10">
-              <Reveal>
-                <Label onNavy>{KICKER.hero}</Label>
+          <div className="pc-hero-photo aspect-[4/5] sm:aspect-[16/10] lg:aspect-[21/8]">
+            <Block
+              image={view.heroPhoto}
+              alt={view.heroAlt}
+              ratio="pc-photo-fill"
+              sizes="100vw"
+              width={2400}
+              priority
+              objectPosition="50% 32%"
+              placeholder="насловна фотографија"
+            />
+          </div>
 
-                {/* Crest-forward: the badge gets its own line at display
-                    scale rather than sitting beside the wordmark — set side by
-                    side, the crest eats ~130px of the column and „БЕЛАСИЦА"
-                    (the longest word on the page) overruns into the
-                    photograph. Decorative: the <h1> under it carries the
-                    accessible name. */}
-                {/* `flex w-fit`, not `inline-flex`: `.pc-label` above is itself
-                    inline-flex, so an inline-level crest box shares its line
-                    box and lands beside the kicker instead of under it. */}
-                <span className="mt-7 flex w-fit items-center bg-white p-2">
+          <div className="pc-wrap">
+            {/* Badge + wordmark as one lockup along the photograph's bottom
+                edge. Only the crest carries the negative margin, so it is the
+                single element that overlaps the picture; the <h1> is bottom-
+                aligned to it and therefore sits entirely on navy (14.95:1). */}
+            <div className="pc-hero-lockup">
+              <div className="pc-hero-crest">
+                {/* The same 6px orange bar that opens the header, closes the
+                    footer and caps every tile. */}
+                <div className="pc-topbar" />
+                <div className="pc-hero-crest-inner">
                   <Image
                     src="/crest.png"
                     alt=""
-                    width={128}
-                    height={181}
+                    width={256}
+                    height={362}
                     priority
-                    className="h-20 w-auto md:h-28"
+                    className="h-20 w-auto md:h-28 lg:h-32"
                   />
-                </span>
-                <h1 id="pc-hero" className="pc-display mt-6">
-                  ФК
-                  <br />
-                  Беласица
-                </h1>
+                </div>
+              </div>
 
-                <p className="pc-body pc-body--on-navy mt-8">
-                  {HERO_HERITAGE}
-                </p>
+              {/* No <br>: it sets on one line from `lg` up and wraps to two on
+                  narrow screens, which is the right break for the lockup. */}
+              <h1 id="pc-hero" className="pc-display pc-hero-name">
+                ФК Беласица
+              </h1>
+            </div>
 
-                <div className="mt-9 flex flex-wrap items-center gap-4">
+            <Reveal className="pb-12 pt-7 md:pb-16">
+              <div className="grid gap-x-14 gap-y-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+                <div>
+                  <Label onNavy>{KICKER.hero}</Label>
+                  <p className="pc-body pc-body--on-navy mt-4">
+                    {HERO_HERITAGE}
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-4">
                   <Link
                     href="/arhiva"
                     className="pc-btn pc-focus pc-focus--on-navy"
@@ -107,21 +136,8 @@ export default async function PredlogC() {
                     {CTA.legends}
                   </Link>
                 </div>
-              </Reveal>
-            </div>
-
-            {/* The photograph as a block that bleeds to the page edge. */}
-            <div className="relative min-h-[18rem] lg:min-h-[34rem]">
-              <Block
-                image={view.heroPhoto}
-                alt={view.heroAlt}
-                ratio="pc-photo-fill"
-                sizes="(min-width:1024px) 52vw, 100vw"
-                width={1800}
-                priority
-                placeholder="насловна фотографија"
-              />
-            </div>
+              </div>
+            </Reveal>
           </div>
         </section>
 
