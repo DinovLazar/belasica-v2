@@ -1,0 +1,465 @@
+/* ==================================================================== *
+ * Направление В — „Трибина"  (Phase 3.05a, exploration only)
+ *
+ * A bold contemporary club identity: oversized condensed Cyrillic, hard-edged
+ * navy/orange blocking, scoreboard stat strips. Loud — but still an archive:
+ * nothing here pretends to be live, and no number on the page is generated.
+ * Everything is scoped to `.pv-c`; no global, no Tailwind theme entry.
+ *
+ * Deltas vs brand.md are documented in
+ * docs/design-handovers/Part-3-Phase-05a-Directions.md §В.
+ * ==================================================================== */
+
+.pv-c {
+  /* ---- Colour ------------------------------------------------------ *
+   * The real delta of this direction: orange is promoted from marker to a
+   * BLOCK FILL. It still never carries text on a light surface (2.6:1 on
+   * paper — D-1.02-1 holds); instead the block itself goes orange and the
+   * text on it goes navy, which measures 5.8:1. */
+  --pc-navy: #0d1f3c; /* the deep block                 14.9:1 vs paper */
+  --pc-navy-2: #12294f; /* brand navy — the second block  13.1:1 vs paper */
+  --pc-orange: #ee7a16; /* block fill + rules             5.8:1 vs navy  */
+  --pc-paper: #f7f4ec;
+  --pc-white: #ffffff;
+  --pc-ink: #14161a; /* body text on light             16.5:1 on paper */
+  --pc-muted: #5e5c55; /* meta on light                   6.1:1 on paper */
+  --pc-paper-dim: rgb(247 244 236 / 0.8); /*               9.9:1 on navy */
+  --pc-line: rgb(247 244 236 / 0.16);
+
+  /* ---- Type -------------------------------------------------------- */
+  --pc-display: var(--font-pc-display), "Arial Narrow", sans-serif;
+  --pc-text: var(--font-pc-text), "Helvetica Neue", Arial, sans-serif;
+
+  /* Capped at 7rem: the hero's text column is ~39rem, and „БЕЛАСИЦА" — the
+     longest word this page ever sets — measures ~408px in Oswald 700 at that
+     size, so it still clears the column at every width. */
+  --pc-t-display: clamp(3rem, 9.5vw, 7rem);
+  --pc-t-h2: clamp(2rem, 5.4vw, 3.75rem);
+  --pc-t-h3: clamp(1.125rem, 1.9vw, 1.5rem);
+  --pc-t-stat: clamp(1.375rem, 3vw, 2.25rem);
+  --pc-t-body: 1.0625rem;
+  --pc-t-label: 0.75rem;
+  --pc-t-small: 0.875rem;
+
+  /* ---- Shape & rhythm ---------------------------------------------- *
+   * Zero radius and the tightest rhythm of the three — the blocks are meant
+   * to butt up against each other. */
+  --pc-max: 78rem; /* 1248px — wider than the live 1200 */
+  --pc-section: clamp(3rem, 5vw, 4.5rem);
+
+  background: var(--pc-paper);
+  color: var(--pc-ink);
+  font-family: var(--pc-text);
+  font-size: var(--pc-t-body);
+  line-height: 1.65;
+}
+
+/* Motion — the quickest of the three: things arrive, they do not drift. */
+.js .pv-c [data-reveal] {
+  transform: translateY(12px);
+  transition:
+    opacity 260ms cubic-bezier(0.2, 0.9, 0.3, 1),
+    transform 260ms cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+/* ---- Shell ---------------------------------------------------------- */
+.pc-wrap {
+  width: 100%;
+  max-width: var(--pc-max);
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+}
+@media (min-width: 768px) {
+  .pc-wrap {
+    padding-inline: 2rem;
+  }
+}
+.pc-section {
+  padding-block: var(--pc-section);
+}
+.pc-block-navy {
+  background: var(--pc-navy);
+  color: var(--pc-paper);
+}
+.pc-block-navy-2 {
+  background: var(--pc-navy-2);
+  color: var(--pc-paper);
+}
+.pc-block-paper {
+  background: var(--pc-paper);
+  color: var(--pc-ink);
+}
+.pc-hairline {
+  border-top: 1px solid var(--pc-line);
+}
+
+/* ---- Type roles ------------------------------------------------------ */
+.pc-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-family: var(--pc-text);
+  font-size: var(--pc-t-label);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--pc-navy);
+}
+/* The accent as a solid bar, not a letterform — the block does the shouting. */
+.pc-label::before {
+  content: "";
+  width: 1.75rem;
+  height: 0.5rem;
+  background: var(--pc-orange);
+}
+.pc-label--on-navy {
+  color: var(--pc-paper);
+}
+
+.pc-display {
+  font-family: var(--pc-display);
+  font-weight: 700;
+  font-size: var(--pc-t-display);
+  line-height: 0.86;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: var(--pc-paper);
+}
+.pc-h2 {
+  font-family: var(--pc-display);
+  font-weight: 600;
+  font-size: var(--pc-t-h2);
+  line-height: 0.95;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  text-wrap: balance;
+  color: var(--pc-navy);
+}
+.pc-h2--on-navy {
+  color: var(--pc-paper);
+}
+.pc-h3 {
+  font-family: var(--pc-display);
+  font-weight: 600;
+  font-size: var(--pc-t-h3);
+  line-height: 1.1;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--pc-navy);
+}
+.pc-h3--on-navy {
+  color: var(--pc-paper);
+}
+
+.pc-body {
+  font-size: var(--pc-t-body);
+  line-height: 1.7;
+  max-width: 62ch;
+  color: var(--pc-ink);
+}
+.pc-body--on-navy {
+  color: var(--pc-paper-dim);
+}
+.pc-small {
+  font-size: var(--pc-t-small);
+  color: var(--pc-muted);
+}
+.pc-small--on-navy {
+  color: var(--pc-paper-dim);
+}
+
+/* ---- Buttons, links, focus ------------------------------------------- *
+ * Pronounced states are part of this direction, so hover is a fill swap, not
+ * an opacity nudge — and every swap was checked: navy on orange is 5.8:1. */
+.pc-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.9375rem 1.75rem;
+  font-family: var(--pc-display);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--pc-navy);
+  background: var(--pc-orange);
+  transition: background-color 160ms ease-out;
+}
+.pc-btn:hover {
+  background: var(--pc-paper);
+}
+.pc-btn--ghost {
+  color: var(--pc-paper);
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--pc-paper);
+}
+.pc-btn--ghost:hover {
+  color: var(--pc-navy);
+  background: var(--pc-paper);
+}
+
+.pc-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-block: 0.375rem;
+  font-family: var(--pc-display);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--pc-navy);
+  border-bottom: 3px solid var(--pc-orange);
+  transition: border-color 160ms ease-out;
+}
+.pc-link:hover {
+  border-bottom-color: var(--pc-navy);
+}
+.pc-link--on-navy {
+  color: var(--pc-paper);
+}
+.pc-link--on-navy:hover {
+  border-bottom-color: var(--pc-paper);
+}
+
+/* Orange ring on navy (5.8:1), navy ring on light (14.9:1). 3px, because a
+   loud interface with a timid focus ring is not actually loud. */
+.pc-focus:focus-visible {
+  outline: 3px solid var(--pc-navy);
+  outline-offset: 2px;
+}
+.pc-focus--on-navy:focus-visible {
+  outline-color: var(--pc-orange);
+}
+
+/* ---- Header ---------------------------------------------------------- */
+.pc-nav-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.625rem 0;
+  font-family: var(--pc-display);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--pc-paper-dim);
+  border-bottom: 3px solid transparent;
+  transition:
+    color 160ms ease-out,
+    border-color 160ms ease-out;
+}
+.pc-nav-link:hover {
+  color: var(--pc-paper);
+  border-bottom-color: var(--pc-paper);
+}
+.pc-nav-link[aria-current="page"] {
+  color: var(--pc-paper);
+  border-bottom-color: var(--pc-orange);
+}
+/* Mobile panel: the current-item marker moves from an underline to a left bar,
+   because a stacked list reads its state down the left edge. */
+/* A stacked list reads its state down the left edge, so here the marker IS a
+   left bar — on a nav row, not on a card, which is what the card tell is
+   about. 3px keeps it a marker rather than a slab. */
+.pc-nav-link--mobile {
+  display: flex;
+  width: 100%;
+  padding: 0.75rem 0 0.75rem 0.875rem;
+  border-bottom: 0;
+  border-left: 3px solid transparent;
+}
+.pc-nav-link--mobile:hover {
+  border-bottom-color: transparent;
+  border-left-color: rgb(247 244 236 / 0.45);
+}
+.pc-nav-link--mobile[aria-current="page"] {
+  border-bottom-color: transparent;
+  border-left-color: var(--pc-orange);
+}
+
+/* The club's colour, edge to edge, above everything. */
+.pc-topbar {
+  height: 0.375rem;
+  width: 100%;
+  background: var(--pc-orange);
+}
+/* NB: no `display` here on purpose. This class is combined with Tailwind's
+   `inline-flex md:hidden`, and a `display` declaration in this stylesheet has
+   the same specificity as the utility but loads later, so it would win and the
+   toggle would show at every width. Layout utilities own `display`; variant
+   classes own colour, type and spacing. */
+.pc-burger {
+  align-items: center;
+  justify-content: center;
+  /* 24px icon + 12px padding a side = a 48px target. */
+  padding: 0.75rem;
+  color: var(--pc-paper);
+}
+
+
+/* ---- Scoreboard (records) -------------------------------------------- *
+ * A stat strip, not a live scoreboard: no clock, no fixture, no ticker. Just
+ * the curated record values set in the display face, divided by orange rules. */
+.pc-score {
+  display: grid;
+  gap: 2px;
+  background: var(--pc-orange);
+  border-block: 3px solid var(--pc-orange);
+}
+.pc-score-cell {
+  background: var(--pc-navy);
+  padding: clamp(1.25rem, 2.4vw, 1.875rem);
+}
+.pc-score-lead {
+  background: var(--pc-orange);
+  color: var(--pc-navy);
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+}
+.pc-stat {
+  font-family: var(--pc-display);
+  font-weight: 700;
+  font-size: var(--pc-t-stat);
+  line-height: 1.05;
+  letter-spacing: 0.005em;
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--pc-paper);
+  text-wrap: balance;
+}
+.pc-stat--lead {
+  color: var(--pc-navy);
+  font-size: clamp(1.75rem, 4.4vw, 3.25rem);
+}
+.pc-score-label {
+  font-size: var(--pc-t-label);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--pc-paper-dim);
+}
+.pc-score-label--lead {
+  color: var(--pc-navy);
+}
+
+/* ---- Tiles (decades, quick links) ------------------------------------ *
+ * The pronounced state: the whole tile flips to orange with navy type.
+ *
+ * The accent bar caps the tile along its TOP edge, not its left. A thick
+ * coloured left border on a card is the single most recognisable generated-UI
+ * tell, and it was on every tile here. Moved to the top it becomes the same
+ * full-width 6px orange bar that opens the header and closes the footer
+ * (`.pc-topbar`) — one motif banding the page, its blocks and its tiles,
+ * instead of a decoration bolted onto a card. */
+.pc-tile {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.5rem;
+  height: 100%;
+  padding: clamp(1rem, 2vw, 1.5rem);
+  background: var(--pc-navy-2);
+  border-top: 6px solid var(--pc-orange);
+  transition:
+    background-color 160ms ease-out,
+    transform 160ms ease-out;
+}
+.pc-tile:hover {
+  background: var(--pc-orange);
+  transform: translateY(-4px);
+}
+.pc-tile:hover .pc-h3,
+.pc-tile:hover .pc-tile-meta {
+  color: var(--pc-navy);
+}
+.pc-tile-meta {
+  font-size: var(--pc-t-label);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--pc-paper-dim);
+  transition: color 160ms ease-out;
+}
+
+/* ---- Legend cards ---------------------------------------------------- */
+.pc-card {
+  display: block;
+  height: 100%;
+  background: var(--pc-navy-2);
+  border-bottom: 6px solid transparent;
+  transition:
+    border-color 160ms ease-out,
+    transform 160ms ease-out;
+}
+.pc-card:hover {
+  border-bottom-color: var(--pc-orange);
+  transform: translateY(-4px);
+}
+.pc-card-photo {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: var(--pc-navy);
+}
+/* A photograph that fills an already-sized parent (the hero block, the moment
+   block) rather than setting its own aspect. Written as a two-class selector
+   so it beats `.pc-card-photo`'s `position: relative` on specificity instead
+   of on source order — order alone is too easy to break by moving a rule. */
+.pc-card-photo.pc-photo-fill {
+  position: absolute;
+  inset: 0;
+}
+.pc-card-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 4 / 5;
+  background: var(--pc-navy);
+  box-shadow: inset 0 0 0 2px rgb(238 122 22 / 0.5);
+}
+.pc-monogram {
+  font-family: var(--pc-display);
+  font-weight: 700;
+  font-size: clamp(2.25rem, 5vw, 3.25rem);
+  letter-spacing: 0.02em;
+  color: var(--pc-orange);
+}
+
+/* ---- Moment ---------------------------------------------------------- */
+.pc-moment-caption {
+  background: var(--pc-navy);
+  /* Same top bar as the tiles and the page chrome — see `.pc-tile`. */
+  border-top: 6px solid var(--pc-orange);
+  padding: clamp(1.25rem, 2.4vw, 2rem);
+}
+
+/* ---- Placeholder chip ------------------------------------------------ */
+.pc-chip {
+  display: inline-block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  padding: 0.25rem 0.5rem;
+  border: 1px dashed var(--pc-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--pc-muted);
+  background-color: var(--pc-paper);
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 5px,
+    rgb(94 92 85 / 0.18) 5px,
+    rgb(94 92 85 / 0.18) 6px
+  );
+}
+.pc-chip--on-navy {
+  border-color: rgb(247 244 236 / 0.55);
+  color: var(--pc-paper-dim);
+  background-color: var(--pc-navy);
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 5px,
+    rgb(247 244 236 / 0.18) 5px,
+    rgb(247 244 236 / 0.18) 6px
+  );
+}
