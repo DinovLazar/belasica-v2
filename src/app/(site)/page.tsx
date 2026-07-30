@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { SanityImageSource } from "@sanity/image-url";
-import { client } from "@/sanity/client";
+import { fetchOrThrow } from "@/sanity/fetch";
 import { Container } from "@/components/Container";
 import { ClubRecords, type ClubRecordData } from "@/components/home/ClubRecords";
 import { DecadeExplore } from "@/components/home/DecadeExplore";
@@ -26,9 +26,16 @@ export const revalidate = 60;
  *    squad. `heroFallbackPhoto` is the newest published photo, used only if no
  *    season carries a teamPhoto (defensive — 83/96 do today).
  *  - STORY: the verified `siteSettings.description` (owner-authored club copy).
- *  - LEGENDS: the club's players; portraits attach via `photo.relatedPerson`.
- *    Sorted portraits-first (real faces lead the marquee) then name (D-3.03-2).
- *  - RECORDS: the curated `clubRecord` documents (D-3.01-5).
+ *  - LEGENDS: the club's ten most-capped players; portraits attach via
+ *    `photo.relatedPerson`. Ranked and sliced IN GROQ by
+ *    `careerStats.appearances` — the authoritative career total (D-2.01-3),
+ *    never a sum of `season.squad`. The `-1` coalesce is load-bearing: it keeps
+ *    a player with no recorded appearances below one with a single appearance,
+ *    where a `0` default would tie them. The homepage is a front door, not the
+ *    roster — all 160 people stay on `/legendi` (3.05b).
+ *  - RECORDS: the curated `clubRecord` documents (D-3.01-5). The query reads
+ *    them all; `ClubRecords` renders the homepage's six by an explicit label
+ *    whitelist, and `/statistika` renders all 30.
  *  - DECADES: every season's `decade`, reduced to per-decade counts.
  *  - MOMENT: one real, captioned, season-anchored, landscape archival photo,
  *    oldest era first then widest crop (D-3.03-4) — today the 1993 Cup photo.
@@ -48,7 +55,8 @@ const HOME_QUERY = /* groq */ `{
     | order(select(defined(caption) && caption != "" => 0, 1) asc, coalesce(date, "9999") asc, _id asc)[0]{
       "image": image, caption
     },
-  "legends": *[_type == "person" && "player" in role && defined(slug.current)]{
+  "legends": *[_type == "person" && "player" in role && defined(slug.current)]
+    | order(coalesce(careerStats.appearances, -1) desc, name asc)[0...10]{
     name,
     "slug": slug.current,
     role,
@@ -133,10 +141,19 @@ function toDecadeCounts(values: number[]): { decade: number; count: number }[] {
 export default async function Home() {
   let data: HomeData = EMPTY;
   try {
-    data = await client.fetch<HomeData>(HOME_QUERY);
+    // Retried before it is allowed to fail (3.05b). The homepage is one of the
+    // read sites 3.02F-Code left uncovered, and the one observed to fail first
+    // under the CDN's intermittent connect timeouts (D-3.05a-9) — it is the
+    // first page every build prerenders. `fetchOrThrow` logs each attempt, so a
+    // build log still shows the wobble even when the retry absorbs it.
+    //
+    // The graceful fallback below is deliberately KEPT rather than replaced by
+    // the season/person templates' loud throw: those own a single archive page
+    // and a missing one is a silent hole, whereas the homepage degrades to a
+    // visible placeholder front door — which is honest, and better than a site
+    // that will not load at all. It never invents filler (content-truth).
+    data = await fetchOrThrow<HomeData>(HOME_QUERY, {}, "the homepage");
   } catch {
-    // Graceful: a failed read renders the placeholder homepage rather than
-    // crashing (content-truth — never invent filler).
     data = EMPTY;
   }
 
@@ -151,8 +168,14 @@ export default async function Home() {
 
   const description = settings?.description?.trim() || null;
 
-  // Legends: portraits first (real faces lead the marquee), then Cyrillic name
-  // order (D-3.03-2). Only people with a slug (a real detail page) are shown.
+  // DISPLAY order for the ten the query already chose (D-3.03-2): portraits
+  // first, so real faces lead the marquee, then Cyrillic name order. This does
+  // not re-rank the band — the ten are picked by appearances in GROQ, and this
+  // only arranges them. Two of today's ten have a portrait on file; the other
+  // eight render LegendCard's monogram tile, which is the specified treatment
+  // for a person with no portrait (brand.md §Photo treatment) — never a
+  // stand-in face, and never a reason to drop someone from the band.
+  // Only people with a slug (a real detail page) are shown.
   const legends = [...data.legends]
     .filter((p): p is Legend & { slug: string } => Boolean(p.slug))
     .sort((a, b) => {
@@ -198,13 +221,15 @@ export default async function Home() {
             <div className="relative z-10 -mt-13 flex-none bg-white md:-mt-17 lg:-mt-19">
               <div className="h-1.5 w-full bg-orange" />
               <div className="flex items-center justify-center px-4.5 py-3.5 lg:px-6 lg:py-4.5">
-                {/* `crest-ui.webp` + `unoptimized` — see the note in
-                    `SiteHeader`: every `/crest.png` optimizer variant 402s on
-                    this account, so the crest vanished from production
-                    (D-3.05-11). `/crest.png` stays the canonical asset for the
-                    Open Graph card and the favicon lineage. */}
+                {/* `/crest.svg` + `unoptimized` — see the note in `SiteHeader`.
+                    The vector master matters most here: this is the crest's
+                    largest appearance on the site (128px tall at `lg`), which
+                    is where the old raster's clipped edge and flattened
+                    pennant point were visible. `/crest.png` stays the canonical
+                    asset for the Open Graph card and the favicon lineage, at
+                    its unchanged 864×1220. */}
                 <Image
-                  src="/crest-ui.webp"
+                  src="/crest.svg"
                   alt=""
                   width={400}
                   height={565}

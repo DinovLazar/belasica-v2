@@ -41,17 +41,29 @@ export function SiteHeader() {
         <Link href="/" className={cn("flex items-center gap-3", focusOnNavy)}>
           {/* The crest sits on white because its artwork's left half is white,
               so it needs a light backdrop to read on the navy bar — the tile
-              stays even though the PNG's background is now transparent
+              stays even though the artwork's background is transparent
               (D-crest-2). Decorative: the wordmark carries the accessible name.
 
-              `crest-ui.webp` + `unoptimized`, not `/crest.png`: Vercel's image
-              optimizer returns 402 for this account on every `/crest.png`
-              variant, so the crest silently vanished from production. The
-              derivative is the same artwork at UI size and bypasses the
-              optimizer entirely (D-3.05-11). */}
+              `/crest.svg` — the traced, repaired vector master (3.05b). It is
+              the same artwork as the raster lineage, not a new crest: the
+              source scan was clipped on its right edge and its pennant point
+              was cut off flat, and the rebuild closes the point on the
+              artwork's own diagonals. Being vector, it is sharp at every size
+              from this 40px block up to the hero's 128px one.
+
+              `unoptimized` stays, now for a structural reason on top of the
+              historical one: Next refuses to optimize SVG unless
+              `dangerouslyAllowSVG` is set, and an SVG has no raster variants
+              worth generating. (D-3.05-11's 402 was the original cause; the
+              account's optimizer has since recovered — measured at 3.05b — but
+              nothing here needs it.)
+
+              `width`/`height` are unchanged at 400×565: the rebuilt artwork is
+              916×1294, an aspect ratio of 0.7079 against the old 0.7080, so
+              `h-*` + `w-auto` renders identically. */}
           <span className="flex shrink-0 items-center bg-white p-1">
             <Image
-              src="/crest-ui.webp"
+              src="/crest.svg"
               alt=""
               width={400}
               height={565}
