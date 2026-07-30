@@ -113,23 +113,33 @@ export function PhotoLightboxProvider({
     return () => cancelAnimationFrame(frame);
   }, [isOpen]);
 
-  /* Scroll lock. `overflow: hidden` on <body> keeps the scroll offset intact —
-     unlike the `position: fixed` technique, there is nothing to restore, so
-     the page is exactly where it was on close. The padding compensates for the
-     scrollbar the lock removes, so the page behind does not jump sideways. */
+  /* Scroll lock.
+
+     It goes on the SCROLLING ELEMENT — `<html>` here — not on `<body>`.
+     `body { overflow: hidden }` is the more common recipe and it silently did
+     nothing on this site: measured with the overlay open, `window.scrollTo`
+     still moved the page (3000 → 3800), because `document.scrollingElement` is
+     `<html>` and the body's overflow did not propagate to the viewport. The
+     lock is only real if it is applied where the scrolling actually happens.
+
+     `overflow: hidden` (rather than `position: fixed`) keeps the scroll offset
+     intact, so there is nothing to restore and the page is exactly where it
+     was on close. The padding compensates for the scrollbar the lock removes,
+     so the page behind does not jump sideways — a no-op on overlay-scrollbar
+     platforms, where the measured width is 0. */
   useEffect(() => {
     if (!isOpen) return;
-    const { body, documentElement } = document;
-    const previousOverflow = body.style.overflow;
-    const previousPadding = body.style.paddingRight;
-    const scrollbar = window.innerWidth - documentElement.clientWidth;
+    const root = document.documentElement;
+    const previousOverflow = root.style.overflow;
+    const previousPadding = root.style.paddingRight;
+    const scrollbar = window.innerWidth - root.clientWidth;
 
-    body.style.overflow = "hidden";
-    if (scrollbar > 0) body.style.paddingRight = `${scrollbar}px`;
+    root.style.overflow = "hidden";
+    if (scrollbar > 0) root.style.paddingRight = `${scrollbar}px`;
 
     return () => {
-      body.style.overflow = previousOverflow;
-      body.style.paddingRight = previousPadding;
+      root.style.overflow = previousOverflow;
+      root.style.paddingRight = previousPadding;
     };
   }, [isOpen]);
 
