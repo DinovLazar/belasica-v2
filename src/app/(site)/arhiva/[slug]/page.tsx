@@ -83,7 +83,12 @@ const SEASON_QUERY = /* groq */ `
       "id": _id,
       "image": image,
       caption,
-      date
+      date,
+      // The intrinsic dimensions the lightbox's next/image needs for the
+      // scan's true aspect (3.05b). Projected here, on the server — the client
+      // overlay receives plain data and never touches Sanity.
+      "width": image.asset->metadata.dimensions.width,
+      "height": image.asset->metadata.dimensions.height
     },
   "previousSeason": *[_type == "season" && defined(slug.current)
       && (decade < ^.decade
@@ -509,7 +514,10 @@ export default async function SeasonPage({
               </Reveal>
               <div className="mt-8">
                 {present.gallery ? (
-                  <PhotoGrid photos={gallery} />
+                  // `lightbox` is opt-in and set only here (3.05b): a season's
+                  // scans are the set worth opening full-size. The person
+                  // page's grid is unchanged.
+                  <PhotoGrid photos={gallery} lightbox />
                 ) : (
                   <Reveal>
                     <SeasonSectionEmpty note={SECTIONS.gallery.empty} />
