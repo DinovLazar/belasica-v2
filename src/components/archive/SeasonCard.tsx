@@ -13,17 +13,18 @@ export type SeasonCardData = {
 };
 
 /**
- * Season card — brand.md §Components: 3:2 lead image, neutral meta overline,
- * serif navy title, 2px lift on hover (no shadow; brand.md defines no shadow
- * token).
+ * Season card — brand.md §Components („Card"): a white block on the paper
+ * page, 3:2 lead image flush to its edges, tracked decade meta and a condensed
+ * caps title. Hover wipes the 6px orange bar in along the bottom edge and
+ * lifts the card 4px; there is no shadow, because brand.md defines none.
  *
  * The whole card is one real `<a>` (not a JS click handler), so it is
  * keyboard-reachable and middle-clickable, and the focus ring lands on the
- * link rather than the inner frame (§8).
+ * link rather than the inner frame.
  *
- * With no lead photo, `PhotoFrame` renders its Mist greybox holding a
- * placeholder chip — the common post-2.09 state (§5.5). Title and decade are
- * both required in the model, so a card is never blank or broken.
+ * With no lead photo, `PhotoFrame` renders its navy block holding a
+ * placeholder chip — the common post-2.09 state. Title and decade are both
+ * required in the model, so a card is never blank or broken.
  *
  * The `Reveal` sits *inside* the `<li>`: a `<ul>` may only contain `<li>`, so
  * wrapping the card from the outside would put Reveal's `<div>` straight into
@@ -37,11 +38,13 @@ export function SeasonCard({
   delayIndex?: number;
 }) {
   return (
-    <li>
-      <Reveal delayIndex={delayIndex}>
+    // `u-card` is `height: 100%`, which only resolves if every wrapper between
+    // it and the grid track is full-height too — see the note on `LegendCard`.
+    <li className="h-full">
+      <Reveal delayIndex={delayIndex} className="h-full">
         <Link
           href={`/arhiva/${season.slug}`}
-          className={`group block overflow-hidden rounded-card border border-mist bg-white transition-transform duration-150 ease-out hover:-translate-y-0.5 ${focusOnPaper}`}
+          className={`u-card u-card--light ${focusOnPaper}`}
         >
           <PhotoFrame
             image={season.leadPhoto?.image ?? null}
@@ -50,20 +53,14 @@ export function SeasonCard({
             sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"
             width={800}
             placeholderLabel="фотографија од сезоната"
-            // Flush to the card's top edge: the card already supplies the border
-            // and radius, so the frame drops its own and keeps only the hairline
-            // that separates image from body.
-            className="rounded-none border-0 border-b border-mist"
           />
-          <div className="p-5">
-            {/* The decade, in neutral-500 — not orange (3.08:1 on white fails
-                AA, D-1.02-1/D-2.02-1) and not a league (no such field exists). */}
-            <p className="text-overline font-semibold uppercase tracking-overline text-neutral-500">
+          <div className="p-4">
+            {/* The decade — not orange (2.8:1 on a light surface fails AA,
+                brand rule 3) and not a league (no such field exists). */}
+            <p className="text-overline font-bold uppercase tracking-overline text-neutral-500">
               {decadeLabel(season.decade)}
             </p>
-            <h3 className="mt-1.5 font-serif text-h3 font-semibold text-navy decoration-2 underline-offset-4 group-hover:underline group-hover:decoration-orange">
-              {season.title}
-            </h3>
+            <h3 className="u-h3 mt-2 text-navy">{season.title}</h3>
           </div>
         </Link>
       </Reveal>

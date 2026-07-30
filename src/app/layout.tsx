@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
-import { inter, sourceSerif } from "./fonts";
+import { golos, oswald } from "./fonts";
 import "./globals.css";
 
 // Production origin — the Vercel default domain; no custom domain yet and no
@@ -56,7 +56,7 @@ export default function RootLayout({
   return (
     <html
       lang="mk"
-      className={`${inter.variable} ${sourceSerif.variable} h-full`}
+      className={`${golos.variable} ${oswald.variable} h-full`}
     >
       <body className="flex min-h-full flex-col">
         {children}

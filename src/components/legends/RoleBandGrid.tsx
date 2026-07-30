@@ -34,23 +34,21 @@ export function RoleBandGrid({
   return (
     <section aria-labelledby={headingId}>
       <header>
-        <div className="flex items-baseline justify-between gap-4">
-          <h2 id={headingId} className="font-serif text-h2 font-semibold text-navy">
+        {/* The 6px orange bar caps the band, exactly as it caps a decade on
+            /arhiva and every tile on the site. Decorative — the H2 below
+            carries the section's accessible name. */}
+        <div aria-hidden className="h-1.5 w-full bg-orange" />
+        <div className="mt-4 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+          <h2 id={headingId} className="u-h2 text-navy">
             {BAND_TITLE[role]}
           </h2>
-          <p className="text-overline font-semibold uppercase tracking-overline text-neutral-500">
+          <p className="text-overline font-bold uppercase tracking-overline tabular-nums text-neutral-500">
             {bandCountLabel(role, people.length)}
           </p>
         </div>
-        {/* Orange marker segment, then a mist hairline to the edge. Decorative
-            — the H2 above carries the section's accessible name. */}
-        <div aria-hidden className="mt-3 flex items-center">
-          <span className="h-0.5 w-16 shrink-0 bg-orange" />
-          <span className="h-px flex-1 bg-mist" />
-        </div>
       </header>
 
-      <ul className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {people.map((person, i) => (
           <LegendCard key={person.slug} person={person} delayIndex={i % 3} />
         ))}

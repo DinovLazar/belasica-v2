@@ -129,7 +129,7 @@ export function StatTable({
       role="region"
       aria-label={scrollLabel}
       className={cn(
-        "overflow-x-auto rounded-card border border-mist",
+        "overflow-x-auto border border-mist",
         focusOnPaper,
       )}
     >
@@ -156,7 +156,7 @@ export function StatTable({
                       : "none"
                   }
                   className={cn(
-                    "p-0 text-overline font-semibold uppercase tracking-overline",
+                    "p-0 text-overline font-bold uppercase tracking-overline",
                     // The sticky header cell sits above both the body and the
                     // header row, so it carries the navy fill itself.
                     i === 0 && "sticky left-0 bg-navy",
@@ -238,7 +238,12 @@ function StatCellContent({ cell }: { cell: StatCell | undefined }) {
     <Link
       href={cell.href}
       className={cn(
-        "font-medium text-navy decoration-2 underline-offset-4 hover:underline hover:decoration-orange",
+        // `inline-flex min-h-6` gives the link itself a ≥24px target (WCAG
+        // 2.5.8). The cell's `py-3` already made the ROW tall enough, but the
+        // target is the <a>, and as a plain inline box it was only 16.5px —
+        // and it is the whole content of its cell, so the spec's "inline, in a
+        // sentence" exception does not apply.
+        "inline-flex min-h-6 items-center border-b-2 border-transparent font-bold text-navy transition-colors hover:border-orange",
         focusOnPaper,
       )}
     >

@@ -30,7 +30,7 @@ export function RoleChips({
         <li key={role}>
           <span
             className={cn(
-              "inline-flex items-center rounded-chip px-2.5 py-1 text-small font-medium",
+              "inline-flex items-center px-2.5 py-1 text-small font-bold",
               i === 0
                 ? // Primary — the role that placed this person.
                   onNavy

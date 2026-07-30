@@ -1,12 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight } from "lucide-react";
 import type { SanityImageSource } from "@sanity/image-url";
 import { client } from "@/sanity/client";
-import { urlFor } from "@/sanity/image";
 import { Container } from "@/components/Container";
 import { ClubRecords, type ClubRecordData } from "@/components/home/ClubRecords";
 import { DecadeExplore } from "@/components/home/DecadeExplore";
+import { PhotoFrame } from "@/components/home/PhotoFrame";
 import { PlaceholderChip } from "@/components/home/PlaceholderChip";
 import { Reveal } from "@/components/home/Reveal";
 import { SectionOverline } from "@/components/home/SectionOverline";
@@ -14,14 +13,13 @@ import { LegendCard } from "@/components/legends/LegendCard";
 import { focusOnNavy, focusOnPaper } from "@/lib/focus";
 
 // Re-read published Sanity content ~every 60s (D-1.05-4) — new editorial
-// content (a captioned photo, a fresh clubRecord) surfaces on the preview
-// without a redeploy. ISR stays 60 through the Part-3 redesign.
+// content (a captioned photo, a fresh clubRecord) surfaces without a redeploy.
 export const revalidate = 60;
 
 /* ------------------------------------------------------------------ *
  * Homepage content — one GROQ round trip against the read client
- * (published only, no token). Part 3.03 redesign: the page leads with the
- * club's identity and its legends, so the query is rebuilt around that flow.
+ * (published only, no token). The query is unchanged by the 3.05 redesign:
+ * this phase re-dresses the page, it does not re-source it.
  *
  *  - HERO: the `teamPhoto` of the most recent season that has one
  *    (`order(decade desc, title desc)`, deterministic) — today the 2025/26
@@ -31,8 +29,7 @@ export const revalidate = 60;
  *  - LEGENDS: the club's players; portraits attach via `photo.relatedPerson`.
  *    Sorted portraits-first (real faces lead the marquee) then name (D-3.03-2).
  *  - RECORDS: the curated `clubRecord` documents (D-3.01-5).
- *  - DECADES: every season's `decade`, reduced to per-decade counts for the
- *    archive doorway.
+ *  - DECADES: every season's `decade`, reduced to per-decade counts.
  *  - MOMENT: one real, captioned, season-anchored, landscape archival photo,
  *    oldest era first then widest crop (D-3.03-4) — today the 1993 Cup photo.
  *    Ordering oldest-first structurally excludes the modern hero photo.
@@ -88,7 +85,11 @@ type HomeData = {
   legends: Legend[];
   records: ClubRecordData[];
   decadeValues: number[];
-  moment: { image: SanityImageSource | null; caption: string | null; date: string | null } | null;
+  moment: {
+    image: SanityImageSource | null;
+    caption: string | null;
+    date: string | null;
+  } | null;
 };
 
 const EMPTY: HomeData = {
@@ -108,6 +109,8 @@ const EMPTY: HomeData = {
 const HERO_HERITAGE =
   "Сезоните, легендите и рекордите на клубот — собрани и зачувани на едно место.";
 const STORY_LEAD = "Историјата на клубот, собрана на едно место.";
+const DECADES_LEAD =
+  "Сезоните од целата историја на клубот, групирани по децении.";
 
 // Section 7 — quick links. Labels/sublabels are navigation copy (what each
 // destination is), not factual claims — safe under content-truth.
@@ -161,105 +164,103 @@ export default async function Home() {
 
   return (
     <>
-      {/* 1 · Hero — the club itself: crest + wordmark + heritage line over the
-          most-recent team photo, navy gradient for AA-legible paper text. */}
-      <section aria-labelledby="hero-heading" className="relative w-full">
-        <div className="relative min-h-[34rem] w-full overflow-hidden bg-navy md:min-h-[42rem]">
-          {heroPhoto ? (
-            <Image
-              src={urlFor(heroPhoto).width(2400).auto("format").url()}
-              alt={heroAlt}
-              fill
-              priority
-              // `priority` alone preloads but does not priority-hint in Next
-              // 15.5 — the explicit prop is what puts fetchpriority="high" on
-              // the LCP request (measured: mobile LCP 3.5s without it).
-              fetchPriority="high"
-              sizes="100vw"
-              className="object-cover"
-              style={{ objectPosition: "50% 30%" }}
-            />
-          ) : (
-            <span className="absolute inset-0 flex items-center justify-center p-6 text-center">
-              <PlaceholderChip label="насловна фотографија" />
-            </span>
-          )}
-
-          {/* Navy bottom gradient — strong navy through the lower ~60% where the
-              text sits (paper overline + heritage → measured ≥ 6.8:1 over the
-              worst-case light photo pixel), fading to reveal the photo up top. */}
-          <div
-            aria-hidden
-            className="absolute inset-0 bg-linear-to-t from-navy via-navy/75 via-60% to-transparent"
+      {/* ── 1 · Hero — the matchday poster ───────────────────────────── *
+       * The photograph leads full-bleed and the crest is a white BLOCK capped
+       * by the same 6px orange bar that opens the header — a badge on the
+       * hoarding, not an image floating on navy. Only the crest carries the
+       * negative margin, so it is the single element overlapping the picture;
+       * the <h1> is bottom-aligned to it and therefore sits entirely on solid
+       * navy (14.95:1), rather than depending on whichever team photo ISR
+       * happens to serve (D-3.05a-10). */}
+      <section aria-labelledby="hero-heading" className="bg-navy">
+        <div className="relative aspect-[4/5] w-full sm:aspect-[16/10] lg:aspect-[21/8]">
+          <PhotoFrame
+            image={heroPhoto}
+            alt={heroAlt}
+            fit="cover"
+            sizes="100vw"
+            width={2400}
+            priority
+            placeholderLabel="насловна фотографија"
+            objectPosition="50% 32%"
           />
+        </div>
 
-          <Container className="absolute inset-x-0 bottom-0">
-            <div className="max-w-measure pb-12 pt-28 md:pb-16">
-              <SectionOverline variant="onPhoto">
-                Неофицијална архива
-              </SectionOverline>
+        <Container>
+          {/* Badge + wordmark as one bottom-aligned lockup along the
+              photograph's lower edge. */}
+          <div className="flex flex-wrap items-end gap-5 lg:gap-8">
+            <div className="relative z-10 -mt-13 flex-none bg-white md:-mt-17 lg:-mt-19">
+              <div className="h-1.5 w-full bg-orange" />
+              <div className="flex items-center justify-center px-4.5 py-3.5 lg:px-6 lg:py-4.5">
+                <Image
+                  src="/crest.png"
+                  alt=""
+                  width={256}
+                  height={362}
+                  priority
+                  className="h-20 w-auto md:h-28 lg:h-32"
+                />
+              </div>
+            </div>
 
-              <div className="mt-4 flex items-center gap-3 md:gap-4">
-                {/* Crest on a white tile — the artwork has a white ground, so it
-                    needs a light backdrop to read over the photo. Decorative:
-                    the wordmark carries the accessible name. */}
-                <span className="flex shrink-0 items-center rounded-card bg-white p-1.5">
-                  <Image
-                    src="/crest.png"
-                    alt=""
-                    width={64}
-                    height={91}
-                    priority
-                    className="h-10 w-auto md:h-14"
-                  />
-                </span>
-                <h1
-                  id="hero-heading"
-                  className="font-serif text-h1 font-semibold tracking-tight text-paper md:text-display"
-                >
-                  {heroTitle}
-                </h1>
+            {/* No <br>: it sets on one line from `lg` up and wraps to two on
+                narrow screens, which is the right break for the lockup. The
+                wordmark carries its own clamp rather than `u-display`'s, so
+                „ФК БЕЛАСИЦА" holds one line beside a ~150px badge. */}
+            <h1
+              id="hero-heading"
+              className="u-display pb-[0.15em] text-wordmark text-paper"
+            >
+              {heroTitle}
+            </h1>
+          </div>
+
+          <Reveal className="pb-12 pt-7 md:pb-16">
+            <div className="grid gap-x-14 gap-y-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+              <div>
+                <SectionOverline variant="onNavy">
+                  Неофицијална архива
+                </SectionOverline>
+                <p className="mt-4 max-w-measure text-body-l text-paper/80">
+                  {HERO_HERITAGE}
+                </p>
               </div>
 
-              <p className="mt-5 max-w-measure text-body-l text-paper/90">
-                {HERO_HERITAGE}
-              </p>
-
-              <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
-                <Link
-                  href="/arhiva"
-                  className={`inline-flex items-center justify-center rounded-card bg-paper px-5 py-3 text-small font-semibold text-navy transition-colors hover:bg-white ${focusOnNavy}`}
-                >
+              <div className="flex flex-wrap items-center gap-4">
+                <Link href="/arhiva" className={`u-btn ${focusOnNavy}`}>
                   Разгледај ја архивата
                 </Link>
                 <Link
                   href="/legendi"
-                  className={`inline-flex items-center text-small font-medium text-paper decoration-2 underline-offset-4 hover:underline hover:decoration-orange ${focusOnNavy}`}
+                  className={`u-btn u-btn--ghost ${focusOnNavy}`}
                 >
                   Легенди на клубот
                 </Link>
               </div>
             </div>
-          </Container>
-        </div>
+          </Reveal>
+        </Container>
       </section>
 
-      {/* 2 · The club's story — the verified siteSettings.description */}
-      <section aria-labelledby="story-heading" className="py-16 md:py-24">
-        <Container>
-          <Reveal className="grid gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] md:gap-16">
+      {/* ── 2 · The club, on a paper block ───────────────────────────── */}
+      <section aria-labelledby="story-heading" className="bg-paper">
+        <Container className="py-section">
+          <Reveal className="grid gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] md:gap-14">
             <div>
               <SectionOverline>За клубот</SectionOverline>
               <h2
                 id="story-heading"
-                className="mt-4 max-w-measure font-serif text-h2 font-semibold text-navy"
+                className="u-h2 mt-6 max-w-[14ch] text-navy"
               >
                 {STORY_LEAD}
               </h2>
             </div>
-            <div className="max-w-measure">
+            <div>
               {description ? (
-                <p className="whitespace-pre-line text-body-l text-neutral-700">
+                // Owner-authored copy, rendered with the editor's own
+                // paragraph breaks and never reflowed (content-truth).
+                <p className="max-w-measure whitespace-pre-line text-body-l text-ink">
                   {description}
                 </p>
               ) : (
@@ -267,181 +268,137 @@ export default async function Home() {
               )}
               <Link
                 href="/za-nas"
-                className={`group mt-6 inline-flex items-center gap-1.5 text-small font-semibold text-navy decoration-2 underline-offset-4 hover:underline hover:decoration-orange ${focusOnPaper}`}
+                className={`u-link mt-7 text-navy ${focusOnPaper}`}
               >
                 За архивата
-                <ArrowRight
-                  className="size-4 transition-transform duration-150 ease-out group-hover:translate-x-0.5"
-                  aria-hidden
-                />
               </Link>
             </div>
           </Reveal>
         </Container>
       </section>
 
-      {/* 3 · Legends — the marquee band, high on the page */}
-      <section
-        aria-labelledby="legends-heading"
-        className="border-t border-mist py-16 md:py-24"
-      >
-        <Container>
-          <Reveal className="flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
+      {/* ── 3 · Legends — the marquee band, high on the page ─────────── */}
+      <section aria-labelledby="legends-heading" className="bg-navy">
+        <Container className="py-section">
+          <Reveal className="flex flex-wrap items-end justify-between gap-x-10 gap-y-5">
             <div>
-              <SectionOverline>Легенди</SectionOverline>
+              <SectionOverline variant="onNavy">Легенди</SectionOverline>
               <h2
                 id="legends-heading"
-                className="mt-4 max-w-measure font-serif text-h2 font-semibold text-navy"
+                className="u-h2 mt-6 max-w-[18ch] text-paper"
               >
                 Луѓето што ја одбележаа историјата
               </h2>
             </div>
-            <Link
-              href="/legendi"
-              className={`group inline-flex items-center gap-1.5 text-small font-semibold text-navy decoration-2 underline-offset-4 hover:underline hover:decoration-orange ${focusOnPaper}`}
-            >
+            <Link href="/legendi" className={`u-link text-paper ${focusOnNavy}`}>
               Сите легенди
-              <ArrowRight
-                className="size-4 transition-transform duration-150 ease-out group-hover:translate-x-0.5"
-                aria-hidden
-              />
             </Link>
           </Reveal>
 
           {legends.length > 0 ? (
-            // Equalise card heights on the marquee row (Петар carries two role
-            // chips, so his card is tallest). LegendCard renders `<li><Reveal
-            // div><Link a>`; stretching those two descendants to h-full makes
-            // every white card the same height with content top-aligned. Scoped
-            // to this grid so the shared /legendi component stays untouched.
-            <ul className="mt-10 grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-5 [&>li>div>a]:h-full [&>li>div]:h-full">
+            <ul className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
               {legends.map((person, i) => (
                 <LegendCard
                   key={person.slug}
                   person={person}
                   delayIndex={i % 5}
-                  // Matches THIS grid's tracks (2 → md:3 → lg:5), not the
+                  onNavy
+                  // Matches THIS grid's tracks (2 → sm:3 → lg:5), not the
                   // /legendi default — halves the mobile portrait request.
-                  sizes="(min-width:1024px) 20vw, (min-width:768px) 33vw, 50vw"
+                  sizes="(min-width:1024px) 19vw, (min-width:640px) 31vw, 47vw"
                 />
               ))}
             </ul>
           ) : (
             <div className="mt-10">
-              <PlaceholderChip label="легенди (играчи) — сѐ уште не се објавени" />
+              <PlaceholderChip
+                label="легенди (играчи) — сѐ уште не се објавени"
+                onNavy
+              />
             </div>
           )}
         </Container>
       </section>
 
-      {/* 4 · The club in numbers — records strip (navy anchor) */}
+      {/* ── 4 · The club in numbers — the scoreboard strip ───────────── */}
       <ClubRecords records={records} />
 
-      {/* 5 · Explore the archive by decade */}
-      <section
-        aria-labelledby="decades-heading"
-        className="border-t border-mist py-16 md:py-24"
-      >
-        <Container>
-          <Reveal>
-            <SectionOverline>Архива</SectionOverline>
-            <h2
-              id="decades-heading"
-              className="mt-4 max-w-measure font-serif text-h2 font-semibold text-navy"
-            >
-              Разгледај по децении
-            </h2>
-            <p className="mt-3 max-w-measure text-body-l text-neutral-700">
-              Сезоните од целата историја на клубот, групирани по децении.
-            </p>
-          </Reveal>
-          <Reveal delayIndex={1} className="mt-10">
-            <DecadeExplore decades={decades} />
-          </Reveal>
-        </Container>
-      </section>
-
-      {/* 6 · A moment from history — one full-bleed real archival photograph */}
-      {moment?.image && (
-        <section aria-labelledby="moment-heading" className="relative w-full">
-          <div className="relative aspect-[3/2] w-full overflow-hidden bg-navy md:aspect-[16/6]">
-            <Image
-              src={urlFor(moment.image).width(2400).auto("format").url()}
-              alt={moment.caption || "Архивска фотографија на ФК Беласица"}
-              fill
-              sizes="100vw"
-              className="object-cover"
-              style={{ objectPosition: "50% 35%" }}
-            />
-            <div
-              aria-hidden
-              className="absolute inset-0 bg-linear-to-t from-navy via-navy/70 via-55% to-transparent"
-            />
-            <Container className="absolute inset-x-0 bottom-0">
-              <Reveal className="max-w-measure pb-8 md:pb-12">
-                <SectionOverline variant="onPhoto">
-                  Момент од историјата
-                </SectionOverline>
-                <h2 id="moment-heading" className="sr-only">
-                  Момент од историјата
+      {/* ── 5 · Explore the archive by decade ────────────────────────── */}
+      {decades.length > 0 && (
+        <section aria-labelledby="decades-heading" className="bg-navy">
+          <Container className="py-section">
+            <Reveal className="flex flex-wrap items-end justify-between gap-x-10 gap-y-4">
+              <div>
+                <SectionOverline variant="onNavy">Архива</SectionOverline>
+                <h2 id="decades-heading" className="u-h2 mt-6 text-paper">
+                  Разгледај по децении
                 </h2>
-                {moment.date && (
-                  <span className="mt-3 block text-overline uppercase tracking-overline text-paper/80">
-                    {moment.date}
-                  </span>
-                )}
-                {moment.caption && (
-                  <p className="mt-1 font-serif text-h3 font-semibold text-paper md:text-h2">
-                    {moment.caption}
-                  </p>
-                )}
-              </Reveal>
-            </Container>
-          </div>
+              </div>
+              <p className="max-w-[36ch] text-body-l text-paper/80">
+                {DECADES_LEAD}
+              </p>
+            </Reveal>
+
+            <div className="mt-10">
+              <DecadeExplore decades={decades} />
+            </div>
+          </Container>
         </section>
       )}
 
-      {/* 7 · Quick links — into the rest of the site, just before the footer */}
-      <section
-        aria-labelledby="quicklinks-heading"
-        className="border-t border-mist py-16 md:py-24"
-      >
-        <Container>
+      {/* ── 6 · A moment from history ────────────────────────────────── */}
+      {moment?.image && (
+        <section aria-labelledby="moment-heading" className="bg-paper">
+          <h2 id="moment-heading" className="sr-only">
+            Момент од историјата
+          </h2>
+          <figure className="grid lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
+            <div className="relative min-h-64 lg:min-h-[28rem]">
+              <PhotoFrame
+                image={moment.image}
+                alt={moment.caption || "Архивска фотографија на ФК Беласица"}
+                fit="cover"
+                sizes="(min-width:1024px) 61vw, 100vw"
+                width={1800}
+                placeholderLabel="фотографија"
+                objectPosition="50% 35%"
+              />
+            </div>
+            <figcaption className="u-cap flex flex-col justify-center bg-navy p-5 sm:p-6 lg:p-8">
+              <SectionOverline variant="onNavy">
+                Момент од историјата
+              </SectionOverline>
+              {moment.date && (
+                <p className="mt-6 text-overline font-bold uppercase tracking-overline text-paper/80">
+                  {moment.date}
+                </p>
+              )}
+              {moment.caption && (
+                <p className="u-h2 mt-3 text-paper">{moment.caption}</p>
+              )}
+            </figcaption>
+          </figure>
+        </section>
+      )}
+
+      {/* ── 7 · Where next ───────────────────────────────────────────── */}
+      <section aria-labelledby="quicklinks-heading" className="bg-navy">
+        <Container className="py-section">
           <Reveal>
-            <SectionOverline>Истражи</SectionOverline>
-            <h2
-              id="quicklinks-heading"
-              className="mt-4 max-w-measure font-serif text-h2 font-semibold text-navy"
-            >
+            <SectionOverline variant="onNavy">Истражи</SectionOverline>
+            <h2 id="quicklinks-heading" className="u-h2 mt-6 text-paper">
               Каде понатаму
             </h2>
           </Reveal>
 
-          <ul className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
+          <ul className="mt-10 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {QUICK_LINKS.map((card, i) => (
-              <li key={card.href}>
-                <Reveal delayIndex={i}>
-                  <Link
-                    href={card.href}
-                    className={`group flex h-full flex-col justify-between gap-8 rounded-card border border-mist bg-white p-5 transition-transform duration-150 ease-out hover:-translate-y-0.5 ${focusOnPaper}`}
-                  >
-                    <div>
-                      <h3 className="font-serif text-h3 font-semibold text-navy">
-                        <span className="decoration-2 underline-offset-4 group-hover:underline group-hover:decoration-orange">
-                          {card.label}
-                        </span>
-                      </h3>
-                      <p className="mt-1 text-small text-neutral-500">
-                        {card.sub}
-                      </p>
-                    </div>
-                    <ArrowUpRight
-                      className="size-5 text-navy transition-transform duration-150 ease-out group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                      aria-hidden
-                    />
-                  </Link>
-                </Reveal>
-              </li>
+              <Reveal as="li" key={card.href} delayIndex={i}>
+                <Link href={card.href} className={`u-tile ${focusOnNavy}`}>
+                  <h3 className="u-h3 text-paper">{card.label}</h3>
+                  <span className="u-tile-meta">{card.sub}</span>
+                </Link>
+              </Reveal>
             ))}
           </ul>
         </Container>

@@ -31,9 +31,9 @@ export function SeasonNeighbourNav({
   if (!previous?.slug && !next?.slug) return null;
 
   return (
-    <ul className="grid gap-4 sm:grid-cols-2">
+    <ul className="grid gap-3 sm:grid-cols-2">
       {previous?.slug && (
-        <li>
+        <li className="h-full">
           <NeighbourCard
             direction="previous"
             label="Претходна сезона"
@@ -44,7 +44,7 @@ export function SeasonNeighbourNav({
       {next?.slug && (
         // Keep „Следна“ in the right-hand column even when there is no
         // „Претходна“ — the direction has to stay readable from the layout.
-        <li className={cn(!previous?.slug && "sm:col-start-2")}>
+        <li className={cn("h-full", !previous?.slug && "sm:col-start-2")}>
           <NeighbourCard
             direction="next"
             label="Следна сезона"
@@ -72,8 +72,8 @@ function NeighbourCard({
     <Link
       href={`/arhiva/${neighbour.slug}`}
       className={cn(
-        // Card lift only — brand.md defines no shadow token (D-2.06-5).
-        "group flex h-full items-center gap-4 rounded-card border border-mist bg-white p-5 transition-transform duration-150 ease-out hover:-translate-y-0.5",
+        // The standard card block — bar wipe + lift, no shadow (brand rule 7).
+        "u-card u-card--light group flex items-center gap-4 p-5",
         isNext && "flex-row-reverse text-right",
         focusOnPaper,
       )}
@@ -88,13 +88,11 @@ function NeighbourCard({
         aria-hidden
       />
       <span className="min-w-0">
-        <span className="block text-overline font-semibold uppercase tracking-overline text-neutral-500">
+        <span className="block text-overline font-bold uppercase tracking-overline text-neutral-500">
           {label}
         </span>
-        <span className="mt-1.5 block font-serif text-h3 font-semibold text-navy">
-          <span className="decoration-2 underline-offset-4 group-hover:underline group-hover:decoration-orange">
-            {neighbour.title ?? neighbour.slug}
-          </span>
+        <span className="u-h3 mt-2 block text-navy">
+          {neighbour.title ?? neighbour.slug}
         </span>
       </span>
     </Link>

@@ -248,30 +248,19 @@ export default async function SeasonPage({
     season.previousSeason?.slug || season.nextSeason?.slug,
   );
 
-  // Section cadence (2.02 §4.2): `border-t border-mist` + `py-16 md:py-24`,
+  // Section cadence (2.02 §4.2): `border-t border-mist` + `py-section`,
   // except the FIRST paper section — the navy band (or the anchor rail's own
   // bottom rule) already terminates that edge, so a rule there reads as a
   // stray line.
   const firstSection = isEmpty ? "empty" : order[0];
   const sectionClass = (key: string) =>
     cn(
-      "scroll-mt-header py-16 md:py-24",
+      "scroll-mt-header py-section",
       key !== firstSection && "border-t border-mist",
     );
 
   return (
     <>
-      {/* Breadcrumb on paper, above the title band (D-2.02-5). */}
-      <Container className="py-5">
-        <Breadcrumb
-          items={[
-            { label: "Почетна", href: "/" },
-            { label: "Архива", href: "/arhiva" },
-            { label: title, placeholder: "наслов на сезоната" },
-          ]}
-        />
-      </Container>
-
       {/* 1 · Title band + the season's lead photograph (D-3.04-4).
           Not revealed — it is above the fold (matches the homepage).
 
@@ -287,10 +276,19 @@ export default async function SeasonPage({
         {/* Without a photo the band is the whole lead, so it takes the taller
             padding 2.02 §6.2b specifies for the photo-less hero — a thin strip
             would read as a stray bar rather than a deliberate title band. */}
-        <Container
-          className={teamPhoto ? "py-12 md:py-16" : "py-16 md:py-24"}
-        >
-          <div className="max-w-measure">
+        <Container className="py-section">
+          {/* The breadcrumb rides inside the block (D-2.02-5), as it does on
+              every other page — one treatment for both hero variants. */}
+          <Breadcrumb
+            items={[
+              { label: "Почетна", href: "/" },
+              { label: "Архива", href: "/arhiva" },
+              { label: title, placeholder: "наслов на сезоната" },
+            ]}
+            onNavy
+          />
+
+          <div className="mt-8 max-w-measure">
             {decade != null && (
               <SectionOverline variant="onNavy">
                 {decadeLabel(decade)}
@@ -298,7 +296,7 @@ export default async function SeasonPage({
             )}
             <h1
               id="season-heading"
-              className="mt-3 font-serif text-h1 font-semibold text-paper md:text-display"
+              className="mt-3 u-h1 text-paper"
             >
               {/* `title` is required in the model, so this should never fire —
                   but a document could still be published without one, and an
@@ -412,12 +410,12 @@ export default async function SeasonPage({
                         standings row uses (D-2.02-4). The label and the name
                         both stay navy/neutral: orange on a white card is
                         3.1:1 and fails AA (D-1.02-1). */}
-                    <div className="max-w-measure rounded-card border border-mist border-l-2 border-l-orange bg-white p-6 md:p-8">
+                    <div className="u-cap max-w-measure bg-white p-6 md:p-8">
                       {/* `text-h3`, not `text-h2` — an <h3> must not render at
                           its section <h2>'s size, or the type stops carrying
                           the hierarchy (brand.md §Typography). The card, the
                           orange edge and the muted label do the emphasis. */}
-                      <h3 className="font-serif text-h3 font-semibold text-navy">
+                      <h3 className="u-h3 text-navy">
                         <span className="font-normal text-neutral-500">
                           Тренер:{" "}
                         </span>
@@ -429,7 +427,7 @@ export default async function SeasonPage({
 
               {lineup.length > 0 && (
                 <Reveal delayIndex={2} className="mt-10">
-                  <h3 className="font-serif text-h3 font-semibold text-navy">
+                  <h3 className="u-h3 text-navy">
                     Состав и статистика
                   </h3>
                   <SeasonRecordList
@@ -527,7 +525,7 @@ export default async function SeasonPage({
       {(hasNeighbours || !isEmpty) && (
         <section
           aria-label="Навигација низ архивата"
-          className="border-t border-mist py-16 md:py-24"
+          className="border-t border-mist py-section"
         >
           <Container>
             <Reveal>
@@ -547,7 +545,7 @@ export default async function SeasonPage({
                   <li>
                     <Link
                       href={`/arhiva#${decadeAnchor(decade)}`}
-                      className={`text-small text-navy decoration-2 underline-offset-4 hover:underline hover:decoration-orange ${focusOnPaper}`}
+                      className={`u-link text-navy ${focusOnPaper}`}
                     >
                       Сите сезони од {decadeLabel(decade)}
                     </Link>
@@ -556,7 +554,7 @@ export default async function SeasonPage({
                 <li>
                   <Link
                     href="/arhiva"
-                    className={`text-small text-navy decoration-2 underline-offset-4 hover:underline hover:decoration-orange ${focusOnPaper}`}
+                    className={`u-link text-navy ${focusOnPaper}`}
                   >
                     Назад кон архивата
                   </Link>

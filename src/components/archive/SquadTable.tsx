@@ -39,13 +39,13 @@ export function SquadTable({
         <tr className="border-b border-mist">
           <th
             scope="col"
-            className="pb-2.5 text-left text-overline font-semibold uppercase tracking-overline text-neutral-700"
+            className="pb-2.5 text-left text-overline font-bold uppercase tracking-overline text-neutral-700"
           >
             Играч
           </th>
           <th
             scope="col"
-            className="w-28 pb-2.5 text-right text-overline font-semibold uppercase tracking-overline text-neutral-700"
+            className="w-28 pb-2.5 text-right text-overline font-bold uppercase tracking-overline text-neutral-700"
           >
             {/* Abbreviated where the column is narrow; the full word stays
                 available to screen readers (same rule as the standings). */}
@@ -59,7 +59,7 @@ export function SquadTable({
           </th>
           <th
             scope="col"
-            className="w-24 pb-2.5 text-right text-overline font-semibold uppercase tracking-overline text-neutral-700"
+            className="w-24 pb-2.5 text-right text-overline font-bold uppercase tracking-overline text-neutral-700"
           >
             <span aria-hidden className="md:hidden">
               Гол.
@@ -83,7 +83,7 @@ export function SquadTable({
               ) : (
                 <Link
                   href={`/legendi/${member.slug}`}
-                  className={`font-medium text-navy decoration-2 underline-offset-4 hover:underline hover:decoration-orange ${focusOnPaper}`}
+                  className={`font-bold text-navy decoration-2 underline-offset-4 hover:underline hover:decoration-orange ${focusOnPaper}`}
                 >
                   {member.name}
                 </Link>

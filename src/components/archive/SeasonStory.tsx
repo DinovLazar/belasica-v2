@@ -15,17 +15,17 @@ const components: PortableTextComponents = {
   block: {
     normal: ({ children }) => <p className="mt-6">{children}</p>,
     h2: ({ children }) => (
-      <h3 className="mt-10 font-serif text-h3 font-semibold text-navy">
+      <h3 className="mt-10 u-h3 text-navy">
         {children}
       </h3>
     ),
     h3: ({ children }) => (
-      <h3 className="mt-10 font-serif text-h3 font-semibold text-navy">
+      <h3 className="mt-10 u-h3 text-navy">
         {children}
       </h3>
     ),
     blockquote: ({ children }) => (
-      <blockquote className="mt-6 border-l-2 border-orange pl-5 italic">
+      <blockquote className="mt-6 border-l-[3px] border-orange pl-5 text-body-l">
         {children}
       </blockquote>
     ),

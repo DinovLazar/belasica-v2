@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/Container";
-import { Breadcrumb } from "@/components/archive/Breadcrumb";
+import { PageHeader } from "@/components/PageHeader";
 import { ContactForm } from "@/components/contact/ContactForm";
 import { PlaceholderChip } from "@/components/home/PlaceholderChip";
 import { Reveal } from "@/components/home/Reveal";
@@ -33,32 +33,22 @@ export default function ContactPage() {
 
   return (
     <>
-      <Container className="py-5">
-        <Breadcrumb
-          items={[{ label: "Почетна", href: "/" }, { label: "Контакт" }]}
-        />
-      </Container>
+      <PageHeader
+        title="Контакт"
+        crumbs={[{ label: "Почетна", href: "/" }, { label: "Контакт" }]}
+        // Structural copy — describes the page's own purpose, claims no fact.
+        intro="Имате прашање, исправка или материјал за архивата? Пишете ни преку формуларот или на директните контакти."
+      />
 
-      <Container className="pb-12">
-        <h1 className="font-serif text-h1 font-semibold text-navy md:text-display">
-          Контакт
-        </h1>
-        {/* Structural copy — describes the page's own purpose, claims no fact. */}
-        <p className="mt-4 max-w-measure text-body-l text-neutral-700">
-          Имате прашање, исправка или материјал за архивата? Пишете ни преку
-          формуларот или на директните контакти.
-        </p>
-      </Container>
-
-      <div className="border-t border-mist py-16 md:py-24">
+      <div className="py-section">
         <Container>
-          {/* Provisional banner (task 3) — SeasonEmptyNotice's visual language
-              (solid mist border, white, rounded-card), but overline-led rather
-              than heading-led so it does not disturb the page's h1 → h2 order.
+          {/* Provisional banner — SeasonSectionEmpty's visual language (a white
+              block capped by the orange bar), but overline-led rather than
+              heading-led so it does not disturb the page's h1 → h2 order.
               Structural copy: it claims nothing about the club. */}
           <Reveal>
-            <div className="rounded-card border border-mist bg-white p-6 md:p-8">
-              <p className="text-overline font-semibold uppercase tracking-overline text-neutral-700">
+            <div className="u-cap bg-white p-6 md:p-8">
+              <p className="text-overline font-bold uppercase tracking-overline text-neutral-700">
                 Страницата е во подготовка
               </p>
               <p className="mt-2 text-small text-neutral-700">
@@ -79,7 +69,7 @@ export default function ContactPage() {
               >
                 <h2
                   id="form-heading"
-                  className="font-serif text-h3 font-semibold text-navy"
+                  className="u-h3 text-navy"
                 >
                   Испратете порака
                 </h2>
@@ -96,7 +86,7 @@ export default function ContactPage() {
               >
                 <h2
                   id="direct-heading"
-                  className="font-serif text-h3 font-semibold text-navy"
+                  className="u-h3 text-navy"
                 >
                   Директен контакт
                 </h2>
@@ -105,7 +95,7 @@ export default function ContactPage() {
                     placeholder chip — never a `mailto:` with an invented or
                     borrowed address (brief task 6). */}
                 <div className="mt-6">
-                  <p className="text-overline font-semibold uppercase tracking-overline text-neutral-700">
+                  <p className="text-overline font-bold uppercase tracking-overline text-neutral-700">
                     Е-пошта
                   </p>
                   <p className="mt-2">
@@ -118,7 +108,7 @@ export default function ContactPage() {
                     not be propagated here — placeholder chips instead
                     (D-2.07-4). */}
                 <div className="mt-8">
-                  <p className="text-overline font-semibold uppercase tracking-overline text-neutral-700">
+                  <p className="text-overline font-bold uppercase tracking-overline text-neutral-700">
                     Социјални мрежи
                   </p>
                   <p className="mt-2">

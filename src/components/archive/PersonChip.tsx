@@ -26,7 +26,7 @@ export function PersonChip({ person }: { person: PersonRef }) {
     <li>
       <Link
         href={`/legendi/${person.slug}`}
-        className={`group inline-flex items-center gap-2 rounded-chip border border-mist bg-white px-3.5 py-2 text-small font-medium text-navy ${focusOnPaper}`}
+        className={`group inline-flex items-center gap-2 border border-mist bg-white px-3.5 py-2 text-small font-bold text-navy ${focusOnPaper}`}
       >
         <span aria-hidden className="size-1.5 shrink-0 rounded-full bg-orange" />
         <span className="decoration-2 underline-offset-4 group-hover:underline group-hover:decoration-orange">

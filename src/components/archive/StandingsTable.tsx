@@ -79,7 +79,7 @@ export function StandingsTable({
       tabIndex={0}
       role="region"
       aria-label="Конечна табела — скролувај хоризонтално"
-      className="overflow-x-auto rounded-card border border-mist focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+      className="overflow-x-auto border border-mist focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
     >
       <table className="w-full min-w-[560px] text-small">
         <caption className="sr-only">Конечна табела за {seasonTitle}</caption>
@@ -90,7 +90,7 @@ export function StandingsTable({
                 key={col.key}
                 scope="col"
                 className={cn(
-                  "px-2 py-3 text-overline font-semibold uppercase tracking-overline",
+                  "px-2 py-3 text-overline font-bold uppercase tracking-overline",
                   col.numeric ? "text-right" : "text-left",
                   STICKY[col.key],
                   // The sticky header cells sit above both the scrolling body
@@ -117,7 +117,7 @@ export function StandingsTable({
                 : "bg-white";
 
             return (
-              <tr key={i} className={cn(rowBg, isClub && "text-ink font-semibold")}>
+              <tr key={i} className={cn(rowBg, isClub && "text-ink font-bold")}>
                 {COLUMNS.map((col) => {
                   const isFirst = col.key === "position";
                   const value = row[col.key];

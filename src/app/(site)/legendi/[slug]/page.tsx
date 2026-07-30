@@ -5,7 +5,6 @@ import type { PortableTextBlock } from "@portabletext/types";
 import type { SanityImageSource } from "@sanity/image-url";
 import { client } from "@/sanity/client";
 import { Container } from "@/components/Container";
-import { Breadcrumb } from "@/components/archive/Breadcrumb";
 import { PhotoGrid, type ArchivePhoto } from "@/components/archive/PhotoGrid";
 import { SeasonStory } from "@/components/archive/SeasonStory";
 import { SectionHeading } from "@/components/archive/SectionHeading";
@@ -145,11 +144,10 @@ export default async function PersonPage({
   const hasSeasons = seasons.length > 0;
   const hasPhotos = photos.length > 0;
 
-  // Section cadence: `border-t border-mist` + `py-16 md:py-24`. The rule is
-  // dropped on the first section **only when the hero is the navy band**, which
-  // already terminates that band — the same reasoning as the season page. The
-  // portrait hero sits on paper, so the first section keeps its rule to
-  // separate the two.
+  // Section cadence: a mist rule + `py-section`. The rule is dropped on the
+  // first section, because the hero is now always the navy block and that
+  // colour change already terminates it — the same reasoning as the season
+  // page (brand.md: a block boundary is a colour change, not a border).
   const order = [
     hasBio && "bio",
     hasCareer && "career",
@@ -159,30 +157,22 @@ export default async function PersonPage({
   ].filter((key): key is string => typeof key === "string");
 
   const sectionClass = (key: string) =>
-    cn(
-      "py-16 md:py-24",
-      !(key === order[0] && !person.portrait) && "border-t border-mist",
-    );
+    cn("py-section", key !== order[0] && "border-t border-mist");
 
   return (
     <>
-      {/* Breadcrumb on paper, above the hero (D-2.02-5) — one treatment that
-          works for both the portrait and the navy-band hero. */}
-      <Container className="py-5">
-        <Breadcrumb
-          items={[
-            { label: "Почетна", href: "/" },
-            { label: "Легенди", href: "/legendi" },
-            { label: person.name, placeholder: "име на личноста" },
-          ]}
-        />
-      </Container>
-
+      {/* The breadcrumb rides inside the hero block (D-2.02-5): one treatment
+          for both the portrait and the monogram variant, both now on navy. */}
       <PersonHero
         name={person.name}
         roles={roles}
         playingYears={person.playingYears}
         portrait={person.portrait}
+        crumbs={[
+          { label: "Почетна", href: "/" },
+          { label: "Легенди", href: "/legendi" },
+          { label: person.name, placeholder: "име на личноста" },
+        ]}
       />
 
       {/* Every section below omits itself when empty (§3) — no heading, no
@@ -217,13 +207,13 @@ export default async function PersonPage({
                   component itself — it takes a `ClubBalance` and is shaped for
                   ten fixed columns, and generalising it would mean refactoring
                   a stats component this phase must not touch. */}
-              <dl className="mt-8 grid max-w-md grid-cols-2 gap-px overflow-hidden rounded-card border border-mist bg-mist">
+              <dl className="mt-8 grid max-w-md grid-cols-2 gap-px overflow-hidden border border-mist bg-mist">
                 {careerFigures.map((figure) => (
                   <div key={figure.label} className="bg-white px-4 py-5">
                     <dt className="text-overline uppercase tracking-overline text-neutral-700">
                       {figure.label}
                     </dt>
-                    <dd className="mt-2 font-serif text-h3 font-semibold text-navy tabular-nums">
+                    <dd className="mt-2 u-h3 tabular-nums text-navy">
                       {figure.value}
                     </dd>
                   </div>
@@ -252,7 +242,7 @@ export default async function PersonPage({
                   <li key={season.slug}>
                     <Link
                       href={`/arhiva/${season.slug}`}
-                      className={`group inline-flex items-center gap-2 rounded-chip border border-mist bg-white px-3.5 py-2 text-small font-medium text-navy ${focusOnPaper}`}
+                      className={`group inline-flex items-center gap-2 border border-mist bg-white px-3.5 py-2 text-small font-bold text-navy ${focusOnPaper}`}
                     >
                       {/* Marker only — the label stays navy (D-1.02-1). */}
                       <span
@@ -299,7 +289,7 @@ export default async function PersonPage({
             <li>
               <Link
                 href="/legendi"
-                className={`text-small text-navy decoration-2 underline-offset-4 hover:underline hover:decoration-orange ${focusOnPaper}`}
+                className={`u-link text-navy ${focusOnPaper}`}
               >
                 Сите легенди
               </Link>

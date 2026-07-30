@@ -163,3 +163,33 @@ Notes:
 - **Cyrillic verified per face from the font's own `cmap`**, not from the Google subset declaration (D-3.05a-2): all 62 Macedonian letters (incl. Ѓ ѓ Ѕ ѕ Ј ј Љ љ Њ њ Ќ ќ Џ џ) in the cyrillic subset, digits and „ “ ” — – · ( ) / . , : % in the latin subset.
 - No `brand.md` token, no `globals.css` change, no schema change, no new env var. Variant tokens live in three route-scoped stylesheets (`predlog-<x>/<x>.css`) under `.pv-a` / `.pv-b` / `.pv-c` (D-3.05a-4).
 - `npm run build` (120 pages — 117 + the three exploration routes) and `npm run lint` exit 0 on this stack. ⚠️ The build fails intermittently on a **random** season page from a Sanity CDN connect-timeout; pre-existing and unrelated to this phase — see D-3.05a-9.
+
+## 2026-07-30 — Phase 3.05 „Трибина" adoption: display + body faces replaced site-wide (NO npm dependency change)
+
+**No npm dependency was added, upgraded, or removed this phase.** Stack unchanged: Next.js 15.5.20, React 19.2.4, Tailwind CSS 4.3.2, `sanity` 4.22.0, `next-sanity` 11.6.13, `@sanity/vision` 4.22.0, `@sanity/image-url` 2.1.1, `@portabletext/react` 6.2.0, `@vercel/analytics` 2.0.1, `@sanity/client` 7.23.1 (dev). Recorded here per the append-only rule because the phase **replaces both site typefaces**, which this log tracks as config (the 1.03 precedent).
+
+Fonts **removed** from the project (they were the live site's faces since 1.03):
+
+| Family | Was | Notes |
+|---|---|---|
+| Inter | `--font-inter`, body/UI | Replaced by Golos Text |
+| Source Serif 4 | `--font-source-serif`, display | Replaced by Oswald |
+
+Fonts **added** to `src/app/fonts.ts` — now the live site's faces on every route:
+
+| Role | Family | Import | Subsets | Weights | CSS variable | Tailwind |
+|---|---|---|---|---|---|---|
+| Display | Oswald | `next/font/google` → `Oswald` | latin, cyrillic | 600, 700 | `--font-oswald` | `font-display` |
+| Body / UI | Golos Text | → `Golos_Text` | latin, cyrillic | 400, 700 | `--font-golos` | `font-sans` |
+
+Fonts **removed with the `(predlozi)` group** (exploration-only, never on the live site): Playfair Display, PT Serif, PT Sans Narrow (А); Cormorant Garamond, Commissioner (Б). Oswald + Golos Text were promoted from `predlog-c/fonts.ts` into `src/app/fonts.ts` (D-3.05-9).
+
+Notes:
+- **Only two weights are fetched per face**, and every class in the tree was normalised to them: CSS font matching renders a requested 500 as 400 and a 600 as 700, so `font-medium` / `font-semibold` on body text described a weight nobody saw (D-3.05-7). `font-semibold` survives **only** in `SiteHeader`, on Oswald, where 600 is loaded. Neither face ships an italic, so the two `italic` blockquotes were dropped rather than left to synthesise an oblique on Cyrillic.
+- **Cyrillic coverage** for both faces was verified at 3.05a from each font's own `cmap` rather than Google's subset declaration (D-3.05a-2) — all 62 Macedonian letters incl. Ѓ ѓ Ѕ ѕ Ј ј Љ љ Њ њ Ќ ќ Џ џ.
+- `--font-serif` **no longer exists** in `@theme`; the utility is `font-display` (D-3.05-2).
+- `globals.css` `@theme` rewritten to the amended `brand.md` tokens: two navies (`navy` `#0D1F3C`, `navy-2` `#12294F`), `orange` `#EE7A16`, `ink` `#14161A`, `neutral-500` `#5E5C55`; a clamp-based type scale plus `--text-stat` / `--text-stat-lead` / `--text-wordmark`; `--spacing-section`; `--container-page` 1200 → **1248**; `--spacing-header` 77 → **78px** (re-measured on the rendered header); all three radius tokens → `0px`. The `--color-footer` token was **removed** with the light footer surface.
+- **Maintenance duty unchanged and now larger:** every custom `--text-*` token must also be registered in `src/lib/utils.ts` with `tailwind-merge` or `cn()` silently drops it (D-3.04d-1). The list is now `display, h1, h2, h3, stat, stat-lead, wordmark, body-l, body, small, overline` + `tracking-overline`.
+- `.u-focus` / `.u-focus--on-navy` are **deliberately unlayered** in `globals.css` — inside `@layer components` a `@layer utilities` rule in the vendored shadcn sheet silently disabled every focus ring on the site (D-3.05-4). Keep them out of `@layer`.
+- No schema change, no Sanity write, no new env var; the site stays token-free.
+- `npm run build` (**117** pages — 120 minus the three deleted `/predlog-*` routes) and `npm run lint` exit 0 on this stack. ⚠️ The build still fails intermittently on a **random** season page from a Sanity CDN connect-timeout — pre-existing, reproduced again this phase, see D-3.05a-9.

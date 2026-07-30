@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { client } from "@/sanity/client";
 import { Container } from "@/components/Container";
-import { Breadcrumb } from "@/components/archive/Breadcrumb";
+import { PageHeader } from "@/components/PageHeader";
 import { SectionHeading } from "@/components/archive/SectionHeading";
 import { BalanceSummary } from "@/components/stats/BalanceSummary";
 import { StatsEmptyNotice } from "@/components/stats/StatsEmptyNotice";
@@ -169,27 +169,14 @@ export default async function StatisticsPage() {
 
   return (
     <>
-      <Container className="py-5">
-        <Breadcrumb
-          items={[{ label: "Почетна", href: "/" }, { label: "Статистика" }]}
-        />
-      </Container>
+      <PageHeader
+        title="Статистика"
+        crumbs={[{ label: "Почетна", href: "/" }, { label: "Статистика" }]}
+        // Structural copy — describes the page's own state, claims no fact.
+        intro="Збирни бројки од архивата. Прегледот се пополнува како што се внесуваат сезоните и играчите."
+      />
 
-      <Container className="pb-12">
-        <h1 className="font-serif text-h1 font-semibold text-navy md:text-display">
-          Статистика
-        </h1>
-        {/* Structural copy — describes the page's own state, claims no fact. */}
-        <p className="mt-4 max-w-measure text-body-l text-neutral-700">
-          Збирни бројки од архивата. Прегледот се пополнува како што се внесуваат
-          сезоните и играчите.
-        </p>
-      </Container>
-
-      <section
-        aria-labelledby="scorers-heading"
-        className="border-t border-mist py-16 md:py-24"
-      >
+      <section aria-labelledby="scorers-heading" className="py-section">
         <Container>
           <Reveal>
             <SectionHeading id="scorers-heading">Најдобри стрелци</SectionHeading>
@@ -216,7 +203,7 @@ export default async function StatisticsPage() {
 
       <section
         aria-labelledby="appearances-heading"
-        className="border-t border-mist py-16 md:py-24"
+        className="border-t border-mist py-section"
       >
         <Container>
           <Reveal>
@@ -244,7 +231,7 @@ export default async function StatisticsPage() {
 
       <section
         aria-labelledby="balance-heading"
-        className="border-t border-mist py-16 md:py-24"
+        className="border-t border-mist py-section"
       >
         <Container>
           <Reveal>

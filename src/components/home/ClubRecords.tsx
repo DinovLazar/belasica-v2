@@ -1,9 +1,8 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { Container } from "@/components/Container";
 import { Reveal } from "@/components/home/Reveal";
 import { SectionOverline } from "@/components/home/SectionOverline";
-import { focusOnNavy } from "@/lib/focus";
+import { focusOnPaper } from "@/lib/focus";
 
 export type ClubRecordData = {
   label: string | null;
@@ -13,21 +12,22 @@ export type ClubRecordData = {
 };
 
 /**
- * "Клубот во бројки" — the records strip (homepage section 4), the page's
- * mid-point NAVY anchor. This is the one band where orange finally carries as a
- * text-adjacent marker: on navy it is 4.6:1 (brand.md §Contrast), so the marker
- * rule and the hover underline both hold AA. Paper text on navy is 13.0:1.
+ * "Клубот во бројки" — the records scoreboard (homepage section 4).
  *
- * Content comes straight from the `clubRecord` documents (D-3.01-5) — `label`
- * is the "what" (e.g. „Шампион на Македонија"), `value` the fact
- * („1982/83 и 1987/88 (2 титули)"). Neither is reformatted: a record is a
+ * A stat strip, not a live scoreboard: no clock, no fixture, no ticker, and
+ * nothing computed. Content comes straight from the `clubRecord` documents
+ * (D-3.01-5) — `label` is the "what" („Шампион на Македонија"), `value` the
+ * fact („1982/83 и 1987/88 (2 титули)"). Neither is reformatted: a record is a
  * factual claim and ships exactly as the editor curated it (content-truth).
  *
- * Order (brief: "by category then order"): grouped by a category PRIORITY that
- * leads with honours (trophies are the headline achievement), then appearances,
- * then scorers — and within each by the curated `order` (D-3.03-3). The
- * first-ordered record (the championship) is pulled out as a full-width feature;
- * the rest fall into an even 3-column ledger.
+ * The strip is full-bleed and gapped 2px over an orange ground, so the orange
+ * reads as the rule BETWEEN cells rather than as a border drawn around them.
+ * The featured record is an orange cell carrying navy ink (5.81:1); the rest
+ * are navy cells carrying paper (14.95:1).
+ *
+ * Order (D-3.03-3): grouped by a category priority that leads with honours
+ * (trophies are the headline achievement), then appearances, then scorers —
+ * and within each by the curated `order`.
  */
 const CATEGORY_PRIORITY: Record<string, number> = {
   honours: 0,
@@ -59,63 +59,47 @@ export function ClubRecords({ records }: { records: ClubRecordData[] }) {
   const [feature, ...rest] = usable;
 
   return (
-    <section
-      aria-labelledby="records-heading"
-      className="bg-navy py-16 text-paper md:py-24"
-    >
-      <Container>
-        <Reveal>
-          <SectionOverline variant="onNavy">Статистика</SectionOverline>
-          <h2
-            id="records-heading"
-            className="mt-4 max-w-measure font-serif text-h2 font-semibold text-paper"
-          >
-            Клубот во бројки
-          </h2>
-        </Reveal>
-
-        {/* Feature — the championship, the club's crowning record. */}
-        <Reveal className="mt-10">
-          <div className="border-t-2 border-orange pt-5">
-            <h3 className="font-serif text-h2 font-semibold text-paper">
-              {feature.label}
-            </h3>
-            <p className="mt-2 max-w-measure text-body-l text-paper/85">
-              {feature.value}
-            </p>
+    <section aria-labelledby="records-heading" className="bg-paper">
+      <Container className="py-section">
+        <Reveal className="flex flex-wrap items-end justify-between gap-x-10 gap-y-5">
+          <div>
+            <SectionOverline>Статистика</SectionOverline>
+            <h2 id="records-heading" className="u-h2 mt-6 text-navy">
+              Клубот во бројки
+            </h2>
           </div>
+          <Link href="/statistika" className={`u-link text-navy ${focusOnPaper}`}>
+            Сите рекорди и статистика
+          </Link>
         </Reveal>
+      </Container>
 
-        {/* Ledger — the remaining records in an even grid. */}
+      {/* Full-bleed strip. The 2px grid gap lets the orange ground show
+          through as the rule between cells. */}
+      <Reveal className="grid gap-0.5 border-y-[3px] border-orange bg-orange">
+        <div className="bg-orange p-6 sm:p-8 lg:p-10">
+          <h3 className="text-overline font-bold uppercase tracking-overline text-navy">
+            {feature.label}
+          </h3>
+          <p className="u-stat mt-3 text-stat-lead text-navy">{feature.value}</p>
+        </div>
+
         {rest.length > 0 && (
-          <ul className="mt-10 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="grid gap-0.5 sm:grid-cols-2 lg:grid-cols-3">
             {rest.map((record, i) => (
-              <li key={`${record.label}-${i}`}>
-                <Reveal delayIndex={i % 3}>
-                  <span aria-hidden className="block h-0.5 w-8 bg-orange" />
-                  <h3 className="mt-4 font-serif text-h3 font-semibold text-paper">
-                    {record.label}
-                  </h3>
-                  <p className="mt-2 text-body text-paper/80">{record.value}</p>
-                </Reveal>
+              <li
+                key={`${record.label}-${i}`}
+                className="bg-navy p-5 sm:p-6 lg:p-7"
+              >
+                <h3 className="text-overline font-bold uppercase tracking-overline text-paper/80">
+                  {record.label}
+                </h3>
+                <p className="u-stat mt-3 text-paper">{record.value}</p>
               </li>
             ))}
           </ul>
         )}
-
-        <Reveal className="mt-12">
-          <Link
-            href="/statistika"
-            className={`group inline-flex items-center gap-1.5 text-small font-semibold text-paper decoration-2 underline-offset-4 hover:underline hover:decoration-orange ${focusOnNavy}`}
-          >
-            Сите рекорди и статистика
-            <ArrowRight
-              className="size-4 transition-transform duration-150 ease-out group-hover:translate-x-0.5"
-              aria-hidden
-            />
-          </Link>
-        </Reveal>
-      </Container>
+      </Reveal>
     </section>
   );
 }

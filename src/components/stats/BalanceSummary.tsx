@@ -29,13 +29,16 @@ export function BalanceSummary({ balance }: { balance: ClubBalance }) {
   ];
 
   return (
-    <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-card border border-mist bg-mist sm:grid-cols-3 lg:grid-cols-5">
+    // The same scoreboard treatment as the homepage records strip (brand.md
+    // §Components): navy cells over an orange ground, gapped 2px so the orange
+    // reads as the rule between them rather than a border drawn around each.
+    <dl className="grid grid-cols-2 gap-0.5 border-y-[3px] border-orange bg-orange sm:grid-cols-3 lg:grid-cols-5">
       {figures.map((figure) => (
-        <div key={figure.label} className="bg-white px-4 py-5">
-          <dt className="text-overline uppercase tracking-overline text-neutral-700">
+        <div key={figure.label} className="bg-navy px-4 py-5">
+          <dt className="text-overline font-bold uppercase tracking-overline text-paper/80">
             {figure.label}
           </dt>
-          <dd className="mt-2 font-serif text-h3 font-semibold text-navy tabular-nums">
+          <dd className="u-stat mt-2 tabular-nums text-paper">
             {figure.value}
           </dd>
         </div>
