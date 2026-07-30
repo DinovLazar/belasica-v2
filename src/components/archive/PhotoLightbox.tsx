@@ -67,7 +67,6 @@ export function PhotoLightboxProvider({
   children: React.ReactNode;
 }) {
   const [index, setIndex] = useState<number | null>(null);
-  const [entered, setEntered] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
   // The element that opened the overlay. Focus goes back to it on close, so a
   // keyboard user lands on the thumbnail they were on rather than at the top
@@ -84,7 +83,6 @@ export function PhotoLightboxProvider({
 
   const close = useCallback(() => {
     setIndex(null);
-    setEntered(false);
   }, []);
 
   // Navigation WRAPS in both directions, so neither arrow is ever a dead end
@@ -98,15 +96,6 @@ export function PhotoLightboxProvider({
     },
     [count],
   );
-
-  /* Entry animation. Mount hidden, then flip on the next frame so the
-     transition actually runs. Reduced motion is handled in globals.css, which
-     zeroes every transition duration — the overlay simply appears. */
-  useEffect(() => {
-    if (!isOpen) return;
-    const frame = requestAnimationFrame(() => setEntered(true));
-    return () => cancelAnimationFrame(frame);
-  }, [isOpen]);
 
   /* Scroll lock.
 
@@ -235,8 +224,20 @@ export function PhotoLightboxProvider({
           // Radius 0 and no shadow (brand rules 6 and 7) — the overlay is a
           // navy block over the page, not a floating card.
           "fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-navy/96 p-4",
-          "transition-[opacity,transform] duration-[160ms] ease-out",
-          entered ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0",
+          // Entry motion: transform + opacity, 160ms ease-out (brand.md
+          // §Motion), as a pure CSS ANIMATION from the already-imported
+          // `tw-animate-css` — not a state-flipped transition.
+          //
+          // The first cut mounted at `opacity-0` and flipped a state flag in a
+          // `requestAnimationFrame` callback. rAF does not fire while the
+          // document is hidden, so the overlay stayed fully transparent while
+          // still trapping focus — measured, with the dialog open and its class
+          // list stuck on `opacity-0`. An invisible modal holding the keyboard
+          // is a worse failure than no animation at all. A CSS animation needs
+          // no frame callback and has no state to strand; under
+          // `prefers-reduced-motion` globals.css zeroes its duration, so the
+          // overlay simply appears.
+          "animate-in fade-in slide-in-from-bottom-1 duration-[160ms] ease-out",
         )}
       >
         <button
