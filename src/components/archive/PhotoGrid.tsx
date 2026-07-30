@@ -49,8 +49,8 @@ export function PhotoGrid({ photos }: { photos: ArchivePhoto[] }) {
                       {/* Orange rule marker — the overline *text* is
                           neutral-500, since orange on paper is 2.8:1 and fails
                           AA (D-1.02-1 / D-2.02-9). */}
-                      <span aria-hidden className="h-0.5 w-4 shrink-0 bg-orange" />
-                      <p className="text-overline font-semibold uppercase tracking-overline text-neutral-500">
+                      <span aria-hidden className="h-1.5 w-5 shrink-0 bg-orange" />
+                      <p className="text-overline font-bold uppercase tracking-overline text-neutral-500">
                         {photo.date}
                       </p>
                     </div>

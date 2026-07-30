@@ -71,8 +71,8 @@ export function ContactForm({
   if (!endpoint) {
     return (
       <div>
-        <div className="rounded-card border border-mist bg-white p-5">
-          <p className="text-overline font-semibold uppercase tracking-overline text-neutral-700">
+        <div className="border border-mist bg-white p-5">
+          <p className="text-overline font-bold uppercase tracking-overline text-neutral-700">
             Формуларот сѐ уште не е активен
           </p>
           <p className="mt-2 text-small text-neutral-700">
@@ -101,12 +101,12 @@ export function ContactForm({
       <div
         role="status"
         aria-live="polite"
-        className="rounded-card border border-mist bg-white p-6 md:p-8"
+        className="border border-mist bg-white p-6 md:p-8"
       >
-        <p className="text-overline font-semibold uppercase tracking-overline text-neutral-700">
+        <p className="text-overline font-bold uppercase tracking-overline text-neutral-700">
           Пораката е испратена
         </p>
-        <p className="mt-3 font-serif text-h3 font-semibold text-navy">
+        <p className="mt-3 u-h3 text-navy">
           Ви благодариме!
         </p>
         <p className="mt-3 text-body text-neutral-700">{successMessage}</p>
@@ -119,9 +119,9 @@ export function ContactForm({
       {status === "error" && (
         <div
           role="alert"
-          className="mb-6 rounded-card border border-error bg-white p-4"
+          className="mb-6 border border-error bg-white p-4"
         >
-          <p className="text-small font-semibold text-error">
+          <p className="text-small font-bold text-error">
             Пораката не можеше да се испрати.
           </p>
           <p className="mt-1 text-small text-neutral-700">
@@ -198,7 +198,7 @@ function FormFields({ disabled }: { disabled?: boolean }) {
 }
 
 const inputClass = cn(
-  "block w-full rounded-card border border-mist bg-white px-3 py-2.5 text-body text-ink",
+  "block w-full border border-mist bg-white px-3 py-2.5 text-body text-ink",
   "placeholder:text-neutral-500 disabled:cursor-not-allowed",
   focusOnPaper,
 );
@@ -218,7 +218,7 @@ function Field({
     <div>
       <label
         htmlFor={id}
-        className="mb-1.5 block text-small font-medium text-navy"
+        className="mb-1.5 block text-small font-bold text-navy"
       >
         {label}
         {required && (
@@ -246,7 +246,7 @@ function SubmitButton({ status }: { status: Status }) {
       disabled={submitting}
       aria-busy={submitting}
       className={cn(
-        "inline-flex min-w-[13rem] items-center justify-center rounded-card bg-navy px-6 py-3 text-body font-medium text-paper",
+        "inline-flex min-w-[13rem] items-center justify-center bg-navy px-6 py-3 text-body font-bold text-paper",
         "transition-colors hover:bg-navy/90 disabled:cursor-not-allowed disabled:opacity-70",
         focusOnPaper,
       )}

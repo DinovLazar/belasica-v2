@@ -34,22 +34,25 @@ function focalPosition(image?: SanityImageSource | null): string {
 }
 
 /**
- * Matted photo frame — brand.md §Photo treatment: mist mat, 2px radius,
- * hairline border. The image sits inside with object-cover (cropped, never
- * stretched). When no image is present the mist mat is the greybox and holds
- * a placeholder chip — the graceful empty state (no fabricated content).
+ * Photo frame — brand.md §Photo treatment. `fit` picks BOTH the crop and the
+ * surround, because in this direction those are one decision (D-3.05-5):
+ *
+ *  - `"cover"` (default) — a **presentation** surface: hero, moment band, card
+ *    lead. A hard-edged block, no mat, no border, no radius; the image fills
+ *    the frame. The ground is navy so a transparent or still-loading image
+ *    reads as part of the block rather than as a hole.
+ *  - `"contain"` — an **archival set**: the scan's true aspect is information,
+ *    so the whole image sits on a mist mat with a hairline border. A smaller
+ *    scan simply gets a wider mat while the outer frame stays identical across
+ *    the grid. That is brand.md's mixed-quality rule — never upscale or crop a
+ *    small scan to fill.
  *
  * `ratio` fixes the frame's aspect. Omit it for **fill mode** (`h-full`): the
- * frame fills the height its parent gives it — used by the gallery mosaic,
- * where the CSS-grid row tracks define the cell heights (Phase 1.06b).
+ * frame fills the height its parent gives it — used by the gallery mosaic and
+ * by the hero, where the parent sets a responsive aspect.
  *
- * `fit` picks the crop behaviour (D-2.02-7). `"cover"` (default) is for
- * presentation surfaces — hero, season-card lead, homepage — where a filled
- * frame matters more than the scan's true edges. `"contain"` is for the
- * archival photo set, where the scan's own aspect *is* information: the image
- * sits whole on the mist mat, so a smaller scan simply gets a wider mat while
- * the outer frame stays identical across the grid. That is brand.md's
- * mixed-quality rule — never upscale or crop a small scan to fill.
+ * When no image is present the frame holds a placeholder chip on the matching
+ * surface — the graceful empty state (no fabricated content).
  */
 export function PhotoFrame({
   image,
@@ -66,8 +69,6 @@ export function PhotoFrame({
   image?: SanityImageSource | null;
   alt: string;
   ratio?: "16/9" | "3/2" | "4/5";
-  /** `"cover"` crops to fill (presentation); `"contain"` mats the whole scan
-   *  (archival sets). Default `"cover"` — existing callers are unaffected. */
   fit?: "cover" | "contain";
   sizes: string;
   width?: number;
@@ -79,10 +80,13 @@ export function PhotoFrame({
    *  `fit="contain"` — a contained image is never cropped. */
   objectPosition?: string;
 }) {
+  const contain = fit === "contain";
+
   return (
     <div
       className={cn(
-        "relative w-full overflow-hidden rounded-photo border border-mist bg-mist",
+        "relative w-full overflow-hidden",
+        contain ? "border border-mist bg-mist" : "bg-navy",
         ratio ? RATIO[ratio] : "h-full",
         className,
       )}
@@ -97,16 +101,16 @@ export function PhotoFrame({
           // `priority` marks the LCP candidate but Next 15.5 does not
           // priority-hint the request by itself; the explicit prop does.
           fetchPriority={priority ? "high" : undefined}
-          className={fit === "contain" ? "object-contain" : "object-cover"}
+          className={contain ? "object-contain" : "object-cover"}
           style={
-            fit === "contain"
+            contain
               ? undefined
               : { objectPosition: objectPosition ?? focalPosition(image) }
           }
         />
       ) : (
         <span className="absolute inset-0 flex items-center justify-center p-4 text-center">
-          <PlaceholderChip label={placeholderLabel} />
+          <PlaceholderChip label={placeholderLabel} onNavy={!contain} />
         </span>
       )}
     </div>

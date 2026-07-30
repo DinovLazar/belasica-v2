@@ -45,7 +45,7 @@ function componentsFor(variant: "roster" | "results"): PortableTextComponents {
   // „Резултати" (h2 → h3) and a sibling of „Состав и статистика" in the roster
   // block (h3 → h3). Either way no level is skipped.
   const subheading = ({ children }: { children?: React.ReactNode }) => (
-    <h3 className="mt-8 font-serif text-h3 font-semibold text-navy">
+    <h3 className="mt-8 u-h3 text-navy">
       {children}
     </h3>
   );
@@ -60,7 +60,7 @@ function componentsFor(variant: "roster" | "results"): PortableTextComponents {
       h5: subheading,
       h6: subheading,
       blockquote: ({ children }) => (
-        <blockquote className="mt-4 border-l-2 border-orange pl-5 italic">
+        <blockquote className="mt-4 border-l-[3px] border-orange pl-5 text-body-l">
           {children}
         </blockquote>
       ),

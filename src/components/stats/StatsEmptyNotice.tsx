@@ -21,7 +21,9 @@ export function StatsEmptyNotice({
   pending: string;
 }) {
   return (
-    <div className="max-w-measure rounded-card border border-mist bg-white p-6 md:p-8">
+    // Capped by the 6px orange bar, like every other block on the site — an
+    // empty section still reads as part of the page's system.
+    <div className="u-cap max-w-measure bg-white p-6 md:p-8">
       <p className="text-body text-neutral-700">{note}</p>
       <p className="mt-4">
         <PlaceholderChip label={pending} />

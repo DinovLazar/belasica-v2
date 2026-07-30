@@ -1482,3 +1482,84 @@
 - **Alternatives considered:** *Swap in the supplied 640×904 cut-out* — rejected: lower resolution, truncated tip, replaces owner-supplied artwork, and forces an OG-dimensions edit. *Keep crest.png opaque and add a second transparent asset* — rejected: two crest sources drift apart; every usage either benefits from or is indifferent to transparency. *Also crop to content* — moot: the pennant reaches all four canvas edges; there is nothing to crop.
 - **Consequences:** The OG image (`/crest.png`) is now a transparent PNG — scrapers composite it on their own background (e.g. Twitter dark-mode summary card shows it on dark; the pennant carries its own outline so it reads, but the card look changes from today's white). Where the crest sits directly on a surface it now prints on it instead of showing a white box — verified improvement on predlog-a's paper masthead and predlog-b's mat; header/footer/hero white tiles render pixel-identical. Favicon set (`icon.png`, `apple-icon.png`, `favicon.ico`) deliberately untouched — still the opaque crest-on-white squares from D-crest-1. Pre-existing quirk, unchanged: the tip's tassel touches the canvas bottom edge in the artwork itself.
 - **Links:** D-crest-1 (tile treatment stands; opacity premise superseded); `public/crest.png`; `src/app/layout.tsx` (OG block, dims unchanged); `src/components/SiteHeader.tsx`; `src/app/(site)/page.tsx`; `src/app/(predlozi)/predlog-c/_components/TerraceHeader.tsx`.
+
+### D-3.05-1 · 2026-07-30 · Direction В „Трибина" adopted site-wide; `brand.md` amended rather than replaced
+- **Status:** Accepted (owner-directed)
+- **Context:** Phase 3.05a shipped three homepage proposals and explicitly made no recommendation. Lazar picked **В „Трибина"** and asked for it as the official homepage; asked how far it should reach, he chose **full site-wide adoption now** (over homepage-only or homepage-plus-chrome) and **delete all three proposals**.
+- **Decision:** Amend `brand.md` in place — §Color, §Typography, §Spacing & layout, §Motion, §Components, §Brand rules, §Design tokens — keeping its structure, its amendment-note convention and its 1.02/2.02 history in a collapsed block. The direction's `--pc-*` variables were **not** copied across; every value was re-derived into the project's own token names so components keep reading `bg-navy` / `text-paper` / `u-h2` and nothing carries an exploration-era prefix.
+- **Alternatives considered:** Homepage-only — rejected by the owner and, on inspection, incoherent: the header and footer are part of what В is, so `/` would have swapped chrome shape on every click into an inner page. A new `brand-v2.md` — rejected: `brand.md` is named as the only token source in `CLAUDE.md`, and two files would immediately disagree.
+- **Consequences:** `brand.md` no longer describes the shipped 1.02 look; the 3.05a handover §В stays the intent document behind it. Everything downstream that reads a token got the new value for free — which is what made a ~5,100-line restyle tractable.
+- **Links:** `brand.md`; `docs/design-handovers/Part-3-Phase-05a-Directions.md` §В; D-3.05a-10.
+
+### D-3.05-2 · 2026-07-30 · `font-serif` retired in favour of `font-display`; Oswald is not a serif
+- **Status:** Accepted
+- **Context:** The direction's display face is **Oswald**, a condensed gothic. The repo's display utility was `font-serif` (Source Serif 4) at 41 call sites across 24 files.
+- **Decision:** Delete `--font-serif` from `@theme`, add `--font-display`, and rename every call site. A utility named `font-serif` resolving to a condensed sans is a lie that every future editor has to discover the hard way.
+- **Alternatives considered:** Pointing `--font-serif` at Oswald and leaving the name — rejected for exactly that reason. Keeping both names as aliases — rejected: two names for one face is how drift starts.
+- **Consequences:** `font-serif` no longer exists anywhere; `grep font-serif` returns 0. Most call sites then collapsed further into the `u-h1`/`u-h2`/`u-h3` role classes, since the direction's headings also carry a case change and tracking that a size token cannot express.
+- **Links:** `src/app/globals.css`; `src/app/fonts.ts`; brand.md §Typography.
+
+### D-3.05-3 · 2026-07-30 · Heading roles became CSS component classes, not utility strings
+- **Status:** Accepted
+- **Context:** In this direction a heading is face + size + weight + `text-transform: uppercase` + tracking. Tailwind's `@theme` can carry size, line-height, weight and letter-spacing on a `--text-*` token, but **not** `text-transform`, so `u-h2`'s defining characteristic could not live in the type scale.
+- **Decision:** Define `u-display` / `u-h1` / `u-h2` / `u-h3` / `u-stat` / `u-label` / `u-tile` / `u-card` / `u-btn` / `u-link` / `u-cap` in `@layer components`, and deliberately **omit `color`** from all of them so a `text-*` utility always wins and each call site states its own surface.
+- **Alternatives considered:** Repeating `font-display text-h2 font-semibold uppercase tracking-[…]` at every call site — rejected: five utilities that must stay in lockstep across 50-odd sites is the drift this phase exists to remove. A `<Heading>` React component — rejected: it would have to wrap headings inside `PortableText` serializers and table cells too.
+- **Consequences:** Headings read as `u-h2 text-navy` / `u-h2 text-paper`. The raw `text-h1`…`text-stat` sizes stay available as utilities for one-off use.
+- **Links:** `src/app/globals.css` `@layer components`; brand.md §Typography.
+
+### D-3.05-4 · 2026-07-30 · The focus ring is deliberately UNLAYERED — inside `@layer components` it silently did nothing
+- **Status:** Accepted
+- **Context:** `focus.ts` moved from Tailwind `ring-*` utilities to an `outline`-based `.u-focus` class, defined alongside the other role classes in `@layer components`. Measured on a real keyboard `Tab`, the focused element computed **`outline-style: none`**: the vendored shadcn stylesheet carries `&:focus-visible { outline-style: none }` in `@layer utilities`, and `utilities` sorts **after** `components`, so it won on every focusable element on the site. The old code was unaffected because its ring was a `box-shadow`, so `outline-none` cost it nothing.
+- **Decision:** Move `.u-focus` / `.u-focus--on-navy` **out of every layer** — unlayered CSS outranks all layers — and set `outline-color` as its own longhand rather than through the `outline` shorthand, because the base layer's `outline-ring/50` on `*` otherwise bled through and produced navy at **50% alpha** (a ~3.4:1 ring where 14.95:1 was intended).
+- **Alternatives considered:** `!important` — rejected: it hides the cascade problem instead of stating it. Moving the rules into `@layer utilities` — rejected: it would work today and break the next time layer order or the vendored sheet changes; a focus ring should not be switchable off by a utility at all.
+- **Consequences:** Verified on a real `Tab` at 375: **3px solid `rgb(13,31,60)`** at 2px offset on light, **3px solid `rgb(238,122,22)`** on navy. ⚠️ Standing rule: keep these rules out of `@layer`, and prefer `outline-*` longhands here.
+- **Links:** `src/app/globals.css`; `src/lib/focus.ts`; brand.md §Color.
+
+### D-3.05-5 · 2026-07-30 · `PhotoFrame`'s `fit` now selects the surround as well as the crop
+- **Status:** Accepted
+- **Context:** brand.md's amended §Photo treatment wants presentation photographs as hard-edged blocks (no mat, no border, no radius) but keeps the **mist mat** for archival sets, where a scan's true aspect is information (the mixed-quality rule). Those are the same two cases `fit="cover"` / `fit="contain"` already distinguished.
+- **Decision:** Fold the surround into `fit`: `cover` renders a hard block on a navy ground, `contain` keeps the mist mat and hairline border. The placeholder chip follows the same switch (`onNavy` on cover, light on contain).
+- **Alternatives considered:** A separate `frame` prop — rejected: two props that must always be set together is an invitation to set one of them wrong. Dropping the mat everywhere — rejected: it would break the mixed-quality rule the archive grid depends on.
+- **Consequences:** Every call site changed behaviour without changing its arguments; the season gallery and `MattedPhoto` keep their mats because they already passed `contain`. Card leads and the hero lost their borders, which is what the direction wanted.
+- **Links:** `src/components/home/PhotoFrame.tsx`; brand.md §Photo treatment; D-2.02-7.
+
+### D-3.05-6 · 2026-07-30 · Every inner page opens with a shared navy `PageHeader` block
+- **Status:** Accepted
+- **Context:** The direction is built from full-bleed blocks that butt against each other, and the 3.05a handover names the hero's block as "the reusable pattern a season-page or person-page hero would inherit". The inner pages each opened with a bare paper `Container` holding a breadcrumb and an H1 — six slightly different openings.
+- **Decision:** Add `src/components/PageHeader.tsx` — navy block carrying breadcrumb → H1 → intro → counted meta — and use it on `/arhiva`, `/statistika`, `/legendi`, `/za-nas`, `/kontakt`. The season and person pages keep their own richer heroes but were moved onto the same navy block, with the **breadcrumb pulled inside it** (`Breadcrumb` gained an `onNavy` variant). `PersonHero`'s two variants (portrait / monogram) both moved onto navy, so the page opening no longer changes shape depending on whether a photograph happens to exist.
+- **Alternatives considered:** Leaving the inner pages on paper — rejected: the header, the homepage and the footer are all navy blocks, and a paper page opening under a navy header read as an unfinished port. Making the block `navy-2` — rejected: the sticky jump rails are `navy-2`, and three values stacked lost the distinction between them.
+- **Consequences:** The block order is now navy (site header) → navy (page header) → `navy-2` (sticky rail, where present) → paper (content) on every route. `--spacing-header` re-measured at **78px** and the token updated; an anchor jump lands at exactly 78px, verified in-browser.
+- **Links:** `src/components/PageHeader.tsx`; `src/components/legends/PersonHero.tsx`; `src/components/archive/Breadcrumb.tsx`; D-2.02-5.
+
+### D-3.05-7 · 2026-07-30 · Font weights normalised to the two weights actually loaded
+- **Status:** Accepted
+- **Context:** brand.md pins Golos Text at 400/700 and Oswald at 600/700, but the tree carried 8 `font-medium` (500) and 19 `font-semibold` (600) on body-face text. With only 400 and 700 fetched, CSS font matching silently renders 500 as **400** and 600 as **700** — so those classes described a weight the user never saw.
+- **Decision:** Rewrite every body-face `font-medium` / `font-semibold` to `font-bold`, and leave the two `font-semibold` in `SiteHeader` alone because they sit on Oswald, where 600 **is** loaded.
+- **Alternatives considered:** Loading 500 and 600 as well — rejected: four extra woff2 files per face to preserve distinctions the design does not use. Leaving the classes — rejected: a class that lies about its result is worse than no class.
+- **Consequences:** `grep font-medium` returns 0; `font-semibold` survives only in `SiteHeader`. Also removed: two `italic` blockquotes, since neither shipped face has an italic and the browser was synthesising an oblique on Cyrillic.
+- **Links:** `src/app/fonts.ts`; brand.md §Typography.
+
+### D-3.05-8 · 2026-07-30 · Three tap targets under 24px fixed with an explicit `min-h`, not padding-plus-negative-margin
+- **Status:** Accepted
+- **Context:** The 1280/375 sweep found three WCAG 2.5.8 failures introduced by the type change: breadcrumb links at **22px** (the crumb moved from 14px body text to a 12px overline), every `/statistika` in-table link at **16.5px**, and the person-page back-link at 16.5px.
+- **Decision:** Give each an explicit `inline-flex min-h-6 items-center`. Deliberately **not** the `py-N -my-N` trick D-3.04d-2 used elsewhere: cancelling padding with a negative margin makes adjacent hit areas overlap once a breadcrumb wraps to a second row — exactly when it is hardest to tap. The back-links became `u-link`, which carries its own padding and is the direction's text link anyway.
+- **Alternatives considered:** Claiming the spec's "inline, in a sentence" exception for the table links — rejected: each is the entire content of its cell, not a link inside prose.
+- **Consequences:** 0 targets under 24×24 on all eight routes at both widths. The stats rows grew ~7px each.
+- **Links:** `src/components/archive/Breadcrumb.tsx`; `src/components/stats/StatTable.tsx`; D-3.04d-2.
+
+### D-3.05-9 · 2026-07-30 · `/predlog-a|b|c` deleted with the whole `(predlozi)` group
+- **Status:** Accepted (owner-directed)
+- **Context:** With В adopted, its code existed twice — once under `(predlozi)/predlog-c`, once in the live site. Asked what should happen to the proposals, Lazar chose **delete all three**.
+- **Decision:** Remove `src/app/(predlozi)/` entirely — all three pages, their per-variant `fonts.ts`, their scoped stylesheets and their components, plus `_shared/{home.ts,copy.ts,Reveal.tsx}` and the group layout.
+- **Alternatives considered:** Keeping А and Б `noindex` for reference — rejected by the owner; they would also have kept five typefaces in the build for pages nothing links to. Keeping В as a staging copy — rejected: two copies of one design drift.
+- **Consequences:** The build drops from 120 to **117** pages. The three directions survive in git history and, as intent + token deltas, in `docs/design-handovers/Part-3-Phase-05a-Directions.md`, which is **kept**. Five typefaces (Playfair Display, PT Serif, PT Sans Narrow, Cormorant Garamond, Commissioner) leave the project; Oswald + Golos Text are promoted to `src/app/fonts.ts`.
+- **Merge note (main ← this branch):** `D-crest-2` landed on `main` while this phase was in flight and reworded the same crest comment in three files. Two of them (`SiteHeader.tsx`, `(site)/page.tsx`) were rewritten by this phase, so its **correction was carried into the new text** — the white tile stays because the crest's left half is white, not because the artwork has a white ground. The third (`predlog-c/TerraceHeader.tsx`) went away with the group; the delete wins.
+- **Links:** D-3.05a-3; D-crest-2; `docs/design-handovers/Part-3-Phase-05a-Directions.md`.
+
+### D-3.05-10 · 2026-07-30 · Radius tokens kept at `0` rather than deleted
+- **Status:** Accepted
+- **Context:** brand rule 6 sets every corner radius to 0. That made `rounded-card` / `rounded-photo` / `rounded-chip` no-ops at 39 call sites.
+- **Decision:** Strip the now-dead utilities from the components, but **keep the three tokens defined at `0px`** in `@theme` (and `--radius: 0px` for shadcn).
+- **Alternatives considered:** Deleting the tokens too — rejected: any stray or future `rounded-card`, and every shadcn component pulled in later, would then fall back to a non-zero default and quietly reintroduce rounding. Keeping the utilities in place — rejected: 39 dead classes reading as intent.
+- **Consequences:** `grep -E "rounded-(card|chip|photo|none)"` returns 0 in `src/`, while a stray one would still render flat.
+- **Links:** `src/app/globals.css`; brand.md §Spacing & layout.

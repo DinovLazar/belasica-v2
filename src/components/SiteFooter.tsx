@@ -1,113 +1,105 @@
-import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { NAV_ITEMS } from "@/lib/nav";
+import { focusOnNavy } from "@/lib/focus";
 import { Container } from "@/components/Container";
 import { PlaceholderChip } from "@/components/home/PlaceholderChip";
+import { SectionOverline } from "@/components/home/SectionOverline";
 import {
   UNOFFICIAL_ARCHIVE_LABEL,
   UNOFFICIAL_ARCHIVE_STATEMENT,
 } from "@/lib/facts";
 
-// Focus: orange 2px ring, 2px offset against the light footer surface.
-const focusRing =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange focus-visible:ring-offset-2 focus-visible:ring-offset-footer";
+/**
+ * Site footer — brand.md §Components ("Footer").
+ *
+ * The last block: navy, closed by the same 6px orange bar that opens the
+ * header, so the page reads as one bounded object. At 3.05 the footer moved
+ * off the old light `footer` surface onto navy — the direction alternates
+ * navy and paper blocks, and a third light value at the bottom broke that
+ * rhythm (the `footer` colour token is retired with it).
+ *
+ * Both statements come from `src/lib/facts.ts` (VERIFIED, OV-3); the
+ * unresolved contact and social details stay visible placeholder chips.
+ */
 
-// Footer text link: navy label, orange underline on hover (D-1.02-1 — orange
-// never carries text on a light surface). Shared by every link in the footer.
-// `py-1 -my-1` pads the hit area to ≥24px tall (WCAG 2.5.8) while the
-// negative margin cancels it out of the layout, so the column rhythm
-// (gap-3 between text lines) is unchanged.
+// Footer link — small caps over a hairline that fills in on hover. `py-1.5`
+// pads the hit area past 24px (WCAG 2.5.8); the column uses `gap-2` so the
+// padding reads as rhythm rather than drift.
 const footerLink = cn(
-  "inline-flex w-fit py-1 -my-1 font-sans text-small text-navy underline-offset-4 decoration-2 transition-colors hover:underline hover:decoration-orange",
-  focusRing,
+  "inline-flex w-fit border-b-2 border-transparent py-1.5 text-small text-paper/80 transition-colors hover:border-orange hover:text-paper",
+  focusOnNavy,
 );
-
-// Column heading — overline treatment (navy/neutral, never orange — D-1.03-1).
-const columnHeading =
-  "text-overline uppercase tracking-overline text-neutral-700";
 
 export function SiteFooter() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-mist bg-footer text-ink">
+    <footer className="bg-navy text-paper">
+      <div className="h-1.5 w-full bg-orange" />
       <Container className="py-12 md:py-16">
-        <div className="flex flex-col gap-12 md:flex-row md:justify-between md:gap-8">
+        <div className="grid gap-10 md:grid-cols-[minmax(0,1.3fr)_repeat(3,minmax(0,1fr))] md:gap-8">
           {/* (a) Brand — wordmark, unofficial-archive identity, disclaimer */}
-          <div className="md:max-w-sm">
-            <Link
-              href="/"
-              className={cn(
-                "inline-flex items-center gap-2.5 rounded-card",
-                focusRing,
-              )}
-            >
-              {/* Crest on a white tile (matches the header treatment). */}
-              <span className="flex shrink-0 items-center rounded-card bg-white p-1">
-                <Image
-                  src="/crest.png"
-                  alt=""
-                  width={40}
-                  height={57}
-                  className="h-9 w-auto"
-                />
-              </span>
-              <span className="font-serif text-h3 font-semibold tracking-tight text-navy">
-                ФК Беласица
-              </span>
-            </Link>
-            <p className="mt-4 text-overline uppercase tracking-overline text-neutral-700">
-              {UNOFFICIAL_ARCHIVE_LABEL}
-            </p>
-            <p className="mt-3 max-w-measure text-small text-neutral-700">
+          <div>
+            <p className="u-h2 text-paper">ФК Беласица</p>
+            <p className="mt-4 max-w-[44ch] text-small text-paper/80">
               {UNOFFICIAL_ARCHIVE_STATEMENT}
             </p>
           </div>
 
-          {/* (b–d) Link columns — stack 2-up on mobile, row on desktop */}
-          <div className="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-3 md:gap-x-16">
-            {/* (b) Навигација — reuses the primary nav */}
-            <nav
-              aria-labelledby="footer-nav-heading"
-              className="flex flex-col gap-3"
-            >
-              <h2 id="footer-nav-heading" className={columnHeading}>
-                Навигација
-              </h2>
+          {/* (b) Навигација — reuses the primary nav */}
+          <nav aria-labelledby="footer-nav-heading" className="min-w-0">
+            <h2 id="footer-nav-heading">
+              <SectionOverline variant="onNavy">Навигација</SectionOverline>
+            </h2>
+            <ul className="mt-5 flex flex-col gap-2">
               {NAV_ITEMS.map((item) => (
-                <Link key={item.href} href={item.href} className={footerLink}>
-                  {item.label}
-                </Link>
+                <li key={item.href}>
+                  <Link href={item.href} className={footerLink}>
+                    {item.label}
+                  </Link>
+                </li>
               ))}
-            </nav>
+            </ul>
+          </nav>
 
-            {/* (c) Контакт — the contact page is live; the direct email is not a
-                verified fact yet (facts.md — deferred to 3.03), so it renders as
-                a visible placeholder, never a demo value (PL-3, was PL-9). */}
-            <div className="flex flex-col items-start gap-3">
-              <h2 className={columnHeading}>Контакт</h2>
-              <Link href="/kontakt" className={footerLink}>
-                Контакт формулар
-              </Link>
-              <PlaceholderChip label="е-пошта за контакт" />
-            </div>
+          {/* (c) Контакт — the contact page is live; the direct email is not a
+              verified fact yet (facts.md), so it renders as a visible
+              placeholder, never a demo value (PL-3). */}
+          <div className="min-w-0">
+            <h2>
+              <SectionOverline variant="onNavy">Контакт</SectionOverline>
+            </h2>
+            <ul className="mt-5 flex flex-col items-start gap-3">
+              <li>
+                <Link href="/kontakt" className={footerLink}>
+                  Контакт формулар
+                </Link>
+              </li>
+              <li>
+                <PlaceholderChip label="е-пошта за контакт" onNavy />
+              </li>
+            </ul>
+          </div>
 
-            {/* (d) Следете нѐ — no social profiles are confirmed yet (facts.md —
-                UNVERIFIED), so the slot is a visible placeholder, not the old
-                demo links (PL-15, was PL-9). */}
-            <div className="flex flex-col items-start gap-3">
-              <h2 className={columnHeading}>Следете нѐ</h2>
-              <PlaceholderChip label="профили на социјални мрежи" />
-            </div>
+          {/* (d) Следете нѐ — no social profiles are confirmed yet (facts.md —
+              UNVERIFIED), so the slot is a visible placeholder (PL-15). */}
+          <div className="min-w-0">
+            <h2>
+              <SectionOverline variant="onNavy">Следете нѐ</SectionOverline>
+            </h2>
+            <p className="mt-5">
+              <PlaceholderChip label="профили на социјални мрежи" onNavy />
+            </p>
           </div>
         </div>
 
-        {/* Bottom bar — copyright, divided from the columns above */}
-        <div className="mt-12 border-t border-mist pt-6">
-          <p className="text-small text-neutral-500">
-            © {year} ФК Беласица — {UNOFFICIAL_ARCHIVE_LABEL}
+        {/* Bottom bar — the identity line and copyright, on a hairline. */}
+        <div className="mt-12 flex flex-wrap items-center justify-between gap-x-8 gap-y-2 border-t border-paper/15 pt-6">
+          <p className="text-small uppercase tracking-[0.16em] text-paper/80">
+            {UNOFFICIAL_ARCHIVE_LABEL}
           </p>
+          <p className="text-small text-paper/80">© {year} ФК Беласица</p>
         </div>
       </Container>
     </footer>

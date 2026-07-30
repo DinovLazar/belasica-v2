@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/Container";
-import { Breadcrumb } from "@/components/archive/Breadcrumb";
+import { PageHeader } from "@/components/PageHeader";
 import { PlaceholderChip } from "@/components/home/PlaceholderChip";
 import { Reveal } from "@/components/home/Reveal";
 import {
@@ -38,30 +38,24 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <>
-      <Container className="py-5">
-        <Breadcrumb
-          items={[{ label: "Почетна", href: "/" }, { label: "За нас" }]}
-        />
-      </Container>
+      <PageHeader
+        title="За нас"
+        crumbs={[{ label: "Почетна", href: "/" }, { label: "За нас" }]}
+      />
 
       {/* A narrower measure than the archive templates: this is one editorial
           column, not a data document (§4). */}
-      <Container className="pb-16 md:pb-24">
+      <Container className="py-section">
         <div className="max-w-measure">
           <ProvisionalBanner />
 
-          <h1 className="mt-10 font-serif text-h1 font-semibold text-navy md:text-display">
-            За нас
-          </h1>
-
           {/* OV-3 — VERIFIED, rendered verbatim from `facts.md` via
-              `@/lib/facts`. Set apart with a navy left rule: this is the
-              statement the whole site is built around, and brand rule 2 puts it
-              on every page. Navy is a legal rule colour here; the text stays
-              ink/neutral-700 (D-1.02-1 governs orange, not navy). */}
+              `@/lib/facts`. Set apart in a white block capped by the orange
+              bar: this is the statement the whole site is built around, and
+              brand rule 2 puts it on every page. */}
           <Reveal>
-            <div className="mt-8 border-l-2 border-navy pl-5 md:pl-6">
-              <p className="text-overline font-semibold uppercase tracking-overline text-neutral-700">
+            <div className="u-cap mt-10 bg-white p-6 md:p-8">
+              <p className="text-overline font-bold uppercase tracking-overline text-neutral-700">
                 {UNOFFICIAL_ARCHIVE_LABEL}
               </p>
               <p className="mt-3 text-body-l text-ink">
@@ -78,7 +72,7 @@ export default function AboutPage() {
             <section aria-labelledby="story-heading" className="mt-14">
               <h2
                 id="story-heading"
-                className="font-serif text-h3 font-semibold text-navy"
+                className="u-h3 text-navy"
               >
                 Кој ја води архивата
               </h2>
@@ -97,7 +91,7 @@ export default function AboutPage() {
             <section aria-labelledby="father-heading" className="mt-14">
               <h2
                 id="father-heading"
-                className="font-serif text-h3 font-semibold text-navy"
+                className="u-h3 text-navy"
               >
                 Врската со клубот
               </h2>
@@ -124,8 +118,8 @@ export default function AboutPage() {
  */
 function ProvisionalBanner() {
   return (
-    <div className="rounded-card border border-dashed border-mist bg-white p-5">
-      <p className="text-overline font-semibold uppercase tracking-overline text-neutral-700">
+    <div className="border border-dashed border-mist bg-white p-5">
+      <p className="text-overline font-bold uppercase tracking-overline text-neutral-700">
         Страницата е во подготовка
       </p>
       <p className="mt-2 text-small text-neutral-700">

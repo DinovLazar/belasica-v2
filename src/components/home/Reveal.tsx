@@ -5,23 +5,28 @@ import { cn } from "@/lib/utils";
 
 /**
  * Reveal-on-scroll wrapper. The animation itself lives in globals.css
- * (`[data-reveal]`, brand.md §Motion); this only toggles `.is-visible` the
- * first time the element scrolls into view. Transform + opacity only.
+ * (`[data-reveal]`, brand.md §Motion — 260ms, things arrive rather than
+ * drift); this only toggles `.is-visible` the first time the element scrolls
+ * into view. Transform + opacity only.
  *
  * Reduced motion is handled entirely in CSS (the global rule forces the
  * end-state), so content is never hidden for those users — no JS branch here.
- * `delayIndex` produces the 60ms stagger for items in a group.
+ * `delayIndex` produces the stagger for items in a group.
  */
 export function Reveal({
   children,
   className,
   delayIndex = 0,
+  as: Tag = "div",
 }: {
   children: React.ReactNode;
   className?: string;
   delayIndex?: number;
+  /** Use `"li"`/`"tr"` where a wrapping `<div>` would break the parent's
+   *  content model (a `<ul>` may only contain `<li>`). */
+  as?: "div" | "li" | "tr" | "section" | "figure";
 }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLElement>(null);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -41,7 +46,7 @@ export function Reveal({
           observer.disconnect();
         }
       },
-      { threshold: 0.15, rootMargin: "0px 0px -8% 0px" },
+      { threshold: 0.12, rootMargin: "0px 0px -6% 0px" },
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -53,13 +58,15 @@ export function Reveal({
       : undefined;
 
   return (
-    <div
-      ref={ref}
-      data-reveal
+    <Tag
+      // One `ref` type per tag would need a discriminated union for no gain —
+      // the element is only ever passed to IntersectionObserver.
+      ref={ref as React.Ref<never>}
+      data-reveal=""
       className={cn(visible && "is-visible", className)}
       style={style}
     >
       {children}
-    </div>
+    </Tag>
   );
 }

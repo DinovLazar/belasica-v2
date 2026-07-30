@@ -81,7 +81,7 @@ export function MattedPhoto({
       {hasDimensions ? (
         // The mat: mist ground + hairline border + real padding, so the scan
         // reads as a mounted print rather than a browser-placed image.
-        <div className="rounded-photo border border-mist bg-mist p-2 md:p-3">
+        <div className="border border-mist bg-mist p-2 md:p-3">
           <Image
             src={urlFor(photo.image).width(renderWidth).auto("format").url()}
             alt={alt}
@@ -92,7 +92,7 @@ export function MattedPhoto({
             // Same reason as PhotoFrame: `priority` alone does not put
             // fetchpriority="high" on the request in Next 15.5.
             fetchPriority={priority ? "high" : undefined}
-            className="h-auto w-full rounded-photo"
+            className="h-auto w-full"
           />
         </div>
       ) : (
@@ -126,10 +126,10 @@ export function MattedPhoto({
         <figcaption className="mt-3">
           {photo.date && (
             <div className="flex items-center gap-2 text-overline">
-              <span aria-hidden className="h-0.5 w-4 shrink-0 bg-orange" />
+              <span aria-hidden className="h-1.5 w-5 shrink-0 bg-orange" />
               <p
                 className={cn(
-                  "font-semibold uppercase tracking-overline",
+                  "font-bold uppercase tracking-overline",
                   tone === "onNavy" ? "text-paper/90" : "text-neutral-500",
                 )}
               >
@@ -149,7 +149,7 @@ export function MattedPhoto({
               {!photo.date && (
                 <span
                   aria-hidden
-                  className="mt-2.5 h-0.5 w-4 shrink-0 bg-orange"
+                  className="mt-2 h-1.5 w-5 shrink-0 bg-orange"
                 />
               )}
               <p

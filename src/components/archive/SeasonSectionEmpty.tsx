@@ -22,7 +22,9 @@
  */
 export function SeasonSectionEmpty({ note }: { note: string }) {
   return (
-    <div className="max-w-measure rounded-card border border-mist bg-white p-6 text-body text-neutral-700 md:p-8">
+    // The 6px orange bar caps the block, as it does every block on the site —
+    // so an empty section still reads as part of the page's system.
+    <div className="u-cap max-w-measure bg-white p-6 text-body text-neutral-700 md:p-8">
       <p>{note}</p>
     </div>
   );

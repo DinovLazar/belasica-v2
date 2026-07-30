@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type { SanityImageSource } from "@sanity/image-url";
 import { client } from "@/sanity/client";
 import { Container } from "@/components/Container";
-import { Breadcrumb } from "@/components/archive/Breadcrumb";
+import { PageHeader } from "@/components/PageHeader";
 import { DecadeJumpNav } from "@/components/archive/DecadeJumpNav";
 import { DecadeSectionHeader } from "@/components/archive/DecadeSectionHeader";
 import { SeasonCard, type SeasonCardData } from "@/components/archive/SeasonCard";
@@ -101,35 +101,22 @@ export default async function ArchivePage() {
 
   return (
     <>
-      <Container className="py-5">
-        <Breadcrumb
-          items={[
-            { label: "Почетна", href: "/" },
-            { label: "Архива" },
-          ]}
-        />
-      </Container>
-
-      <Container className="pb-12">
-        <h1 className="font-serif text-h1 font-semibold text-navy md:text-display">
-          Архива по сезони
-        </h1>
-        {/* Structural copy — describes the page, claims no fact about the club. */}
-        <p className="mt-4 max-w-measure text-body-l text-neutral-700">
-          Секоја сезона од историјата на клубот, подредена по деценија — од
-          најновата наназад.
-        </p>
-        {total > 0 && (
-          // Both numbers are counted from published documents — truthful, never
-          // invented. Omitted entirely at zero.
-          <p className="mt-4 text-small text-neutral-500">
-            {seasonCountLabel(total)} · {decadeCountLabel(decades.length)}
-          </p>
-        )}
-      </Container>
+      <PageHeader
+        title="Архива по сезони"
+        crumbs={[{ label: "Почетна", href: "/" }, { label: "Архива" }]}
+        // Structural copy — describes the page, claims no fact about the club.
+        intro="Секоја сезона од историјата на клубот, подредена по деценија — од најновата наназад."
+        // Both numbers are counted from published documents — truthful, never
+        // invented. Omitted entirely at zero.
+        meta={
+          total > 0
+            ? `${seasonCountLabel(total)} · ${decadeCountLabel(decades.length)}`
+            : undefined
+        }
+      />
 
       {total === 0 ? (
-        <Container className="pb-16 md:pb-24">
+        <Container className="py-section">
           <PlaceholderChip label="сезони — сѐ уште не се објавени" />
         </Container>
       ) : (
@@ -146,7 +133,7 @@ export default async function ArchivePage() {
                 // Clear BOTH sticky bars when jumped to: the site header
                 // (`--spacing-header`) plus the jump-nav's own height, or the
                 // heading lands underneath them.
-                className="scroll-mt-[calc(var(--spacing-header)+3.25rem)] border-t border-mist py-16 first:border-t-0 md:py-24"
+                className="scroll-mt-[calc(var(--spacing-header)+3.25rem)] py-section"
               >
                 <Container>
                   <Reveal>
@@ -156,7 +143,7 @@ export default async function ArchivePage() {
                       headingId={headingId}
                     />
                   </Reveal>
-                  <ul className="mt-8 grid gap-6 sm:grid-cols-2 md:gap-8 lg:grid-cols-3">
+                  <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                     {seasons.map((season, i) => (
                       <SeasonCard
                         key={season.slug}

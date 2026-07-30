@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { client } from "@/sanity/client";
 import { Container } from "@/components/Container";
-import { Breadcrumb } from "@/components/archive/Breadcrumb";
+import { PageHeader } from "@/components/PageHeader";
 import { PlaceholderChip } from "@/components/home/PlaceholderChip";
 import type { LegendCardData } from "@/components/legends/LegendCard";
 import { RoleBandGrid } from "@/components/legends/RoleBandGrid";
@@ -69,22 +69,12 @@ export default async function LegendsPage() {
 
   return (
     <>
-      <Container className="py-5">
-        <Breadcrumb
-          items={[{ label: "Почетна", href: "/" }, { label: "Легенди" }]}
-        />
-      </Container>
-
-      <Container className="pb-12">
-        <h1 className="font-serif text-h1 font-semibold text-navy md:text-display">
-          Легенди
-        </h1>
-        {/* Structural copy — describes the page, claims no fact about the club. */}
-        <p className="mt-4 max-w-measure text-body-l text-neutral-700">
-          Играчите, тренерите и раководството што го обележале клубот низ
-          годините.
-        </p>
-      </Container>
+      <PageHeader
+        title="Легенди"
+        crumbs={[{ label: "Почетна", href: "/" }, { label: "Легенди" }]}
+        // Structural copy — describes the page, claims no fact about the club.
+        intro="Играчите, тренерите и раководството што го обележале клубот низ годините."
+      />
 
       {placed === 0 ? (
         // Heading + one notice rather than a bare page (§2 „Whole page empty").
@@ -92,12 +82,12 @@ export default async function LegendsPage() {
         // empty convention for a collection page, which §2 asks to confirm
         // against — not the season page's five-chip notice, which enumerates
         // one season's own missing sections.
-        <Container className="pb-16 md:pb-24">
+        <Container className="py-section">
           <PlaceholderChip label="легенди — сѐ уште не се објавени" />
         </Container>
       ) : (
-        <Container className="pb-16 md:pb-24">
-          <div className="flex flex-col gap-16 md:gap-24">
+        <Container className="py-section">
+          <div className="flex flex-col gap-section">
             {bands.map((band) => (
               <RoleBandGrid
                 key={band.role}

@@ -3,68 +3,91 @@
 @import "shadcn/tailwind.css";
 
 /* ------------------------------------------------------------------ *
- * FK Беласица — design tokens
- * Source of truth: brand.md (confirmed Phase 1.02 handover values).
- * Components consume the utilities these generate (bg-paper, text-navy,
- * text-h1, rounded-card, …) — never a raw hex/px/font value in a component.
+ * ФК Беласица — design tokens
+ * Source of truth: brand.md (Phase 3.05 „Трибина" amendment).
+ * Components consume the utilities these generate (bg-navy, text-paper,
+ * u-h2, py-section, …) — never a raw hex/px/font value in a component.
  * ------------------------------------------------------------------ */
 @theme {
-  /* Brand colours */
-  --color-navy: #12294f;
+  /* Brand colours. Two navies: `navy` is the block, `navy-2` is what sits
+     INSIDE a navy block (tiles, cards, the mobile nav panel). */
+  --color-navy: #0d1f3c; /* 14.95:1 vs paper */
+  --color-navy-2: #12294f; /* 13.12:1 vs paper */
+  --color-orange: #ee7a16; /*  5.81:1 vs navy — a FILL, never ink on light */
   --color-paper: #f7f4ec;
-  --color-orange: #e4741c;
-  --color-ink: #1b1b1a;
-  --color-mist: #e4e1d8;
-  --color-neutral-700: #3a3a38;
-  --color-neutral-500: #6b6a64;
-  --color-footer: #edeae0;
-  --color-error: #b42318;
+  --color-ink: #14161a; /* 16.48:1 on paper */
+  --color-mist: #e4e1d8; /* photo mats + hairlines on light */
+  --color-neutral-700: #3a3a38; /* 10.37:1 on paper */
+  --color-neutral-500: #5e5c55; /*  6.09:1 on paper */
+  --color-error: #b42318; /*  5.98:1 on paper */
 
-  /* Stats-table surfaces (brand.md §Components → Stats table). Surfaces only —
-     they carry ink/navy text, never orange (D-1.02-1). */
-  --color-zebra: #fcfbf7; /* zebra row */
-  --color-highlight: #fbf3ea; /* ФК Беласица row */
+  /* Stats-table zebra (surface only — carries ink/navy text, never orange).
+     The ФК Беласица row is not a token: it is an `orange` fill with navy ink
+     (5.81:1), so the highlight is the accent itself. */
+  --color-zebra: #fcfbf7;
 
-  /* Faces — self-hosted via next/font (see src/app/fonts.ts) */
-  --font-sans: var(--font-inter);
-  --font-serif: var(--font-source-serif);
+  /* Faces — self-hosted via next/font (see src/app/fonts.ts).
+     There is deliberately no --font-serif: Oswald is a condensed gothic, and
+     keeping the old utility name pointed at it would mislead (D-3.05-2). */
+  --font-sans: var(--font-golos);
+  --font-display: var(--font-oswald);
 
-  /* Type scale — size / line-height (weights applied via font-* utilities) */
-  --text-display: 3.75rem;
-  --text-display--line-height: 1.02;
-  --text-h1: 2.75rem;
-  --text-h1--line-height: 1.08;
-  --text-h2: 1.875rem;
-  --text-h2--line-height: 1.15;
-  --text-h3: 1.375rem;
-  --text-h3--line-height: 1.25;
-  --text-body-l: 1.125rem;
-  --text-body-l--line-height: 1.6;
-  --text-body: 1rem;
+  /* Type scale. The heading ROLES live in @layer components below as
+     `u-display` / `u-h1` / … because they also carry a case change and
+     tracking, which a size token cannot express. These raw sizes stay
+     available as `text-*` utilities for one-off use.
+     ⚠️ Every token added here must also be registered in src/lib/utils.ts
+     or `cn()` silently drops it (D-3.04d-1). */
+  --text-display: clamp(3rem, 9.5vw, 7rem);
+  --text-display--line-height: 0.86;
+  --text-h1: clamp(2.5rem, 7vw, 4.5rem);
+  --text-h1--line-height: 0.92;
+  --text-h2: clamp(2rem, 5.4vw, 3.75rem);
+  --text-h2--line-height: 0.95;
+  --text-h3: clamp(1.125rem, 1.9vw, 1.5rem);
+  --text-h3--line-height: 1.1;
+  --text-stat: clamp(1.375rem, 3vw, 2.25rem);
+  --text-stat--line-height: 1.05;
+  /* The featured record on the scoreboard — one step above the rest. */
+  --text-stat-lead: clamp(1.75rem, 4.4vw, 3.25rem);
+  --text-stat-lead--line-height: 1.05;
+  /* The hero wordmark. Deliberately below the display maximum so
+     „ФК БЕЛАСИЦА" holds ONE line beside a ~150px crest block from `lg` up,
+     and fills the column rather than sitting small under it at 375. */
+  --text-wordmark: clamp(3.25rem, 8vw, 5.75rem);
+  --text-wordmark--line-height: 0.86;
+  --text-body-l: 1.0625rem;
+  --text-body-l--line-height: 1.7;
+  --text-body: 1.0625rem;
   --text-body--line-height: 1.65;
   --text-small: 0.875rem;
   --text-small--line-height: 1.5;
   --text-overline: 0.75rem;
   --text-overline--line-height: 1;
 
-  /* Overline tracking (.14em) */
-  --tracking-overline: 0.14em;
+  --tracking-overline: 0.18em;
 
   /* Layout */
-  --container-page: 75rem; /* 1200px content max-width */
-  --container-measure: 68ch; /* body-copy measure */
+  --container-page: 78rem; /* 1248px content max-width */
+  --container-measure: 62ch; /* body-copy measure */
+
+  /* Section rhythm — the tightest of the three directions. `py-section`. */
+  --spacing-section: clamp(3rem, 5vw, 4.5rem);
 
   /* Sticky site-header height (brand.md §Spacing & layout). Anything that
      sticks BELOW the header offsets by this (`top-header`), and anchor targets
      clear it with `scroll-mt-header`. Measured on the rendered SiteHeader at
-     both 375 and 1280: 16px + 44px crest tile + 16px + 1px border = 77px.
-     Keep in sync if SiteHeader's padding or crest size ever changes. */
-  --spacing-header: 4.8125rem; /* 77px */
+     both 375 and 1280: 6px orange bar + 12 + 48px crest block + 12 = 78px.
+     Keep in sync if the header's bar, padding or crest size ever changes. */
+  --spacing-header: 4.875rem; /* 78px */
 
-  /* Corner radii — minimal rounding, archive dignity */
-  --radius-photo: 2px;
-  --radius-card: 4px;
-  --radius-chip: 4px;
+  /* Corner radii — 0 everywhere. Hard blocks are the direction (brand.md
+     §Spacing & layout). Kept as named tokens so the existing `rounded-card` /
+     `rounded-photo` / `rounded-chip` call sites resolve to flat, and so
+     nothing can quietly reintroduce rounding by editing one component. */
+  --radius-photo: 0px;
+  --radius-card: 0px;
+  --radius-chip: 0px;
 }
 
 /* shadcn semantic tokens → brand palette (kept so future shadcn/ui
@@ -88,18 +111,18 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --radius-sm: calc(var(--radius) - 2px);
+  --radius-sm: var(--radius);
   --radius-md: var(--radius);
-  --radius-lg: calc(var(--radius) + 2px);
+  --radius-lg: var(--radius);
 }
 
 :root {
-  --radius: 0.25rem; /* 4px base — matches card/chip radii */
+  --radius: 0px; /* hard blocks — brand rule 6 */
   --background: var(--color-paper);
   --foreground: var(--color-ink);
-  --card: #ffffff; /* white cards on paper (brand: Card surface) */
+  --card: #ffffff;
   --card-foreground: var(--color-ink);
-  --popover: var(--color-card);
+  --popover: var(--card);
   --popover-foreground: var(--color-ink);
   --primary: var(--color-navy);
   --primary-foreground: var(--color-paper);
@@ -107,7 +130,7 @@
   --secondary-foreground: var(--color-navy);
   --muted: var(--color-mist);
   --muted-foreground: var(--color-neutral-500);
-  --accent: var(--color-mist);
+  --accent: var(--color-orange);
   --accent-foreground: var(--color-navy);
   --destructive: var(--color-error);
   --border: var(--color-mist);
@@ -124,7 +147,218 @@
   }
 }
 
-/* Motion baseline — respect prefers-reduced-motion (handover §6):
+/* ==================================================================== *
+ * Role classes — brand.md §Typography and §Components.
+ *
+ * They live in @layer components so a utility always wins: `u-h2 text-paper`
+ * sets the paper colour, and `u-label` inherits whatever colour it is given.
+ * None of them declares `color` for that reason — the caller owns colour.
+ * ==================================================================== */
+@layer components {
+  /* ---- Headings: condensed, uppercase, tightly leaded ---------------- */
+  .u-display {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--text-display);
+    line-height: 0.86;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+  }
+  .u-h1 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--text-h1);
+    line-height: 0.92;
+    letter-spacing: 0;
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+  .u-h2 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--text-h2);
+    line-height: 0.95;
+    letter-spacing: 0.005em;
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+  .u-h3 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--text-h3);
+    line-height: 1.1;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+  /* A curated record value. Tabular so a column of figures aligns. */
+  .u-stat {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--text-stat);
+    line-height: 1.05;
+    letter-spacing: 0.005em;
+    font-variant-numeric: lining-nums tabular-nums;
+    text-wrap: balance;
+  }
+
+  /* ---- Section label — a solid orange bar and tracked caps ----------- *
+   * The accent as a bar, never as a letterform: orange ink on a light
+   * surface is 2.6:1 (brand rule 3). The bar is the marker; the text
+   * inherits the caller's colour. */
+  .u-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    font-family: var(--font-sans);
+    font-size: var(--text-overline);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: var(--tracking-overline);
+    text-transform: uppercase;
+  }
+  .u-label::before {
+    content: "";
+    flex: none;
+    width: 1.75rem;
+    height: 0.5rem;
+    background: var(--color-orange);
+  }
+
+  /* ---- The signature: a 6px orange bar along the TOP edge ------------ *
+   * It opens the header, closes the footer and caps every tile and card.
+   * Never a left-hand accent border on a card — that is the single most
+   * recognisable generated-UI tell (brand rule 4 / D-3.05a-7). */
+  .u-cap {
+    border-top: 6px solid var(--color-orange);
+  }
+
+  /* ---- Interactive blocks ------------------------------------------- *
+   * Hover is a FILL SWAP plus a lift, never colour-only: the ink moves with
+   * the fill and the element also rises. */
+  .u-tile {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1.5rem;
+    height: 100%;
+    padding: clamp(1rem, 2vw, 1.5rem);
+    background: var(--color-navy-2);
+    border-top: 6px solid var(--color-orange);
+    transition:
+      background-color 160ms ease-out,
+      transform 160ms ease-out;
+  }
+  .u-tile:hover {
+    background: var(--color-orange);
+    transform: translateY(-4px);
+  }
+  /* The ink follows the fill. */
+  .u-tile:hover :is(.u-h3, .u-tile-meta) {
+    color: var(--color-navy);
+  }
+  .u-tile-meta {
+    font-size: var(--text-overline);
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgb(247 244 236 / 0.8);
+    transition: color 160ms ease-out;
+  }
+
+  /* A card wipes its orange bar in along the BOTTOM edge on hover, so the
+     motif reads as the same 6px bar arriving rather than a new decoration. */
+  .u-card {
+    display: block;
+    height: 100%;
+    background: var(--color-navy-2);
+    border-bottom: 6px solid transparent;
+    transition:
+      border-color 160ms ease-out,
+      transform 160ms ease-out;
+  }
+  .u-card:hover {
+    border-bottom-color: var(--color-orange);
+    transform: translateY(-4px);
+  }
+  /* The light-block variant — a white card on a paper block. */
+  .u-card--light {
+    background: #ffffff;
+  }
+
+  /* ---- Buttons ------------------------------------------------------- */
+  .u-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.9375rem 1.75rem;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-navy);
+    background: var(--color-orange);
+    transition: background-color 160ms ease-out;
+  }
+  .u-btn:hover {
+    background: var(--color-paper);
+  }
+  .u-btn--ghost {
+    color: var(--color-paper);
+    background: transparent;
+    box-shadow: inset 0 0 0 2px var(--color-paper);
+  }
+  .u-btn--ghost:hover {
+    color: var(--color-navy);
+    background: var(--color-paper);
+  }
+
+  /* ---- Text link — condensed caps over a 3px orange underline -------- */
+  .u-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-block: 0.375rem;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border-bottom: 3px solid var(--color-orange);
+    transition: border-color 160ms ease-out;
+  }
+  .u-link:hover {
+    border-bottom-color: currentColor;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Focus rings — brand.md §Color. 3px, because a loud interface with a timid
+ * ring is not actually loud. Navy on light (14.95:1), orange on navy (5.81:1).
+ * Consumed through src/lib/focus.ts so call sites stay declarative.
+ *
+ * DELIBERATELY UNLAYERED. These started inside `@layer components`, where they
+ * silently did nothing: the vendored shadcn stylesheet carries an
+ * `&:focus-visible { outline-style: none }` rule in `@layer utilities`, and
+ * `utilities` sorts after `components`, so it won every time — measured
+ * `outline-style: none` on a focused header link. Unlayered CSS outranks every
+ * layer, so the ring cannot be switched off by a utility. Keep it out here.
+ * ------------------------------------------------------------------ */
+.u-focus:focus-visible {
+  outline-width: 3px;
+  outline-style: solid;
+  /* Set as its own declaration, not via the `outline` shorthand: the base layer
+     applies `outline-ring/50` to `*`, and through the shorthand the ring came
+     out as navy at 50% alpha (measured) instead of solid navy — a ~3.4:1 ring
+     where 14.95:1 was intended. An explicit longhand pins it. */
+  outline-color: var(--color-navy);
+  outline-offset: 2px;
+}
+.u-focus--on-navy:focus-visible {
+  outline-color: var(--color-orange);
+}
+
+/* Motion baseline — respect prefers-reduced-motion (brand.md §Motion):
    transitions/animations become instant, content still appears; focus
    rings and state colours are unaffected. */
 @media (prefers-reduced-motion: reduce) {
@@ -141,7 +375,7 @@
 
 /* ------------------------------------------------------------------ *
  * Reveal-on-scroll — brand.md §Motion
- * opacity 0→1 + translateY 10→0, 500ms cubic-bezier(.2,.7,.2,1),
+ * opacity 0→1 + translateY 12→0, 260ms cubic-bezier(.2,.9,.3,1),
  * 60ms stagger (per-item via --reveal-delay). Transform + opacity only,
  * to stay inside the Lighthouse budget (never layout-animated).
  *
@@ -153,10 +387,10 @@
  * ------------------------------------------------------------------ */
 .js [data-reveal] {
   opacity: 0;
-  transform: translateY(10px);
+  transform: translateY(12px);
   transition:
-    opacity 500ms cubic-bezier(0.2, 0.7, 0.2, 1),
-    transform 500ms cubic-bezier(0.2, 0.7, 0.2, 1);
+    opacity 260ms cubic-bezier(0.2, 0.9, 0.3, 1),
+    transform 260ms cubic-bezier(0.2, 0.9, 0.3, 1);
   transition-delay: var(--reveal-delay, 0ms);
 }
 .js [data-reveal].is-visible {
@@ -173,16 +407,31 @@
   }
 }
 
-/* Placeholder-chip hatch fill — brand.md §Components (dashed mist border,
-   hatched fill, mono text). Mist hatch over the paper surface so the chip
-   reads on both paper and mist (greybox) backgrounds. Used by
-   <PlaceholderChip>. */
+/* ------------------------------------------------------------------ *
+ * Placeholder-chip hatch fill — brand.md §Components.
+ *
+ * Alpha is 0.18 in both states, and the chip's text is measured against
+ * the HATCH STROKE (the worst case, where a line crosses a glyph) rather
+ * than the chip surface: an automated contrast sweep skips any element
+ * whose ancestor paints a background image, so a patterned chip otherwise
+ * escapes verification entirely (D-3.05a-8). Measured: 4.73:1 light,
+ * 5.84:1 on navy. Used by <PlaceholderChip>.
+ * ------------------------------------------------------------------ */
 .placeholder-hatch {
   background-image: repeating-linear-gradient(
     45deg,
     transparent,
     transparent 5px,
-    var(--color-mist) 5px,
-    var(--color-mist) 6px
+    rgb(94 92 85 / 0.18) 5px,
+    rgb(94 92 85 / 0.18) 6px
+  );
+}
+.placeholder-hatch--on-navy {
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 5px,
+    rgb(247 244 236 / 0.18) 5px,
+    rgb(247 244 236 / 0.18) 6px
   );
 }

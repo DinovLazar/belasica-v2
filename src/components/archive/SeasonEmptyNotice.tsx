@@ -33,8 +33,8 @@ const PENDING = [
  */
 export function SeasonEmptyNotice() {
   return (
-    <div className="max-w-measure rounded-card border border-mist bg-white p-8">
-      <h2 className="font-serif text-h3 font-semibold text-navy">
+    <div className="max-w-measure border border-mist bg-white p-8">
+      <h2 className="u-h3 text-navy">
         Оваа сезона сѐ уште нема објавени детали.
       </h2>
       <p className="mt-3 text-body text-neutral-700">
@@ -50,7 +50,7 @@ export function SeasonEmptyNotice() {
       <p className="mt-6">
         <Link
           href="/arhiva"
-          className={`text-small text-navy decoration-2 underline-offset-4 hover:underline hover:decoration-orange ${focusOnPaper}`}
+          className={`u-link text-navy ${focusOnPaper}`}
         >
           Назад кон архивата
         </Link>

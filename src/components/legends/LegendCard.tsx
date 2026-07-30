@@ -1,9 +1,10 @@
 import Link from "next/link";
 import type { SanityImageSource } from "@sanity/image-url";
+import { cn } from "@/lib/utils";
 import { PhotoFrame } from "@/components/home/PhotoFrame";
 import { PlaceholderChip } from "@/components/home/PlaceholderChip";
 import { Reveal } from "@/components/home/Reveal";
-import { focusOnPaper } from "@/lib/focus";
+import { focusOnNavy, focusOnPaper } from "@/lib/focus";
 import { initials, orderedRoles } from "@/lib/people";
 import { RoleChips } from "./RoleChips";
 
@@ -16,22 +17,28 @@ export type LegendCardData = {
 };
 
 /**
- * Legend card (handover §6.1) — 4:5 portrait, serif navy name, role chip(s),
- * playing years. brand.md §Components („Person card") plus the `SeasonCard`
- * card-lift: a 2px lift on hover and **no shadow**, because brand.md defines no
- * shadow token (the handover §1 calls for a „softened shadow"; the repo wins).
+ * Legend card — brand.md §Components („Card"): a hard-edged block with the
+ * portrait flush to its edges, no mat and no radius. Hover wipes the 6px
+ * orange bar in along the BOTTOM edge and lifts the card 4px, so the motif
+ * reads as the page's own bar arriving rather than a new decoration; there is
+ * no shadow, because brand.md defines no shadow token.
+ *
+ * Two surfaces (brand.md §Components): `onNavy` gives the second navy value,
+ * for a card sitting inside a navy block (the homepage marquee); the default
+ * is a white card on a paper block (`/legendi`).
  *
  * The whole card is one real `<a>`, so it is keyboard-reachable and
  * middle-clickable and the focus ring lands on the link rather than an inner
- * element (§6.1 a11y).
+ * element.
  *
  * The `Reveal` sits *inside* the `<li>`: a `<ul>` may only contain `<li>`, so
  * wrapping from the outside would put Reveal's `<div>` straight into the list
- * and break both the markup and the announced item count (same as `SeasonCard`).
+ * and break both the markup and the announced item count.
  */
 export function LegendCard({
   person,
   delayIndex = 0,
+  onNavy = false,
   // Default matches /legendi's RoleBandGrid (1 col → sm:2 → lg:3). A grid
   // with other tracks (the homepage 2/3/5 marquee) passes its own string —
   // the default overfetches ~106 KiB there (Lighthouse image-delivery).
@@ -39,23 +46,32 @@ export function LegendCard({
 }: {
   person: LegendCardData;
   delayIndex?: number;
+  /** Set for a card inside a navy block; default is a white card on paper. */
+  onNavy?: boolean;
   sizes?: string;
 }) {
   const roles = orderedRoles(person.role);
   const years = person.playingYears?.trim() || null;
 
   // A player's years are a *known-missing fact*, so they get a registered
-  // placeholder — the homepage legends grid sets this precedent. A trainer or
-  // president has no playing years to be missing, so the line simply omits
-  // rather than accusing the archive of a gap that isn't one (§1 empty rule).
+  // placeholder. A trainer or president has no playing years to be missing, so
+  // the line simply omits rather than accusing the archive of a gap that isn't.
   const showYearsPlaceholder = !years && roles[0] === "player";
 
   return (
-    <li>
-      <Reveal delayIndex={delayIndex}>
+    // `u-card` is `height: 100%`, which only resolves if every wrapper between
+    // it and the grid track is full-height too — otherwise cards in a row end
+    // at different depths wherever one has an extra line (a second role chip,
+    // a placeholder). The chain is `li → Reveal div → a`.
+    <li className="h-full">
+      <Reveal delayIndex={delayIndex} className="h-full">
         <Link
           href={`/legendi/${person.slug}`}
-          className={`group block overflow-hidden rounded-card border border-mist bg-white transition-transform duration-150 ease-out hover:-translate-y-0.5 ${focusOnPaper}`}
+          className={cn(
+            "u-card",
+            !onNavy && "u-card--light",
+            onNavy ? focusOnNavy : focusOnPaper,
+          )}
         >
           {person.portrait ? (
             <PhotoFrame
@@ -66,29 +82,36 @@ export function LegendCard({
               sizes={sizes}
               width={800}
               placeholderLabel="портрет"
-              // Flush to the card's top edge: the card already supplies the
-              // border and radius, so the frame keeps only the hairline that
-              // separates portrait from body.
-              className="rounded-none border-0 border-b border-mist"
             />
           ) : (
-            <InitialsTile name={person.name} />
+            <MonogramBlock name={person.name} onNavy={onNavy} />
           )}
 
-          <div className="p-5">
-            <h3 className="font-serif text-h3 font-semibold text-navy decoration-2 underline-offset-4 group-hover:underline group-hover:decoration-orange">
+          <div className="p-4">
+            <h3 className={cn("u-h3", onNavy ? "text-paper" : "text-navy")}>
               {/* `name` is required in the model, so this should never fire —
                   but a document could still be published without one, and an
                   invented fallback would be a made-up person on an archive
                   page. Show the gap instead (content-truth). */}
-              {person.name ?? <PlaceholderChip label="име на личноста" />}
+              {person.name ?? (
+                <PlaceholderChip label="име на личноста" onNavy={onNavy} />
+              )}
             </h3>
 
-            {roles.length > 0 && <RoleChips roles={roles} className="mt-3" />}
+            {roles.length > 0 && (
+              <RoleChips roles={roles} onNavy={onNavy} className="mt-3" />
+            )}
 
             {(years || showYearsPlaceholder) && (
-              <p className="mt-3 text-small text-neutral-500">
-                {years ?? <PlaceholderChip label="години на играње" />}
+              <p
+                className={cn(
+                  "mt-3 text-small",
+                  onNavy ? "text-paper/80" : "text-neutral-500",
+                )}
+              >
+                {years ?? (
+                  <PlaceholderChip label="години на играње" onNavy={onNavy} />
+                )}
               </p>
             )}
           </div>
@@ -99,32 +122,40 @@ export function LegendCard({
 }
 
 /**
- * The photo-less portrait state (handover §2 „States"): a solid navy tile
- * carrying the person's initials — never a greybox.
+ * The photo-less portrait state — brand.md §Photo treatment: a monogram block
+ * on the deep navy with an orange inset keyline. Never a stand-in face, never
+ * a grey box.
  *
- * This deliberately differs from the season *card*, which keeps `PhotoFrame`'s
- * Mist greybox + chip (2.02 §5.5/§7). A season has no initials, so its greybox
- * is the honest empty frame; a person does, so the tile reads as a deliberate
- * monogram rather than a missing image — the same reasoning as the season
- * page's navy title band (2.02 §6.2b). Most trainers and officials will never
- * have a portrait, so this is the common state, not an edge case.
+ * This deliberately differs from the season *card*, which keeps PhotoFrame's
+ * mist mat + chip. A season has no initials, so its mat is the honest empty
+ * frame; a person does, so the block reads as a deliberate monogram rather
+ * than a missing image. Most trainers and officials will never have a
+ * portrait, so this is the common state, not an edge case.
  */
-function InitialsTile({ name }: { name: string | null }) {
+function MonogramBlock({
+  name,
+  onNavy,
+}: {
+  name: string | null;
+  onNavy: boolean;
+}) {
   const monogram = name ? initials(name) : null;
 
   return (
-    <div className="flex aspect-[4/5] w-full items-center justify-center border-b border-mist bg-navy">
+    // A 2px orange keyline, as a real border rather than an inset shadow —
+    // brand rule 7 has no shadow token, and a keyline is not elevation.
+    <div className="flex aspect-[4/5] w-full items-center justify-center border-2 border-orange/50 bg-navy">
       {monogram ? (
         // Decorative: the `<h3>` below already carries the name, so announcing
         // the initials again would just stutter.
         <span
           aria-hidden
-          className="font-serif text-display font-semibold text-paper"
+          className="font-display text-h2 font-bold uppercase text-orange"
         >
           {monogram}
         </span>
       ) : (
-        <PlaceholderChip label="портрет" />
+        <PlaceholderChip label="портрет" onNavy={onNavy} />
       )}
     </div>
   );

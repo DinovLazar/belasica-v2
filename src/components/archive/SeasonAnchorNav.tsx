@@ -1,4 +1,4 @@
-import { focusOnPaper } from "@/lib/focus";
+import { focusOnNavy } from "@/lib/focus";
 
 export type SeasonAnchor = { id: string; label: string };
 
@@ -22,20 +22,16 @@ export function SeasonAnchorNav({ anchors }: { anchors: SeasonAnchor[] }) {
   if (anchors.length < 2) return null;
 
   return (
-    <nav
-      aria-label="Скок низ сезоната"
-      className="border-y border-mist bg-paper"
-    >
-      {/* Vertical rhythm is split container/link (py-1 + py-2 = the original
-          py-3 look) so each link is a ≥24px tap target (WCAG 2.5.8) without
-          changing the rail's rendered height. */}
-      <div className="mx-auto w-full max-w-page overflow-x-auto px-5 py-1 md:px-10">
+    <nav aria-label="Скок низ сезоната" className="bg-navy-2">
+      {/* Vertical rhythm is split container/link (py-1 + py-2) so each link is
+          a ≥24px tap target (WCAG 2.5.8) without changing the rail's height. */}
+      <div className="mx-auto w-full max-w-page overflow-x-auto px-5 py-1 md:px-8">
         <ul className="flex min-w-max items-center gap-5">
           {anchors.map((anchor) => (
             <li key={anchor.id}>
               <a
                 href={`#${anchor.id}`}
-                className={`block rounded-chip py-2 text-small font-medium text-navy decoration-2 underline-offset-4 hover:underline hover:decoration-orange ${focusOnPaper}`}
+                className={`block border-b-2 border-transparent py-2 text-small font-bold uppercase tracking-[0.12em] text-paper/80 transition-colors hover:border-orange hover:text-paper ${focusOnNavy}`}
               >
                 {anchor.label}
               </a>
