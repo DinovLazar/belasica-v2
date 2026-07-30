@@ -83,7 +83,10 @@ Phase 3.05a built three homepages and made no recommendation. Lazar picked **В*
 
 ## 5 · Preview + eyeball checklist for Lazar
 
-**Vercel preview:** _(see the PR — added once the deployment is green)_
+**Vercel preview:** https://belasica-v2-git-phase-305-tribina-adoption-dinovlazars-projects.vercel.app
+**PR:** https://github.com/DinovLazar/belasica-v2/pull/30
+
+**Preview verified before requesting merge** (gate not waived): all 8 live routes return **200**, the three deleted proposal routes return **404**, and on the rendered homepage Oswald sets the 92px uppercase `<h1>`, Golos Text sets the body, the header measures **78px**, the signature bar is `rgb(238,122,22)` at 6px, and the seven blocks alternate `rgb(13,31,60)` / `rgb(247,244,236)` exactly as specified. Every `_next/image` request (hero included) returns 200.
 
 Please open the preview at desktop **and** on your phone and check these five:
 
