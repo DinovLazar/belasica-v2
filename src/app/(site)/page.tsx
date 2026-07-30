@@ -200,8 +200,8 @@ export default async function Home() {
               </SectionOverline>
 
               <div className="mt-4 flex items-center gap-3 md:gap-4">
-                {/* Crest on a white tile — the artwork has a white ground, so it
-                    needs a light backdrop to read over the photo. Decorative:
+                {/* Crest on a white tile — the artwork’s left half is white, so
+                    it needs a light backdrop to read over the photo. Decorative:
                     the wordmark carries the accessible name. */}
                 <span className="flex shrink-0 items-center rounded-card bg-white p-1.5">
                   <Image

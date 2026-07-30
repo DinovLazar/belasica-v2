@@ -164,7 +164,7 @@ Three complete homepage proposals on live Sanity content, reachable by URL only,
 - `eslint.config.mjs` — ESLint flat config (Next 15 `FlatCompat`: next/core-web-vitals + next/typescript)
 - `postcss.config.mjs` — PostCSS config (`@tailwindcss/postcss`)
 - `components.json` — shadcn/ui config (style new-york, base color neutral, Lucide icons)
-- `public/crest.png` — official FK Belasica club crest (864×1220, blue/white pennant, owner-supplied 2026-07-15); source for the header/footer logo and the generated favicon set (chore-crest-logo)
+- `public/crest.png` — official FK Belasica club crest (864×1220, blue/white pennant, owner-supplied 2026-07-15; white outside the pennant outline made transparent in place 2026-07-30, D-crest-2 — interior whites untouched, dimensions unchanged); source for the header/footer logo and the generated favicon set — the favicons still embed the pre-swap opaque render (chore-crest-logo)
 - `public/*.svg` — create-next-app default static assets (next/vercel/file/globe/window)
 
 ## Not present (deliberately)

@@ -24,9 +24,9 @@ export function SiteHeader() {
           href="/"
           className={cn("flex items-center gap-2.5 rounded-card", focusRing)}
         >
-          {/* Crest on a white tile — the artwork has a white background and a
-              white left half, so it needs a light backdrop to read on the navy
-              bar. Decorative: the wordmark text carries the accessible name. */}
+          {/* Crest on a white tile — the artwork’s left half is white, so it
+              needs a light backdrop to read on the navy bar. Decorative: the
+              wordmark text carries the accessible name. */}
           <span className="flex shrink-0 items-center rounded-card bg-white p-1">
             <Image
               src="/crest.png"

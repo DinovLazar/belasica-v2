@@ -30,8 +30,8 @@ export function TerraceHeader() {
           href="/predlog-c"
           className="pc-focus pc-focus--on-navy flex items-center gap-3"
         >
-          {/* The crest sits on white because its artwork has a white ground.
-              Decorative — the wordmark carries the accessible name. */}
+          {/* The crest sits on white because its white left half needs a light
+              ground. Decorative — the wordmark carries the accessible name. */}
           <span className="flex shrink-0 items-center bg-white p-1">
             <Image
               src="/crest.png"
