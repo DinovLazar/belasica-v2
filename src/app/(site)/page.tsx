@@ -198,12 +198,18 @@ export default async function Home() {
             <div className="relative z-10 -mt-13 flex-none bg-white md:-mt-17 lg:-mt-19">
               <div className="h-1.5 w-full bg-orange" />
               <div className="flex items-center justify-center px-4.5 py-3.5 lg:px-6 lg:py-4.5">
+                {/* `crest-ui.webp` + `unoptimized` — see the note in
+                    `SiteHeader`: every `/crest.png` optimizer variant 402s on
+                    this account, so the crest vanished from production
+                    (D-3.05-11). `/crest.png` stays the canonical asset for the
+                    Open Graph card and the favicon lineage. */}
                 <Image
-                  src="/crest.png"
+                  src="/crest-ui.webp"
                   alt=""
-                  width={256}
-                  height={362}
+                  width={400}
+                  height={565}
                   priority
+                  unoptimized
                   className="h-20 w-auto md:h-28 lg:h-32"
                 />
               </div>

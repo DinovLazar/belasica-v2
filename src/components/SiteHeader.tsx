@@ -42,14 +42,21 @@ export function SiteHeader() {
           {/* The crest sits on white because its artwork's left half is white,
               so it needs a light backdrop to read on the navy bar — the tile
               stays even though the PNG's background is now transparent
-              (D-crest-2). Decorative: the wordmark carries the accessible name. */}
+              (D-crest-2). Decorative: the wordmark carries the accessible name.
+
+              `crest-ui.webp` + `unoptimized`, not `/crest.png`: Vercel's image
+              optimizer returns 402 for this account on every `/crest.png`
+              variant, so the crest silently vanished from production. The
+              derivative is the same artwork at UI size and bypasses the
+              optimizer entirely (D-3.05-11). */}
           <span className="flex shrink-0 items-center bg-white p-1">
             <Image
-              src="/crest.png"
+              src="/crest-ui.webp"
               alt=""
-              width={44}
-              height={62}
+              width={400}
+              height={565}
               priority
+              unoptimized
               className="h-10 w-auto"
             />
           </span>
