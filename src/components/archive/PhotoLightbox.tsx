@@ -283,8 +283,8 @@ export function PhotoLightboxProvider({
         <figure className="flex min-h-0 flex-col items-center gap-5">
           {/* `object-contain` inside a 92vw × 82vh cap, so a tall portrait scan
               and a wide team photo both arrive whole. Keyed by id: without it
-              React reuses the <img> across a step and the previous photo
-              lingers until the next one decodes. */}
+              React reuses the same image element across a step and the previous
+              photo lingers until the next one decodes. */}
           <Image
             key={photo.id}
             src={photo.url}
