@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { PortableTextBlock } from "@portabletext/types";
 import type { SanityImageSource } from "@sanity/image-url";
-import { client } from "@/sanity/client";
+import { fetchOrThrow } from "@/sanity/fetch";
 import { Container } from "@/components/Container";
 import { PhotoGrid, type ArchivePhoto } from "@/components/archive/PhotoGrid";
 import { SeasonStory } from "@/components/archive/SeasonStory";
@@ -77,8 +77,10 @@ type PersonData = {
  * president slug must resolve rather than 404.
  */
 export async function generateStaticParams() {
-  const slugs = await client.fetch<string[]>(
+  const slugs = await fetchOrThrow<string[]>(
     /* groq */ `*[_type == "person" && defined(slug.current)].slug.current`,
+    {},
+    "the person slug list (generateStaticParams)",
   );
   return (slugs ?? []).map((slug) => ({ slug }));
 }
@@ -89,9 +91,10 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const person = await client.fetch<{ name: string | null } | null>(
+  const person = await fetchOrThrow<{ name: string | null } | null>(
     /* groq */ `*[_type == "person" && slug.current == $slug][0]{ name }`,
     { slug },
+    `person „${slug}" (metadata)`,
   );
   if (!person) return {};
   return {
@@ -109,14 +112,14 @@ export default async function PersonPage({
 }) {
   const { slug } = await params;
 
-  let person: PersonData | null = null;
-  try {
-    person = await client.fetch<PersonData | null>(PERSON_QUERY, { slug });
-  } catch {
-    // A failed read must not crash the route or invent filler. There is nothing
-    // truthful to show for this slug right now, so it 404s.
-    person = null;
-  }
+  // Retried, then loud (D-3.02F-C-1) — see the season template for the full
+  // reasoning. With 160 people the old silent-404-on-timeout was the likeliest
+  // way for this archive to lose a page without anyone noticing.
+  const person = await fetchOrThrow<PersonData | null>(
+    PERSON_QUERY,
+    { slug },
+    `person „${slug}"`,
+  );
 
   if (!person) notFound();
 
