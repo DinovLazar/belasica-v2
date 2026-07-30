@@ -154,3 +154,90 @@ export function formatWinRate(value: number | null): string {
     maximumFractionDigits: 1,
   })} %`;
 }
+
+/* ------------------------------------------------------------------ *
+ * Curated club records — grouping for „Клупски рекорди" (Phase 3.02F).
+ *
+ * `clubRecord` (D-3.01-5) holds the records that cannot be aggregated from
+ * the model: trophy counts, all-time scorer lists, appearance milestones.
+ * Nothing here computes or reformats — `label` and `value` render exactly as
+ * the editor curated them (content-truth). This function only decides which
+ * group a record belongs to and in what order the groups and rows appear.
+ * ------------------------------------------------------------------ */
+
+export type ClubRecordInput = {
+  label: string | null;
+  value: string | null;
+  category: string | null;
+  order: number | null;
+};
+
+/**
+ * The four groups, in page order, titled with the Studio's own
+ * `clubRecord.category` option titles **verbatim** — an editor who files a
+ * record under „Трофеи и признанија" must find it under that exact heading.
+ *
+ * The order is honours → scorers → appearances → other: trophies are the
+ * headline, then the two ranking dimensions the tables below expand on.
+ * ⚠️ This is deliberately NOT the homepage strip's order (D-3.03-3 runs
+ * honours → appearances → scorers), because the homepage leads with the
+ * appearance record it features; here the group order mirrors the two ranking
+ * tables further down the page, which run scorers first.
+ */
+export const RECORD_GROUPS = [
+  { key: "honours", title: "Трофеи и признанија" },
+  { key: "scorers", title: "Стрелци" },
+  { key: "appearances", title: "Настапи" },
+  { key: "other", title: "Друго" },
+] as const;
+
+export type RecordGroupKey = (typeof RECORD_GROUPS)[number]["key"];
+
+export type ClubRecordGroup = {
+  key: RecordGroupKey;
+  title: string;
+  /** Non-empty by construction — an empty group is dropped (D-2.02-3). */
+  records: ClubRecordInput[];
+};
+
+/**
+ * Group the records, drop what cannot be rendered, and drop empty groups.
+ *
+ * `category` is optional in the schema, so a record can arrive with none, or
+ * with a value outside the Studio list. Such a record falls into „Друго"
+ * rather than vanishing: it is real curated content, and silently hiding it
+ * would be the archive losing a record it holds.
+ *
+ * A record missing `label` or `value` **is** dropped — both are required in
+ * Studio, and half a record states nothing truthfully.
+ */
+export function groupClubRecords(
+  records: ClubRecordInput[],
+): ClubRecordGroup[] {
+  const usable = records.filter((r) => r.label?.trim() && r.value?.trim());
+
+  return RECORD_GROUPS.map(({ key, title }) => ({
+    key,
+    title,
+    records: usable
+      .filter((record) => recordGroupKey(record.category) === key)
+      .sort(compareRecords),
+  })).filter((group) => group.records.length > 0);
+}
+
+const GROUP_KEYS = new Set<string>(RECORD_GROUPS.map((group) => group.key));
+
+function recordGroupKey(category: string | null): RecordGroupKey {
+  return category && GROUP_KEYS.has(category)
+    ? (category as RecordGroupKey)
+    : "other";
+}
+
+/** `order` ascending with unset last, then label — a curated position wins,
+ *  and an uncurated one still lands somewhere deterministic. */
+function compareRecords(a: ClubRecordInput, b: ClubRecordInput): number {
+  const oa = a.order ?? Number.MAX_SAFE_INTEGER;
+  const ob = b.order ?? Number.MAX_SAFE_INTEGER;
+  if (oa !== ob) return oa - ob;
+  return (a.label ?? "").localeCompare(b.label ?? "", "mk");
+}

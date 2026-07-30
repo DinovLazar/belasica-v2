@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { PortableTextBlock } from "@portabletext/types";
-import { client } from "@/sanity/client";
+import { fetchOrThrow } from "@/sanity/fetch";
 import { Container } from "@/components/Container";
 import { Breadcrumb } from "@/components/archive/Breadcrumb";
 import { MattedPhoto, type LeadPhoto } from "@/components/archive/MattedPhoto";
@@ -162,8 +162,10 @@ const SECTIONS = {
 type SectionKey = keyof typeof SECTIONS;
 
 export async function generateStaticParams() {
-  const slugs = await client.fetch<string[]>(
+  const slugs = await fetchOrThrow<string[]>(
     /* groq */ `*[_type == "season" && defined(slug.current)].slug.current`,
+    {},
+    "the season slug list (generateStaticParams)",
   );
   return (slugs ?? []).map((slug) => ({ slug }));
 }
@@ -174,9 +176,10 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const season = await client.fetch<{ title: string | null } | null>(
+  const season = await fetchOrThrow<{ title: string | null } | null>(
     /* groq */ `*[_type == "season" && slug.current == $slug][0]{ title }`,
     { slug },
+    `season „${slug}" (metadata)`,
   );
   if (!season) return {};
   return {
@@ -194,14 +197,16 @@ export default async function SeasonPage({
 }) {
   const { slug } = await params;
 
-  let season: SeasonData | null = null;
-  try {
-    season = await client.fetch<SeasonData | null>(SEASON_QUERY, { slug });
-  } catch {
-    // A failed read must not crash the route or invent filler. There is nothing
-    // truthful to show for this slug right now, so it 404s (2.02 §10).
-    season = null;
-  }
+  // Retried, then loud (D-3.02F-C-1). The old `catch → season = null` turned a
+  // transient CDN timeout into a *silent 404* for a season that exists — the
+  // worst outcome of the three, because the build stays green and the archive
+  // quietly loses a page. A genuinely unknown slug still resolves to `null`
+  // without throwing, so real 404s are unaffected.
+  const season = await fetchOrThrow<SeasonData | null>(
+    SEASON_QUERY,
+    { slug },
+    `season „${slug}"`,
+  );
 
   if (!season) notFound();
 

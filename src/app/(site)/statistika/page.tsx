@@ -4,6 +4,7 @@ import { Container } from "@/components/Container";
 import { PageHeader } from "@/components/PageHeader";
 import { SectionHeading } from "@/components/archive/SectionHeading";
 import { BalanceSummary } from "@/components/stats/BalanceSummary";
+import { ClubRecordList } from "@/components/stats/ClubRecordList";
 import { StatsEmptyNotice } from "@/components/stats/StatsEmptyNotice";
 import {
   StatTable,
@@ -12,7 +13,13 @@ import {
 } from "@/components/stats/StatTable";
 import { Reveal } from "@/components/home/Reveal";
 import { seasonCountLabel } from "@/lib/archive";
-import { aggregateClubBalance, type BalanceSeasonInput } from "@/lib/stats";
+import { cn } from "@/lib/utils";
+import {
+  aggregateClubBalance,
+  groupClubRecords,
+  type BalanceSeasonInput,
+  type ClubRecordInput,
+} from "@/lib/stats";
 
 // Match the archive (D-1.05-4): career totals and final tables are hand-curated
 // in Studio and appear within ~a minute of publishing, without a redeploy.
@@ -25,7 +32,13 @@ export const metadata: Metadata = {
 };
 
 /**
- * Three reads in one round trip.
+ * Four reads in one round trip.
+ *
+ * (d) is the curated records section (3.02F). `clubRecord` carries the
+ * all-time facts the model cannot aggregate — trophy counts, scorer lists,
+ * appearance milestones (D-3.01-5). Ordered here for a deterministic cold
+ * read; `groupClubRecords` re-sorts to the same key, so the render does not
+ * depend on which of the two ran.
  *
  * (a)/(b) rank **only** `person.careerStats`, the authoritative career total
  * (D-2.01-3). `season.squad` is per-season detail and is never summed into a
@@ -64,6 +77,13 @@ const STATS_QUERY = /* groq */ `{
       finalTable[]{
         position, club, played, wins, draws, losses, goalsFor, goalsAgainst, points
       }
+    },
+  "records": *[_type == "clubRecord"]
+    | order(order asc, label asc){
+      label,
+      value,
+      category,
+      order
     }
 }`;
 
@@ -80,6 +100,7 @@ type StatsData = {
   scorers: PlayerStat[] | null;
   appearances: PlayerStat[] | null;
   balanceSeasons: BalanceSeasonInput[] | null;
+  records: ClubRecordInput[] | null;
 };
 
 /** Shared by both player tables — only the column order differs. */
@@ -141,6 +162,7 @@ export default async function StatisticsPage() {
   const scorers = data?.scorers ?? [];
   const appearances = data?.appearances ?? [];
   const balance = aggregateClubBalance(data?.balanceSeasons ?? []);
+  const recordGroups = groupClubRecords(data?.records ?? []);
 
   // Sorting „Сезона" descending must mean newest first, whatever a title looks
   // like („Сезона 1950" vs „Беласица 1922–1926"). The query already ordered the
@@ -176,7 +198,32 @@ export default async function StatisticsPage() {
         intro="Збирни бројки од архивата. Прегледот се пополнува како што се внесуваат сезоните и играчите."
       />
 
-      <section aria-labelledby="scorers-heading" className="py-section">
+      {/* The curated records lead the page: they are the club's headline facts,
+          and the three tables below are the detail behind them. Unlike those
+          three, this section has no empty notice — with no records there is
+          nothing to say that the page does not already say, so it omits itself
+          entirely (D-2.02-3). */}
+      {recordGroups.length > 0 && (
+        <section aria-labelledby="records-heading" className="py-section">
+          <Container>
+            <Reveal>
+              <SectionHeading id="records-heading">
+                Клупски рекорди
+              </SectionHeading>
+            </Reveal>
+            <ClubRecordList groups={recordGroups} />
+          </Container>
+        </section>
+      )}
+
+      {/* The hairline only exists BETWEEN two paper sections. When the records
+          section omits itself this one leads the page again, and its top edge
+          is the navy header's colour change — a rule there would be a second
+          boundary drawn on top of the first. */}
+      <section
+        aria-labelledby="scorers-heading"
+        className={cn("py-section", recordGroups.length > 0 && "border-t border-mist")}
+      >
         <Container>
           <Reveal>
             <SectionHeading id="scorers-heading">Најдобри стрелци</SectionHeading>

@@ -193,3 +193,10 @@ Notes:
 - `.u-focus` / `.u-focus--on-navy` are **deliberately unlayered** in `globals.css` — inside `@layer components` a `@layer utilities` rule in the vendored shadcn sheet silently disabled every focus ring on the site (D-3.05-4). Keep them out of `@layer`.
 - No schema change, no Sanity write, no new env var; the site stays token-free.
 - `npm run build` (96 season + 88 person + 8 static routes, all prerendered; the three `/predlog-*` routes are gone) and `npm run lint` exit 0 on this stack. ⚠️ The build still fails intermittently on a **random** season page from a Sanity CDN connect-timeout — pre-existing, reproduced again this phase, see D-3.05a-9.
+
+## 2026-07-30 — Phase 3.02F-Code (build hardening + Клупски рекорди)
+
+- **No dependency added, upgraded or removed.** `package.json` and `package-lock.json` are byte-identical to `main`. Versions unchanged: Next.js 15.5.20, React 19.2.4, Tailwind CSS 4.3.2, `sanity` 4.22.0, `next-sanity` 11.6.13, `@sanity/image-url` 2.1.1, `@portabletext/react` 6.2.0, `@vercel/analytics` 2.0.1, Motion 12.42.2, Lucide 1.24.0, `@sanity/client` 7.23.1 (dev).
+- **One config change — `next.config.ts`:** added `experimental.staticGenerationRetryCount: 2` (D-3.02F-C-3). Next re-runs a page whose static generation failed; it is the second layer under the bounded-retry read helper in `src/sanity/fetch.ts`. Reason: the build now prerenders **270 pages** (96 seasons + 160 people + 14 static/route files) making ~540 Sanity reads, and a single `Connect Timeout Error` to `apicdn.sanity.io` failed the whole deploy (D-3.05a-9). Measured before/after: 3 retry attempts → 2 of 3 builds failed; 5 attempts → 1 of 3 failed; 5 attempts + this key → **3 of 3 clean while absorbing 125 transient read failures**.
+- ⚠️ **`experimental.*` is not a stable API.** Re-check this key exists on any Next major upgrade (the pending Next 16 / sanity 6 / next-sanity 13 move noted at D-1.04-4). If it is removed or renamed, the read helper still stands on its own — the build simply loses its second layer.
+- **No env var added or changed.** No `brand.md` token, no `globals.css` change, no schema change, no Sanity write.
