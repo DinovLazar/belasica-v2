@@ -85,11 +85,6 @@ export function PhotoLightboxProvider({
   const close = useCallback(() => {
     setIndex(null);
     setEntered(false);
-    // Return focus after React has removed the dialog, or the browser moves it
-    // to <body> on unmount and the restore is lost.
-    const trigger = triggerRef.current;
-    triggerRef.current = null;
-    requestAnimationFrame(() => trigger?.focus());
   }, []);
 
   // Navigation WRAPS in both directions, so neither arrow is ever a dead end
@@ -147,6 +142,22 @@ export function PhotoLightboxProvider({
   useEffect(() => {
     if (!isOpen) return;
     dialogRef.current?.focus();
+  }, [isOpen]);
+
+  /* …and back to the thumbnail that opened it on close (WCAG 2.4.3).
+
+     This is an effect, not a `requestAnimationFrame` callback. rAF does not
+     fire while the document is hidden — a backgrounded tab, a minimised
+     window — so the frame-based version silently stranded focus on <body>
+     (measured: `visibilityState: "hidden"`, `activeElement: BODY`). An effect
+     runs on commit, after React has removed the dialog, with no dependence on
+     the compositor ever painting again. */
+  useEffect(() => {
+    if (isOpen) return;
+    const trigger = triggerRef.current;
+    if (!trigger) return;
+    triggerRef.current = null;
+    trigger.focus();
   }, [isOpen]);
 
   if (!isOpen || !photos[index]) {
