@@ -46,6 +46,8 @@ The unofficial FK Belasica archive site (Macedonian, informational). Next.js + S
 - Stack + pinned versions: `src/_project-state/00_stack-and-config.md` — read before adding any dependency.
 
 ## UI phases
+- Invoke the `designing-and-coding-branded-web-ui` skill before writing any UI code — design mode when working out direction, code mode when implementing. This is a required first step of every UI phase, whether or not the brief repeats it.
+- Run `/impeccable audit` on the affected pages before filing the completion report. Fix P1/P2 findings in-phase; log the rest as decisions or carryovers. Audits run during the build, not as post-launch cleanup.
 - Before filing the completion report: render every affected page and verify against the handover and `brand.md`. Include the Vercel PR preview URL in the report, plus a 5-item eyeball checklist for Lazar.
 
 ## Copy phases

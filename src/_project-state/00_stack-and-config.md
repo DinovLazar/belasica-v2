@@ -141,3 +141,25 @@ Schema / Studio changes (Part 3, D-3.01-1..7 — additive & optional; model re-o
 - The reference `options.filter` is a **function** (`({ document }) => …`), so it is **not** serialized into the deployed tooling manifest — it runs only in the code-bundled Studio at edit time. It compiled cleanly on `sanity@4.22.0`; the brief's unfiltered fallback was **not** needed.
 - `.env` / tokens: no change; no new env var; the site stays token-free.
 - `npm run build` (115 pages) and `npm run lint` exit 0 on this stack.
+
+## 2026-07-28 — Phase 3.05a direction exploration: seven exploration typefaces (NO npm dependency change)
+
+**No npm dependency was added, upgraded, or removed this phase.** Stack unchanged: Next.js 15.5.20, React 19.2.4, Tailwind CSS 4.3.2, `sanity` 4.22.0, `next-sanity` 11.6.13, `@sanity/vision` 4.22.0, `@sanity/image-url` 2.1.1, `@portabletext/react` 6.2.0, `@vercel/analytics` 2.0.1, `@sanity/client` 7.23.1 (dev). Recorded here per the append-only rule because the phase adds **fonts**, which this log tracks as config (the 1.03 precedent: a `next/font/google` family is not an npm package, but its family + subsets + weights are the config that matters).
+
+Fonts added — **exploration only**, loaded exclusively by the three `/predlog-*` routes and never by the live site:
+
+| Variant | Family | Import | Subsets | Weights / styles | CSS variable |
+|---|---|---|---|---|---|
+| А | Playfair Display | `next/font/google` → `Playfair_Display` | latin, cyrillic | 700, 900 | `--font-pa-display` |
+| А | PT Serif | → `PT_Serif` | latin, cyrillic | 400, 700 × normal, italic | `--font-pa-text` |
+| А | PT Sans Narrow | → `PT_Sans_Narrow` | latin, cyrillic | 400, 700 | `--font-pa-agate` |
+| Б | Cormorant Garamond | → `Cormorant_Garamond` | latin, cyrillic | 400, 600 | `--font-pb-display` |
+| Б | Commissioner | → `Commissioner` | latin, cyrillic | 400, 500, 600 | `--font-pb-text` |
+| В | Oswald | → `Oswald` | latin, cyrillic | 600, 700 | `--font-pc-display` |
+| В | Golos Text | → `Golos_Text` | latin, cyrillic | 400, 700 | `--font-pc-text` |
+
+Notes:
+- **Declared per variant** (`src/app/(predlozi)/predlog-<x>/fonts.ts`), deliberately **not** in `src/app/fonts.ts`. The root layout loads that module for every route, so a face declared there would ship its `@font-face` CSS and preload hints to the live pages. `next/font` also attaches preloads at **module** granularity, so one shared module made every `/predlog-*` route preload 26 woff2 files; split, it is 18 / 8 / 8, with the live homepage unchanged at 4 (D-3.05a-3).
+- **Cyrillic verified per face from the font's own `cmap`**, not from the Google subset declaration (D-3.05a-2): all 62 Macedonian letters (incl. Ѓ ѓ Ѕ ѕ Ј ј Љ љ Њ њ Ќ ќ Џ џ) in the cyrillic subset, digits and „ “ ” — – · ( ) / . , : % in the latin subset.
+- No `brand.md` token, no `globals.css` change, no schema change, no new env var. Variant tokens live in three route-scoped stylesheets (`predlog-<x>/<x>.css`) under `.pv-a` / `.pv-b` / `.pv-c` (D-3.05a-4).
+- `npm run build` (120 pages — 117 + the three exploration routes) and `npm run lint` exit 0 on this stack. ⚠️ The build fails intermittently on a **random** season page from a Sanity CDN connect-timeout; pre-existing and unrelated to this phase — see D-3.05a-9.
