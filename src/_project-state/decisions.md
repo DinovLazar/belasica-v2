@@ -1553,7 +1553,8 @@
 - **Decision:** Remove `src/app/(predlozi)/` entirely — all three pages, their per-variant `fonts.ts`, their scoped stylesheets and their components, plus `_shared/{home.ts,copy.ts,Reveal.tsx}` and the group layout.
 - **Alternatives considered:** Keeping А and Б `noindex` for reference — rejected by the owner; they would also have kept five typefaces in the build for pages nothing links to. Keeping В as a staging copy — rejected: two copies of one design drift.
 - **Consequences:** The build drops from 120 to **117** pages. The three directions survive in git history and, as intent + token deltas, in `docs/design-handovers/Part-3-Phase-05a-Directions.md`, which is **kept**. Five typefaces (Playfair Display, PT Serif, PT Sans Narrow, Cormorant Garamond, Commissioner) leave the project; Oswald + Golos Text are promoted to `src/app/fonts.ts`.
-- **Links:** D-3.05a-3; `docs/design-handovers/Part-3-Phase-05a-Directions.md`.
+- **Merge note (main ← this branch):** `D-crest-2` landed on `main` while this phase was in flight and reworded the same crest comment in three files. Two of them (`SiteHeader.tsx`, `(site)/page.tsx`) were rewritten by this phase, so its **correction was carried into the new text** — the white tile stays because the crest's left half is white, not because the artwork has a white ground. The third (`predlog-c/TerraceHeader.tsx`) went away with the group; the delete wins.
+- **Links:** D-3.05a-3; D-crest-2; `docs/design-handovers/Part-3-Phase-05a-Directions.md`.
 
 ### D-3.05-10 · 2026-07-30 · Radius tokens kept at `0` rather than deleted
 - **Status:** Accepted

@@ -24,7 +24,7 @@ Phase 3.05a built three homepages and made no recommendation. Lazar picked **В*
 
 | Check | Result |
 |---|---|
-| `npm run build` | **clean, 117 pages** (96 seasons + 88 people SSG) |
+| `npm run build` | **clean** — **96 season pages + 88 person pages + 8 static routes**, all prerendered. (Next's „Generating static pages (N/N)" line counts only what that pass generated, so it varies with cache reuse — 117 on one run, 198 on another; the route table is the stable number.) |
 | `npm run lint` | **clean, 0 problems** |
 | `npx tsc --noEmit` | **clean** |
 | Impeccable mechanical detector | **`[]`** over `globals.css` + all routes + all components |
@@ -55,7 +55,7 @@ Phase 3.05a built three homepages and made no recommendation. Lazar picked **В*
 
 ### Known / carried forward
 - ⚠️ **Not introduced here, reproduced again:** `npm run build` fails intermittently on a **random** season page from a Sanity CDN connect-timeout (D-3.05a-9). It hit `/arhiva/1963-64` on one run; the immediate retry was clean at 117/117, which is the discriminator — the flake picks a different season each time. The season template still has no catch around its read, so one failed fetch among 96 can fail a Vercel deploy. **Worth a small hardening pass.**
-- ⚠️ **`public/crest.png` changed on disk during this session** (1,253,968 → 972,185 bytes) and is **not** part of this commit. Nothing in this phase writes it and it was clean at session start; most likely another session in this shared checkout re-optimised it. Left modified in the working tree for its author to handle — neither committed nor reverted.
+- **`main` merged in before shipping.** `D-crest-2` — the transparent `crest.png` (1,253,968 → 972,185 bytes) — landed on `main` mid-phase; that is the file that had appeared in the working tree. It is **included in this branch now**. Four conflicts, all resolved deliberately: `predlog-c/TerraceHeader.tsx` **stays deleted** (D-3.05-9 removed the group, so D-crest-2's edit to it is moot); `SiteHeader.tsx` and `(site)/page.tsx` keep the 3.05 rewrites **with D-crest-2's correction carried into the new comments** — the white tile stays because the crest's *left half* is white, not because the artwork has a white ground; `decisions.md` keeps both appends (D-crest-2 then D-3.05-1…-10). The white tiles are unchanged, which is what D-crest-2 intended.
 - The `.js` hydration warning in dev is pre-existing (the pre-paint reveal gate, D-1.05-5), unchanged by this phase.
 
 ## 3 · Decisions logged

@@ -188,7 +188,12 @@ export default async function Home() {
 
         <Container>
           {/* Badge + wordmark as one bottom-aligned lockup along the
-              photograph's lower edge. */}
+              photograph's lower edge. The block is WHITE, not paper: the
+              crest's left half is white, so it needs a light backdrop, and a
+              cream panel would make it read as a white card inside a cream
+              one. The tile stays even though the PNG's background is now
+              transparent (D-crest-2). Decorative — the <h1> beside it carries
+              the accessible name. */}
           <div className="flex flex-wrap items-end gap-5 lg:gap-8">
             <div className="relative z-10 -mt-13 flex-none bg-white md:-mt-17 lg:-mt-19">
               <div className="h-1.5 w-full bg-orange" />

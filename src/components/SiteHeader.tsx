@@ -39,8 +39,10 @@ export function SiteHeader() {
 
       <Container className="flex items-center justify-between gap-4 py-3">
         <Link href="/" className={cn("flex items-center gap-3", focusOnNavy)}>
-          {/* The crest sits on white because its artwork has its own white
-              ground. Decorative — the wordmark carries the accessible name. */}
+          {/* The crest sits on white because its artwork's left half is white,
+              so it needs a light backdrop to read on the navy bar — the tile
+              stays even though the PNG's background is now transparent
+              (D-crest-2). Decorative: the wordmark carries the accessible name. */}
           <span className="flex shrink-0 items-center bg-white p-1">
             <Image
               src="/crest.png"
