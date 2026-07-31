@@ -1675,3 +1675,83 @@
 - **Alternatives considered:** *Drop `unoptimized` now that the quota is back* — rejected: it would 400 on the SVG, and re-enabling an optimizer path is not this phase's scope. *Set `dangerouslyAllowSVG`* — rejected outright: it relaxes a real security boundary to buy nothing for a 31KB static asset.
 - **Consequences:** `/crest.svg` returns 200 `image/svg+xml`, is fetched once at 31,291 bytes, and produces **zero** `/_next/image` requests on either surface. The lightbox's own `next/image` **does** use the optimizer, which the same measurement shows is safe again. `public/crest-ui.webp` stays as the raster fallback and the `/crest.png` lineage's source; nothing references it after this phase. The rebuilt artwork is 916×1294 (ratio 0.7079 vs the old 0.7080), so the retained `width={400} height={565}` renders identically and `layout.tsx`'s Open Graph block stays correct and untouched.
 - **Links:** D-3.05-11; D-crest-1; D-crest-2; `src/components/SiteHeader.tsx`; `src/app/(site)/page.tsx`.
+
+### D-3.07-1 · 2026-07-31 · Route slug `/pravni-informacii`, Latin-transliterated like every other route
+- **Status:** Accepted
+- **Context:** The legal page needed a URL. Every existing route is a Latin transliteration of its Macedonian label (`/za-nas`, `/kontakt`, `/legendi`, `/statistika`, `/arhiva`) per D-0.00-4, and the page's own label is „Правни информации".
+- **Decision:** `/pravni-informacii` — the transliteration of the label, consistent with the six existing routes. No trailing English fallback, no `/legal`.
+- **Alternatives considered:** *`/legal`* — rejected: the site is Macedonian-only (`lang="mk"`), and an English slug is the one URL a Macedonian reader could not guess. *`/pravni-informacii` under a `(legal)` route group* — rejected: a route group buys nothing for a single page and would move it out of `(site)`, costing it the header/footer chrome the brief requires.
+- **Consequences:** The URL is stable and guessable. If a privacy policy or cookie notice is ever added, it should sit as a sibling route on the same convention rather than as a section of this page.
+- **Links:** D-0.00-4; brief 3.07 task 1; `src/app/(site)/pravni-informacii/page.tsx`.
+
+### D-3.07-2 · 2026-07-31 · The legal link lives in the footer's bottom bar, not in the nav and not as a fourth column
+- **Status:** Accepted
+- **Context:** The page must be reachable from every page, but it is not a destination anyone browses to. The brief fixed the placement; this entry records the reasoning and what it costs.
+- **Decision:** „Правни информации" renders in the footer's **copyright bottom bar**, beside the © line, grouped with it in a flex row so the two read as one legal/administrative cluster. `src/lib/nav.ts` and `SiteHeader.tsx` are untouched and stay the single source for the six real destinations.
+- **Alternatives considered:** *A seventh `NAV_ITEMS` entry* — rejected: it would put a legal notice in the header at equal weight with „Архива" and „Легенди", and would also add it to the footer's „Навигација" column, which reuses the same array. *A fourth footer column* — rejected: the footer already runs `1.3fr + 3×1fr`, and a fifth track would either crush the brand block or wrap awkwardly at `md`. *Inside the „Контакт" column* — rejected: it is not a contact channel.
+- **Consequences:** The link is on every page in the `(site)` group (verified on `/`, `/arhiva/<slug>`, `/legendi/<slug>`, `/statistika`, `/za-nas`, `/kontakt` and the legal page itself) at `text-small` with the footer's own hover/focus treatment and a 144×35px hit area. Accepted downside: at 375 the bottom bar wraps to two rows — the identity line, then the link + ©. That is the intended wrap, not a defect.
+- **Links:** D-3.07-1; `src/components/SiteFooter.tsx`; brand.md §Components („Footer").
+
+### D-3.07-3 · 2026-07-31 · The rights posture is takedown-on-request, not a bare non-liability claim
+- **Status:** Accepted (owner-authored copy; recorded because it changes what the site promises)
+- **Context:** The archive publishes ~889 photographs, most of them third-party screenshots whose authors are unknown (`facts.md` §Content provenance; the P0.1 audit caveat). Until now the site made no public statement about that at all. The owner-supplied §Copy resolves it with an explicit, unconditional promise rather than a disclaimer.
+- **Decision:** Render §5 as written: copyright stays with its owners, the archive claims nothing, authors are credited where known, and any rights holder who asks gets the material removed „без одлагање и без прашања" — with the page stating that no legal process is needed. §7 limits liability but routes complaints to „контактирајте нè прво".
+- **Alternatives considered:** *A conventional „we are not liable" disclaimer alone* — rejected by the copy the owner supplied, and rightly: a non-liability claim does not help a rights holder who simply wants a photo taken down, and it reads as defensive on an archive that depends on goodwill. *Softening the promise to „ќе разгледаме"* — not considered available: §Copy is final and native-reviewed, and weakening it would be the executor overruling the owner.
+- **Consequences:** The archive is now publicly committed to unconditional takedown on request, and `info@belasicahistory.mk` is the channel that must actually be watched for it. This is an **operational** commitment, not just copy — it is listed as an owed item for Lazar. It also partly answers the standing OV-RIGHTS caveat by giving affected parties a stated route.
+- **Links:** OV-RIGHTS; `facts.md` §Content provenance; brief 3.07 §Copy §5/§7/§10.
+
+### D-3.07-4 · 2026-07-31 · The email link drops the text-link role's uppercase — and only that
+- **Status:** Accepted
+- **Context:** brand.md §Components specs the text link as „condensed caps with a 3px orange underline". Applied literally to `info@belasicahistory.mk`, the `u-link` role renders `INFO@BELASICAHISTORY.MK`.
+- **Decision:** Compose the link from the role's own anatomy — 3px orange underline, hover swaps the underline to the text colour, navy ink, `focusOnPaper` ring — but omit `text-transform: uppercase` and the condensed display face, keeping the address in body type at its true case. Measured: `17px`, `rgb(13,31,60)` on paper (14.95:1), `border-bottom 3px rgb(238,122,22)`, `text-transform: none`.
+- **Alternatives considered:** *Use `u-link` as-is* — rejected: an email address is a value to be copied, not a label to be styled; uppercasing it misrepresents the string and reads as shouting on a page about restraint. *A separate `u-link--plain` role class in `globals.css`* — rejected: one call site does not justify a new global role, and brand.md's role set is deliberately small.
+- **Consequences:** Two link treatments now exist on paper surfaces — the condensed-caps `u-link` for navigation-ish links and this lowercase variant for literal values. If a second literal-value link ever appears (a phone number, an external URL), promote this to a role class rather than copying the utility string a third time. The same composition is used on `/kontakt` at `text-body`.
+- **Links:** brand.md §Components („Buttons" → text link), §Color; `src/app/(site)/pravni-informacii/page.tsx`; `src/app/(site)/kontakt/page.tsx`.
+
+### D-3.07-5 · 2026-07-31 · `/kontakt`'s email chip was cleared too — PL-3 was open on two surfaces, not one
+- **Status:** Accepted (scope call by the executor)
+- **Context:** The brief's Task 5 names only the footer, but Task 6c instructs „Clear PL-3 (contact email)". The register records PL-3 as **„Open — VISIBLE on two surfaces"**: the footer *and* `/kontakt`'s „Директен контакт" block (D-2.07-4). Clearing only the footer would have left `/kontakt` rendering „[PLACEHOLDER: адреса за е-пошта]" directly above a footer, on the same page, showing the real address.
+- **Decision:** Replace the `/kontakt` chip with the same `mailto:` link, so PL-3 closes on both surfaces at once. The change is one element; the page's socials chip (PL-15) and Formspree chip (PL-14) are untouched, and no other part of `/kontakt` moved.
+- **Alternatives considered:** *Footer only, leave PL-3 half-open* — rejected: it satisfies Task 5's letter while breaking Task 6c and shipping a page that contradicts itself. *Clear the chip and also wire the Formspree endpoint* — rejected: the endpoint is unset configuration (PL-14 / OV-8) and genuinely out of scope; the form stays disabled.
+- **Consequences:** `/kontakt` now shows 2 chips in `<main>` (Formspree, socials) instead of 3, verified against the built HTML. `src/app/(site)/kontakt/page.tsx` appears in a diff the brief's „Outputs" section did not list — flagged in the completion report so the deviation is visible rather than silent.
+- **Links:** D-2.07-4; PL-3; PL-14; PL-15; OV-8.
+
+### D-3.07-6 · 2026-07-31 · The address is one constant in `src/lib/facts.ts`, not three string literals
+- **Status:** Accepted
+- **Context:** `info@belasicahistory.mk` now renders on three surfaces. `src/lib/facts.ts` already exists as the place VERIFIED `facts.md` strings live as code constants, and OV-6's resolution set the precedent that such a string „should end up in exactly one place".
+- **Decision:** Add `CONTACT_EMAIL` to `src/lib/facts.ts` with its verification source in the docblock; all three call sites import it and use it for both the `href` and the visible text, so the link target can never drift from the label.
+- **Alternatives considered:** *Hardcode it per component* — rejected: three copies of a fact that changes as a unit, and exactly the drift OV-6 was opened about. *Read it from `siteSettings` in Sanity* — rejected: it would make a static legal page fetch, and the CMS field carrying unverified copy is precisely the OV-6 trap.
+- **Consequences:** Changing the address is a one-line edit. A grep for `@` in `src/**/*.tsx` now returns no address literal at all — the only remaining email-shaped string in `src/` is `ime@example.com`, the contact form input's `placeholder` attribute (a typing hint on an IANA-reserved domain, not an archive address).
+- **Links:** OV-6; `src/lib/facts.ts`; `facts.md` §Contact & links.
+
+### D-3.07-7 · 2026-07-31 · The copy is a data array, so „verbatim" is machine-checkable
+- **Status:** Accepted
+- **Context:** The brief's hardest requirement is that ten sections match §Copy „character for character — verified by diffing the rendered text against this brief, not by eye". Ten hand-written JSX sections make that diff awkward and let per-section styling drift.
+- **Decision:** Hold the visible text in a `SECTIONS` array of `{id, heading, blocks}` with a three-case `Block` union (`p` / `ul` / `email`), rendered through one `LegalBlock` component in the same file. No new component file, no new token.
+- **Alternatives considered:** *Ten literal JSX sections* — rejected: it invites §7 to be styled unlike §4, which on a legal page invites the reader to weigh them differently. *Portable Text from Sanity* — rejected outright: this text must not be editable without a `facts.md` change, and a legal statement that can be silently edited in a CMS is the opposite of what the page is for.
+- **Consequences:** The rendered text was extracted from the built HTML and `diff`ed against a transcription of the brief: **41/41 copy lines identical, zero differences.** Adding a section is a data edit. Downside: the copy is not visible as JSX when skimming the render tree.
+- **Links:** brief 3.07 Definition of Done; `src/app/(site)/pravni-informacii/page.tsx`.
+
+### D-3.07-8 · 2026-07-31 · No `revalidate` on this route, breaking the D-1.05-4 house habit deliberately
+- **Status:** Accepted
+- **Context:** Every other route sets `export const revalidate = 60` „for consistency", including `/za-nas` and `/kontakt`, which read no Sanity content either.
+- **Decision:** Omit it. This page fetches nothing, so an ISR window is a value with no referent — it would suggest to the next reader that something here can change without a deploy, which for a legal statement is the wrong signal.
+- **Alternatives considered:** *Add `revalidate = 60` to match* — rejected: consistency with a value that does nothing is not consistency. *Also strip it from `/za-nas` and `/kontakt`* — rejected: out of scope, and both are expected to gain Sanity reads.
+- **Consequences:** The build reports `/pravni-informacii` as `○ (Static)` with an **empty** Revalidate column, unlike its neighbours' `1m` — visible confirmation in the build table that the page is a build-time constant.
+- **Links:** D-1.05-4; build output, Phase 3.07.
+
+### D-3.07-9 · 2026-07-31 · The two quote pairs render as „…“, the repo's existing convention
+- **Status:** Accepted
+- **Context:** §Copy contains two quoted phrases — „ФК Беласица" in §6 and „како што е" in §7. The opening glyph is unambiguously U+201E (the low-9 opener used in Macedonian), but the closing glyph could be read as either U+201C („…“, the Macedonian/German pair) or U+201D („…”, the English pair).
+- **Decision:** Render U+201C, giving „ФК Беласица“ and „како што е“. This is the pair Macedonian typography uses with a U+201E opener, and it matches the repo: `src/**/*.tsx` contains **4** instances of U+201C and **0** of U+201D.
+- **Alternatives considered:** *U+201D* — rejected: it would pair a Macedonian opener with an English closer and would be the only U+201D in the codebase. *A straight `"`* — rejected: it discards the typography the copy specifies.
+- **Consequences:** This is the single character-level judgement made against §Copy; everything else is a literal transcription. Flagged in the completion report so the owner can overrule it in one edit if the intent was U+201D.
+- **Links:** brief 3.07 §Copy §6/§7; D-3.07-7.
+
+### D-3.07-10 · 2026-07-31 · The snapshot was stale by one phase, not „several" — corrected against the tree, and 3.06a's missing paperwork recorded rather than invented
+- **Status:** Accepted
+- **Context:** The brief states `current-state.md` „still reads as if Phase 1.01 just closed" and `file-map.md` „stops around 2.04". Both are wrong: the snapshot was current through **3.05b-Code** and the file map through 3.05b. The real gap is that **3.06a** (merged to `main` as PR #35 + commits `bcd6196`/`2c94141`) filed **no completion report and logged no decisions** — `grep -c "D-3.06" decisions.md` returns **0**.
+- **Decision:** Sync the snapshot and the file map from the working tree rather than from the brief's description of them, and record 3.06a's shipped surface from its diff and commits. Do **not** author a completion report or back-fill `D-3.06a-*` decisions for another phase — 2.06 set the precedent of not writing into another phase's namespace, and inventing rationale for work this session did not do would put fiction in an append-only log.
+- **Alternatives considered:** *Rewrite the snapshot to the pre-3.02 state the brief describes* — rejected: it would destroy accurate history to match an inaccurate instruction. *Back-fill `D-3.06a-*` from the diff* — rejected: the diff shows *what* changed, never *why*, and a decision entry without its real rationale is an assertion.
+- **Consequences:** 3.06a's decisions and completion report remain permanently missing — the **fourth** occurrence of a brief written against repo state that does not match the repo (cf. D-2.03-1, D-2.04-2, D-2.06-1). Carried into the snapshot's Known issues so it is not rediscovered a fifth time.
+- **Links:** D-2.03-1; D-2.04-2; D-2.06-1; commits `b637b5e`, `bcd6196`, `2c94141`.
