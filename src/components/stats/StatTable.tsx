@@ -128,8 +128,13 @@ export function StatTable({
       tabIndex={0}
       role="region"
       aria-label={scrollLabel}
+      // `relative` clips the `sr-only` column labels, which are
+      // `position: absolute` and would otherwise take their containing block
+      // from the initial one, escape this scroll region and stretch the
+      // document's own scrollable width — measured as 279px of horizontal page
+      // scroll on /statistika at 375px, an SC 1.4.10 failure (D-3.09-6).
       className={cn(
-        "overflow-x-auto border border-mist",
+        "relative overflow-x-auto border border-mist",
         focusOnPaper,
       )}
     >

@@ -1,37 +1,6 @@
-import Image from "next/image";
 import type { SanityImageSource } from "@sanity/image-url";
-import { urlFor } from "@/sanity/image";
-import { cn } from "@/lib/utils";
-import { PlaceholderChip } from "./PlaceholderChip";
-
-// Fixed-ratio frames per brand.md §Photo treatment. Static class strings so
-// Tailwind keeps them in the build (no dynamic `aspect-[…]`).
-const RATIO: Record<"16/9" | "3/2" | "4/5", string> = {
-  "16/9": "aspect-[16/9]",
-  "3/2": "aspect-[3/2]",
-  "4/5": "aspect-[4/5]",
-};
-
-/**
- * CSS object-position for the cover crop. When an editor has set a focal point
- * in Studio (the image field has `hotspot: true`), honour it. Otherwise bias
- * the crop toward the top — in archive portraits and team photos the faces sit
- * high, so the default center crop slices heads off and leaves torsos/legs.
- */
-function focalPosition(image?: SanityImageSource | null): string {
-  const hotspot =
-    image && typeof image === "object" && "hotspot" in image
-      ? (image as { hotspot?: { x?: number; y?: number } }).hotspot
-      : undefined;
-  if (
-    hotspot &&
-    typeof hotspot.x === "number" &&
-    typeof hotspot.y === "number"
-  ) {
-    return `${(hotspot.x * 100).toFixed(2)}% ${(hotspot.y * 100).toFixed(2)}%`;
-  }
-  return "50% 20%";
-}
+import { framedImage } from "@/sanity/frame";
+import { PhotoFrameView } from "./PhotoFrameView";
 
 /**
  * Photo frame — brand.md §Photo treatment. `fit` picks BOTH the crop and the
@@ -53,6 +22,12 @@ function focalPosition(image?: SanityImageSource | null): string {
  *
  * When no image is present the frame holds a placeholder chip on the matching
  * surface — the graceful empty state (no fabricated content).
+ *
+ * **Server only.** Since 3.09 this is the Sanity-aware half of the frame: it
+ * resolves the asset to a CDN URL and a focal point and hands both to
+ * `PhotoFrameView`, which owns the markup. A **client** component must import
+ * `PhotoFrameView` directly and receive an already-resolved `FramedImage`,
+ * or `@sanity/image-url` follows it into the browser bundle (D-3.09-1).
  */
 export function PhotoFrame({
   image,
@@ -80,39 +55,17 @@ export function PhotoFrame({
    *  `fit="contain"` — a contained image is never cropped. */
   objectPosition?: string;
 }) {
-  const contain = fit === "contain";
-
   return (
-    <div
-      className={cn(
-        "relative w-full overflow-hidden",
-        contain ? "border border-mist bg-mist" : "bg-navy",
-        ratio ? RATIO[ratio] : "h-full",
-        className,
-      )}
-    >
-      {image ? (
-        <Image
-          src={urlFor(image).width(width).auto("format").url()}
-          alt={alt}
-          fill
-          sizes={sizes}
-          priority={priority}
-          // `priority` marks the LCP candidate but Next 15.5 does not
-          // priority-hint the request by itself; the explicit prop does.
-          fetchPriority={priority ? "high" : undefined}
-          className={contain ? "object-contain" : "object-cover"}
-          style={
-            contain
-              ? undefined
-              : { objectPosition: objectPosition ?? focalPosition(image) }
-          }
-        />
-      ) : (
-        <span className="absolute inset-0 flex items-center justify-center p-4 text-center">
-          <PlaceholderChip label={placeholderLabel} onNavy={!contain} />
-        </span>
-      )}
-    </div>
+    <PhotoFrameView
+      image={framedImage(image, width)}
+      alt={alt}
+      ratio={ratio}
+      fit={fit}
+      sizes={sizes}
+      priority={priority}
+      placeholderLabel={placeholderLabel}
+      className={className}
+      objectPosition={objectPosition}
+    />
   );
 }

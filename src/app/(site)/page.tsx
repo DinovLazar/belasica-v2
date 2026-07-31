@@ -1,7 +1,7 @@
-import Image from "next/image";
 import Link from "next/link";
 import type { SanityImageSource } from "@sanity/image-url";
 import { fetchOrThrow } from "@/sanity/fetch";
+import { framedImage } from "@/sanity/frame";
 import { Container } from "@/components/Container";
 import {
   ClubRecords,
@@ -233,13 +233,19 @@ export default async function Home() {
                     pennant point were visible. `/crest.png` stays the canonical
                     asset for the Open Graph card and the favicon lineage, at
                     its unchanged 864×1220. */}
-                <Image
+                {/* A plain <img> rather than next/image, and no `loading`
+                    attribute — see the note in `SiteHeader`. The crest is
+                    `unoptimized`, so next/image was only adding a preload that
+                    competed with this page's real LCP element, the hero
+                    photograph, which is the one image on the template carrying
+                    the priority hint (D-3.09-2). */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
                   src="/crest.svg"
                   alt=""
                   width={864}
                   height={1233}
-                  priority
-                  unoptimized
+                  decoding="async"
                   className="h-24 w-auto md:h-32 lg:h-40"
                 />
               </div>
@@ -344,7 +350,13 @@ export default async function Home() {
               {legends.map((person, i) => (
                 <LegendCard
                   key={person.slug}
-                  person={person}
+                  // Resolved here, on the server — `LegendCard` no longer holds
+                  // a raw Sanity asset (D-3.09-1). 640px is the widest this
+                  // 5-up track ever renders a portrait.
+                  person={{
+                    ...person,
+                    portrait: framedImage(person.portrait, 640),
+                  }}
                   delayIndex={i % 5}
                   onNavy
                   // Matches THIS grid's tracks (2 → sm:3 → lg:5), not the

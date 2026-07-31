@@ -33,15 +33,28 @@ export type SeasonCardData = {
 export function SeasonCard({
   season,
   delayIndex = 0,
+  priority = false,
 }: {
   season: SeasonCardData;
   delayIndex?: number;
+  /** Set on the FIRST card of the first decade only. Lighthouse's trace named
+   *  that card's photograph as /arhiva's LCP element while it carried no
+   *  priority hint at all, so the page's largest paint was competing with 95
+   *  lazy siblings and the header crest's preload (D-3.09-2). */
+  priority?: boolean;
 }) {
   return (
     // `u-card` is `height: 100%`, which only resolves if every wrapper between
     // it and the grid track is full-height too — see the note on `LegendCard`.
     <li className="h-full">
-      <Reveal delayIndex={delayIndex} className="h-full">
+      {/* A priority card is by definition in the first viewport, so it opts out
+          of the reveal as well as the lazy queue — otherwise the LCP element
+          waits for the observer before it paints (D-3.09-3). */}
+      <Reveal
+        delayIndex={delayIndex}
+        immediate={priority}
+        className="h-full"
+      >
         <Link
           href={`/arhiva/${season.slug}`}
           className={`u-card u-card--light ${focusOnPaper}`}
@@ -52,6 +65,7 @@ export function SeasonCard({
             ratio="3/2"
             sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"
             width={800}
+            priority={priority}
             placeholderLabel="фотографија од сезоната"
           />
           <div className="p-4">

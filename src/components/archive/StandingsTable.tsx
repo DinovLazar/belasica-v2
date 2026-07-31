@@ -9,6 +9,7 @@
 // table. Delete it together with the field when the model re-locks after 3.06.
 import { cn } from "@/lib/utils";
 import { isBelasicaRow, statCell } from "@/lib/archive";
+import { focusOnPaper } from "@/lib/focus";
 
 export type StandingsRow = {
   position: number | null;
@@ -79,7 +80,18 @@ export function StandingsTable({
       tabIndex={0}
       role="region"
       aria-label="Конечна табела — скролувај хоризонтално"
-      className="overflow-x-auto border border-mist focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+      // `relative` is load-bearing, not cosmetic (3.09): the `sr-only` column
+      // labels inside are `position: absolute`, and against a `static` scroll
+      // container their containing block is the initial one — so they escape
+      // the `overflow-x` clip and stretch the DOCUMENT's scrollable width.
+      // Measured on /statistika at 375px: the page itself scrolled 279px
+      // sideways, an SC 1.4.10 failure, traced to one `sr-only` span sitting at
+      // x=654. Making the region a containing block clips them (D-3.09-6).
+      //
+      // The ring is now the project's `.u-focus` outline. This was the last
+      // `focus-visible:outline-none` + `ring-*` (box-shadow) pair on the site —
+      // the exact shape D-3.05-4 removed everywhere else.
+      className={cn("relative overflow-x-auto border border-mist", focusOnPaper)}
     >
       <table className="w-full min-w-[560px] text-small">
         <caption className="sr-only">Конечна табела за {seasonTitle}</caption>

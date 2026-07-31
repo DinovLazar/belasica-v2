@@ -34,9 +34,18 @@ export function Breadcrumb({
           return (
             <li key={i} className="flex items-center gap-x-2">
               {i > 0 && (
+                // `paper/60`, not `paper/40` (3.09). Measured against the navy
+                // block's real composite, /40 is **3.48:1** — under AA even
+                // though the glyph is `aria-hidden`, because it is still text a
+                // sighted reader uses to parse the trail. /60 measures
+                // **6.14:1** and stays a step quieter than the crumbs
+                // themselves at 9.93:1, so the hierarchy is unchanged
+                // (D-3.09-7). `text-neutral-500` replaces `text-mist` on the
+                // paper variant for the same reason: mist is a 1.2:1 hairline
+                // colour meant for borders, not for a glyph.
                 <span
                   aria-hidden
-                  className={onNavy ? "text-paper/40" : "text-mist"}
+                  className={onNavy ? "text-paper/60" : "text-neutral-500"}
                 >
                   /
                 </span>
