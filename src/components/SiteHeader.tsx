@@ -39,10 +39,12 @@ export function SiteHeader() {
 
       <Container className="flex items-center justify-between gap-4 py-3">
         <Link href="/" className={cn("flex items-center gap-3", focusOnNavy)}>
-          {/* The crest sits on white because its artwork's left half is white,
-              so it needs a light backdrop to read on the navy bar — the tile
-              stays even though the artwork's background is transparent
-              (D-crest-2). Decorative: the wordmark carries the accessible name.
+          {/* No tile. D-crest-2 put the crest on a white square because its
+              left half is white and was assumed to need a light backdrop; on
+              the navy bar that white half is simply the artwork, at 14.9:1,
+              and the square read as a sticker around the badge. Owner asked
+              for the crest alone (3.06a). Decorative: the wordmark carries the
+              accessible name.
 
               `/crest.svg` — the traced, repaired vector master (3.05b). It is
               the same artwork as the raster lineage, not a new crest: the
@@ -58,20 +60,24 @@ export function SiteHeader() {
               account's optimizer has since recovered — measured at 3.05b — but
               nothing here needs it.)
 
-              `width`/`height` are unchanged at 400×565: the rebuilt artwork is
-              916×1294, an aspect ratio of 0.7079 against the old 0.7080, so
-              `h-*` + `w-auto` renders identically. */}
-          <span className="flex shrink-0 items-center bg-white p-1">
-            <Image
-              src="/crest.svg"
-              alt=""
-              width={400}
-              height={565}
-              priority
-              unoptimized
-              className="h-10 w-auto"
-            />
-          </span>
+              `width`/`height` track the file: the viewBox is now cropped to
+              the artwork's own bounds (864×1233), so there is no transparent
+              margin left to trim in CSS.
+
+              h-12, not h-10: the tile was 40px of crest plus 4px of padding
+              top and bottom. Dropping the padding and growing the crest to
+              48px keeps this row — and therefore `--spacing-header` at 78px —
+              byte-identical, so every `scroll-mt-header` anchor still lands
+              flush. */}
+          <Image
+            src="/crest.svg"
+            alt=""
+            width={864}
+            height={1233}
+            priority
+            unoptimized
+            className="h-12 w-auto shrink-0"
+          />
           <span className="u-h3 text-paper">ФК Беласица</span>
         </Link>
 
@@ -112,7 +118,9 @@ export function SiteHeader() {
             focusOnNavy,
           )}
         >
-          <span className="sr-only">{open ? "Затвори мени" : "Отвори мени"}</span>
+          <span className="sr-only">
+            {open ? "Затвори мени" : "Отвори мени"}
+          </span>
           {open ? (
             <X className="size-6" aria-hidden />
           ) : (
