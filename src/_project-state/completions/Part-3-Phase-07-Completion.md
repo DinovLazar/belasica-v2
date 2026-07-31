@@ -59,6 +59,27 @@ Preview gate verified before requesting merge (not waived): all of `/`, `/pravni
 4. **`/kontakt` → „Директен контакт"** now shows the real address instead of a dashed placeholder box. Confirm `info@belasicahistory.mk` is correct and that clicking it opens your mail app.
 5. **The heading „Последно ажурирање: 16 август 2026"** renders in small tracked capitals under the title. Confirm that date is the one you want published.
 
+### Impeccable audit (CLAUDE.md UI-phase requirement)
+
+⚠️ **Ordering deviation, stated plainly:** CLAUDE.md says run the audit *before* filing the report; it ran immediately *after*, in the same phase and the same unmerged PR. It found nothing requiring a fix, so no finding was suppressed by the ordering — but the ordering was wrong and is recorded rather than hidden.
+
+**Mechanical detector:** `detect.mjs --json` over the legal page, `SiteFooter.tsx` and `kontakt/page.tsx` → **`[]`** (zero findings).
+
+| # | Dimension | Score | Key finding |
+|---|---|---|---|
+| 1 | Accessibility | 4 | One `<h1>`, heading order `1,2,2,…` with **no skips**, **10/10** sections `aria-labelledby`, `lang="mk"`, contrast 9.90–14.95:1, focus rings measured 3px navy / 3px orange |
+| 2 | Performance | 4 | Static route, **759 B** page JS, no images, no client component; the only JS is the shared reveal observer |
+| 3 | Theming | 4 | **0** hard-coded hex values; every colour, size and space is a `brand.md` token |
+| 4 | Responsive | 4 | **0px** overflow at 375/1280/1408, no element exceeds the viewport, measure holds at 615px; smallest new tap target 144×35 |
+| 5 | Implementation integrity | 4 | Detector `[]`; no new component, no new token; copy 41/41 `diff`-identical |
+| **Total** | | **20/20** | Excellent |
+
+**Two candidate findings, both verified as false positives:**
+- *„Прескокни на содржина" measures 1×1 and never expands on focus* — **not a defect.** The in-app pane's document never receives OS focus, so `element.matches(':focus')` is `false` even when it **is** `document.activeElement`, and no `focus:` utility applies. Proven by probe: removing `sr-only` yields **1280×24, `clip-path: none`**, so `focus:not-sr-only` is sound. (Pre-existing, site-wide, untouched by this phase.)
+- *A global `prefers-reduced-motion` kill at `0.01ms`* — the audit reference flags blanket motion kills, but this is **mandated by `brand.md` §Motion** („all transitions/animations disabled … focus rings and state colours remain") and is pre-existing and site-wide. Brief-wins: not changed here. Noted as informational only.
+
+**P0: 0 · P1: 0 · P2: 0 · P3: 0.** No fixes were required, so no follow-up command is recommended.
+
 ## 3. Decisions I made during this phase
 
 All ten are logged as **D-3.07-1 … D-3.07-10** in `decisions.md`. The ones that go beyond what the brief specified:
