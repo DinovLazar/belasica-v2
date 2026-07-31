@@ -9,6 +9,7 @@ Verification source format: (who, where, date).
 - Club name as written on the site: **FK Belasica** — VERIFIED (owner, intake, 2026-07-14)
 - Cyrillic rendering for on-page use: **ФК Беласица** — VERIFIED (owner, chat, 2026-07-15). Resolves OV-2; this is the exact on-page wordmark rendered site-wide (header, footer, hero).
 - Site self-description: **unofficial archive** (неофицијална архива) — role + wording VERIFIED (Ace, sit-down via Lazar, 2026-07-16). Resolves OV-3. Confirmed footer wording (exact, as rendered): label „неофицијална архива"; line „Ова е неофицијална архива посветена на ФК Беласица. Не е официјалната страница на клубот." Ace confirmed this current wording as correct — no change.
+- Legal-page publication date (the „Последно ажурирање" line on `/pravni-informacii`): **16 август 2026** — VERIFIED (owner, chat, 2026-07-31). Rendered verbatim as supplied; it is the date the owner assigned to the legal text, not a computed or build-time value.
 - Club founding year: UNVERIFIED — pull from Drive material, confirm with Ace
 - The site never mentions Ace's book — VERIFIED standing rule (owner, intake, 2026-07-14)
 
@@ -19,9 +20,9 @@ Verification source format: (who, where, date).
 
 ## Contact & links
 
-- Contact email (form destination): UNVERIFIED — deferred to 3.03
+- Contact email: **info@belasicahistory.mk** — VERIFIED (owner, chat, 2026-07-31). Renders as a `mailto:` on three surfaces (footer „Контакт" column, `/kontakt` direct-contact block, `/pravni-informacii` §10) from the single constant `CONTACT_EMAIL` in `src/lib/facts.ts`. Clears PL-3 and the email half of PL-9. *(Prior status: UNVERIFIED — deferred to 3.03.)* ⚠️ Not yet confirmed as the **form destination** — the Formspree endpoint (PL-14) is still unset and is a separate config step.
 - Social profiles to link: UNVERIFIED — none supplied at intake; confirm whether any exist/should be linked
-- Domain: UNVERIFIED — purchased at Phase 3.04
+- Domain: **www.belasicahistory.mk** — VERIFIED (owner, chat, 2026-07-31). Rendered as plain text in §1 of `/pravni-informacii`. ⚠️ **Recorded only — the cutover has NOT happened.** `metadataBase`, `robots.ts` and `sitemap.ts` all still hardcode `https://belasica-v2.vercel.app`; moving them is its own phase (3.07 scope explicitly excluded it). *(Prior status: UNVERIFIED — purchased at Phase 3.04.)*
 
 ## Social proof
 

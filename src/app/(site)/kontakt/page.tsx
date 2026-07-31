@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
+import { cn } from "@/lib/utils";
 import { Container } from "@/components/Container";
 import { PageHeader } from "@/components/PageHeader";
 import { ContactForm } from "@/components/contact/ContactForm";
 import { PlaceholderChip } from "@/components/home/PlaceholderChip";
 import { Reveal } from "@/components/home/Reveal";
+import { focusOnPaper } from "@/lib/focus";
+import { CONTACT_EMAIL } from "@/lib/facts";
 
 // Match the other Part-2 routes (D-1.05-4) for consistency, even though this
 // page reads no Sanity content — the value is harmless here and keeps the
@@ -25,10 +28,12 @@ export const metadata: Metadata = {
  * form action, not a secret — safe in a public repo, D-2.07-2); while it is
  * unset the form renders visibly disabled with a placeholder (D-2.07-3).
  * **Since 3.03b the endpoint is set** in `.env.local` and on Vercel (Prod +
- * Preview), so the live form is what renders (D-3.03b-1) — the banner now says
- * only the *direct* contacts are still coming, since PL-3 (email) and PL-15
- * (socials) remain open. No hero: nothing in the locked model sources one
- * (cf. D-2.06-4).
+ * Preview), so the live form is what renders (D-3.03b-1). 3.03b and 3.07 landed
+ * within hours of each other and between them left **PL-15 (socials) as the only
+ * open placeholder on this page** — 3.03b cleared PL-14, 3.07 cleared PL-3 — so
+ * the banner names the socials specifically rather than „the direct contacts",
+ * which stopped being true when the email went live (D-3.03b-2, D-3.07-5). No
+ * hero: nothing in the locked model sources one (cf. D-2.06-4).
  */
 export default function ContactPage() {
   const endpoint = process.env.NEXT_PUBLIC_FORMSPREE_ENDPOINT;
@@ -55,8 +60,8 @@ export default function ContactPage() {
               </p>
               <p className="mt-2 text-small text-neutral-700">
                 Оваа страница сѐ уште се доработува и може да се промени.
-                Формуларот е активен; директните контакти допрва се
-                поставуваат.
+                Формуларот и е-поштата се активни; профилите на социјалните
+                мрежи допрва се поставуваат.
               </p>
             </div>
           </Reveal>
@@ -70,10 +75,7 @@ export default function ContactPage() {
                 aria-labelledby="form-heading"
                 className="md:pr-12 lg:pr-16"
               >
-                <h2
-                  id="form-heading"
-                  className="u-h3 text-navy"
-                >
+                <h2 id="form-heading" className="u-h3 text-navy">
                   Испратете порака
                 </h2>
                 <div className="mt-6">
@@ -87,22 +89,30 @@ export default function ContactPage() {
                 aria-labelledby="direct-heading"
                 className="border-t border-mist pt-10 md:border-l md:border-t-0 md:pl-12 md:pt-0 lg:pl-16"
               >
-                <h2
-                  id="direct-heading"
-                  className="u-h3 text-navy"
-                >
+                <h2 id="direct-heading" className="u-h3 text-navy">
                   Директен контакт
                 </h2>
 
-                {/* Email (PL-3). No email exists in facts.md, so this is a
-                    placeholder chip — never a `mailto:` with an invented or
-                    borrowed address (brief task 6). */}
+                {/* Email (PL-3). VERIFIED in `facts.md` on 2026-07-31, so the
+                    chip that stood here since 2.07 is now the real address
+                    (D-3.07-5). PL-3 was open on **two** surfaces — this page
+                    and the footer — and clearing only the footer would have
+                    left „Директен контакт" telling a reader there is no email
+                    while the footer of the same page shows one. */}
                 <div className="mt-6">
                   <p className="text-overline font-bold uppercase tracking-overline text-neutral-700">
                     Е-пошта
                   </p>
                   <p className="mt-2">
-                    <PlaceholderChip label="адреса за е-пошта" />
+                    <a
+                      href={`mailto:${CONTACT_EMAIL}`}
+                      className={cn(
+                        "inline-block border-b-[3px] border-orange pb-1 text-body font-bold text-navy transition-colors hover:border-navy",
+                        focusOnPaper,
+                      )}
+                    >
+                      {CONTACT_EMAIL}
+                    </a>
                   </p>
                 </div>
 

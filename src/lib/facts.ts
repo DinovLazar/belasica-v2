@@ -31,3 +31,17 @@ export const UNOFFICIAL_ARCHIVE_LABEL = "неофицијална архива";
 
 export const UNOFFICIAL_ARCHIVE_STATEMENT =
   "Ова е неофицијална архива посветена на ФК Беласица. Не е официјалната страница на клубот.";
+
+/**
+ * **VERIFIED** (owner, chat, 2026-07-31) — `facts.md` §Contact & links.
+ *
+ * The archive's one contact address, and the address §10 of
+ * `/pravni-informacii` promises a takedown request will reach. It lives here
+ * rather than in three components because it now renders on three surfaces —
+ * the footer's „Контакт" column, `/kontakt`'s direct-contact block and the
+ * legal page — and three hardcoded copies would drift the day it changes.
+ *
+ * Clears the email half of PL-3 / PL-9; until 2026-07-31 every one of those
+ * surfaces rendered a `PlaceholderChip` instead (D-2.07-4).
+ */
+export const CONTACT_EMAIL = "info@belasicahistory.mk";
