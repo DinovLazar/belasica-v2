@@ -11,6 +11,14 @@ const nextConfig: NextConfig = {
     staticGenerationRetryCount: 2,
   },
   images: {
+    // AVIF first, WebP second (3.09). This is a FORMAT change, not a quality
+    // one: `quality` stays at next/image's default 75 on every photograph, and
+    // D-3.04d-5 — archive photograph quality is never reduced to buy simulator
+    // points — is untouched. It is the only lever left on the two routes whose
+    // LCP is bytes rather than render delay (home, season detail), where the
+    // trace showed `resourceLoadDuration` dominating the breakdown. Browsers
+    // without AVIF fall through to WebP and then to the original (D-3.09-4).
+    formats: ["image/avif", "image/webp"],
     // Allow next/image to render Sanity assets (used by the content pages, 1.05+).
     remotePatterns: [
       {

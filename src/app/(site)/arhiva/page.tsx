@@ -123,7 +123,7 @@ export default async function ArchivePage() {
         <>
           <DecadeJumpNav decades={decades.map((d) => d.decade)} />
 
-          {decades.map(({ decade, seasons }) => {
+          {decades.map(({ decade, seasons }, decadeIndex) => {
             const headingId = `${decadeAnchor(decade)}-heading`;
             return (
               <section
@@ -149,6 +149,10 @@ export default async function ArchivePage() {
                         key={season.slug}
                         season={season}
                         delayIndex={i % 3}
+                        // The one priority image on this template: the first
+                        // card of the newest decade, which the Lighthouse
+                        // trace named as the LCP element (D-3.09-2).
+                        priority={decadeIndex === 0 && i === 0}
                       />
                     ))}
                   </ul>

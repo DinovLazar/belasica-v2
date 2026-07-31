@@ -25,7 +25,7 @@ export function SeasonAnchorNav({ anchors }: { anchors: SeasonAnchor[] }) {
     <nav aria-label="Скок низ сезоната" className="bg-navy-2">
       {/* Vertical rhythm is split container/link (py-1 + py-2) so each link is
           a ≥24px tap target (WCAG 2.5.8) without changing the rail's height. */}
-      <div className="mx-auto w-full max-w-page overflow-x-auto px-5 py-1 md:px-8">
+      <div className="relative mx-auto w-full max-w-page overflow-x-auto px-5 py-1 md:px-8">
         <ul className="flex min-w-max items-center gap-5">
           {anchors.map((anchor) => (
             <li key={anchor.id}>

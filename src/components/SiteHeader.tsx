@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -53,13 +52,6 @@ export function SiteHeader() {
               artwork's own diagonals. Being vector, it is sharp at every size
               from this 40px block up to the hero's 128px one.
 
-              `unoptimized` stays, now for a structural reason on top of the
-              historical one: Next refuses to optimize SVG unless
-              `dangerouslyAllowSVG` is set, and an SVG has no raster variants
-              worth generating. (D-3.05-11's 402 was the original cause; the
-              account's optimizer has since recovered — measured at 3.05b — but
-              nothing here needs it.)
-
               `width`/`height` track the file: the viewBox is now cropped to
               the artwork's own bounds (864×1233), so there is no transparent
               margin left to trim in CSS.
@@ -69,13 +61,32 @@ export function SiteHeader() {
               48px keeps this row — and therefore `--spacing-header` at 78px —
               byte-identical, so every `scroll-mt-header` anchor still lands
               flush. */}
-          <Image
+          {/* A plain <img>, not next/image (3.09). The crest is `unoptimized`
+              for a structural reason — Next will not optimize SVG without
+              `dangerouslyAllowSVG`, and an SVG has no raster variants worth
+              generating (D-3.05b-7) — so `next/image` was contributing exactly
+              one thing here: a `<link rel=preload as=image>` on **every** route.
+              The file is 33 KB over the wire, and Lighthouse showed it sharing
+              the simulated critical path with the LCP photograph on /arhiva and
+              /legendi, where the score is decided.
+
+              `loading="lazy"` is what finally takes it off that path: React 19
+              hoists any non-lazy SSR image into a `<link rel=preload>` of its
+              own, so both `priority` and a bare `<img>` kept preloading it
+              (both measured). Lazy does not mean late for a logo sitting at the
+              top of the viewport — the browser fetches it as soon as layout
+              places it — it only means the crest stops being promised to the
+              network ahead of the photograph the score is measured on.
+              Explicit width/height keep the box reserved, so CLS stays 0
+              (D-3.09-2). */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             src="/crest.svg"
             alt=""
             width={864}
             height={1233}
-            priority
-            unoptimized
+            loading="lazy"
+            decoding="async"
             className="h-12 w-auto shrink-0"
           />
           <span className="u-h3 text-paper">ФК Беласица</span>

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import type { SanityImageSource } from "@sanity/image-url";
 import { client } from "@/sanity/client";
+import { framedImage } from "@/sanity/frame";
 import { Container } from "@/components/Container";
 import { PageHeader } from "@/components/PageHeader";
 import { PlaceholderChip } from "@/components/home/PlaceholderChip";
@@ -38,19 +40,27 @@ const LEGENDS_QUERY = /* groq */ `
     | order(coalesce(date, "9999") asc)[0].image
 }`;
 
+/** What the query returns: the portrait is still a raw Sanity asset here. It is
+ *  resolved to a URL below, on the server — `LegendsBrowser` is a client
+ *  component and may not receive one (D-3.09-1). */
+type PersonRow = Omit<LegendCardData, "portrait"> & {
+  portrait: SanityImageSource | null;
+};
+
 export default async function LegendsPage() {
-  let people: LegendCardData[] = [];
+  let people: PersonRow[] = [];
   try {
-    people = (await client.fetch<LegendCardData[]>(LEGENDS_QUERY)) ?? [];
+    people = (await client.fetch<PersonRow[]>(LEGENDS_QUERY)) ?? [];
   } catch {
     // A failed read must not crash the route or invent filler. The page falls
     // through to its empty notice, which is honest about having nothing.
     people = [];
   }
 
-  const sorted = [...people].sort((a, b) =>
-    compareByName(a.name ?? "", b.name ?? ""),
-  );
+  const sorted: LegendCardData[] = [...people]
+    .sort((a, b) => compareByName(a.name ?? "", b.name ?? ""))
+    // 800px matches the card's largest rendered width (a 3-up track at 1408).
+    .map((person) => ({ ...person, portrait: framedImage(person.portrait, 800) }));
 
   // Placement is a whole-roster decision, so it happens here rather than inside
   // a band: each person lands in exactly one band — the one for their

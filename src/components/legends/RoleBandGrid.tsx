@@ -24,10 +24,14 @@ export function RoleBandGrid({
   role,
   people,
   headingId,
+  leadsPage = false,
 }: {
   role: PersonRole;
   people: LegendCardData[];
   headingId: string;
+  /** Set on the first band that actually renders. Its first card holds the
+   *  page's LCP element and is treated accordingly (D-3.09-2/3). */
+  leadsPage?: boolean;
 }) {
   if (people.length === 0) return null;
 
@@ -50,7 +54,12 @@ export function RoleBandGrid({
 
       <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {people.map((person, i) => (
-          <LegendCard key={person.slug} person={person} delayIndex={i % 3} />
+          <LegendCard
+            key={person.slug}
+            person={person}
+            delayIndex={i % 3}
+            priority={leadsPage && i === 0}
+          />
         ))}
       </ul>
     </section>

@@ -26,7 +26,7 @@ export function DecadeJumpNav({ decades }: { decades: number[] }) {
           height — the /arhiva anchors' `scroll-mt-[calc(var(--spacing-header)
           +3.25rem)]` was derived from it, so any change to these paddings must
           keep the container+link vertical total at 12px per side. */}
-      <div className="mx-auto w-full max-w-page overflow-x-auto px-5 py-1 md:px-8">
+      <div className="relative mx-auto w-full max-w-page overflow-x-auto px-5 py-1 md:px-8">
         <ul className="flex min-w-max items-center gap-5">
           {decades.map((decade) => (
             <li key={decade}>
