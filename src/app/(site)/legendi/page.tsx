@@ -4,7 +4,7 @@ import { Container } from "@/components/Container";
 import { PageHeader } from "@/components/PageHeader";
 import { PlaceholderChip } from "@/components/home/PlaceholderChip";
 import type { LegendCardData } from "@/components/legends/LegendCard";
-import { RoleBandGrid } from "@/components/legends/RoleBandGrid";
+import { LegendsBrowser } from "@/components/legends/LegendsBrowser";
 import { compareByName, primaryRole, ROLE_PRIORITY } from "@/lib/people";
 
 // Match the archive (D-1.05-4): a person published in Studio appears within
@@ -87,16 +87,9 @@ export default async function LegendsPage() {
         </Container>
       ) : (
         <Container className="py-section">
-          <div className="flex flex-col gap-section">
-            {bands.map((band) => (
-              <RoleBandGrid
-                key={band.role}
-                role={band.role}
-                people={band.people}
-                headingId={`band-${band.role}`}
-              />
-            ))}
-          </div>
+          {/* Bands are built here (placement is a whole-roster decision); the
+              browser only adds the name filter over them, client-side. */}
+          <LegendsBrowser bands={bands} />
         </Container>
       )}
     </>
