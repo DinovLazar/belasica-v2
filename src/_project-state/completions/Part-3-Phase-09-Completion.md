@@ -59,12 +59,12 @@ Accessibility scored **100 on all nine routes before any change**. It found neit
 ## 2 · Results
 
 **Desktop: 100 on all nine routes** (baseline 97–100).
-**Mobile: seven of nine at ≥95** (baseline: four of nine).
+**Mobile: eight of nine at ≥95** (baseline: four of nine).
 **Accessibility 100 · CLS 0.000 · TBT ≤10 ms** on every route, both form factors.
 
 | Route | Mobile before → after | Desktop before → after |
 |---|---|---|
-| `/` | 94 → 94 | 100 → **100** |
+| `/` | 94 → **95** | 100 → **100** |
 | `/arhiva` | 86 → 94 **(+8)** | 97 → **100** |
 | `/arhiva/1982-83` | 94 → **95** | 100 → **100** |
 | `/arhiva/1931-32` | 98 → **98** | 100 → **100** |
@@ -74,11 +74,16 @@ Accessibility scored **100 on all nine routes before any change**. It found neit
 | `/za-nas` | 95 → **97** | 100 → **100** |
 | `/kontakt` | 98 → **98** | 100 → **100** |
 
-### The two routes still at 94 on mobile — an owner decision
+### The one route still at 94 on mobile — an owner decision
 
-`/` and `/arhiva` are **one point** short, and each reached 95 in one of three
-runs. On both, **LCP is the only failing audit**, all three LCP discovery checks
-pass, and the *observed* work sums to ~100 ms — the image side is finished.
+`/arhiva` is **one point** short and reached 95 in one of three runs. **LCP is
+the only failing audit**, all three LCP discovery checks pass, and the *observed*
+work sums to ~100 ms — the image side is finished.
+
+`/` was in this list until the phase's last change: the **hero** crest kept a
+React-hoisted preload after the header crest had lost one, which the deployed
+preview exposed. `loading="lazy"` there took the route to **95** (92/95/95).
+`/arhiva` has no equivalent element left to remove.
 
 The remaining lever is the **92 KB of preloaded fonts** on a 204 KB critical
 path. It was built and measured:
@@ -89,10 +94,11 @@ path. It was built and measured:
 | Golos unpreloaded | 95 | 94 | 805 / 1213 / 1214 ms — bimodal |
 | Neither preloaded | **98** | **95** | 760 / **1518** / **1512** ms — bimodal |
 
-**Reverted.** It doubles and destabilises the homepage's first paint — the same
-trade D-3.04d-5 refuses for photographs, applied to type. Dropping the `latin`
-subset (58 KB of the 92) was also rejected: **digits live in the Latin range**,
-and this archive is full of them. **Escalated to Lazar below.** (D-3.09-8)
+**Reverted** — and it is now the only thing between `/arhiva` and the gate. It
+doubles and destabilises the homepage's first paint, the same trade D-3.04d-5
+refuses for photographs, applied to type. Dropping the `latin` subset (58 KB of
+the 92) was also rejected: **digits live in the Latin range**, and this archive
+is full of them. **Escalated to Lazar below.** (D-3.09-8)
 
 ---
 
@@ -209,7 +215,7 @@ step, and an image priority flag.
 ### Blocking before launch
 
 1. **Re-measure `/`, `/arhiva`, `/legendi` on the preview from a clean, wired connection.** §3 — two routes are 7 points below their local numbers and the cause is unresolved. This gates 3.11.
-2. **Owner decision on the font tradeoff.** `/` and `/arhiva` stay at 94 on mobile. Taking them to 95 and 98 costs a homepage first paint that doubles and becomes unpredictable (760 → ~1515 ms in two runs of three). I judged the stable first paint worth more and shipped that; say if you disagree and I will flip it in one line.
+2. **Owner decision on the font tradeoff.** `/arhiva` stays at 94 on mobile. Taking it to 98 costs a homepage first paint that doubles and becomes unpredictable (760 → ~1515 ms in two runs of three). I judged the stable first paint worth more and shipped that; say if you disagree and I will flip it in one line.
 
 ### 5-item eyeball checklist — preview, desktop **and** phone
 

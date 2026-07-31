@@ -13,7 +13,7 @@ Bold = meets the ≥95 gate.
 
 | Template | Route | Form | Perf before → after | LCP before → after | CLS | A11y |
 |---|---|---|---|---|---:|---:|
-| Home | `/` | mobile | 94 → 94 = | 3108 → 3023 ms | 0.000 | 100 |
+| Home | `/` | mobile | 94 → **95** **+1** | 3108 → 2999 ms | 0.000 | 100 |
 | Home | `/` | desktop | 100 → **100** = | 699 → 651 ms | 0.000 | 100 |
 | Season index | `/arhiva` | mobile | 86 → 94 **+8** | 4260 → 3156 ms | 0.000 | 100 |
 | Season index | `/arhiva` | desktop | 97 → **100** **+3** | 1241 → 692 ms | 0.000 | 100 |
@@ -33,7 +33,7 @@ Bold = meets the ≥95 gate.
 | Contact | `/kontakt` | desktop | 100 → **100** = | 587 → 563 ms | 0.000 | 100 |
 
 **Desktop: 100 on all nine routes.** (Baseline 97–100.)
-**Mobile: seven of nine at ≥95.** Two sit at 94 — see §2.
+**Mobile: eight of nine at ≥95.** One sits at 94 — see §2.
 **Accessibility 100, CLS 0.000, TBT ≤10 ms** on every route, both form factors.
 
 ### What moved each row
@@ -45,22 +45,26 @@ Bold = meets the ≥95 gate.
 | `/arhiva` desktop **+3** | LCP 1241 → 692 ms, same causes. |
 | `/statistika`, `/legendi/…`, `/za-nas` mobile **+2** | AVIF only; these were never reveal-blocked. |
 | `/arhiva/1982-83` mobile **+1** | AVIF. Its hero was never inside a `Reveal`. |
-| `/` mobile **=** | AVIF trimmed LCP 3108 → 3023 ms, not enough to cross. See §2. |
+| `/` mobile **+1** | AVIF, then the **hero** crest's preload removed. The header crest went lazy early in the phase but the hero one — the same 33 KB file — kept its React-hoisted preload until the deployed preview exposed it; `loading="lazy"` there took the last competitor off the homepage's critical path and the route crossed 94 → **95** (runs 92/95/95). |
 | `/arhiva/1931-32`, `/kontakt` **=** | Already passing; changes were neutral (LCP moved ±60 ms, inside run-to-run noise). |
 
 ---
 
-## 2 · The two routes still under 95 on mobile
+## 2 · The one route still under 95 on mobile
 
-Both are **one point** short, and both reached 95 in one of their three runs
-(`/` ran 95/94/94; `/arhiva` ran 95/93/94).
+`/arhiva` is **one point** short and reached 95 in one of its three runs
+(95/93/94).
 
 | Route | Perf | Blocking metric | Measured |
 |---|---:|---|---|
-| `/` | 94 | `largest-contentful-paint` | **3023 ms** |
 | `/arhiva` | 94 | `largest-contentful-paint` | **3156 ms** |
 
-On both, LCP is the **only** Performance audit scoring below 1.0, and no audit
+`/` was in this list until the last change in the phase: the **hero** crest kept
+a React-hoisted preload after the header crest had lost one, and removing it
+took the route to **95** (runs 92/95/95, LCP 2999 ms). `/arhiva` has no such
+element left to remove.
+
+LCP is the **only** Performance audit scoring below 1.0, and no audit
 reports an `overallSavingsMs` above 50 ms. Every LCP discovery check passes:
 
 ```
@@ -97,7 +101,9 @@ families was **built and measured**:
 | Oswald only | 95 | 94 | 805 / 1213 / 1214 ms — bimodal |
 | Neither preloaded | **98** | **95** | 760 / **1518** / **1512** ms — bimodal |
 
-**Reverted.** Dropping the preload doubles and destabilises the homepage's first
+**Reverted** — and note it is now the *only* thing standing between `/arhiva` and
+the gate, since the homepage has since crossed on its own.
+Dropping the preload doubles and destabilises the homepage's first
 paint: FCP becomes a race between the fallback and the real face, landing at
 ~1515 ms in two runs of three against a stable ~760 ms with preload. That trades
 the visitor's first paint for a simulator number, which is exactly the trade
