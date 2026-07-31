@@ -3,7 +3,10 @@ import Link from "next/link";
 import type { SanityImageSource } from "@sanity/image-url";
 import { fetchOrThrow } from "@/sanity/fetch";
 import { Container } from "@/components/Container";
-import { ClubRecords, type ClubRecordData } from "@/components/home/ClubRecords";
+import {
+  ClubRecords,
+  type ClubRecordData,
+} from "@/components/home/ClubRecords";
 import { DecadeExplore } from "@/components/home/DecadeExplore";
 import { PhotoFrame } from "@/components/home/PhotoFrame";
 import { PlaceholderChip } from "@/components/home/PlaceholderChip";
@@ -160,7 +163,8 @@ export default async function Home() {
   const { settings, heroSeason, heroFallbackPhoto, records, moment } = data;
 
   const heroTitle = settings?.title?.trim() || "ФК Беласица";
-  const heroPhoto = heroSeason?.photo?.image ?? heroFallbackPhoto?.image ?? null;
+  const heroPhoto =
+    heroSeason?.photo?.image ?? heroFallbackPhoto?.image ?? null;
   const heroAlt =
     heroSeason?.photo?.caption ||
     heroFallbackPhoto?.caption ||
@@ -188,9 +192,11 @@ export default async function Home() {
   return (
     <>
       {/* ── 1 · Hero — the matchday poster ───────────────────────────── *
-       * The photograph leads full-bleed and the crest is a white BLOCK capped
-       * by the same 6px orange bar that opens the header — a badge on the
-       * hoarding, not an image floating on navy. Only the crest carries the
+       * The photograph leads full-bleed and the crest overlaps its lower
+       * edge — a badge pinned to the hoarding. It sat in a white block capped
+       * by an orange bar until 3.06a; the owner asked for the crest alone, and
+       * the block went with the bar. The motif still opens the header and
+       * closes the footer. Only the crest carries the
        * negative margin, so it is the single element overlapping the picture;
        * the <h1> is bottom-aligned to it and therefore sits entirely on solid
        * navy (14.95:1), rather than depending on whichever team photo ISR
@@ -211,16 +217,15 @@ export default async function Home() {
 
         <Container>
           {/* Badge + wordmark as one bottom-aligned lockup along the
-              photograph's lower edge. The block is WHITE, not paper: the
-              crest's left half is white, so it needs a light backdrop, and a
-              cream panel would make it read as a white card inside a cream
-              one. The tile stays even though the PNG's background is now
-              transparent (D-crest-2). Decorative — the <h1> beside it carries
+              photograph's lower edge. No panel behind the crest: its own left
+              half is white and its background is transparent, so on navy — or
+              over the photograph — the artwork carries itself, and the white
+              rectangle only read as a sticker (owner decision, 3.06a,
+              superseding D-crest-2). Decorative — the <h1> beside it carries
               the accessible name. */}
           <div className="flex flex-wrap items-end gap-5 lg:gap-8">
-            <div className="relative z-10 -mt-13 flex-none bg-white md:-mt-17 lg:-mt-19">
-              <div className="h-1.5 w-full bg-orange" />
-              <div className="flex items-center justify-center px-4.5 py-3.5 lg:px-6 lg:py-4.5">
+            <div className="relative z-10 -mt-13 flex-none md:-mt-17 lg:-mt-19">
+              <div className="flex items-center justify-center">
                 {/* `/crest.svg` + `unoptimized` — see the note in `SiteHeader`.
                     The vector master matters most here: this is the crest's
                     largest appearance on the site (128px tall at `lg`), which
@@ -231,11 +236,11 @@ export default async function Home() {
                 <Image
                   src="/crest.svg"
                   alt=""
-                  width={400}
-                  height={565}
+                  width={864}
+                  height={1233}
                   priority
                   unoptimized
-                  className="h-20 w-auto md:h-28 lg:h-32"
+                  className="h-24 w-auto md:h-32 lg:h-40"
                 />
               </div>
             </div>
@@ -326,7 +331,10 @@ export default async function Home() {
                 Луѓето што ја одбележаа историјата
               </h2>
             </div>
-            <Link href="/legendi" className={`u-link text-paper ${focusOnNavy}`}>
+            <Link
+              href="/legendi"
+              className={`u-link text-paper ${focusOnNavy}`}
+            >
               Сите легенди
             </Link>
           </Reveal>
