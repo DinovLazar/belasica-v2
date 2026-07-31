@@ -6,6 +6,7 @@ import { Container } from "@/components/Container";
 import { PlaceholderChip } from "@/components/home/PlaceholderChip";
 import { SectionOverline } from "@/components/home/SectionOverline";
 import {
+  CONTACT_EMAIL,
   UNOFFICIAL_ARCHIVE_LABEL,
   UNOFFICIAL_ARCHIVE_STATEMENT,
 } from "@/lib/facts";
@@ -63,9 +64,10 @@ export function SiteFooter() {
             </ul>
           </nav>
 
-          {/* (c) Контакт — the contact page is live; the direct email is not a
-              verified fact yet (facts.md), so it renders as a visible
-              placeholder, never a demo value (PL-3). */}
+          {/* (c) Контакт — the address became a VERIFIED `facts.md` entry on
+              2026-07-31 (owner, chat), so the chip that had stood here since
+              3.03 is now the real `mailto:`. Clears the email half of PL-3 /
+              PL-9; the socials below stay a chip, still unverified. */}
           <div className="min-w-0">
             <h2>
               <SectionOverline variant="onNavy">Контакт</SectionOverline>
@@ -77,7 +79,9 @@ export function SiteFooter() {
                 </Link>
               </li>
               <li>
-                <PlaceholderChip label="е-пошта за контакт" onNavy />
+                <a href={`mailto:${CONTACT_EMAIL}`} className={footerLink}>
+                  {CONTACT_EMAIL}
+                </a>
               </li>
             </ul>
           </div>
@@ -94,12 +98,22 @@ export function SiteFooter() {
           </div>
         </div>
 
-        {/* Bottom bar — the identity line and copyright, on a hairline. */}
+        {/* Bottom bar — the identity line and copyright, on a hairline.
+            „Правни информации" sits here beside the © rather than in
+            „Навигација" or the header: it must be reachable from every page,
+            but it is not a seventh destination competing with the six real
+            ones, and `src/lib/nav.ts` stays the single source for those
+            (D-3.07-2). */}
         <div className="mt-12 flex flex-wrap items-center justify-between gap-x-8 gap-y-2 border-t border-paper/15 pt-6">
           <p className="text-small uppercase tracking-[0.16em] text-paper/80">
             {UNOFFICIAL_ARCHIVE_LABEL}
           </p>
-          <p className="text-small text-paper/80">© {year} ФК Беласица</p>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-1">
+            <Link href="/pravni-informacii" className={footerLink}>
+              Правни информации
+            </Link>
+            <p className="text-small text-paper/80">© {year} ФК Беласица</p>
+          </div>
         </div>
       </Container>
     </footer>
