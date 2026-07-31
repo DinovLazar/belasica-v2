@@ -21,7 +21,6 @@ import {
   type SeasonRecord,
 } from "@/components/archive/SeasonRecordBoard";
 import { SeasonRecordList } from "@/components/archive/SeasonRecordList";
-import { SeasonSectionEmpty } from "@/components/archive/SeasonSectionEmpty";
 import { SeasonStory } from "@/components/archive/SeasonStory";
 import { SectionHeading } from "@/components/archive/SectionHeading";
 import { PlaceholderChip } from "@/components/home/PlaceholderChip";
@@ -262,7 +261,15 @@ export default async function SeasonPage({
     gallery: gallery.length > 0,
   };
 
-  const order = Object.keys(SECTIONS) as SectionKey[];
+  // Only the sections that hold something (owner decision, 3.06a — reverses
+  // D-3.04b-1). A season with no results no longer prints a line saying so:
+  // the section, and its jump link, are simply not there. The rail therefore
+  // differs from page to page again, which is the trade the owner chose — an
+  // archive that shows what it holds rather than what it lacks. A season with
+  // nothing at all still collapses to the single archive notice.
+  const order = (Object.keys(SECTIONS) as SectionKey[]).filter(
+    (key) => present[key],
+  );
 
   const anchors: SeasonAnchor[] = order.map((key) => ({
     id: SECTIONS[key].id,
@@ -371,51 +378,47 @@ export default async function SeasonPage({
               since 3.06 the first thing a reader meets after the team
               photograph: the archive reads as a history book, not a data
               dump. */}
-          <section
-            id={SECTIONS.story.id}
-            aria-labelledby="story-heading"
-            className={sectionClass("story")}
-          >
-            <Container>
-              <Reveal>
-                <SectionHeading id="story-heading">
-                  {SECTIONS.story.heading}
-                </SectionHeading>
-                <div className="mt-8">
-                  {present.story ? (
+          {present.story && (
+            <section
+              id={SECTIONS.story.id}
+              aria-labelledby="story-heading"
+              className={sectionClass("story")}
+            >
+              <Container>
+                <Reveal>
+                  <SectionHeading id="story-heading">
+                    {SECTIONS.story.heading}
+                  </SectionHeading>
+                  <div className="mt-8">
                     <SeasonStory blocks={story} />
-                  ) : (
-                    <SeasonSectionEmpty note={SECTIONS.story.empty} />
-                  )}
-                </div>
-              </Reveal>
-            </Container>
-          </section>
+                  </div>
+                </Reveal>
+              </Container>
+            </section>
+          )}
 
           {/* 3 · Резултати — match by match. The Cowork content pass is filling
               this field season by season (10 of 96 at the time of writing), and
               ISR 60 surfaces each one here — section, jump-link and all —
               without a code change or a redeploy. */}
-          <section
-            id={SECTIONS.results.id}
-            aria-labelledby="results-heading"
-            className={sectionClass("results")}
-          >
-            <Container>
-              <Reveal>
-                <SectionHeading id="results-heading">
-                  {SECTIONS.results.heading}
-                </SectionHeading>
-              </Reveal>
-              <Reveal delayIndex={1} className="mt-8">
-                {present.results ? (
+          {present.results && (
+            <section
+              id={SECTIONS.results.id}
+              aria-labelledby="results-heading"
+              className={sectionClass("results")}
+            >
+              <Container>
+                <Reveal>
+                  <SectionHeading id="results-heading">
+                    {SECTIONS.results.heading}
+                  </SectionHeading>
+                </Reveal>
+                <Reveal delayIndex={1} className="mt-8">
                   <SeasonRecordList blocks={results} variant="results" />
-                ) : (
-                  <SeasonSectionEmpty note={SECTIONS.results.empty} />
-                )}
-              </Reveal>
-            </Container>
-          </section>
+                </Reveal>
+              </Container>
+            </section>
+          )}
 
           {/* 4 · Тренер и статистика — the trainer name in the heading (the
               reference site's treatment), then the season's lineup/stats.
@@ -423,133 +426,125 @@ export default async function SeasonPage({
               self-omit individually, so a season with a trainer but no roster
               shows the trainer and nothing else — one empty note per section,
               never two stacked inside one. */}
-          <section
-            id={SECTIONS.staff.id}
-            aria-labelledby="staff-heading"
-            className={sectionClass("staff")}
-          >
-            <Container>
-              <Reveal>
-                <SectionHeading id="staff-heading">
-                  {SECTIONS.staff.heading}
-                </SectionHeading>
-              </Reveal>
-
-              {!present.staff && (
-                <Reveal delayIndex={1} className="mt-8">
-                  <SeasonSectionEmpty note={SECTIONS.staff.empty} />
+          {present.staff && (
+            <section
+              id={SECTIONS.staff.id}
+              aria-labelledby="staff-heading"
+              className={sectionClass("staff")}
+            >
+              <Container>
+                <Reveal>
+                  <SectionHeading id="staff-heading">
+                    {SECTIONS.staff.heading}
+                  </SectionHeading>
                 </Reveal>
-              )}
 
-              {trainer && (
-                <Reveal delayIndex={1} className="mt-8">
-                  {/* 2px orange LEFT-EDGE marker — the same marker the
+                {trainer && (
+                  <Reveal delayIndex={1} className="mt-8">
+                    {/* 2px orange LEFT-EDGE marker — the same marker the
                         standings row uses (D-2.02-4). The label and the name
                         both stay navy/neutral: orange on a white card is
                         3.1:1 and fails AA (D-1.02-1). */}
-                  <div className="u-cap max-w-measure bg-white p-6 md:p-8">
-                    {/* `text-h3`, not `text-h2` — an <h3> must not render at
+                    <div className="u-cap max-w-measure bg-white p-6 md:p-8">
+                      {/* `text-h3`, not `text-h2` — an <h3> must not render at
                           its section <h2>'s size, or the type stops carrying
                           the hierarchy (brand.md §Typography). The card, the
                           orange edge and the muted label do the emphasis. */}
-                    <h3 className="u-h3 text-navy">
-                      <span className="font-normal text-neutral-500">
-                        Тренер:{" "}
-                      </span>
-                      {trainer}
-                    </h3>
-                  </div>
-                </Reveal>
-              )}
+                      <h3 className="u-h3 text-navy">
+                        <span className="font-normal text-neutral-500">
+                          Тренер:{" "}
+                        </span>
+                        {trainer}
+                      </h3>
+                    </div>
+                  </Reveal>
+                )}
 
-              {lineup.length > 0 && (
-                <Reveal delayIndex={2} className="mt-10">
-                  <h3 className="u-h3 text-navy">Состав и статистика</h3>
-                  <SeasonRecordList
-                    blocks={lineup}
-                    variant="roster"
-                    className="mt-5"
-                  />
-                </Reveal>
-              )}
-            </Container>
-          </section>
+                {lineup.length > 0 && (
+                  <Reveal delayIndex={2} className="mt-10">
+                    <h3 className="u-h3 text-navy">Состав и статистика</h3>
+                    <SeasonRecordList
+                      blocks={lineup}
+                      variant="roster"
+                      className="mt-5"
+                    />
+                  </Reveal>
+                )}
+              </Container>
+            </section>
+          )}
 
           {/* 5 · Табела — the league table as an IMAGE (D-3.01-2), matching the
               reference site. The structured `finalTable` is legacy and is not
               rendered here. No height cap: a standings scan that cannot be read
               defeats the point of showing it. */}
-          <section
-            id={SECTIONS.table.id}
-            aria-labelledby="table-heading"
-            className={sectionClass("table")}
-          >
-            <Container>
-              <Reveal>
-                <SectionHeading id="table-heading">
-                  {SECTIONS.table.heading}
-                </SectionHeading>
-              </Reveal>
-              {record && (
-                <Reveal delayIndex={1} className="mt-8">
-                  <SeasonRecordBoard record={record} />
+          {present.table && (
+            <section
+              id={SECTIONS.table.id}
+              aria-labelledby="table-heading"
+              className={sectionClass("table")}
+            >
+              <Container>
+                <Reveal>
+                  <SectionHeading id="table-heading">
+                    {SECTIONS.table.heading}
+                  </SectionHeading>
                 </Reveal>
-              )}
-              <Reveal delayIndex={record ? 2 : 1} className="mt-8">
-                {tablePhoto ? (
-                  <MattedPhoto
-                    photo={tablePhoto}
-                    // The standings are shown as a scan by owner decision
-                    // (D-3.01-2) and 95 of 96 seasons have no typed table to
-                    // fall back on, so no full text alternative can be built
-                    // without inventing one. The alt therefore says exactly
-                    // what the image is and where it comes from, and names the
-                    // season, rather than pretending to convey the figures.
-                    alt={
-                      tablePhoto.caption ||
-                      (title
-                        ? `Фотографија од табелата за ${title}, скенирана од изворниот документ`
-                        : "Фотографија од табелата на сезоната, скенирана од изворниот документ")
-                    }
-                    sizes="(min-width: 1280px) 1120px, (min-width: 768px) 88vw, 100vw"
-                    renderWidth={1400}
-                  />
-                ) : record ? null : (
-                  <SeasonSectionEmpty note={SECTIONS.table.empty} />
+                {record && (
+                  <Reveal delayIndex={1} className="mt-8">
+                    <SeasonRecordBoard record={record} />
+                  </Reveal>
                 )}
-              </Reveal>
-            </Container>
-          </section>
+                <Reveal delayIndex={record ? 2 : 1} className="mt-8">
+                  {tablePhoto ? (
+                    <MattedPhoto
+                      photo={tablePhoto}
+                      // The standings are shown as a scan by owner decision
+                      // (D-3.01-2) and 95 of 96 seasons have no typed table to
+                      // fall back on, so no full text alternative can be built
+                      // without inventing one. The alt therefore says exactly
+                      // what the image is and where it comes from, and names the
+                      // season, rather than pretending to convey the figures.
+                      alt={
+                        tablePhoto.caption ||
+                        (title
+                          ? `Фотографија од табелата за ${title}, скенирана од изворниот документ`
+                          : "Фотографија од табелата на сезоната, скенирана од изворниот документ")
+                      }
+                      sizes="(min-width: 1280px) 1120px, (min-width: 768px) 88vw, 100vw"
+                      renderWidth={1400}
+                    />
+                  ) : null}
+                </Reveal>
+              </Container>
+            </section>
+          )}
 
           {/* 6 · Фотографии — everything else linked to this season. The two
               lead photos are excluded in GROQ, so no photo appears twice
               (D-3.04-2, superseding D-2.02-6: the lead now carries its own
               caption, so excluding it hides no archive data). */}
-          <section
-            id={SECTIONS.gallery.id}
-            aria-labelledby="photos-heading"
-            className={sectionClass("gallery")}
-          >
-            <Container>
-              <Reveal>
-                <SectionHeading id="photos-heading">
-                  {SECTIONS.gallery.heading}
-                </SectionHeading>
-              </Reveal>
-              <div className="mt-8">
-                {present.gallery ? (
-                  // `lightbox` is opt-in and set only here (3.05b): a season's
-                  // scans are the set worth opening full-size. The person
-                  // page's grid is unchanged.
+          {present.gallery && (
+            <section
+              id={SECTIONS.gallery.id}
+              aria-labelledby="photos-heading"
+              className={sectionClass("gallery")}
+            >
+              <Container>
+                <Reveal>
+                  <SectionHeading id="photos-heading">
+                    {SECTIONS.gallery.heading}
+                  </SectionHeading>
+                </Reveal>
+                <div className="mt-8">
+                  {/* `lightbox` is opt-in and set only here (3.05b): a season's
+                    scans are the set worth opening full-size. The person
+                    page's grid is unchanged. */}
                   <PhotoGrid photos={gallery} lightbox />
-                ) : (
-                  <Reveal>
-                    <SeasonSectionEmpty note={SECTIONS.gallery.empty} />
-                  </Reveal>
-                )}
-              </div>
-            </Container>
-          </section>
+                </div>
+              </Container>
+            </section>
+          )}
         </>
       )}
 
