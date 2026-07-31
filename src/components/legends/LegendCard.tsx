@@ -1,7 +1,9 @@
 import Link from "next/link";
-import type { SanityImageSource } from "@sanity/image-url";
 import { cn } from "@/lib/utils";
-import { PhotoFrame } from "@/components/home/PhotoFrame";
+import {
+  PhotoFrameView,
+  type FramedImage,
+} from "@/components/home/PhotoFrameView";
 import { PlaceholderChip } from "@/components/home/PlaceholderChip";
 import { Reveal } from "@/components/home/Reveal";
 import { focusOnNavy, focusOnPaper } from "@/lib/focus";
@@ -13,7 +15,10 @@ export type LegendCardData = {
   slug: string;
   role: string[] | null;
   playingYears: string | null;
-  portrait: SanityImageSource | null;
+  /** Already resolved to a CDN URL by the server, via `framedImage()`. This
+   *  card is reached through `LegendsBrowser`'s client boundary on /legendi, so
+   *  it may not hold a raw Sanity asset or import the URL builder (D-3.09-1). */
+  portrait: FramedImage | null;
 };
 
 /**
@@ -39,6 +44,7 @@ export function LegendCard({
   person,
   delayIndex = 0,
   onNavy = false,
+  priority = false,
   // Default matches /legendi's RoleBandGrid (1 col → sm:2 → lg:3). A grid
   // with other tracks (the homepage 2/3/5 marquee) passes its own string —
   // the default overfetches ~106 KiB there (Lighthouse image-delivery).
@@ -48,6 +54,10 @@ export function LegendCard({
   delayIndex?: number;
   /** Set for a card inside a navy block; default is a white card on paper. */
   onNavy?: boolean;
+  /** The FIRST card of /legendi only — Lighthouse named its portrait as the
+   *  route's LCP element. Carries the priority hint and opts out of the reveal
+   *  (D-3.09-2, D-3.09-3). */
+  priority?: boolean;
   sizes?: string;
 }) {
   const roles = orderedRoles(person.role);
@@ -64,7 +74,11 @@ export function LegendCard({
     // at different depths wherever one has an extra line (a second role chip,
     // a placeholder). The chain is `li → Reveal div → a`.
     <li className="h-full">
-      <Reveal delayIndex={delayIndex} className="h-full">
+      <Reveal
+        delayIndex={delayIndex}
+        immediate={priority}
+        className="h-full"
+      >
         <Link
           href={`/legendi/${person.slug}`}
           className={cn(
@@ -74,13 +88,13 @@ export function LegendCard({
           )}
         >
           {person.portrait ? (
-            <PhotoFrame
+            <PhotoFrameView
               image={person.portrait}
               alt={person.name ?? "Архивски портрет"}
               ratio="4/5"
               fit="cover"
               sizes={sizes}
-              width={800}
+              priority={priority}
               placeholderLabel="портрет"
             />
           ) : (

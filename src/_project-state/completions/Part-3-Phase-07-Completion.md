@@ -42,7 +42,7 @@ The contact email also stopped being a placeholder. It is now a verified fact re
 
 **Owed to Lazar (on the owed-verification register):**
 
-- ⏳ **Native read-through of the rendered Macedonian page by Lazar and Ace** — tracked as **OV-19**. The copy is yours and is rendered verbatim (proven above), but nobody has read the finished page on screen.
+- ⏳ **Native read-through of the rendered Macedonian page by Lazar and Ace** — tracked as **OV-22**. The copy is yours and is rendered verbatim (proven above), but nobody has read the finished page on screen.
 - ✅ **Vercel preview URL + 5-item eyeball checklist** — below.
 
 ### Vercel preview
@@ -53,7 +53,7 @@ Preview gate verified before requesting merge (not waived): all of `/`, `/pravni
 
 ### Five things for Lazar to eyeball
 
-1. **Read the ten sections end to end** on a phone and on desktop — this is the copy you supplied, rendered verbatim, but it has never been read on-screen (OV-19).
+1. **Read the ten sections end to end** on a phone and on desktop — this is the copy you supplied, rendered verbatim, but it has never been read on-screen (OV-22).
 2. **The two quoted phrases** — §6 „ФК Беласица“ and §7 „како што е“ — render with a **U+201C** closing quote (Macedonian convention; the repo has 4 of these and 0 of U+201D). If you meant the English-style `”`, it is a one-character fix (D-3.07-9).
 3. **The footer bottom bar**: „Правни информации" now sits beside „© 2026 ФК Беласица". Check the wrap at phone width — it becomes two rows by design.
 4. **`/kontakt` → „Директен контакт"** now shows the real address instead of a dashed placeholder box. Confirm `info@belasicahistory.mk` is correct and that clicking it opens your mail app.
@@ -120,17 +120,21 @@ All ten are logged as **D-3.07-1 … D-3.07-10** in `decisions.md`. The ones tha
 
 ## 6. State updates done
 
-- ✅ **`current-state.md`** — `NEXT:` line rewritten to **3.08 (domain cutover)**; „Last updated" set to 2026-07-31; a 3.07 summary bullet added, plus a **3.06a bullet reconstructed from its diff** so the snapshot is not silently missing a shipped phase. Placeholder register: **PL-3 CLEARED**, **PL-4 partly cleared** (domain verified, cutover explicitly not done), **PL-9 email half closed**. Built-pages list gained the new route and the updated footer/`kontakt` entries. Owed register gained **OV-19** and **OV-20** (count 9 → 11). Known issues gained the 3.06a paperwork gap and the `_to_delete/` finding. Human steps gained items 12–15.
+- ✅ **`current-state.md`** — `NEXT:` line rewritten to **3.08 (domain cutover)**; „Last updated" set to 2026-07-31; a 3.07 summary bullet added, plus a **3.06a bullet reconstructed from its diff** so the snapshot is not silently missing a shipped phase. Placeholder register: **PL-3 CLEARED**, **PL-4 partly cleared** (domain verified, cutover explicitly not done), **PL-9 email half closed**. Built-pages list gained the new route and the updated footer/`kontakt` entries. Owed register gained **OV-22** and **OV-23** (renumbered from OV-19/-20 at merge — 3.09 landed those IDs on `main` first; count → 14). Known issues gained the 3.06a paperwork gap and the `_to_delete/` finding. Human steps gained items 12–15.
 - ✅ **`file-map.md`** — new route entry; updated `SiteFooter`, `kontakt/page.tsx`, `lib/facts.ts` entries; **added `SeasonRecordBoard.tsx`** (shipped by 3.06a, never mapped); new „Committed by accident" section for `_to_delete/` and `.claude/launch.json`.
 - ✅ **`00_stack-and-config.md`** — **deliberately untouched.** It is append-only and records dependency/config changes; this phase added none. Confirmed: `package.json` and `package-lock.json` are not in the diff.
 
 ## 7. Risks, follow-ups, what the next phase needs to know
 
 - **⚠️ Possible secret in the working tree.** `_to_delete/` holds **11 tracked** files of git plumbing junk committed during 3.06a. Beside them, **untracked and un-ignored**, sits **`sanity_token_transfer.tmp`**. Because the directory is tracked, a single `git add -A` would stage a file whose name suggests a Sanity **write token**, in a **public** repo. I did not open it (reading a suspected secret is the wrong move) and did not delete it (destructive, out of scope). **Lazar: inspect and shred it, rotate the token if it was ever live, then `git rm -r _to_delete/`.**
-- **The takedown promise is now operational, not just copy (OV-20).** The site publicly commits to removing material on request. The code is correct; keeping the promise needs a monitored mailbox and someone who acts. Note that `/kontakt`'s form is still disabled (Formspree endpoint unset, PL-14/OV-8), so the `mailto:` is currently the **only** working channel.
+- **The takedown promise is now operational, not just copy (OV-23).** The site publicly commits to removing material on request. The code is correct; keeping the promise needs a monitored mailbox and someone who acts. Note that `/kontakt`'s form is still disabled (Formspree endpoint unset, PL-14/OV-8), so the `mailto:` is currently the **only** working channel.
 - **3.06a's reasoning is permanently unrecorded** (D-3.07-10) — the fourth brief in this project written against repo state that did not match the repo (cf. D-2.03-1, D-2.04-2, D-2.06-1). Worth fixing upstream in how briefs are generated.
 - **Two measurement traps in the in-app browser, for whoever verifies UI next.** (1) `getComputedStyle().outlineColor` **lags one read behind** on `:focus-visible` — it initially appeared to show a broken 50%-alpha focus ring that does not exist. Proof it is an artifact: setting `outline-color` to literal red inline and reading back returned navy. Focus one element, let a paint happen, then read in a **separate** call. (2) Chrome's readback could not parse the theme's `oklab()` colours, silently yielding black and fake contrast failures — contrast was computed with a hand-rolled oklab→sRGB conversion, cross-validated against `brand.md`'s published table.
-- **Session isolation:** another session held the shared checkout on `phase-3.09-perf-a11y` with uncommitted work, so this phase ran in a `git worktree` off `main`. Its uncommitted changes are untouched. Whoever merges should expect `current-state.md` / `decisions.md` conflicts if 3.09 also edits them — resolve by keeping both phases' entries.
+- **Session isolation, and what the predicted conflict actually cost.** Another session held the shared checkout on `phase-3.09-perf-a11y`, so this phase ran in a `git worktree` off `main`. **3.09 merged first** ([PR #38](https://github.com/DinovLazar/belasica-v2/pull/38), `209bf69`), and this branch then went `CONFLICTING` in exactly the three predicted files — no code conflict, since 3.09 touched none of 3.07's source files. Resolved by merging `origin/main` in and **keeping both phases' entries**:
+  - `decisions.md` — both blocks kept: **10** `D-3.07-*` + **8** `D-3.09-*`.
+  - `file-map.md` — both new sections kept (3.09's `docs/audits/`, 3.07's `_to_delete/` warning).
+  - `current-state.md` — the real work. Both summary bullets kept; the duplicate „Last updated" line and second `## Summary` heading collapsed to one; the stale `NEXT:` (3.09's still pointed at „3.06", already shipped) replaced with **3.08**; and 3.09's own 3.06a known-issue bullet kept with 3.07's two extra facts grafted on rather than duplicated.
+  - ⚠️ **ID collision, caught at merge:** 3.09 independently used **OV-19 / OV-20** for *different* items (Lighthouse re-measure; the 94-scoring mobile route). Since 3.09 landed those IDs on `main` first, its numbering wins and **3.07's two items were renumbered to OV-22 and OV-23** here and in `current-state.md`. Anything written before this merge that cites „OV-19/OV-20 (3.07)" means OV-22/OV-23. The decision-log namespace (`D-<phase>-<n>`) is collision-proof by construction; **the OV register is not** — it is a flat sequence any phase can append to, so parallel phases will collide again. Worth namespacing.
 - **Next phase (3.08) is the domain cutover.** `www.belasicahistory.mk` is VERIFIED and now printed on the legal page, but `metadataBase` (`src/app/layout.tsx`), `robots.ts` and `sitemap.ts` still hardcode `https://belasica-v2.vercel.app` in three places kept in sync by comment only.
 
 ## 8. What's now possible that wasn't before

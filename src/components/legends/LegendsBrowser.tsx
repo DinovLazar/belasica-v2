@@ -44,6 +44,7 @@ export function LegendsBrowser({ bands }: { bands: LegendBand[] }) {
 
   const matches = visible.reduce((sum, band) => sum + band.people.length, 0);
   const searching = needle.length > 0;
+  const leadRole = visible.find((band) => band.people.length > 0)?.role;
 
   return (
     <div className="flex flex-col gap-section">
@@ -125,6 +126,11 @@ export function LegendsBrowser({ bands }: { bands: LegendBand[] }) {
               role={band.role}
               people={band.people}
               headingId={`band-${band.role}`}
+              // The first band with anything in it leads the page, so its first
+              // card carries the LCP. `RoleBandGrid` renders nothing when its
+              // list is empty, so „first non-empty" is also „first visible" —
+              // and during a search that correctly follows the results.
+              leadsPage={band.role === leadRole}
             />
           ))}
         </div>

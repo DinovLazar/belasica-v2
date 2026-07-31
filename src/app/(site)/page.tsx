@@ -1,7 +1,7 @@
-import Image from "next/image";
 import Link from "next/link";
 import type { SanityImageSource } from "@sanity/image-url";
 import { fetchOrThrow } from "@/sanity/fetch";
+import { framedImage } from "@/sanity/frame";
 import { Container } from "@/components/Container";
 import {
   ClubRecords,
@@ -233,13 +233,25 @@ export default async function Home() {
                     pennant point were visible. `/crest.png` stays the canonical
                     asset for the Open Graph card and the favicon lineage, at
                     its unchanged 864×1220. */}
-                <Image
+                {/* A plain <img loading="lazy">, matching `SiteHeader` — see
+                    the note there. Both crests point at the same 33 KB
+                    `/crest.svg`, and this page's LCP is the hero *photograph*
+                    behind them, so neither may be promised to the network
+                    ahead of it. `lazy` is what actually removes the preload:
+                    React 19 hoists any non-lazy SSR image into one, so a bare
+                    <img> here kept the homepage preloading the crest after the
+                    header had stopped (measured on the deployed preview).
+                    Decorative — the <h1> beside it carries the name, and it
+                    sits in the first viewport, so the browser fetches it as
+                    soon as layout places it (D-3.09-2). */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
                   src="/crest.svg"
                   alt=""
                   width={864}
                   height={1233}
-                  priority
-                  unoptimized
+                  loading="lazy"
+                  decoding="async"
                   className="h-24 w-auto md:h-32 lg:h-40"
                 />
               </div>
@@ -344,7 +356,13 @@ export default async function Home() {
               {legends.map((person, i) => (
                 <LegendCard
                   key={person.slug}
-                  person={person}
+                  // Resolved here, on the server — `LegendCard` no longer holds
+                  // a raw Sanity asset (D-3.09-1). 640px is the widest this
+                  // 5-up track ever renders a portrait.
+                  person={{
+                    ...person,
+                    portrait: framedImage(person.portrait, 640),
+                  }}
                   delayIndex={i % 5}
                   onNavy
                   // Matches THIS grid's tracks (2 → sm:3 → lg:5), not the
