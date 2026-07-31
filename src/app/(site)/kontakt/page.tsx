@@ -21,12 +21,14 @@ export const metadata: Metadata = {
  * top-level nav links now lands on a real page.
  *
  * **Provisional** (D-2.05-1, per the 2.05 handover §5): a set-apart banner says
- * so up top. The form is fully built (all four states), but the Formspree
- * endpoint arrives as configuration in 3.03 (D-0.00-7) — so `ContactForm`
- * reads `NEXT_PUBLIC_FORMSPREE_ENDPOINT` (a **public** form action, not a
- * secret — safe in a public repo, D-2.07-2) and, while it is unset, renders the
- * form visibly disabled with a placeholder (D-2.07-3). No hero: nothing in the
- * locked model sources one (cf. D-2.06-4).
+ * so up top. `ContactForm` reads `NEXT_PUBLIC_FORMSPREE_ENDPOINT` (a **public**
+ * form action, not a secret — safe in a public repo, D-2.07-2); while it is
+ * unset the form renders visibly disabled with a placeholder (D-2.07-3).
+ * **Since 3.03b the endpoint is set** in `.env.local` and on Vercel (Prod +
+ * Preview), so the live form is what renders (D-3.03b-1) — the banner now says
+ * only the *direct* contacts are still coming, since PL-3 (email) and PL-15
+ * (socials) remain open. No hero: nothing in the locked model sources one
+ * (cf. D-2.06-4).
  */
 export default function ContactPage() {
   const endpoint = process.env.NEXT_PUBLIC_FORMSPREE_ENDPOINT;
@@ -53,7 +55,8 @@ export default function ContactPage() {
               </p>
               <p className="mt-2 text-small text-neutral-700">
                 Оваа страница сѐ уште се доработува и може да се промени.
-                Контакт-каналите подолу допрва се поставуваат.
+                Формуларот е активен; директните контакти допрва се
+                поставуваат.
               </p>
             </div>
           </Reveal>

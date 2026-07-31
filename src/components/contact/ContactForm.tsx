@@ -18,9 +18,11 @@ import { cn } from "@/lib/utils";
  * The endpoint is a **public** form action by design (not a secret), read from
  * `NEXT_PUBLIC_FORMSPREE_ENDPOINT`. When it is unset the form renders visibly
  * **disabled** with a notice and a `[PLACEHOLDER]` chip (D-2.07-3) — never
- * enabled-but-silently-failing. Wiring the real endpoint is 3.03's step
- * (D-0.00-7); until then every live state (idle/submitting/success/error) is
- * fixture-verified only (OV-8).
+ * enabled-but-silently-failing. The real endpoint was wired in **3.03b**
+ * (D-3.03b-1), which also **cleared OV-8**: every state is now verified against
+ * the live Formspree form, not a fixture — `idle → submitting → success` against
+ * the real endpoint, and `idle → submitting → error` against a deliberately
+ * dead one, with the typed input retained.
  */
 
 type Status = "idle" | "submitting" | "success" | "error";
