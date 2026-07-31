@@ -1,7 +1,8 @@
 # Part 3 · Phase 3.03b — Formspree endpoint (Completion)
 
 **Date:** 2026-07-31
-**Branch:** `phase-3.03b-formspree-endpoint` → `main`
+**Branch:** `phase-3.03b-formspree-endpoint` → `main` · **PR:** [#39](https://github.com/DinovLazar/belasica-v2/pull/39)
+**Preview:** `https://belasica-v2-ljvyzwojx-sunset-services-team.vercel.app/kontakt`
 **Type:** Configuration. No feature work, no logic change, no dependency, no schema change, no Sanity write, no `brand.md` token change.
 
 ---
@@ -42,6 +43,8 @@ Production + Preview matches the placement of the three existing `NEXT_PUBLIC_SA
 
 Page state after wiring: real `<form>`, no `fieldset[disabled]`, no „not active" notice, Formspree chip gone. The two chips left in `<main>` are PL-3 (е-пошта) and PL-15 (социјални мрежи) — a different channel, deliberately untouched.
 
+**Vercel preview confirmed** (the gate was not waived): `https://belasica-v2-ljvyzwojx-sunset-services-team.vercel.app/kontakt` returns **200**, its HTML carries the endpoint, and both „Формуларот сѐ уште не е активен" and the Formspree chip are **absent**. That closes the one caveat this phase would otherwise have carried — since `NEXT_PUBLIC_*` is inlined at build time, local dev alone could not prove the Vercel variable was picked up.
+
 ## 3. Decisions logged
 
 - **D-3.03b-1** — The Formspree endpoint is wired, and OV-8 is cleared against the live form.
@@ -58,8 +61,7 @@ Page state after wiring: real `<form>`, no `fieldset[disabled]`, no „not activ
 1. ⚠️ **Delete the test message.** One real submission („ТЕСТ — Claude Code", 2026-07-31) is in the Formspree inbox for `mojgzzep`. It was the only way to prove the endpoint accepts posts.
 2. ⚠️ **Production is still disabled until this merges.** `NEXT_PUBLIC_*` is inlined at **build time**, so setting the Vercel variable changed nothing on its own — the live site picks it up on the redeploy the merge triggers. Confirm on `https://belasica-v2.vercel.app/kontakt` after deploy.
 3. **Confirm the `NEXT:` pointer.** The snapshot's first line read „NEXT: 3.06" while 3.06, 3.06a and 3.09 have all shipped. It now reads **3.11 — Launch sign-off**, taken from this file's own forward references, and is flagged in place for you to correct.
-4. **Repeat check (b) once on the PR preview** if you want it belt-and-braces — everything here was verified on local dev.
-5. **PL-3 is the natural follow-on.** The form now works, but the page still shows no email address; those are separate channels and the sit-down gates the second one.
+4. **PL-3 is the natural follow-on.** The form now works, but the page still shows no email address; those are separate channels and the sit-down gates the second one.
 
 ## 6. Eyeball checklist (5 items)
 
