@@ -59,7 +59,9 @@ export function orderedRoles(role: string[] | null | undefined): PersonRole[] {
  * fourth band). Their `/legendi/<slug>` page still renders; only the roster
  * placement is skipped.
  */
-export function primaryRole(role: string[] | null | undefined): PersonRole | null {
+export function primaryRole(
+  role: string[] | null | undefined,
+): PersonRole | null {
   return orderedRoles(role)[0] ?? null;
 }
 
@@ -92,13 +94,25 @@ export function compareByName(a: string, b: string): number {
  * „Играчи", where a generic „3 личности" would not. Раководство counts members,
  * since the band is the body rather than a role name.
  */
-const BAND_COUNT_NOUN: Record<PersonRole, [singular: string, plural: string]> = {
-  player: ["играч", "играчи"],
-  trainer: ["тренер", "тренери"],
-  president: ["член", "членови"],
-};
+const BAND_COUNT_NOUN: Record<PersonRole, [singular: string, plural: string]> =
+  {
+    player: ["играч", "играчи"],
+    trainer: ["тренер", "тренери"],
+    president: ["член", "членови"],
+  };
 
 export function bandCountLabel(role: PersonRole, count: number): string {
   const [singular, plural] = BAND_COUNT_NOUN[role];
   return `${count} ${count === 1 ? singular : plural}`;
+}
+
+/**
+ * The roster total for the /legendi header, same singular rule again. It counts
+ * across all three bands, so it takes the neutral „личност" rather than a role
+ * noun — „160 играчи" would be a false claim about people who are not players.
+ * The caller only reaches this with a real, non-zero count: a roster of nobody
+ * renders the page's empty branch instead of a „0" line.
+ */
+export function personCountLabel(count: number): string {
+  return `${count} ${count === 1 ? "личност" : "личности"}`;
 }
