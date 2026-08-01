@@ -67,6 +67,7 @@
 - `completions/Part-3-Phase-05a-Completion.md` — Phase 3.05a completion report (three full homepage directions at `/predlog-a|b|c` on identical live content, `noindex` and unlinked, plus the comparison handover — **no recommendation**, the pick was the owner's)
 - `completions/Part-3-Phase-05b-Completion.md` — Phase 3.05b completion report (homepage narrowed back to a front door — ten most-capped legends and six records instead of all 160 people / 30 records — repaired vector crest, and the season photo lightbox)
 - `completions/Part-3-Phase-09-Completion.md` — Phase 3.09-**Code** completion report (performance & accessibility measured, fixed and re-measured: desktop 100 on all nine routes, mobile ≥95 on eight of nine; the `Reveal`-at-`opacity:0` LCP defect; `D-3.09-1…-8`)
+- `completions/Part-3-Phase-10-Completion.md` — Phase 3.10-**Code** completion report (the `/kontakt` provisional banner removed, the legends search moved into the navy header and given Latin-input matching, the homepage hero pinned to 1982/83; `D-3.10-1…-9`, and the 375 px hero crop escalated as **OV-24**)
 
 ## Application (`src/`)
 - `src/app/layout.tsx` — **bare** root layout: `<html lang="mk">`/`<body>`, fonts, `globals.css`, Vercel Analytics, site metadata. **3.04d:** `metadataBase` (Vercel origin, hardcoded + sync comment), Open Graph (siteName/locale `mk_MK`/crest image 864×1220) + Twitter `summary` card (D-3.04d-3). Site chrome moved to the `(site)` group so `/studio` can escape it (Phase 1.04, D-1.04-3)
