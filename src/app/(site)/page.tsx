@@ -19,15 +19,31 @@ import { focusOnNavy, focusOnPaper } from "@/lib/focus";
 // content (a captioned photo, a fresh clubRecord) surfaces without a redeploy.
 export const revalidate = 60;
 
+/**
+ * The season whose team photo opens the site, pinned in code (D-3.10-4).
+ *
+ * The archive's subject is history, so the front door shows the 1982/83 squad
+ * rather than whichever season happens to be newest. It is pinned here rather
+ * than as a Sanity „featured" field because that would be a schema change for
+ * a single editorial choice, and this phase owns no schema work — moving it
+ * into Studio later is a one-field migration, not a rewrite.
+ */
+const HERO_SEASON_SLUG = "1982-83";
+
+/** That season's `teamPhoto`, kept out of „Момент од историјата" (see below). */
+const HERO_PHOTO_ID = "photo-1bb63ff6de96c8152fae78794736fd7cd990ad81";
+
 /* ------------------------------------------------------------------ *
  * Homepage content — one GROQ round trip against the read client
- * (published only, no token). The query is unchanged by the 3.05 redesign:
- * this phase re-dresses the page, it does not re-source it.
+ * (published only, no token).
  *
- *  - HERO: the `teamPhoto` of the most recent season that has one
- *    (`order(decade desc, title desc)`, deterministic) — today the 2025/26
- *    squad. `heroFallbackPhoto` is the newest published photo, used only if no
- *    season carries a teamPhoto (defensive — 83/96 do today).
+ *  - HERO: the pinned season's `teamPhoto` (`heroPinned`, D-3.10-4). The two
+ *    older sources are kept beneath it as a fallback chain, and that is
+ *    load-bearing: unpublish the pinned season and the homepage quietly returns
+ *    to `heroSeason` — the `teamPhoto` of the most recent season that has one
+ *    (`order(decade desc, title desc)`, deterministic) — rather than opening on
+ *    a placeholder. `heroFallbackPhoto` is the newest published photo, used
+ *    only if no season carries a teamPhoto at all (defensive — 83/96 do today).
  *  - STORY: the verified `siteSettings.description` (owner-authored club copy).
  *  - LEGENDS: the club's ten most-capped players; portraits attach via
  *    `photo.relatedPerson`. Ranked and sliced IN GROQ by
@@ -42,13 +58,19 @@ export const revalidate = 60;
  *  - DECADES: every season's `decade`, reduced to per-decade counts.
  *  - MOMENT: one real, captioned, season-anchored, landscape archival photo,
  *    oldest era first then widest crop (D-3.03-4) — today the 1993 Cup photo.
- *    Ordering oldest-first structurally excludes the modern hero photo.
+ *    The hero photograph is excluded by `_id`, explicitly: it is a 1980s scan
+ *    that the oldest-first ordering would now rank *first*, and the only thing
+ *    keeping it out was its missing caption — one caption typed in Studio and
+ *    the same picture would have opened the page and closed it (D-3.10-5).
  *
  * Everything degrades to a visible placeholder (never invented) when a query
  * returns nothing — content-truth.
  * ------------------------------------------------------------------ */
 const HOME_QUERY = /* groq */ `{
   "settings": *[_type == "siteSettings"][0]{ title, description },
+  "heroPinned": *[_type == "season" && slug.current == $heroSeasonSlug && defined(teamPhoto)][0]{
+    title, "photo": teamPhoto->{ "image": image, caption }
+  },
   "heroSeason": *[_type == "season" && defined(teamPhoto)]
     | order(decade desc, title desc)[0]{
       title,
@@ -70,6 +92,7 @@ const HOME_QUERY = /* groq */ `{
   "records": *[_type == "clubRecord"]{ label, value, category, order },
   "decadeValues": *[_type == "season" && defined(decade)].decade,
   "moment": *[_type == "photo"
+      && _id != $heroPhotoId
       && defined(caption) && caption != ""
       && defined(relatedSeason)
       && image.asset->metadata.dimensions.aspectRatio > 1.2]
@@ -89,9 +112,12 @@ type Legend = {
   hasPortrait: boolean;
 };
 
+type Season = { title: string | null; photo: Photo | null };
+
 type HomeData = {
   settings: { title: string | null; description: string | null } | null;
-  heroSeason: { title: string | null; photo: Photo | null } | null;
+  heroPinned: Season | null;
+  heroSeason: Season | null;
   heroFallbackPhoto: Photo | null;
   legends: Legend[];
   records: ClubRecordData[];
@@ -105,6 +131,7 @@ type HomeData = {
 
 const EMPTY: HomeData = {
   settings: null,
+  heroPinned: null,
   heroSeason: null,
   heroFallbackPhoto: null,
   legends: [],
@@ -132,6 +159,36 @@ const QUICK_LINKS: { href: string; label: string; sub: string }[] = [
   { href: "/za-nas", label: "За нас", sub: "За овој проект" },
 ];
 
+/** Last-resort hero alt — used only when nothing on the photo names it. */
+const HERO_ALT_GENERIC = "Архивска фотографија на ФК Беласица";
+
+/**
+ * The hero's alt text, resolved in the **same order as `heroPhoto`** so the two
+ * can never describe different pictures.
+ *
+ * A caption always wins where one exists. The pinned season has none today, so
+ * its own title carries the alt with Studio's typographic quotes („…“) stripped
+ * — derived from the fetched title rather than written out here, so the string
+ * follows the data if the season is ever re-pinned or retitled.
+ */
+function heroAltFor({
+  heroPinned,
+  heroSeason,
+  heroFallbackPhoto,
+}: HomeData): string {
+  if (heroPinned?.photo?.image) {
+    const season = (heroPinned.title ?? "").replace(/[„“]/g, "").trim();
+    return (
+      heroPinned.photo.caption?.trim() ||
+      (season ? `Тимска фотографија — ${season}` : HERO_ALT_GENERIC)
+    );
+  }
+  if (heroSeason?.photo?.image) {
+    return heroSeason.photo.caption?.trim() || HERO_ALT_GENERIC;
+  }
+  return heroFallbackPhoto?.caption?.trim() || HERO_ALT_GENERIC;
+}
+
 /** Reduce the flat list of season decades to sorted per-decade counts. */
 function toDecadeCounts(values: number[]): { decade: number; count: number }[] {
   const counts = new Map<number, number>();
@@ -155,20 +212,31 @@ export default async function Home() {
     // and a missing one is a silent hole, whereas the homepage degrades to a
     // visible placeholder front door — which is honest, and better than a site
     // that will not load at all. It never invents filler (content-truth).
-    data = await fetchOrThrow<HomeData>(HOME_QUERY, {}, "the homepage");
+    data = await fetchOrThrow<HomeData>(
+      HOME_QUERY,
+      { heroSeasonSlug: HERO_SEASON_SLUG, heroPhotoId: HERO_PHOTO_ID },
+      "the homepage",
+    );
   } catch {
     data = EMPTY;
   }
 
-  const { settings, heroSeason, heroFallbackPhoto, records, moment } = data;
+  const {
+    settings,
+    heroPinned,
+    heroSeason,
+    heroFallbackPhoto,
+    records,
+    moment,
+  } = data;
 
   const heroTitle = settings?.title?.trim() || "ФК Беласица";
   const heroPhoto =
-    heroSeason?.photo?.image ?? heroFallbackPhoto?.image ?? null;
-  const heroAlt =
-    heroSeason?.photo?.caption ||
-    heroFallbackPhoto?.caption ||
-    "Архивска фотографија на ФК Беласица";
+    heroPinned?.photo?.image ??
+    heroSeason?.photo?.image ??
+    heroFallbackPhoto?.image ??
+    null;
+  const heroAlt = heroAltFor(data);
 
   const description = settings?.description?.trim() || null;
 
@@ -202,7 +270,11 @@ export default async function Home() {
        * navy (14.95:1), rather than depending on whichever team photo ISR
        * happens to serve (D-3.05a-10). */}
       <section aria-labelledby="hero-heading" className="bg-navy">
-        <div className="relative aspect-[4/5] w-full sm:aspect-[16/10] lg:aspect-[21/8]">
+        {/* `3/2` on a phone, not the `4/5` this block carried while the hero was
+            a modern squad photo (D-3.10-6): the pinned 1982/83 scan is 1.92:1
+            and lines twenty people up across its full width, so a portrait box
+            cropped away more than half the team. */}
+        <div className="relative aspect-[3/2] w-full sm:aspect-[16/10] lg:aspect-[21/8]">
           <PhotoFrame
             image={heroPhoto}
             alt={heroAlt}
@@ -211,7 +283,9 @@ export default async function Home() {
             width={2400}
             priority
             placeholderLabel="насловна фотографија"
-            objectPosition="50% 32%"
+            // Down from 32%: the wide `21/8` desktop box keeps both rows of
+            // heads and gives up grass along the bottom instead.
+            objectPosition="50% 38%"
           />
         </div>
 

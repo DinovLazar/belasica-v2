@@ -23,17 +23,16 @@ export const metadata: Metadata = {
  * /kontakt — the last nav route to be built; with it, every one of the six
  * top-level nav links now lands on a real page.
  *
- * **Provisional** (D-2.05-1, per the 2.05 handover §5): a set-apart banner says
- * so up top. `ContactForm` reads `NEXT_PUBLIC_FORMSPREE_ENDPOINT` (a **public**
- * form action, not a secret — safe in a public repo, D-2.07-2); while it is
- * unset the form renders visibly disabled with a placeholder (D-2.07-3).
- * **Since 3.03b the endpoint is set** in `.env.local` and on Vercel (Prod +
- * Preview), so the live form is what renders (D-3.03b-1). 3.03b and 3.07 landed
- * within hours of each other and between them left **PL-15 (socials) as the only
- * open placeholder on this page** — 3.03b cleared PL-14, 3.07 cleared PL-3 — so
- * the banner names the socials specifically rather than „the direct contacts",
- * which stopped being true when the email went live (D-3.03b-2, D-3.07-5). No
- * hero: nothing in the locked model sources one (cf. D-2.06-4).
+ * The „во подготовка" banner was **removed at owner request in 3.10** and the
+ * page is no longer marked provisional (D-3.10-1).
+ *
+ * `ContactForm` reads `NEXT_PUBLIC_FORMSPREE_ENDPOINT` (a **public** form
+ * action, not a secret — safe in a public repo, D-2.07-2); while it is unset
+ * the form renders visibly disabled with a placeholder (D-2.07-3). **Since
+ * 3.03b the endpoint is set** in `.env.local` and on Vercel (Prod + Preview),
+ * so the live form is what renders (D-3.03b-1). **PL-15 (socials) is the only
+ * open placeholder left on this page** — 3.03b cleared PL-14, 3.07 cleared
+ * PL-3. No hero: nothing in the locked model sources one (cf. D-2.06-4).
  */
 export default function ContactPage() {
   const endpoint = process.env.NEXT_PUBLIC_FORMSPREE_ENDPOINT;
@@ -49,27 +48,10 @@ export default function ContactPage() {
 
       <div className="py-section">
         <Container>
-          {/* Provisional banner — SeasonSectionEmpty's visual language (a white
-              block capped by the orange bar), but overline-led rather than
-              heading-led so it does not disturb the page's h1 → h2 order.
-              Structural copy: it claims nothing about the club. */}
-          <Reveal>
-            <div className="u-cap bg-white p-6 md:p-8">
-              <p className="text-overline font-bold uppercase tracking-overline text-neutral-700">
-                Страницата е во подготовка
-              </p>
-              <p className="mt-2 text-small text-neutral-700">
-                Оваа страница сѐ уште се доработува и може да се промени.
-                Формуларот и е-поштата се активни; профилите на социјалните
-                мрежи допрва се поставуваат.
-              </p>
-            </div>
-          </Reveal>
-
           {/* At 1280: form left, direct block right with `border-l border-mist`.
               At 375: single column, form first, direct block below a
               `border-t border-mist` (handover §5). */}
-          <div className="mt-10 grid gap-10 md:grid-cols-2 md:gap-0">
+          <div className="grid gap-10 md:grid-cols-2 md:gap-0">
             <Reveal>
               <section
                 aria-labelledby="form-heading"

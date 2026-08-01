@@ -60,7 +60,10 @@ export default async function LegendsPage() {
   const sorted: LegendCardData[] = [...people]
     .sort((a, b) => compareByName(a.name ?? "", b.name ?? ""))
     // 800px matches the card's largest rendered width (a 3-up track at 1408).
-    .map((person) => ({ ...person, portrait: framedImage(person.portrait, 800) }));
+    .map((person) => ({
+      ...person,
+      portrait: framedImage(person.portrait, 800),
+    }));
 
   // Placement is a whole-roster decision, so it happens here rather than inside
   // a band: each person lands in exactly one band — the one for their
@@ -77,31 +80,35 @@ export default async function LegendsPage() {
 
   const placed = bands.reduce((sum, band) => sum + band.people.length, 0);
 
-  return (
-    <>
-      <PageHeader
-        title="Легенди"
-        crumbs={[{ label: "Почетна", href: "/" }, { label: "Легенди" }]}
-        // Structural copy — describes the page, claims no fact about the club.
-        intro="Играчите, тренерите и раководството што го обележале клубот низ годините."
-      />
+  // The empty branch keeps its own header: it has no search field to host and
+  // no real count to state, so `LegendsBrowser` — which since 3.10 renders the
+  // header around the search (D-3.10-2) — is not the right thing to mount for
+  // a roster of nobody. The three header strings are therefore written twice,
+  // here and in the browser; they are the same copy and this branch is the
+  // defensive one (D-3.10-3).
+  if (placed === 0) {
+    return (
+      <>
+        <PageHeader
+          title="Легенди"
+          crumbs={[{ label: "Почетна", href: "/" }, { label: "Легенди" }]}
+          // Structural copy — describes the page, claims no fact about the club.
+          intro="Играчите, тренерите и раководството што го обележале клубот низ годините."
+        />
 
-      {placed === 0 ? (
-        // Heading + one notice rather than a bare page (§2 „Whole page empty").
-        // This matches the archive index's zero-seasons state — the existing
-        // empty convention for a collection page, which §2 asks to confirm
-        // against — not the season page's five-chip notice, which enumerates
-        // one season's own missing sections.
+        {/* Heading + one notice rather than a bare page (§2 „Whole page empty").
+            This matches the archive index's zero-seasons state — the existing
+            empty convention for a collection page, which §2 asks to confirm
+            against — not the season page's five-chip notice, which enumerates
+            one season's own missing sections. */}
         <Container className="py-section">
           <PlaceholderChip label="легенди — сѐ уште не се објавени" />
         </Container>
-      ) : (
-        <Container className="py-section">
-          {/* Bands are built here (placement is a whole-roster decision); the
-              browser only adds the name filter over them, client-side. */}
-          <LegendsBrowser bands={bands} />
-        </Container>
-      )}
-    </>
-  );
+      </>
+    );
+  }
+
+  // Bands are built here (placement is a whole-roster decision); the browser
+  // renders the navy header, the name filter and the bands under it.
+  return <LegendsBrowser bands={bands} />;
 }
