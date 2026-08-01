@@ -43,3 +43,6 @@ next-env.d.ts
 
 # Sanity CLI schema/manifest extract output (sanity schema deploy)
 /dist
+
+# Claude Code worktrees (local scratch, contains full build output)
+/.claude/worktrees/

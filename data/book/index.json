@@ -1,0 +1,965 @@
+{
+  "seasonCount": 96,
+  "seasons": [
+    {
+      "id": "1922/26",
+      "startYear": 1922,
+      "title": "Беласица 1922–1926 – формирање на клубот",
+      "league": null,
+      "finalPosition": null,
+      "matchCount": 0,
+      "storyWordCount": 380,
+      "squadCount": 0
+    },
+    {
+      "id": "1926/30",
+      "startYear": 1926,
+      "title": "Граѓански спортски клуб „Беласица“, 1926-1930 – првите натпревари со Тиверија",
+      "league": null,
+      "finalPosition": null,
+      "matchCount": 0,
+      "storyWordCount": 310,
+      "squadCount": 0
+    },
+    {
+      "id": "1930/31",
+      "startYear": 1930,
+      "title": "СД Беласица 1930/31 – поуспешни од Тиверија и Кожуф",
+      "league": "Скопска жупа",
+      "finalPosition": null,
+      "matchCount": 4,
+      "storyWordCount": 80,
+      "squadCount": 0
+    },
+    {
+      "id": "1931/32",
+      "startYear": 1931,
+      "title": "СД Беласица, 1931/32 – натпревари против Шумадија, третиот клуб од Струмица",
+      "league": "Велешка жупа",
+      "finalPosition": "полуфинале",
+      "matchCount": 7,
+      "storyWordCount": 157,
+      "squadCount": 0
+    },
+    {
+      "id": "1932/33",
+      "startYear": 1932,
+      "title": "СД Беласица 1932/33 – шампион на струмичката група",
+      "league": "Велешка жупа",
+      "finalPosition": "полуфинале",
+      "matchCount": 3,
+      "storyWordCount": 108,
+      "squadCount": 0
+    },
+    {
+      "id": "1933/34",
+      "startYear": 1933,
+      "title": "СД БЕЛАСИЦА 1933/34 – пласман во финалето на Велешката жупа",
+      "league": "Велешка жупа",
+      "finalPosition": "финале",
+      "matchCount": 5,
+      "storyWordCount": 87,
+      "squadCount": 0
+    },
+    {
+      "id": "1934/35",
+      "startYear": 1934,
+      "title": "СД Беласица, 1934/35 – финале против Велешки",
+      "league": "Велешка жупа",
+      "finalPosition": "финале",
+      "matchCount": 8,
+      "storyWordCount": 206,
+      "squadCount": 0
+    },
+    {
+      "id": "1935/36",
+      "startYear": 1935,
+      "title": "СД БЕЛАСИЦА 1935/36 –пораз во двомечот против Кожуф",
+      "league": "Велешка жупа",
+      "finalPosition": "1 коло",
+      "matchCount": 4,
+      "storyWordCount": 71,
+      "squadCount": 0
+    },
+    {
+      "id": "1936/37",
+      "startYear": 1936,
+      "title": "СД Беласица 1936/37 – борба за опстанок на клубот",
+      "league": "Велешка жупа",
+      "finalPosition": "не",
+      "matchCount": 0,
+      "storyWordCount": 131,
+      "squadCount": 0
+    },
+    {
+      "id": "1937/38",
+      "startYear": 1937,
+      "title": "СД Беласица 1937/38—пропуст во регистрацијата на играч и елиминација",
+      "league": "Велешка жупа",
+      "finalPosition": null,
+      "matchCount": 2,
+      "storyWordCount": 125,
+      "squadCount": 0
+    },
+    {
+      "id": "1938/39",
+      "startYear": 1938,
+      "title": "СД Беласица 1938/39- финале на Провинциската лига против Звечан од Косовска Митровица",
+      "league": "провинциска лига",
+      "finalPosition": "2",
+      "matchCount": 10,
+      "storyWordCount": 197,
+      "squadCount": 0
+    },
+    {
+      "id": "1939/40",
+      "startYear": 1939,
+      "title": "СД Беласица 1939-40 – натпревари против екипи од Прилеп и од Битола",
+      "league": "провинциска лига- јужна зона",
+      "finalPosition": "3",
+      "matchCount": 6,
+      "storyWordCount": 85,
+      "squadCount": 0
+    },
+    {
+      "id": "1940/41",
+      "startYear": 1940,
+      "title": "СД Беласица 1940/41 – финале на Јужната зона против Хајдук од Прилеп",
+      "league": "провинциска лига- јужна зона",
+      "finalPosition": "финале",
+      "matchCount": 4,
+      "storyWordCount": 113,
+      "squadCount": 0
+    },
+    {
+      "id": "1942",
+      "startYear": 1942,
+      "title": "СД Беласица, 1942 – пријателски натпревари со градскиот ривал",
+      "league": null,
+      "finalPosition": null,
+      "matchCount": 5,
+      "storyWordCount": 118,
+      "squadCount": 7
+    },
+    {
+      "id": "1943",
+      "startYear": 1943,
+      "title": "СДБеласица, 1943 – незаслужено одземена титулата за победник на дивизијата",
+      "league": "Пиринска област",
+      "finalPosition": "3",
+      "matchCount": 6,
+      "storyWordCount": 214,
+      "squadCount": 17
+    },
+    {
+      "id": "1943/44",
+      "startYear": 1943,
+      "title": "СДБеласица, 1943/44 –прекинато првенство",
+      "league": "Пиринска област",
+      "finalPosition": "3",
+      "matchCount": 7,
+      "storyWordCount": 119,
+      "squadCount": 19
+    },
+    {
+      "id": "1945/48",
+      "startYear": 1945,
+      "title": "ФДИлинден (1945-1948) –тригодишен период под името „Илинден“",
+      "league": null,
+      "finalPosition": null,
+      "matchCount": 9,
+      "storyWordCount": 442,
+      "squadCount": 18
+    },
+    {
+      "id": "1948/49",
+      "startYear": 1948,
+      "title": "ФДИлинден/ Беласица 1948/49 - враќање на името Беласица",
+      "league": "Штипска зона",
+      "finalPosition": "2",
+      "matchCount": 12,
+      "storyWordCount": 335,
+      "squadCount": 18
+    },
+    {
+      "id": "1950",
+      "startYear": 1950,
+      "title": "ФК Беласица 1950 – сезона во знак на Илија Чулевски",
+      "league": "Штипска област",
+      "finalPosition": "1",
+      "matchCount": 16,
+      "storyWordCount": 189,
+      "squadCount": 20
+    },
+    {
+      "id": "1950/51",
+      "startYear": 1950,
+      "title": "Беласица, 1950/51, неуспешни квалификации за влез во Прва републичка лига,",
+      "league": null,
+      "finalPosition": null,
+      "matchCount": 10,
+      "storyWordCount": 163,
+      "squadCount": 15
+    },
+    {
+      "id": "1951",
+      "startYear": 1951,
+      "title": "ФК Беласица, 1951 – пуштање на новиот стадион пред 6.000 гледачи, против скопски Вардар",
+      "league": "Титовелешка зона",
+      "finalPosition": "1",
+      "matchCount": 22,
+      "storyWordCount": 264,
+      "squadCount": 23
+    },
+    {
+      "id": "1952",
+      "startYear": 1952,
+      "title": "ФК Беласица 1952 – борба за врвот во Штипскиот потсојуз",
+      "league": "Штипски потсојуз",
+      "finalPosition": "3",
+      "matchCount": 10,
+      "storyWordCount": 164,
+      "squadCount": 11
+    },
+    {
+      "id": "1952/53",
+      "startYear": 1952,
+      "title": "ФК Беласица, 1952/53 – конечно изборен влез во Македонска лига",
+      "league": "Штипски потсојуз",
+      "finalPosition": "2",
+      "matchCount": 14,
+      "storyWordCount": 196,
+      "squadCount": 19
+    },
+    {
+      "id": "1953/54",
+      "startYear": 1953,
+      "title": "ФК Беласица, 1953/54 – на крилата на Кочо Ќосев, Митко Панов и Славко Џорлев",
+      "league": "Прва македонска лига",
+      "finalPosition": "4",
+      "matchCount": 22,
+      "storyWordCount": 160,
+      "squadCount": 21
+    },
+    {
+      "id": "1954/55",
+      "startYear": 1954,
+      "title": "ФК Беласица 1954/55 – сезона во знак на голгетерот, Васо Цветков",
+      "league": "Прва македонска лига",
+      "finalPosition": "7",
+      "matchCount": 25,
+      "storyWordCount": 243,
+      "squadCount": 17
+    },
+    {
+      "id": "1955/56",
+      "startYear": 1955,
+      "title": "ФК Беласица 1955/56 – добиен баражот против Пелистер за влез во 4 зона",
+      "league": "Штипски потсојуз",
+      "finalPosition": "1",
+      "matchCount": 20,
+      "storyWordCount": 223,
+      "squadCount": 23
+    },
+    {
+      "id": "1956/57",
+      "startYear": 1956,
+      "title": "ФК Беласица 1956/57 – натпревари против екипи од Србија и од Косово",
+      "league": "4 југословенска зона",
+      "finalPosition": "13",
+      "matchCount": 24,
+      "storyWordCount": 238,
+      "squadCount": 22
+    },
+    {
+      "id": "1957/58",
+      "startYear": 1957,
+      "title": "ФК Беласица 1957/58 – 20 гола на Ѓуро Ефтимов и неуспешни квалификации против Караорман",
+      "league": "Штипски потсојуз",
+      "finalPosition": "1",
+      "matchCount": 23,
+      "storyWordCount": 267,
+      "squadCount": 21
+    },
+    {
+      "id": "1958/59",
+      "startYear": 1958,
+      "title": "ФК Беласица 1958/59 – нов напаѓачки квартет: Д. Трендов, В. Цветков, П. Пантазиев и Р. Зафиров",
+      "league": "Прва македонска лига",
+      "finalPosition": "6",
+      "matchCount": 22,
+      "storyWordCount": 328,
+      "squadCount": 18
+    },
+    {
+      "id": "1959/60",
+      "startYear": 1959,
+      "title": "ФК Беласица 1959/60 – освојување на четвртото место, предводени од Р. Зафиров",
+      "league": "Прва македонска лига",
+      "finalPosition": "4",
+      "matchCount": 24,
+      "storyWordCount": 256,
+      "squadCount": 21
+    },
+    {
+      "id": "1960/61",
+      "startYear": 1960,
+      "title": "ФК Беласица 1960/61- Пандазиев втор стрелец на лигата и несреќно испаѓање",
+      "league": "Прва македонска лига",
+      "finalPosition": "8",
+      "matchCount": 22,
+      "storyWordCount": 229,
+      "squadCount": 25
+    },
+    {
+      "id": "1961/62",
+      "startYear": 1961,
+      "title": "ФК Беласица 1961/62 – убедливо први во Штипски потсојуз и успешни квалификации",
+      "league": "Штипски потсојуз",
+      "finalPosition": "1",
+      "matchCount": 20,
+      "storyWordCount": 226,
+      "squadCount": 20
+    },
+    {
+      "id": "1962/63",
+      "startYear": 1962,
+      "title": "ФК Беласица 1962/63 – блесок на новата ѕвезда на струмичкиот фудбал, Ѓоко Георгиев",
+      "league": "Прва македонска лига",
+      "finalPosition": "6",
+      "matchCount": 26,
+      "storyWordCount": 328,
+      "squadCount": 22
+    },
+    {
+      "id": "1963/64",
+      "startYear": 1963,
+      "title": "ФК Беласица 1963/64 – вицешампион на Македонија со атомски напад",
+      "league": "Прва македонска лига",
+      "finalPosition": "2",
+      "matchCount": 26,
+      "storyWordCount": 281,
+      "squadCount": 22
+    },
+    {
+      "id": "1964/65",
+      "startYear": 1964,
+      "title": "ФК Беласица 1964/65 – сезона во знак на Мирко Џидалов",
+      "league": "Прва македонска лига",
+      "finalPosition": "5",
+      "matchCount": 26,
+      "storyWordCount": 236,
+      "squadCount": 19
+    },
+    {
+      "id": "1965/66",
+      "startYear": 1965,
+      "title": "ФК Беласица 1965/66 – враќање на искусниот стрелец – Славко Џорлев",
+      "league": "Прва македонска лига",
+      "finalPosition": "12",
+      "matchCount": 26,
+      "storyWordCount": 323,
+      "squadCount": 22
+    },
+    {
+      "id": "1966/67",
+      "startYear": 1966,
+      "title": "ФК Беласица 1966/67 – напаѓачки тандем – Т. Семенков и Ј. Петровиќ",
+      "league": "Прва македонска лига",
+      "finalPosition": "6",
+      "matchCount": 26,
+      "storyWordCount": 299,
+      "squadCount": 23
+    },
+    {
+      "id": "1967/68",
+      "startYear": 1967,
+      "title": "ФК Беласица 1967/68 – заминување во играчка пензија на Томче Ефтимов",
+      "league": "Прва македонска лига",
+      "finalPosition": "5",
+      "matchCount": 26,
+      "storyWordCount": 333,
+      "squadCount": 23
+    },
+    {
+      "id": "1968/69",
+      "startYear": 1968,
+      "title": "ФК БЕЛАСИЦА 1968/69–атомски напад: Чинков, Пантазиев, Георгиев, Ашиков, Џидалов",
+      "league": "Прва македонска лига",
+      "finalPosition": "7",
+      "matchCount": 30,
+      "storyWordCount": 254,
+      "squadCount": 27
+    },
+    {
+      "id": "1969/70",
+      "startYear": 1969,
+      "title": "ФК БЕЛАСИЦА 1969/70 – 17 гола на Ѓоко Георгиев за опстанок во лигата",
+      "league": "Прва македонска лига",
+      "finalPosition": "12",
+      "matchCount": 30,
+      "storyWordCount": 349,
+      "squadCount": 25
+    },
+    {
+      "id": "1970/71",
+      "startYear": 1970,
+      "title": "ФК Беласица 1970/71- заминување на Ашиков и спас во последното коло",
+      "league": "Прва македонска лига",
+      "finalPosition": "13",
+      "matchCount": 30,
+      "storyWordCount": 236,
+      "squadCount": 22
+    },
+    {
+      "id": "1971/72",
+      "startYear": 1971,
+      "title": "Беласица 1971/72 – смена на генерациите, последна сезона на: Џидалов, Георгиев и Пантазиев",
+      "league": "Прва македонска лига",
+      "finalPosition": "6",
+      "matchCount": 30,
+      "storyWordCount": 340,
+      "squadCount": 26
+    },
+    {
+      "id": "1972/73",
+      "startYear": 1972,
+      "title": "ФК Беласица 1972/73 – сезона во знакот на Васил Рингов, идната ѕвезда на македонскиот фудбал",
+      "league": "Прва македонска лига",
+      "finalPosition": "8",
+      "matchCount": 34,
+      "storyWordCount": 384,
+      "squadCount": 23
+    },
+    {
+      "id": "1973/74",
+      "startYear": 1973,
+      "title": "ФК Беласица 1973/74 – фудбалски магии на Митко Георгиев–Шеки, најголемиот струмички фудбалски талент",
+      "league": "Прва македонска лига",
+      "finalPosition": "5",
+      "matchCount": 34,
+      "storyWordCount": 305,
+      "squadCount": 25
+    },
+    {
+      "id": "1974/75",
+      "startYear": 1974,
+      "title": "Беласица 1974/75,деби на младите П. Андреев и К. Секулов, Б. Тасев најдобар стрелец",
+      "league": "Прва македонска лига",
+      "finalPosition": "15",
+      "matchCount": 34,
+      "storyWordCount": 459,
+      "squadCount": 30
+    },
+    {
+      "id": "1975/76",
+      "startYear": 1975,
+      "title": "ФК Беласица 1975/76 – Мафков прв стрелец во Првата македонска лига",
+      "league": "Прва македонска лига",
+      "finalPosition": "10",
+      "matchCount": 34,
+      "storyWordCount": 362,
+      "squadCount": 27
+    },
+    {
+      "id": "1976/77",
+      "startYear": 1976,
+      "title": "ФК Беласица 1976/77, реновирање на стадионот „Младост“ и освојување начетвртото место",
+      "league": "Прва македонска лига",
+      "finalPosition": "4",
+      "matchCount": 34,
+      "storyWordCount": 346,
+      "squadCount": 23
+    },
+    {
+      "id": "1977/78",
+      "startYear": 1977,
+      "title": "Беласица 1977/78 – деби на Милан Василев и Васе Стојков",
+      "league": "Прва македонска лига",
+      "finalPosition": "12",
+      "matchCount": 34,
+      "storyWordCount": 317,
+      "squadCount": 27
+    },
+    {
+      "id": "1978/79",
+      "startYear": 1978,
+      "title": "ФК Беласица 1978/79 – враќање на клупските легенди, предводени од Благој Истатов",
+      "league": "Прва македонска лига",
+      "finalPosition": "3",
+      "matchCount": 34,
+      "storyWordCount": 279,
+      "squadCount": 23
+    },
+    {
+      "id": "1979/80",
+      "startYear": 1979,
+      "title": "ФК Беласица 1979/80, борба за шампионската титула со Работнички",
+      "league": "Прва македонска лига",
+      "finalPosition": "3",
+      "matchCount": 30,
+      "storyWordCount": 266,
+      "squadCount": 22
+    },
+    {
+      "id": "1980/81",
+      "startYear": 1980,
+      "title": "ФК Беласица 1980/81, доаѓање на Ристо Панов и Трајче Георгиев",
+      "league": "Прва македонска лига",
+      "finalPosition": "12",
+      "matchCount": 29,
+      "storyWordCount": 312,
+      "squadCount": 27
+    },
+    {
+      "id": "1981/82",
+      "startYear": 1981,
+      "title": "ФК Беласица 1981/82, Милан Василев и Томе Стојанов, главни стрелци во тимот",
+      "league": "Прва македонска лига",
+      "finalPosition": "6",
+      "matchCount": 30,
+      "storyWordCount": 344,
+      "squadCount": 22
+    },
+    {
+      "id": "1982/83",
+      "startYear": 1982,
+      "title": "Беласица 1982/83 – конечно шампионска титула и влез во Втора југословенска лига",
+      "league": "Прва македонска лига",
+      "finalPosition": "1",
+      "matchCount": 30,
+      "storyWordCount": 303,
+      "squadCount": 30
+    },
+    {
+      "id": "1983/84",
+      "startYear": 1983,
+      "title": "Беласица 1983/84, куп пресметка против Динамо Загреб и простување на Истатов против Партизан",
+      "league": "Втора југословенска лига",
+      "finalPosition": "5",
+      "matchCount": 34,
+      "storyWordCount": 252,
+      "squadCount": 25
+    },
+    {
+      "id": "1984/85",
+      "startYear": 1984,
+      "title": "Беласица 1984/85, блескав старт на сезоната, па тешка повреда на Душко Василев",
+      "league": "Втора југословенска лига",
+      "finalPosition": "11",
+      "matchCount": 34,
+      "storyWordCount": 320,
+      "squadCount": 22
+    },
+    {
+      "id": "1985/86",
+      "startYear": 1985,
+      "title": "ФК БЕЛАСИЦА 1985/86 – 1/16 на купот на Југославија против Риека на Кантрида",
+      "league": "Втора југословенска лига",
+      "finalPosition": "13",
+      "matchCount": 34,
+      "storyWordCount": 373,
+      "squadCount": 21
+    },
+    {
+      "id": "1986/87",
+      "startYear": 1986,
+      "title": "Беласица 1986/87, испаѓање од Втората југословенска лига – исток",
+      "league": "Втора југословенска лига",
+      "finalPosition": "16",
+      "matchCount": 34,
+      "storyWordCount": 358,
+      "squadCount": 27
+    },
+    {
+      "id": "1987/88",
+      "startYear": 1987,
+      "title": "Беласица 1987/88, шампион на Прватамакедонска лига и квалификации против Бокељ и Трепча",
+      "league": "Прва македонска лига",
+      "finalPosition": "1",
+      "matchCount": 38,
+      "storyWordCount": 499,
+      "squadCount": 25
+    },
+    {
+      "id": "1988/89",
+      "startYear": 1988,
+      "title": "ФК Беласица 1988/89 – најголемиот успех во клупската историја, настап во единствена Втора југословенска лига",
+      "league": "Втора југословенска лига",
+      "finalPosition": "20",
+      "matchCount": 38,
+      "storyWordCount": 408,
+      "squadCount": 30
+    },
+    {
+      "id": "1989/90",
+      "startYear": 1989,
+      "title": "ФК Беласица 1989/90, подмладување на екипата и настап во Третата југословенска лига",
+      "league": "Трета југословенска лига",
+      "finalPosition": "15",
+      "matchCount": 34,
+      "storyWordCount": 341,
+      "squadCount": 26
+    },
+    {
+      "id": "1990/91",
+      "startYear": 1990,
+      "title": "Беласица,1990/91 – сезона во знакот на М. Василев, Р. Попов и Б. Марков",
+      "league": "Прва македонска лига",
+      "finalPosition": "3",
+      "matchCount": 34,
+      "storyWordCount": 342,
+      "squadCount": 27
+    },
+    {
+      "id": "1991/92",
+      "startYear": 1991,
+      "title": "ФК Беласица, 1991/92 – последна сезона во рамките на југословенските лиги и заминување на М. Василев",
+      "league": "Трета југословенска лига",
+      "finalPosition": "15",
+      "matchCount": 29,
+      "storyWordCount": 478,
+      "squadCount": 35
+    },
+    {
+      "id": "1992/93",
+      "startYear": 1992,
+      "title": "ФК Беласица 1992/93, прва сезона во независна Македонија и нерешено со Вардар",
+      "league": "Прва македонска лига",
+      "finalPosition": "9",
+      "matchCount": 34,
+      "storyWordCount": 394,
+      "squadCount": 30
+    },
+    {
+      "id": "1993/94",
+      "startYear": 1993,
+      "title": "ФК Беласица 1993/94 – Хаџиосмановиќ главенстрелец и враќање на Б. Истатов",
+      "league": "Прва македонска лига",
+      "finalPosition": "12",
+      "matchCount": 30,
+      "storyWordCount": 430,
+      "squadCount": 30
+    },
+    {
+      "id": "1994/95",
+      "startYear": 1994,
+      "title": "Беласица 1994/95 – сезона на големи финансиски проблеми, но и афирмација на И. Ѓузелов и В. Георгиев",
+      "league": "Прва македонска лига",
+      "finalPosition": "10",
+      "matchCount": 30,
+      "storyWordCount": 343,
+      "squadCount": 27
+    },
+    {
+      "id": "1995/96",
+      "startYear": 1995,
+      "title": "Беласица 1995/96 –по 22 сезони на клупската легенда, заминување на Петар Андреев",
+      "league": "Прва македонска лига",
+      "finalPosition": "9",
+      "matchCount": 28,
+      "storyWordCount": 365,
+      "squadCount": 25
+    },
+    {
+      "id": "1996/97",
+      "startYear": 1996,
+      "title": "ФК Беласица 1996/97, последна сезона на клупската легенда, Ристо Панов",
+      "league": "Прва македонска лига",
+      "finalPosition": "10",
+      "matchCount": 26,
+      "storyWordCount": 354,
+      "squadCount": 32
+    },
+    {
+      "id": "1997/98",
+      "startYear": 1997,
+      "title": "ФК Беласица 1997/98, Тони Атанасов, прв стрелец во лигата, но и испаѓање",
+      "league": "Прва македонска лига",
+      "finalPosition": "13",
+      "matchCount": 25,
+      "storyWordCount": 314,
+      "squadCount": 27
+    },
+    {
+      "id": "1998/99",
+      "startYear": 1998,
+      "title": "Беласица 1998/99, борба против Куманово и последна сезона на Горан Стојановски",
+      "league": "Втора македонска лига",
+      "finalPosition": "2",
+      "matchCount": 29,
+      "storyWordCount": 364,
+      "squadCount": 34
+    },
+    {
+      "id": "1999/00",
+      "startYear": 1999,
+      "title": "ФК Беласица 1999/2000, појава на Горан Пандев и Аце Стојков и влез во Првата македонска лига",
+      "league": "Втора македонска лига",
+      "finalPosition": "1",
+      "matchCount": 30,
+      "storyWordCount": 392,
+      "squadCount": 31
+    },
+    {
+      "id": "2000/01",
+      "startYear": 2000,
+      "title": "Беласица 2000/01, борба за пласман во купот на УЕФА до последното коло",
+      "league": "Прва македонска лига",
+      "finalPosition": "4",
+      "matchCount": 26,
+      "storyWordCount": 636,
+      "squadCount": 30
+    },
+    {
+      "id": "2001/02",
+      "startYear": 2001,
+      "title": "ФК Беласица, 2001/02, освојување на вицешампионската титула,Роберт Попов најдобар играч во лигата",
+      "league": "Прва македонска лига",
+      "finalPosition": "2",
+      "matchCount": 32,
+      "storyWordCount": 523,
+      "squadCount": 29
+    },
+    {
+      "id": "2002/03",
+      "startYear": 2002,
+      "title": "Беласица 2002/03 – нова вицешампионска титула, настап во купот на УЕФАи блесок на З. Балдовалиев",
+      "league": "Прва македонска лига",
+      "finalPosition": "2",
+      "matchCount": 33,
+      "storyWordCount": 267,
+      "squadCount": 29
+    },
+    {
+      "id": "2003/04",
+      "startYear": 2003,
+      "title": "ФК Беласица 2003/04 – двомеч против Публикум од Словенија и заминување на најдобрите",
+      "league": "Прва македонска лига",
+      "finalPosition": "10",
+      "matchCount": 33,
+      "storyWordCount": 345,
+      "squadCount": 45
+    },
+    {
+      "id": "2004/05",
+      "startYear": 2004,
+      "title": "Беласица 2004/05, сезона во знакот на Александар Стојановски, најдобриот стрелец на лигата",
+      "league": "Прва македонска лига",
+      "finalPosition": "7",
+      "matchCount": 33,
+      "storyWordCount": 425,
+      "squadCount": 35
+    },
+    {
+      "id": "2005/06",
+      "startYear": 2005,
+      "title": "Беласица, 2005/06, подмладување на екипата и испаѓање од Првата македонска лига",
+      "league": "Прва македонска лига",
+      "finalPosition": "12",
+      "matchCount": 33,
+      "storyWordCount": 371,
+      "squadCount": 45
+    },
+    {
+      "id": "2006/07",
+      "startYear": 2006,
+      "title": "ФК Беласица 2006/07, спас од испаѓање со четири победи во последните кола",
+      "league": "Втора македонска лига",
+      "finalPosition": "9",
+      "matchCount": 33,
+      "storyWordCount": 255,
+      "squadCount": 38
+    },
+    {
+      "id": "2007/08",
+      "startYear": 2007,
+      "title": "Беласица 2007/08 – заминување на Ванчо Таковски и хет-трик на 15-годишниот Ѓ. Марков",
+      "league": "Втора македонска лига",
+      "finalPosition": "4",
+      "matchCount": 33,
+      "storyWordCount": 366,
+      "squadCount": 35
+    },
+    {
+      "id": "2008/09",
+      "startYear": 2008,
+      "title": "Беласица 2008/09 – Ј. Тренчовски тренер, А. Стојановски и В. Георгиев напаѓачки тандем",
+      "league": "Втора македонска лига",
+      "finalPosition": "9",
+      "matchCount": 29,
+      "storyWordCount": 361,
+      "squadCount": 28
+    },
+    {
+      "id": "2009/10",
+      "startYear": 2009,
+      "title": "Беласица 2009/10 – Милко Ѓуровски, југословенската фудбалска легенда – тренер на Беласица",
+      "league": "Втора македонска лига",
+      "finalPosition": "8",
+      "matchCount": 26,
+      "storyWordCount": 289,
+      "squadCount": 31
+    },
+    {
+      "id": "2010/11",
+      "startYear": 2010,
+      "title": "Беласица 2010/11 – враќање на Р. Христовски и Д. Масев во Беласица",
+      "league": "Втора македонска лига",
+      "finalPosition": "5",
+      "matchCount": 26,
+      "storyWordCount": 351,
+      "squadCount": 31
+    },
+    {
+      "id": "2011/12",
+      "startYear": 2011,
+      "title": "Беласица 2011/12, испаѓање од Втората македонска лига и огромна финансиска криза",
+      "league": "Втора македонска лига",
+      "finalPosition": "15",
+      "matchCount": 30,
+      "storyWordCount": 265,
+      "squadCount": 34
+    },
+    {
+      "id": "2012/13",
+      "startYear": 2012,
+      "title": "ФК БЕЛАСИЦА 2012/13, борба соТиверија и Василево за влез во Втората лига",
+      "league": "Трета македонска лига",
+      "finalPosition": "4",
+      "matchCount": 33,
+      "storyWordCount": 334,
+      "squadCount": 24
+    },
+    {
+      "id": "2013/14",
+      "startYear": 2013,
+      "title": "ФК БЕЛАСИЦА 2013/14, неуспешен бараж против Вардар од Неготино",
+      "league": "Трета македонска лига",
+      "finalPosition": "1",
+      "matchCount": 27,
+      "storyWordCount": 331,
+      "squadCount": 26
+    },
+    {
+      "id": "2014/15",
+      "startYear": 2014,
+      "title": "Беласица 2014/15, доаѓање на Славчо Васков–Пинда на чело на клубот и бараж против Победа (Прилеп)",
+      "league": "Трета македонска лига",
+      "finalPosition": "1",
+      "matchCount": 24,
+      "storyWordCount": 418,
+      "squadCount": 25
+    },
+    {
+      "id": "2015/16",
+      "startYear": 2015,
+      "title": "ФК Беласица 2015/16 – дерби против Академија Пандев под рефлектори",
+      "league": "Трета македонска лига",
+      "finalPosition": "3",
+      "matchCount": 22,
+      "storyWordCount": 368,
+      "squadCount": 26
+    },
+    {
+      "id": "2016/17",
+      "startYear": 2016,
+      "title": "ФК Беласица 2016/17,шампионска титула и рекордна победа",
+      "league": "Трета македонска лига",
+      "finalPosition": "1",
+      "matchCount": 27,
+      "storyWordCount": 269,
+      "squadCount": 38
+    },
+    {
+      "id": "2017/18",
+      "startYear": 2017,
+      "title": "Беласица 2017/18, шампионска титула и во Втората лига",
+      "league": "Втора македонска лига",
+      "finalPosition": "1",
+      "matchCount": 25,
+      "storyWordCount": 309,
+      "squadCount": 31
+    },
+    {
+      "id": "2018/19",
+      "startYear": 2018,
+      "title": "Беласица 2018/19, враќање во Првата лига и полуфинале на купот на Македонија",
+      "league": "Прва македонска лига",
+      "finalPosition": "9",
+      "matchCount": 36,
+      "storyWordCount": 415,
+      "squadCount": 31
+    },
+    {
+      "id": "2019/20",
+      "startYear": 2019,
+      "title": "Беласица во сезоната 2019/20, прекин на сезоната и враќање во Првата македонска лига",
+      "league": "Втора македонска лига",
+      "finalPosition": "1",
+      "matchCount": 16,
+      "storyWordCount": 318,
+      "squadCount": 21
+    },
+    {
+      "id": "2020/21",
+      "startYear": 2020,
+      "title": "ФК Беласица 2020/21, судир со најдобрите и испаѓање од лигата",
+      "league": "Прва македонска лига",
+      "finalPosition": "12",
+      "matchCount": 33,
+      "storyWordCount": 295,
+      "squadCount": 36
+    },
+    {
+      "id": "2021/22",
+      "startYear": 2021,
+      "title": "Беласица 2021/22 – неуспешен бараж против ФК Скопје за враќање во Првата македонска лига",
+      "league": "Втора македонска лига",
+      "finalPosition": "2",
+      "matchCount": 28,
+      "storyWordCount": 293,
+      "squadCount": 30
+    },
+    {
+      "id": "2022/23",
+      "startYear": 2022,
+      "title": "Беласица 2022/23 – борба за средината на табелата, капитенот А. Милушев прв стрелец",
+      "league": "Втора македонска лига",
+      "finalPosition": "10",
+      "matchCount": 30,
+      "storyWordCount": 276,
+      "squadCount": 33
+    },
+    {
+      "id": "2023/24",
+      "startYear": 2023,
+      "title": "Беласица 2023/24 –последна полусезона во Беласица на З. Митевски и Ј. Серафимовски",
+      "league": "Втора македонска лига",
+      "finalPosition": "7",
+      "matchCount": 30,
+      "storyWordCount": 363,
+      "squadCount": 38
+    },
+    {
+      "id": "2024/25",
+      "startYear": 2024,
+      "title": "Беласица, 2024/25 - блесок на Димче Јовов",
+      "league": "Втора македонска лига",
+      "finalPosition": "8",
+      "matchCount": 29,
+      "storyWordCount": 491,
+      "squadCount": 36
+    },
+    {
+      "id": "2025/26",
+      "startYear": 2025,
+      "title": "Беласица, 2025/26 – борба за враќање во Прва македонска лига",
+      "league": null,
+      "finalPosition": null,
+      "matchCount": 0,
+      "storyWordCount": 163,
+      "squadCount": 26
+    }
+  ]
+}
