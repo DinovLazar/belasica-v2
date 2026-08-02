@@ -7,7 +7,12 @@ import { PageHeader } from "@/components/PageHeader";
 import { PlaceholderChip } from "@/components/home/PlaceholderChip";
 import type { LegendCardData } from "@/components/legends/LegendCard";
 import { LegendsBrowser } from "@/components/legends/LegendsBrowser";
-import { compareByName, primaryRole, ROLE_PRIORITY } from "@/lib/people";
+import {
+  compareByLegendRank,
+  compareByName,
+  primaryRole,
+  ROLE_PRIORITY,
+} from "@/lib/people";
 
 // Match the archive (D-1.05-4): a person published in Studio appears within
 // ~a minute, without a redeploy.
@@ -25,10 +30,10 @@ export const metadata: Metadata = {
  * after `coalesce(date,"9999") asc` is the portrait, the same ordering key the
  * homepage and the archive use.
  *
- * Deliberately **not** ordered in GROQ: the band order is by `name` with
- * locale-aware Cyrillic collation (§2), which GROQ's `order()` cannot do — it
- * compares code units, so „Ѓ" (U+0403) would sort after „Ш" instead of between
- * „Г" and „Д". The sort happens in JS below.
+ * Deliberately **not** ordered in GROQ: both band orders need locale-aware
+ * Cyrillic collation, which GROQ's `order()` cannot do — it compares code
+ * units, so „Ѓ" (U+0403) would sort after „Ш" instead of between „Г" and „Д".
+ * The sort happens in JS below.
  */
 const LEGENDS_QUERY = /* groq */ `
 *[_type == "person" && defined(slug.current)]{
@@ -36,6 +41,8 @@ const LEGENDS_QUERY = /* groq */ `
   "slug": slug.current,
   role,
   playingYears,
+  legendRank,
+  careerStats{ appearances },
   "portrait": *[_type == "photo" && relatedPerson._ref == ^._id]
     | order(coalesce(date, "9999") asc)[0].image
 }`;
@@ -45,6 +52,10 @@ const LEGENDS_QUERY = /* groq */ `
  *  component and may not receive one (D-3.09-1). */
 type PersonRow = Omit<LegendCardData, "portrait"> & {
   portrait: SanityImageSource | null;
+  /** The book's all-time appearance rank, 1–80. Null for everyone it does not
+   *  list — most of the roster, and every trainer and official. */
+  legendRank: number | null;
+  careerStats: { appearances: number | null } | null;
 };
 
 export default async function LegendsPage() {
@@ -57,13 +68,11 @@ export default async function LegendsPage() {
     people = [];
   }
 
-  const sorted: LegendCardData[] = [...people]
-    .sort((a, b) => compareByName(a.name ?? "", b.name ?? ""))
+  const resolved = people.map((person) => ({
+    ...person,
     // 800px matches the card's largest rendered width (a 3-up track at 1408).
-    .map((person) => ({
-      ...person,
-      portrait: framedImage(person.portrait, 800),
-    }));
+    portrait: framedImage(person.portrait, 800),
+  }));
 
   // Placement is a whole-roster decision, so it happens here rather than inside
   // a band: each person lands in exactly one band — the one for their
@@ -73,9 +82,22 @@ export default async function LegendsPage() {
   // A person holding no recognised role is placed in no band; inventing a
   // fourth band for them would be a design decision this phase does not own.
   // Their `/legendi/<slug>` page still renders, and nothing links to it.
+  //
+  // Each band then takes its own order. Играчи is the club's all-time
+  // appearance ranking, most-capped first — the owner's instruction at 3.12
+  // („наредете ги според број на натпревари, а не по азбучен ред"), read from
+  // `legendRank` (D-3.12-2). Тренери and Раководство stay alphabetical: the
+  // book ranks nobody in those two bands, and ordering them by anything would
+  // be inventing a ranking.
   const bands = ROLE_PRIORITY.map((role) => ({
     role,
-    people: sorted.filter((person) => primaryRole(person.role) === role),
+    people: resolved
+      .filter((person) => primaryRole(person.role) === role)
+      .sort(
+        role === "player"
+          ? compareByLegendRank
+          : (a, b) => compareByName(a.name ?? "", b.name ?? ""),
+      ),
   }));
 
   const placed = bands.reduce((sum, band) => sum + band.people.length, 0);

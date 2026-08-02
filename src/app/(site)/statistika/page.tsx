@@ -32,6 +32,14 @@ export const metadata: Metadata = {
 };
 
 /**
+ * Lowest goal total the „Најдобри стрелци" table lists (owner, 2026-08-02).
+ * 21 is Ристо Панов's total — the owner named him as the last name that
+ * belongs on the list, so the bound is inclusive. 28 of the 55 players with a
+ * recorded total clear it.
+ */
+const SCORER_MIN_GOALS = 21;
+
+/**
  * Four reads in one round trip.
  *
  * (d) is the curated records section (3.02F). `clubRecord` carries the
@@ -46,12 +54,20 @@ export const metadata: Metadata = {
  * `defined(...)` omits players whose total was never entered: an unknown cannot
  * be ranked, and showing it as 0 would invent a fact.
  *
+ * (a) also stops at `SCORER_MIN_GOALS`. The owner set the cut at 3.12 — „во
+ * листата со стрелци треба да се оди до 21 гол (до Ристо Панов), не треба да се
+ * наведува некој што дал 8, 12 или 15 гола" — because below it the table stops
+ * being a list of the club's scorers and becomes a list of everyone whose goals
+ * happen to have been recorded, which for a defender with four is not a
+ * distinction. The threshold is a display rule, not a data change: every total
+ * stays in Sanity and still shows on the player's own page (D-3.12-5).
+ *
  * (c) feeds the balance aggregate. Ordered like the archive index (D-2.02-2):
  * every slug starts with a 4-digit year, so `decade desc, slug.current desc` is
  * chronological, newest first.
  */
 const STATS_QUERY = /* groq */ `{
-  "scorers": *[_type == "person" && "player" in role && defined(careerStats.goals)]
+  "scorers": *[_type == "person" && "player" in role && careerStats.goals >= ${SCORER_MIN_GOALS}]
     | order(careerStats.goals desc, name asc){
       "id": _id,
       name,
@@ -104,11 +120,24 @@ type StatsData = {
 };
 
 /** Shared by both player tables — only the column order differs. */
-const PLAYER_COLUMNS: Record<"player" | "goals" | "appearances" | "years", StatColumn> = {
+const PLAYER_COLUMNS: Record<
+  "player" | "goals" | "appearances" | "years",
+  StatColumn
+> = {
   player: { key: "player", short: "Играч", full: "Играч", numeric: false },
   goals: { key: "goals", short: "Голови", full: "Голови", numeric: true },
-  appearances: { key: "appearances", short: "Настапи", full: "Настапи", numeric: true },
-  years: { key: "years", short: "Години", full: "Години на играње", numeric: false },
+  appearances: {
+    key: "appearances",
+    short: "Настапи",
+    full: "Настапи",
+    numeric: true,
+  },
+  years: {
+    key: "years",
+    short: "Години",
+    full: "Години на играње",
+    numeric: false,
+  },
 };
 
 const SCORER_COLUMNS = [
@@ -222,16 +251,33 @@ export default async function StatisticsPage() {
           boundary drawn on top of the first. */}
       <section
         aria-labelledby="scorers-heading"
-        className={cn("py-section", recordGroups.length > 0 && "border-t border-mist")}
+        className={cn(
+          "py-section",
+          recordGroups.length > 0 && "border-t border-mist",
+        )}
       >
         <Container>
           <Reveal>
-            <SectionHeading id="scorers-heading">Најдобри стрелци</SectionHeading>
+            <SectionHeading id="scorers-heading">
+              Најдобри стрелци
+            </SectionHeading>
+            {/* States the cut rather than leaving a reader to wonder why a
+                player they know is not in the table (D-3.12-5). Structural
+                copy: it describes the table, it claims nothing about the club. */}
+            {scorers.length > 0 && (
+              <p className="mt-4 max-w-[60ch] text-small text-neutral-700">
+                Листата ги опфаќа играчите со {SCORER_MIN_GOALS} или повеќе
+                првенствени голови за Беласица.
+              </p>
+            )}
           </Reveal>
           <div className="mt-8">
             {scorers.length === 0 ? (
               <StatsEmptyNotice
-                note="Сѐ уште нема внесени голови за ниту еден играч, па нема што да се подреди."
+                // Since 3.11 the section can also be empty because nobody
+                // clears the threshold, so the note no longer claims the
+                // stronger „нема внесени голови за ниту еден играч".
+                note={`Сѐ уште нема играч со ${SCORER_MIN_GOALS} или повеќе внесени голови, па нема што да се подреди.`}
                 pending="голови по играч"
               />
             ) : (
@@ -254,7 +300,9 @@ export default async function StatisticsPage() {
       >
         <Container>
           <Reveal>
-            <SectionHeading id="appearances-heading">Најмногу настапи</SectionHeading>
+            <SectionHeading id="appearances-heading">
+              Најмногу настапи
+            </SectionHeading>
           </Reveal>
           <div className="mt-8">
             {appearances.length === 0 ? (
@@ -314,7 +362,8 @@ export default async function StatisticsPage() {
                     {seasonCountLabel(
                       balance.seasonsWithTable - balance.seasons.length,
                     )}{" "}
-                    има конечна табела, но во неа не е пронајден ред за Беласица.
+                    има конечна табела, но во неа не е пронајден ред за
+                    Беласица.
                   </p>
                 )}
                 {balance.partial && (

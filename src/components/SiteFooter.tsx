@@ -3,10 +3,11 @@ import { cn } from "@/lib/utils";
 import { NAV_ITEMS } from "@/lib/nav";
 import { focusOnNavy } from "@/lib/focus";
 import { Container } from "@/components/Container";
-import { PlaceholderChip } from "@/components/home/PlaceholderChip";
 import { SectionOverline } from "@/components/home/SectionOverline";
 import {
   CONTACT_EMAIL,
+  FACEBOOK_FAN_PAGE,
+  FACEBOOK_FAN_PAGE_LABEL,
   UNOFFICIAL_ARCHIVE_LABEL,
   UNOFFICIAL_ARCHIVE_STATEMENT,
 } from "@/lib/facts";
@@ -86,15 +87,27 @@ export function SiteFooter() {
             </ul>
           </div>
 
-          {/* (d) Следете нѐ — no social profiles are confirmed yet (facts.md —
-              UNVERIFIED), so the slot is a visible placeholder (PL-15). */}
+          {/* (d) Следете нѐ — one VERIFIED link since 3.12: a Belasica fan
+              page Ace asked to put here, and here only (D-3.12-6). It is not
+              the club's account and not ours, so the link says so; a bare
+              „Фејсбук" would read as this archive's own profile. No other
+              profile is confirmed, so PL-15 stays open on `/kontakt`. */}
           <div className="min-w-0">
             <h2>
               <SectionOverline variant="onNavy">Следете нѐ</SectionOverline>
             </h2>
-            <p className="mt-5">
-              <PlaceholderChip label="профили на социјални мрежи" onNavy />
-            </p>
+            <ul className="mt-5 flex flex-col items-start gap-3">
+              <li>
+                <a
+                  href={FACEBOOK_FAN_PAGE}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={footerLink}
+                >
+                  {FACEBOOK_FAN_PAGE_LABEL}
+                </a>
+              </li>
+            </ul>
           </div>
         </div>
 

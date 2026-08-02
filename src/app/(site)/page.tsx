@@ -46,12 +46,16 @@ const HERO_PHOTO_ID = "photo-1bb63ff6de96c8152fae78794736fd7cd990ad81";
  *    only if no season carries a teamPhoto at all (defensive — 83/96 do today).
  *  - STORY: the verified `siteSettings.description` (owner-authored club copy).
  *  - LEGENDS: the club's ten most-capped players; portraits attach via
- *    `photo.relatedPerson`. Ranked and sliced IN GROQ by
- *    `careerStats.appearances` — the authoritative career total (D-2.01-3),
- *    never a sum of `season.squad`. The `-1` coalesce is load-bearing: it keeps
- *    a player with no recorded appearances below one with a single appearance,
- *    where a `0` default would tie them. The homepage is a front door, not the
- *    roster — all 160 people stay on `/legendi` (3.05b).
+ *    `photo.relatedPerson`. Ranked and sliced IN GROQ by `legendRank` — the
+ *    book's own all-time appearance list, which is also what orders the Играчи
+ *    band on `/legendi` (D-3.12-3). It replaced a sort on
+ *    `careerStats.appearances` at 3.12 so the two pages cannot disagree about
+ *    who the most-capped ten are: the book ranks fifteen of its eighty on a
+ *    count it gives only as a range, and an appearances sort silently dropped
+ *    those players — Панче Пантазиев (#9) and Томче Ефтимов (#8) among them —
+ *    out of the ten. The `9999` coalesce keeps the unranked below the ranked.
+ *    The homepage is a front door, not the roster — all 160 people stay on
+ *    `/legendi` (3.05b).
  *  - RECORDS: the curated `clubRecord` documents (D-3.01-5). The query reads
  *    them all; `ClubRecords` renders the homepage's six by an explicit label
  *    whitelist, and `/statistika` renders all 30.
@@ -81,7 +85,7 @@ const HOME_QUERY = /* groq */ `{
       "image": image, caption
     },
   "legends": *[_type == "person" && "player" in role && defined(slug.current)]
-    | order(coalesce(careerStats.appearances, -1) desc, name asc)[0...10]{
+    | order(coalesce(legendRank, 9999) asc, name asc)[0...10]{
     name,
     "slug": slug.current,
     role,
@@ -242,9 +246,9 @@ export default async function Home() {
 
   // DISPLAY order for the ten the query already chose (D-3.03-2): portraits
   // first, so real faces lead the marquee, then Cyrillic name order. This does
-  // not re-rank the band — the ten are picked by appearances in GROQ, and this
-  // only arranges them. Two of today's ten have a portrait on file; the other
-  // eight render LegendCard's monogram tile, which is the specified treatment
+  // not re-rank the band — the ten are picked by `legendRank` in GROQ, and this
+  // only arranges them. Some of today's ten have a portrait on file; the rest
+  // render LegendCard's monogram tile, which is the specified treatment
   // for a person with no portrait (brand.md §Photo treatment) — never a
   // stand-in face, and never a reason to drop someone from the band.
   // Only people with a slug (a real detail page) are shown.

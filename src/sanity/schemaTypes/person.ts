@@ -42,6 +42,24 @@ export const person = defineType({
       type: "string",
       description: "На пр. 1982–1990.",
     }),
+    // The club's all-time appearance ranking, transcribed from chapter 9 of Ace
+    // Stojanov's book („50 играчи на Беласица со најмногу првенствени
+    // натпревари", continued to 80). It is the ordering `/legendi` uses for the
+    // Играчи band (D-3.12-2) and is NOT derived from `careerStats.appearances`:
+    // fifteen of the eighty are ranked on a count the book gives only as a range
+    // („120–135"), so a sort on the number alone would drop them — Панче
+    // Пантазиев (#9) and Васо Цветков (#20) among them — to the bottom of the
+    // page. Shared ranks in the book (54–55, 57–60 …) are entered as the first
+    // number of the span, so both people sort together and the name breaks the
+    // tie. Leave empty for anyone the book does not rank.
+    defineField({
+      name: "legendRank",
+      title: "Ранг по настапи (книга)",
+      type: "number",
+      description:
+        "Место на ранг-листата од книгата (1–80). Остави празно ако лицето не е на листата.",
+      validation: (rule) => rule.integer().positive(),
+    }),
     defineField({
       name: "bio",
       title: "Биографија",

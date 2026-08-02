@@ -88,6 +88,56 @@ export function compareByName(a: string, b: string): number {
   return a.localeCompare(b, "mk");
 }
 
+/** The shape `compareByLegendRank` needs — a subset of the roster row. */
+export type RankedPerson = {
+  name?: string | null;
+  legendRank?: number | null;
+  careerStats?: { appearances?: number | null } | null;
+};
+
+/**
+ * Order for the Играчи band (D-3.12-2): the club's all-time appearance ranking,
+ * most-capped first, as the owner asked — „наредете ги според број на
+ * натпревари, а не по азбучен ред".
+ *
+ * Three tiers, in this order:
+ *
+ *  1. `legendRank` — the book's own list of the eighty most-capped players.
+ *     It is the ranking, not a proxy for it, and it is used ahead of
+ *     `careerStats.appearances` because fifteen of those eighty are ranked on a
+ *     count the book states only as a range („120–135"): sorting on the number
+ *     alone would drop Панче Пантазиев (#9) and Васо Цветков (#20) to the
+ *     bottom of the page. Where the book shares a rank across several players
+ *     (54–55, 57–60 …) they all carry the first number of the span and the name
+ *     breaks the tie, which is exactly how the book prints them.
+ *  2. Players the book does not rank, by recorded career appearances, most
+ *     first — so a player with a real number still beats one with none.
+ *  3. Everyone else, alphabetically.
+ *
+ * Only the Играчи band is ordered this way. Тренери and Раководство stay
+ * alphabetical: there is no appearance list for them, and ranking them would
+ * mean inventing one.
+ */
+export function compareByLegendRank(a: RankedPerson, b: RankedPerson): number {
+  const rankA = a.legendRank ?? null;
+  const rankB = b.legendRank ?? null;
+  if (rankA !== rankB) {
+    if (rankA == null) return 1;
+    if (rankB == null) return -1;
+    if (rankA !== rankB) return rankA - rankB;
+  }
+
+  const appsA = a.careerStats?.appearances ?? null;
+  const appsB = b.careerStats?.appearances ?? null;
+  if (rankA == null && appsA !== appsB) {
+    if (appsA == null) return 1;
+    if (appsB == null) return -1;
+    return appsB - appsA;
+  }
+
+  return compareByName(a.name ?? "", b.name ?? "");
+}
+
 /**
  * Macedonian count label per band, same singular rule as D-2.02-12: only 1 takes
  * the singular. Each band counts its own noun — „3 играчи" reads naturally under
