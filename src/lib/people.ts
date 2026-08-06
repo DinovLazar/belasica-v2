@@ -114,9 +114,10 @@ export type RankedPerson = {
  *     first — so a player with a real number still beats one with none.
  *  3. Everyone else, alphabetically.
  *
- * Only the Играчи band is ordered this way. Тренери and Раководство stay
- * alphabetical: there is no appearance list for them, and ranking them would
- * mean inventing one.
+ * Only the Играчи band is ordered this way. Тренери and Раководство are ordered
+ * by **most recent service** instead (`compareByRecency`, D-3.13-4) — still not
+ * a ranking, which no source gives for them, but a chronology derived from data
+ * the archive already holds.
  */
 export function compareByLegendRank(a: RankedPerson, b: RankedPerson): number {
   const rankA = a.legendRank ?? null;
@@ -133,6 +134,100 @@ export function compareByLegendRank(a: RankedPerson, b: RankedPerson): number {
     if (appsA == null) return 1;
     if (appsB == null) return -1;
     return appsB - appsA;
+  }
+
+  return compareByName(a.name ?? "", b.name ?? "");
+}
+
+/**
+ * The year a season slug opens on: `"1952-53"` → `1952`, `"1922-26"` → `1922`.
+ * Null when the slug does not start with four digits — every one of the 96
+ * published slugs does, so that branch is a guard, not a live case.
+ */
+export function seasonStartYear(
+  slug: string | null | undefined,
+): number | null {
+  const match = /^(\d{4})/.exec(slug ?? "");
+  return match ? Number.parseInt(match[1], 10) : null;
+}
+
+/**
+ * Trainer name → the latest season they are recorded as coaching, built once
+ * from every season carrying a `trainer` string.
+ *
+ * A season's `trainer` is one or more names separated by commas, so each is
+ * split and trimmed, and the index keys on the **exact** trimmed name.
+ * Deliberately not a substring match: „Благој Истатов" is a substring of seven
+ * different multi-name season strings, and matching loosely would credit
+ * seasons to the wrong man. A name that never matches a person document simply
+ * never gets looked up, and a person the index does not hold sorts to the end
+ * of their band (`compareByRecency`) rather than to a guessed year.
+ */
+export function buildTrainerYearIndex(
+  seasons: { slug: string | null; trainer: string | null }[],
+): Map<string, number> {
+  const index = new Map<string, number>();
+
+  for (const season of seasons) {
+    const year = seasonStartYear(season.slug);
+    if (year === null) continue;
+
+    for (const part of (season.trainer ?? "").split(",")) {
+      const name = part.trim();
+      if (!name) continue;
+      const known = index.get(name);
+      index.set(name, known === undefined ? year : Math.max(known, year));
+    }
+  }
+
+  return index;
+}
+
+/**
+ * The latest four-digit year in a biography's opening line — the end of an
+ * official's term. The 3.02F pass wrote that line in exactly two shapes,
+ * „Претседател на ФК Беласица во 1922 година." and „…во периодот 2015–2024.",
+ * so the largest year in it is the end of the term either way.
+ *
+ * Null when the line holds no year, which sorts that person to the end of their
+ * band instead of to a guessed date.
+ */
+export function tenureEndYear(
+  bioLead: string | null | undefined,
+): number | null {
+  const years = (bioLead ?? "").match(/\b(1[89]\d{2}|20\d{2})\b/g);
+  return years === null ? null : Math.max(...years.map(Number));
+}
+
+/** The shape `compareByRecency` needs — a subset of the roster row. */
+export type DatedPerson = {
+  name?: string | null;
+  sortYear?: number | null;
+};
+
+/**
+ * Order for the Тренери and Раководство bands (D-3.13-4): most recent service
+ * first, so the club's latest coach and its last president open their bands
+ * rather than sitting mid-list under an alphabet.
+ *
+ * The year is derived, never stored and never rendered — trainers from the
+ * latest `season.trainer` they appear in, officials from the term in their own
+ * biography. Anyone with no derivable year sorts to the **end** of the band,
+ * alphabetically, and equal years break the same way. That fallback is the
+ * whole safety story: if a biography is ever rewritten without a year, that one
+ * person moves to the bottom and nothing else on the page changes.
+ *
+ * `compareByName`, never a raw `<` — the latter compares UTF-16 code units and
+ * would order „Ѓ" (U+0403) after „Ш" instead of between „Г" and „Д".
+ */
+export function compareByRecency(a: DatedPerson, b: DatedPerson): number {
+  const yearA = a.sortYear ?? null;
+  const yearB = b.sortYear ?? null;
+
+  if (yearA !== yearB) {
+    if (yearA === null) return 1;
+    if (yearB === null) return -1;
+    return yearB - yearA;
   }
 
   return compareByName(a.name ?? "", b.name ?? "");

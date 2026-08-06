@@ -136,19 +136,24 @@ type SeasonData = {
 };
 
 /**
- * The five sections, in page order. Since 3.04b **every one of them renders on
- * every season page** (D-3.04b-1) — a section with no content shows `empty`
- * instead of vanishing — so the jump rail is the same five links everywhere and
- * two season pages can be compared side by side.
+ * The five sections, in page order. **Each one renders only when it holds
+ * something** — 3.06a reversed D-3.04b-1, so a section with no content is not
+ * there at all rather than printing a note saying so. The jump rail is built
+ * from whatever survives that filter (see `order` below), which means **the
+ * rail differs from page to page**: a season with no table shows no ТАБЕЛА
+ * link. An archive that shows what it holds rather than what it lacks.
  *
- * `empty` is structural copy: it states what the archive does not hold, and
- * claims no fact about the club.
+ * `empty` is retained but **currently unread** — nothing renders it while the
+ * sections self-omit. It is structural copy either way: it states what the
+ * archive does not hold, and claims no fact about the club.
  */
 const SECTIONS = {
   story: {
+    // The section's ORIGINAL name, kept so `#prikazna` links already shared
+    // still resolve. It deliberately no longer matches the label (D-3.13-3).
     id: "prikazna",
-    label: "Приказна",
-    heading: "Приказна за сезоната",
+    label: "Преглед",
+    heading: "Преглед",
     empty: "Во архивата сѐ уште нема напишана приказна за оваа сезона.",
   },
   results: {
@@ -158,9 +163,11 @@ const SECTIONS = {
     empty: "Во архивата сѐ уште нема резултати од натпреварите во оваа сезона.",
   },
   staff: {
+    // The section's ORIGINAL name, kept so `#trener` links already shared still
+    // resolve. It deliberately no longer matches the label (D-3.13-3).
     id: "trener",
-    label: "Тренер",
-    heading: "Тренер и статистика",
+    label: "Играчи",
+    heading: "Играчи и тренер",
     empty:
       "Во архивата сѐ уште нема податоци за тренерот и составот во оваа сезона.",
   },
@@ -374,10 +381,9 @@ export default async function SeasonPage({
         </section>
       ) : (
         <>
-          {/* 2 · Приказна за сезоната — the club's own account of the year, and
-              since 3.06 the first thing a reader meets after the team
-              photograph: the archive reads as a history book, not a data
-              dump. */}
+          {/* 2 · Преглед — the club's own account of the year, and since 3.06
+              the first thing a reader meets after the team photograph: the
+              archive reads as a history book, not a data dump. */}
           {present.story && (
             <section
               id={SECTIONS.story.id}
@@ -420,12 +426,12 @@ export default async function SeasonPage({
             </section>
           )}
 
-          {/* 4 · Тренер и статистика — the trainer name in the heading (the
+          {/* 4 · Играчи и тренер — the trainer name in its own heading (the
               reference site's treatment), then the season's lineup/stats.
-              The SECTION always renders (D-3.04b-1); its two halves still
-              self-omit individually, so a season with a trainer but no roster
-              shows the trainer and nothing else — one empty note per section,
-              never two stacked inside one. */}
+              The section renders only when it holds at least one of the two
+              (3.06a, reversing D-3.04b-1), and its two halves also self-omit
+              individually, so a season with a trainer but no roster shows the
+              trainer and nothing else. */}
           {present.staff && (
             <section
               id={SECTIONS.staff.id}
