@@ -59,14 +59,14 @@ const components: PortableTextComponents = {
 };
 
 /**
- * Приказна за сезоната — the season narrative, in one `max-w-measure` column.
+ * Преглед — the season narrative, in one `max-w-measure` column.
  * Rendered only when `story` has blocks; an empty story omits the whole
  * section at the call site (D-2.02-3), with no placeholder prose.
  *
  * The heading levels sit under the page's single H1 (the hero title): the
- * section's own „Приказна за сезоната" is the H2, so blocks styled h2/h3 in
- * Studio both render as H3 — going to H2 here would collide with the section
- * heading and skip no level (§8).
+ * section's own „Преглед" is the H2, so blocks styled h2/h3 in Studio both
+ * render as H3 — going to H2 here would collide with the section heading and
+ * skip no level (§8).
  */
 export function SeasonStory({ blocks }: { blocks: PortableTextBlock[] }) {
   return (

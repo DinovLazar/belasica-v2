@@ -6,12 +6,17 @@ import { Container } from "@/components/Container";
 import { PageHeader } from "@/components/PageHeader";
 import { PlaceholderChip } from "@/components/home/PlaceholderChip";
 import type { LegendCardData } from "@/components/legends/LegendCard";
-import { LegendsBrowser } from "@/components/legends/LegendsBrowser";
 import {
+  LegendsBrowser,
+  type LegendBand,
+} from "@/components/legends/LegendsBrowser";
+import {
+  buildTrainerYearIndex,
   compareByLegendRank,
-  compareByName,
+  compareByRecency,
   primaryRole,
   ROLE_PRIORITY,
+  tenureEndYear,
 } from "@/lib/people";
 
 // Match the archive (D-1.05-4): a person published in Studio appears within
@@ -30,21 +35,33 @@ export const metadata: Metadata = {
  * after `coalesce(date,"9999") asc` is the portrait, the same ordering key the
  * homepage and the archive use.
  *
+ * `seasons` rides along in the same round trip (D-3.13-5): the Тренери band is
+ * ordered from `season.trainer`, so the two reads are one query rather than two
+ * fetches that could disagree. `bioLead` is the biography's **first line only**
+ * — the officials' term lives there, and pulling the whole `bio` would ship
+ * 126k characters to order 28 people.
+ *
  * Deliberately **not** ordered in GROQ: both band orders need locale-aware
  * Cyrillic collation, which GROQ's `order()` cannot do — it compares code
  * units, so „Ѓ" (U+0403) would sort after „Ш" instead of between „Г" and „Д".
  * The sort happens in JS below.
  */
-const LEGENDS_QUERY = /* groq */ `
-*[_type == "person" && defined(slug.current)]{
-  name,
-  "slug": slug.current,
-  role,
-  playingYears,
-  legendRank,
-  careerStats{ appearances },
-  "portrait": *[_type == "photo" && relatedPerson._ref == ^._id]
-    | order(coalesce(date, "9999") asc)[0].image
+const LEGENDS_QUERY = /* groq */ `{
+  "people": *[_type == "person" && defined(slug.current)]{
+    name,
+    "slug": slug.current,
+    role,
+    playingYears,
+    legendRank,
+    careerStats{ appearances },
+    "bioLead": bio[0].children[0].text,
+    "portrait": *[_type == "photo" && relatedPerson._ref == ^._id]
+      | order(coalesce(date, "9999") asc)[0].image
+  },
+  "seasons": *[_type == "season" && defined(trainer)]{
+    "slug": slug.current,
+    trainer
+  }
 }`;
 
 /** What the query returns: the portrait is still a raw Sanity asset here. It is
@@ -56,23 +73,51 @@ type PersonRow = Omit<LegendCardData, "portrait"> & {
    *  list — most of the roster, and every trainer and official. */
   legendRank: number | null;
   careerStats: { appearances: number | null } | null;
+  /** First line of the biography, the source of an official's term. A **sort
+   *  input only** — stripped below, before the bands reach the client. */
+  bioLead: string | null;
 };
+
+/** Every season that names a coach — the Тренери band's ordering source. */
+type SeasonTrainerRow = { slug: string | null; trainer: string | null };
+
+type LegendsData = { people: PersonRow[]; seasons: SeasonTrainerRow[] };
 
 export default async function LegendsPage() {
   let people: PersonRow[] = [];
+  let seasons: SeasonTrainerRow[] = [];
   try {
-    people = (await client.fetch<PersonRow[]>(LEGENDS_QUERY)) ?? [];
+    const data = await client.fetch<LegendsData>(LEGENDS_QUERY);
+    people = data?.people ?? [];
+    seasons = data?.seasons ?? [];
   } catch {
     // A failed read must not crash the route or invent filler. The page falls
     // through to its empty notice, which is honest about having nothing.
     people = [];
+    seasons = [];
   }
 
-  const resolved = people.map((person) => ({
-    ...person,
-    // 800px matches the card's largest rendered width (a 3-up track at 1408).
-    portrait: framedImage(person.portrait, 800),
-  }));
+  // Built once for the whole roster rather than per person: 68 season strings
+  // are parsed one time, and each trainer is then a single Map lookup.
+  const trainerYears = buildTrainerYearIndex(seasons);
+
+  const resolved = people.map((person) => {
+    const role = primaryRole(person.role);
+
+    return {
+      ...person,
+      // 800px matches the card's largest rendered width (a 3-up track at 1408).
+      portrait: framedImage(person.portrait, 800),
+      // Derived here, on the server, and never rendered — a sort key only.
+      // Players do not use it: their band is ordered by `legendRank`.
+      sortYear:
+        role === "trainer"
+          ? (trainerYears.get(person.name ?? "") ?? null)
+          : role === "president"
+            ? tenureEndYear(person.bioLead)
+            : null,
+    };
+  });
 
   // Placement is a whole-roster decision, so it happens here rather than inside
   // a band: each person lands in exactly one band — the one for their
@@ -86,18 +131,33 @@ export default async function LegendsPage() {
   // Each band then takes its own order. Играчи is the club's all-time
   // appearance ranking, most-capped first — the owner's instruction at 3.12
   // („наредете ги според број на натпревари, а не по азбучен ред"), read from
-  // `legendRank` (D-3.12-2). Тренери and Раководство stay alphabetical: the
-  // book ranks nobody in those two bands, and ordering them by anything would
-  // be inventing a ranking.
-  const bands = ROLE_PRIORITY.map((role) => ({
+  // `legendRank` (D-3.12-2).
+  //
+  // Тренери and Раководство are ordered by **most recent service** (D-3.13-4),
+  // so the club's latest coach and its last president open their bands instead
+  // of sitting mid-alphabet. Neither year is stored: a trainer's comes from the
+  // latest `season.trainer` naming them, an official's from the term in their
+  // own biography. This is a chronology, not a ranking — the book ranks nobody
+  // in these two bands, and none is invented here. Anyone with no derivable
+  // year falls to the end of their band, alphabetically.
+  const bands: LegendBand[] = ROLE_PRIORITY.map((role) => ({
     role,
     people: resolved
       .filter((person) => primaryRole(person.role) === role)
-      .sort(
-        role === "player"
-          ? compareByLegendRank
-          : (a, b) => compareByName(a.name ?? "", b.name ?? ""),
-      ),
+      .sort(role === "player" ? compareByLegendRank : compareByRecency)
+      // `LegendsBrowser` is a client component and `LegendBand` declares
+      // exactly these five fields. Projecting them **by name** is what keeps
+      // the server-only sort inputs out of the client bundle — `bioLead` and
+      // the derived `sortYear`, and with them the `legendRank`/`careerStats`
+      // a spread has been carrying across since 3.12. Nothing rendered
+      // changes: the card has only ever read these five (D-3.13-6).
+      .map((person) => ({
+        name: person.name,
+        slug: person.slug,
+        role: person.role,
+        playingYears: person.playingYears,
+        portrait: person.portrait,
+      })),
   }));
 
   const placed = bands.reduce((sum, band) => sum + band.people.length, 0);
