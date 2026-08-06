@@ -113,3 +113,15 @@ No secrets are in the diff or in this report. `.env.local` was created locally f
 ## 8. What's now possible that wasn't before
 
 A reader arriving at `/legendi` sees the club's coaching and leadership history in the order it happened, most recent first, instead of an alphabet — and every season page names its sections for what they actually contain.
+
+## 9. Post-filing addendum — the merge gate was waived
+
+Filed above with PR #43 open and recommended for Lazar's review. **The owner then instructed an immediate merge**, which was carried out as a squash-merge into `main` **without the Vercel-preview review** (`D-3.13-10`).
+
+The executor raised three open items before merging, and **all three survived the merge**:
+
+1. **No human reviewed the rendered output.** The preview URL had not been posted when the merge ran. What stands in its place: the local production build (271/271, `tsc`/lint clean), the rendered-HTML checks in §2, and the byte-level diff against a `main` baseline build.
+2. **OV-32 is unresolved** and may still change the Раководство row 11–15 order once Ace answers.
+3. **The unpushed-commit question is now a post-merge check.** If Lazar's working copy holds commits that were never pushed, they must be **rebased onto the merged `main`** — not force-pushed over it.
+
+This is the **second consecutive phase** to bypass the PR/preview gate after `D-3.12-9`. §2's „One PR; no commits on `main`" remains accurate as written — the work reached `main` through PR #43, not through a direct commit.
