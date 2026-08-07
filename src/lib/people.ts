@@ -22,7 +22,7 @@ export const ROLE_LABEL: Record<PersonRole, string> = {
 export const BAND_TITLE: Record<PersonRole, string> = {
   player: "Играчи",
   trainer: "Тренери",
-  president: "Раководство",
+  president: "Претседатели",
 };
 
 /**
@@ -114,7 +114,7 @@ export type RankedPerson = {
  *     first — so a player with a real number still beats one with none.
  *  3. Everyone else, alphabetically.
  *
- * Only the Играчи band is ordered this way. Тренери and Раководство are ordered
+ * Only the Играчи band is ordered this way. Тренери and Претседатели are ordered
  * by **most recent service** instead (`compareByRecency`, D-3.13-4) — still not
  * a ranking, which no source gives for them, but a chronology derived from data
  * the archive already holds.
@@ -206,7 +206,7 @@ export type DatedPerson = {
 };
 
 /**
- * Order for the Тренери and Раководство bands (D-3.13-4): most recent service
+ * Order for the Тренери and Претседатели bands (D-3.13-4): most recent service
  * first, so the club's latest coach and its last president open their bands
  * rather than sitting mid-list under an alphabet.
  *
@@ -236,14 +236,16 @@ export function compareByRecency(a: DatedPerson, b: DatedPerson): number {
 /**
  * Macedonian count label per band, same singular rule as D-2.02-12: only 1 takes
  * the singular. Each band counts its own noun — „3 играчи" reads naturally under
- * „Играчи", where a generic „3 личности" would not. Раководство counts members,
- * since the band is the body rather than a role name.
+ * „Играчи", where a generic „3 личности" would not. Since 3.14 that holds for
+ * all three: the officials band is named „Претседатели" after the role it holds
+ * rather than after the body, so it counts претседатели and no longer членови
+ * (D-3.14-1).
  */
 const BAND_COUNT_NOUN: Record<PersonRole, [singular: string, plural: string]> =
   {
     player: ["играч", "играчи"],
     trainer: ["тренер", "тренери"],
-    president: ["член", "членови"],
+    president: ["претседател", "претседатели"],
   };
 
 export function bandCountLabel(role: PersonRole, count: number): string {
