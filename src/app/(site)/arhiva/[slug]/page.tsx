@@ -159,7 +159,7 @@ const SECTIONS = {
   results: {
     id: "rezultati",
     label: "Резултати",
-    heading: "Резултати",
+    heading: "Резултати и стрелци",
     empty: "Во архивата сѐ уште нема резултати од натпреварите во оваа сезона.",
   },
   staff: {
@@ -167,7 +167,7 @@ const SECTIONS = {
     // resolve. It deliberately no longer matches the label (D-3.13-3).
     id: "trener",
     label: "Играчи",
-    heading: "Играчи и тренер",
+    heading: "Статистика на играчи",
     empty:
       "Во архивата сѐ уште нема податоци за тренерот и составот во оваа сезона.",
   },
@@ -426,12 +426,15 @@ export default async function SeasonPage({
             </section>
           )}
 
-          {/* 4 · Играчи и тренер — the trainer name in its own heading (the
-              reference site's treatment), then the season's lineup/stats.
+          {/* 4 · Статистика на играчи — the trainer name in its own heading
+              (the reference site's treatment), then the season's lineup/stats.
               The section renders only when it holds at least one of the two
               (3.06a, reversing D-3.04b-1), and its two halves also self-omit
               individually, so a season with a trainer but no roster shows the
-              trainer and nothing else. */}
+              trainer and nothing else. Since 3.14 the heading no longer names
+              the coach although the section still opens with him — a mismatch
+              the owner was shown and chose to leave (D-3.14-2), so the „Тренер:
+              <име>" card below stays exactly where it is. */}
           {present.staff && (
             <section
               id={SECTIONS.staff.id}

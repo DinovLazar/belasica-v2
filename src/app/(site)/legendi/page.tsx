@@ -133,7 +133,7 @@ export default async function LegendsPage() {
   // („наредете ги според број на натпревари, а не по азбучен ред"), read from
   // `legendRank` (D-3.12-2).
   //
-  // Тренери and Раководство are ordered by **most recent service** (D-3.13-4),
+  // Тренери and Претседатели are ordered by **most recent service** (D-3.13-4),
   // so the club's latest coach and its last president open their bands instead
   // of sitting mid-alphabet. Neither year is stored: a trainer's comes from the
   // latest `season.trainer` naming them, an official's from the term in their
