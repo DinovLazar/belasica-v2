@@ -60,6 +60,26 @@ export const person = defineType({
         "Место на ранг-листата од книгата (1–80). Остави празно ако лицето не е на листата.",
       validation: (rule) => rule.integer().positive(),
     }),
+    // The appearance count the rank is built on, printed beside the rank on the
+    // legend cards.
+    //
+    // A **STRING, not a number** — and that is the whole point (D-3.15-4). The
+    // book gives nine of the eighty a RANGE rather than a figure („120–135"),
+    // which is exactly why the ranking is `legendRank` and not a sort on
+    // `careerStats.appearances` (D-3.12-2). A number field could not hold what
+    // the book actually says, and rounding a range to one of its ends would
+    // invent a statistic.
+    //
+    // Store the book's printed value verbatim, en dash for ranges. Leave empty
+    // for anyone the book gives no count — the card then shows the rank and the
+    // name and no count, never a zero and never a dash.
+    defineField({
+      name: "legendAppearances",
+      title: "Настапи по книгата",
+      type: "string",
+      description:
+        "Бројот на настапи како што е отпечатен во книгата, на пр. 555 или 120–135. Остави празно ако книгата не дава број.",
+    }),
     defineField({
       name: "bio",
       title: "Биографија",

@@ -15,6 +15,13 @@ export type LegendCardData = {
   slug: string;
   role: string[] | null;
   playingYears: string | null;
+  /** The book's all-time rank (1–80), or null for anyone it does not rank —
+   *  every trainer and president, and the unranked players. */
+  legendRank?: number | null;
+  /** The appearance count the rank is built on, as the book PRINTS it: a
+   *  string, because nine of the eighty are given as a range („120–135").
+   *  See `person.legendAppearances` in the schema (D-3.15-4). */
+  legendAppearances?: string | null;
   /** Already resolved to a CDN URL by the server, via `framedImage()`. This
    *  card is reached through `LegendsBrowser`'s client boundary on /legendi, so
    *  it may not hold a raw Sanity asset or import the URL builder (D-3.09-1). */
@@ -63,10 +70,18 @@ export function LegendCard({
   const roles = orderedRoles(person.role);
   const years = person.playingYears?.trim() || null;
 
-  // A player's years are a *known-missing fact*, so they get a registered
-  // placeholder. A trainer or president has no playing years to be missing, so
-  // the line simply omits rather than accusing the archive of a gap that isn't.
-  const showYearsPlaceholder = !years && roles[0] === "player";
+  // The rank + count pair. Both must be present for the count to show: a rank
+  // with no printed figure renders `3. Ристо Панов` and nothing else — never a
+  // zero, a dash or a chip, because the book simply does not give one
+  // (D-3.15-5). Everyone the book does not rank — the Тренери and Претседатели
+  // bands, and the unranked players — renders exactly as before.
+  const rank = person.legendRank ?? null;
+  const appearances = person.legendAppearances?.trim() || null;
+
+  // Quieter than the name, on whichever surface the card sits: `paper/80` is
+  // 9.90:1 on navy, `neutral-500` is 6.69:1 on the white card. Both clear AA
+  // for body text, so the "quiet" here is hierarchy, not a contrast compromise.
+  const quiet = onNavy ? "text-paper/80" : "text-neutral-500";
 
   return (
     // `u-card` is `height: 100%`, which only resolves if every wrapper between
@@ -74,11 +89,7 @@ export function LegendCard({
     // at different depths wherever one has an extra line (a second role chip,
     // a placeholder). The chain is `li → Reveal div → a`.
     <li className="h-full">
-      <Reveal
-        delayIndex={delayIndex}
-        immediate={priority}
-        className="h-full"
-      >
+      <Reveal delayIndex={delayIndex} immediate={priority} className="h-full">
         <Link
           href={`/legendi/${person.slug}`}
           className={cn(
@@ -102,13 +113,41 @@ export function LegendCard({
           )}
 
           <div className="p-4">
-            <h3 className={cn("u-h3", onNavy ? "text-paper" : "text-navy")}>
-              {/* `name` is required in the model, so this should never fire —
-                  but a document could still be published without one, and an
-                  invented fallback would be a made-up person on an archive
-                  page. Show the gap instead (content-truth). */}
-              {person.name ?? (
-                <PlaceholderChip label="име на личноста" onNavy={onNavy} />
+            {/* `1. Петар Андреев   555` — the rank reads as a list index at
+                the name's own size but in the quiet ink, and the count is
+                pushed to the end of the line by the name's `flex-1`. Baseline
+                alignment, not centre: when a long name wraps to two lines the
+                count stays level with the FIRST line, where the eye scans it.
+                Both carry an `sr-only` qualifier, so the card announces „Ранг
+                1. … 555 настапи" rather than two bare numbers. */}
+            <h3
+              className={cn(
+                "u-h3 flex items-baseline gap-x-2",
+                onNavy ? "text-paper" : "text-navy",
+              )}
+            >
+              {rank !== null && (
+                <span className={cn("shrink-0", quiet)}>
+                  <span className="sr-only">Ранг </span>
+                  {rank}.
+                </span>
+              )}
+
+              <span className="min-w-0 flex-1">
+                {/* `name` is required in the model, so this should never fire —
+                    but a document could still be published without one, and an
+                    invented fallback would be a made-up person on an archive
+                    page. Show the gap instead (content-truth). */}
+                {person.name ?? (
+                  <PlaceholderChip label="име на личноста" onNavy={onNavy} />
+                )}
+              </span>
+
+              {rank !== null && appearances && (
+                <span className={cn("shrink-0 text-small tabular-nums", quiet)}>
+                  {appearances}
+                  <span className="sr-only"> настапи</span>
+                </span>
               )}
             </h3>
 
@@ -116,18 +155,13 @@ export function LegendCard({
               <RoleChips roles={roles} onNavy={onNavy} className="mt-3" />
             )}
 
-            {(years || showYearsPlaceholder) && (
-              <p
-                className={cn(
-                  "mt-3 text-small",
-                  onNavy ? "text-paper/80" : "text-neutral-500",
-                )}
-              >
-                {years ?? (
-                  <PlaceholderChip label="години на играње" onNavy={onNavy} />
-                )}
-              </p>
-            )}
+            {/* Missing years now **self-omit**, like every other gap on this
+                site (D-2.02-3, D-2.08-2, D-3.15-6). Until 3.15 a player with no
+                `playingYears` rendered a registered placeholder chip here; no
+                published player is in that state today, and inventing years to
+                clear a chip is exactly what content-truth forbids, so the line
+                simply does not render. */}
+            {years && <p className={cn("mt-3 text-small", quiet)}>{years}</p>}
           </div>
         </Link>
       </Reveal>

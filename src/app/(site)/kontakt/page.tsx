@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { Container } from "@/components/Container";
 import { PageHeader } from "@/components/PageHeader";
 import { ContactForm } from "@/components/contact/ContactForm";
-import { PlaceholderChip } from "@/components/home/PlaceholderChip";
+import { SocialLinks } from "@/components/SocialLinks";
 import { Reveal } from "@/components/home/Reveal";
 import { focusOnPaper } from "@/lib/focus";
 import { CONTACT_EMAIL } from "@/lib/facts";
@@ -30,9 +30,12 @@ export const metadata: Metadata = {
  * action, not a secret — safe in a public repo, D-2.07-2); while it is unset
  * the form renders visibly disabled with a placeholder (D-2.07-3). **Since
  * 3.03b the endpoint is set** in `.env.local` and on Vercel (Prod + Preview),
- * so the live form is what renders (D-3.03b-1). **PL-15 (socials) is the only
- * open placeholder left on this page** — 3.03b cleared PL-14, 3.07 cleared
- * PL-3. No hero: nothing in the locked model sources one (cf. D-2.06-4).
+ * so the live form is what renders (D-3.03b-1). **This page now renders no
+ * placeholder chip** — 3.03b cleared PL-14, 3.07 cleared PL-3, and 3.15 closed
+ * the last one, PL-15 (socials). The `ContactForm` unset-endpoint chip stays in
+ * the component as a defensive fallback; it is unreachable in production and is
+ * deliberately not deleted (D-3.15-9). No hero: nothing in the locked model
+ * sources one (cf. D-2.06-4).
  */
 export default function ContactPage() {
   const endpoint = process.env.NEXT_PUBLIC_FORMSPREE_ENDPOINT;
@@ -98,17 +101,19 @@ export default function ContactPage() {
                   </p>
                 </div>
 
-                {/* Socials (PL-15). UNVERIFIED in facts.md; the footer's social
-                    links are unverified demo values (PL-9, D-1.06b-1) and must
-                    not be propagated here — placeholder chips instead
-                    (D-2.07-4). */}
+                {/* Socials — **PL-15 closed at 3.15**, on this surface and in
+                    the footer at the same time, from the same `SocialLinks`
+                    component and the same VERIFIED `facts.md` entries. Both
+                    profiles are authored by Аце Стојанов (owner, chat,
+                    2026-08-08); 3.12 had cleared the footer only and left this
+                    chip standing (D-3.12-6), so „Директен контакт" told a
+                    reader there were no profiles while the footer of the same
+                    page linked one. */}
                 <div className="mt-8">
                   <p className="text-overline font-bold uppercase tracking-overline text-neutral-700">
-                    Социјални мрежи
+                    Следете нѐ
                   </p>
-                  <p className="mt-2">
-                    <PlaceholderChip label="профили на социјалните мрежи" />
-                  </p>
+                  <SocialLinks className="mt-1" />
                 </div>
               </section>
             </Reveal>

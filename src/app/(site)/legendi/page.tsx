@@ -53,6 +53,7 @@ const LEGENDS_QUERY = /* groq */ `{
     role,
     playingYears,
     legendRank,
+    legendAppearances,
     careerStats{ appearances },
     "bioLead": bio[0].children[0].text,
     "portrait": *[_type == "photo" && relatedPerson._ref == ^._id]
@@ -145,17 +146,22 @@ export default async function LegendsPage() {
     people: resolved
       .filter((person) => primaryRole(person.role) === role)
       .sort(role === "player" ? compareByLegendRank : compareByRecency)
-      // `LegendsBrowser` is a client component and `LegendBand` declares
-      // exactly these five fields. Projecting them **by name** is what keeps
-      // the server-only sort inputs out of the client bundle — `bioLead` and
-      // the derived `sortYear`, and with them the `legendRank`/`careerStats`
-      // a spread has been carrying across since 3.12. Nothing rendered
-      // changes: the card has only ever read these five (D-3.13-6).
+      // `LegendsBrowser` is a client component. Projecting **by name** is what
+      // keeps the server-only sort inputs out of the client bundle — `bioLead`
+      // and the derived `sortYear`, and with them the `careerStats` a spread
+      // carried across since 3.12 (D-3.13-6).
+      //
+      // `legendRank` and `legendAppearances` cross the boundary from 3.15 and
+      // are the exception that proves the rule: they are no longer sort inputs
+      // only, they are **rendered** on the card („1. Петар Андреев 555"), so
+      // they have to reach it. `careerStats` and `bioLead` still do not.
       .map((person) => ({
         name: person.name,
         slug: person.slug,
         role: person.role,
         playingYears: person.playingYears,
+        legendRank: person.legendRank,
+        legendAppearances: person.legendAppearances,
         portrait: person.portrait,
       })),
   }));
