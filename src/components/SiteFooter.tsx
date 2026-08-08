@@ -4,10 +4,10 @@ import { NAV_ITEMS } from "@/lib/nav";
 import { focusOnNavy } from "@/lib/focus";
 import { Container } from "@/components/Container";
 import { SectionOverline } from "@/components/home/SectionOverline";
+import { SocialLinks } from "@/components/SocialLinks";
 import {
   CONTACT_EMAIL,
-  FACEBOOK_FAN_PAGE,
-  FACEBOOK_FAN_PAGE_LABEL,
+  CONTENT_PERMISSION_NOTICE,
   UNOFFICIAL_ARCHIVE_LABEL,
   UNOFFICIAL_ARCHIVE_STATEMENT,
 } from "@/lib/facts";
@@ -21,8 +21,11 @@ import {
  * navy and paper blocks, and a third light value at the bottom broke that
  * rhythm (the `footer` colour token is retired with it).
  *
- * Both statements come from `src/lib/facts.ts` (VERIFIED, OV-3); the
- * unresolved contact and social details stay visible placeholder chips.
+ * Every string here comes from `src/lib/facts.ts` (VERIFIED): the
+ * unofficial-archive statement (OV-3), the contact address, the two social
+ * profiles and the copy-permission notice in the bottom bar. Since 3.15 the
+ * footer renders **no placeholder chip at all** — the last one (PL-15, socials)
+ * closed with the Facebook + Instagram links below.
  */
 
 // Footer link — small caps over a hairline that fills in on hover. `py-1.5`
@@ -87,27 +90,20 @@ export function SiteFooter() {
             </ul>
           </div>
 
-          {/* (d) Следете нѐ — one VERIFIED link since 3.12: a Belasica fan
-              page Ace asked to put here, and here only (D-3.12-6). It is not
-              the club's account and not ours, so the link says so; a bare
-              „Фејсбук" would read as this archive's own profile. No other
-              profile is confirmed, so PL-15 stays open on `/kontakt`. */}
+          {/* (d) Следете нѐ — both profiles, as icon links. Until 3.15 this
+              column held one text link calling the Facebook profile a *fan
+              page* (D-3.12-6), on the reasoning that this archive does not run
+              it. „За нас" now states the opposite in the author's own words —
+              Аце Стојанов writes the site, the FB profile FK Belasica
+              1956-2006 and the book — so that framing is retired (D-3.15-2)
+              rather than left to contradict the About page. Instagram is the
+              same identity (`belasica1956.2006`). Closes PL-15 here and on
+              `/kontakt`, which renders the same component. */}
           <div className="min-w-0">
             <h2>
               <SectionOverline variant="onNavy">Следете нѐ</SectionOverline>
             </h2>
-            <ul className="mt-5 flex flex-col items-start gap-3">
-              <li>
-                <a
-                  href={FACEBOOK_FAN_PAGE}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={footerLink}
-                >
-                  {FACEBOOK_FAN_PAGE_LABEL}
-                </a>
-              </li>
-            </ul>
+            <SocialLinks onNavy className="mt-4" />
           </div>
         </div>
 
@@ -117,16 +113,34 @@ export function SiteFooter() {
             but it is not a seventh destination competing with the six real
             ones, and `src/lib/nav.ts` stays the single source for those
             (D-3.07-2). */}
-        <div className="mt-12 flex flex-wrap items-center justify-between gap-x-8 gap-y-2 border-t border-paper/15 pt-6">
-          <p className="text-small uppercase tracking-[0.16em] text-paper/80">
-            {UNOFFICIAL_ARCHIVE_LABEL}
-          </p>
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-1">
-            <Link href="/pravni-informacii" className={footerLink}>
-              Правни информации
-            </Link>
-            <p className="text-small text-paper/80">© {year} ФК Беласица</p>
+        <div className="mt-12 border-t border-paper/15 pt-6">
+          <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-2">
+            <p className="text-small uppercase tracking-[0.16em] text-paper/80">
+              {UNOFFICIAL_ARCHIVE_LABEL}
+            </p>
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-1">
+              <Link href="/pravni-informacii" className={footerLink}>
+                Правни информации
+              </Link>
+              <p className="text-small text-paper/80">© {year} ФК Беласица</p>
+            </div>
           </div>
+
+          {/* The copy posture, on its own row rather than as a fourth column:
+              it belongs with the © and the legal link, not in the navigation.
+              Its own row (not a third item in the flex above) because at 150
+              characters it would otherwise force the © line to wrap oddly at
+              every width between 375 and 1280. Capped at the reading measure so
+              it does not run the full 1248px at desktop.
+
+              ⚠ It asks for PERMISSION, not ownership — see
+              `CONTENT_PERMISSION_NOTICE` in `src/lib/facts.ts` and D-3.15-1.
+              Do not "tighten" it into a copyright claim: the archive publishes
+              material whose rights sit elsewhere, and `/pravni-informacii` §5
+              promises an unconditional takedown on request. */}
+          <p className="mt-5 max-w-measure text-small text-paper/80">
+            {CONTENT_PERMISSION_NOTICE}
+          </p>
         </div>
       </Container>
     </footer>

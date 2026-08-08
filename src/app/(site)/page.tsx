@@ -14,6 +14,7 @@ import { Reveal } from "@/components/home/Reveal";
 import { SectionOverline } from "@/components/home/SectionOverline";
 import { LegendCard } from "@/components/legends/LegendCard";
 import { focusOnNavy, focusOnPaper } from "@/lib/focus";
+import { compareByLegendRank } from "@/lib/people";
 
 // Re-read published Sanity content ~every 60s (D-1.05-4) — new editorial
 // content (a captioned photo, a fresh clubRecord) surfaces without a redeploy.
@@ -90,8 +91,9 @@ const HOME_QUERY = /* groq */ `{
     "slug": slug.current,
     role,
     playingYears,
-    "portrait": *[_type == "photo" && relatedPerson._ref == ^._id][0].image,
-    "hasPortrait": defined(*[_type == "photo" && relatedPerson._ref == ^._id][0].image)
+    legendRank,
+    legendAppearances,
+    "portrait": *[_type == "photo" && relatedPerson._ref == ^._id][0].image
   },
   "records": *[_type == "clubRecord"]{ label, value, category, order },
   "decadeValues": *[_type == "season" && defined(decade)].decade,
@@ -112,8 +114,13 @@ type Legend = {
   slug: string | null;
   role: string[] | null;
   playingYears: string | null;
+  /** The book's rank and the count it is built on. Rendered on the card as
+   *  „1. Петар Андреев 555", the same format `/legendi` uses — the two pages
+   *  show the same ten people and must not describe them differently
+   *  (D-3.15-5). */
+  legendRank: number | null;
+  legendAppearances: string | null;
   portrait: SanityImageSource | null;
-  hasPortrait: boolean;
 };
 
 type Season = { title: string | null; photo: Photo | null };
@@ -244,20 +251,29 @@ export default async function Home() {
 
   const description = settings?.description?.trim() || null;
 
-  // DISPLAY order for the ten the query already chose (D-3.03-2): portraits
-  // first, so real faces lead the marquee, then Cyrillic name order. This does
-  // not re-rank the band — the ten are picked by `legendRank` in GROQ, and this
-  // only arranges them. Some of today's ten have a portrait on file; the rest
-  // render LegendCard's monogram tile, which is the specified treatment
-  // for a person with no portrait (brand.md §Photo treatment) — never a
-  // stand-in face, and never a reason to drop someone from the band.
-  // Only people with a slug (a real detail page) are shown.
+  // DISPLAY order: the book's rank, 1→10, via the same `compareByLegendRank`
+  // the /legendi Играчи band uses — so the two pages that show these same ten
+  // people present them identically (D-3.15-11).
+  //
+  // This **supersedes D-3.03-2's** portraits-first-then-alphabetical display
+  // sort. That rule existed so real faces led the marquee instead of monogram
+  // tiles, and it was the right call while the cards were anonymous. From 3.15
+  // each card PRINTS its rank, and a row reading „Ранг 6 · Ранг 4 · Ранг 7 · Ранг 2…"
+  // reads as a bug rather than as a curated order — a visible number has to run
+  // in its own sequence or it is noise.
+  //
+  // Nothing is lost by dropping the portrait tiebreak here: all ten of today's
+  // band have a portrait on file, so it was already a no-op and only the
+  // alphabetical fallback was doing anything. Should a future top-ten member
+  // have none, `LegendCard`'s monogram tile is the specified treatment
+  // (brand.md §Photo treatment) — never a stand-in face, and never a reason to
+  // drop somebody from the band.
+  //
+  // Band MEMBERSHIP is unchanged — the ten are still picked by `legendRank` in
+  // GROQ. Only people with a slug (a real detail page) are shown.
   const legends = [...data.legends]
     .filter((p): p is Legend & { slug: string } => Boolean(p.slug))
-    .sort((a, b) => {
-      if (a.hasPortrait !== b.hasPortrait) return a.hasPortrait ? -1 : 1;
-      return (a.name ?? "").localeCompare(b.name ?? "", "mk");
-    });
+    .sort(compareByLegendRank);
 
   const decades = toDecadeCounts(data.decadeValues);
 

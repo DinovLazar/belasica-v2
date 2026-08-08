@@ -1,16 +1,22 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
+import { fetchOrThrow } from "@/sanity/fetch";
 import { Container } from "@/components/Container";
 import { PageHeader } from "@/components/PageHeader";
-import { PlaceholderChip } from "@/components/home/PlaceholderChip";
 import { Reveal } from "@/components/home/Reveal";
+import { focusOnPaper } from "@/lib/focus";
 import {
+  ABOUT_AUTHOR_PARAGRAPH,
+  ABOUT_DEDICATION_PARAGRAPH,
+  ABOUT_FATHER_NAME,
   UNOFFICIAL_ARCHIVE_LABEL,
   UNOFFICIAL_ARCHIVE_STATEMENT,
 } from "@/lib/facts";
 
-// Match the other routes (D-1.05-4). Nothing on this page reads Sanity yet, but
-// the value stays consistent across the site and is correct the moment the
-// PL-1/PL-2 copy lands.
+// Match the other routes (D-1.05-4). Since 3.15 this page does read Sanity —
+// one tiny query for the father's person page — so the value is now doing real
+// work rather than sitting there for consistency.
 export const revalidate = 60;
 
 export const metadata: Metadata = {
@@ -20,22 +26,75 @@ export const metadata: Metadata = {
 };
 
 /**
- * /za-nas — **provisional** (D-2.05-1).
+ * /za-nas — **no longer provisional.**
  *
- * This page opens before the second Ace sit-down, so the two things it exists
- * to say — who made the archive (PL-1) and the thread about his father (PL-2) —
- * are not yet VERIFIED in `facts.md` and render as visible placeholder chips.
- * The one thing that *is* verified is the unofficial-archive framing (OV-3),
- * rendered verbatim.
+ * Until 3.15 this page opened with the provisional „в подготовка" banner and
+ * four placeholder chips, because the two things it exists to say — who made
+ * the archive (PL-1) and the thread about his father (PL-2) — were not yet
+ * VERIFIED. The owner supplied the copy on 2026-08-08 in the author's own
+ * words, so **the banner, the chips and D-2.05-1 all retire here** (D-3.15-7)
+ * and this route renders zero placeholders.
  *
- * Handover §4 also specs an **optional hero portrait**. It is omitted here, and
- * not by choice: the locked model (2.01) has no field to hold one —
- * `siteSettings` carries only `title`, `description` and
- * `footerUnofficialArchiveText`, and adding a field is a schema change this
- * phase must not make (D-2.06-4). §4 says the hero „omits otherwise", so an
- * always-omitted hero is the spec's own empty state, not a deviation.
+ * `/za-nas` was the last page carrying that banner, so its removal is also what
+ * finally makes 3.10's unmet DoD line pass: the banner's headline string now
+ * appears nowhere in `src/` outside the state files' record of it (D-3.10-9).
+ *
+ * The copy is rendered **verbatim** from `src/lib/facts.ts` — see the warning
+ * on `ABOUT_AUTHOR_PARAGRAPH` before touching a character of it.
+ *
+ * Handover §4 also specs an **optional hero portrait**. Still omitted, and
+ * still not by choice: the locked model (2.01) has no field to hold one, and
+ * adding one is a schema change outside this phase (D-2.06-4). §4 says the hero
+ * „omits otherwise", so an always-omitted hero is the spec's own empty state.
  */
-export default function AboutPage() {
+
+/** Exactly one published person named „Томе Стојанов" → his slug; otherwise
+ *  null. Written as a count + slug pair rather than `[0]` on purpose: if a
+ *  second „Томе Стојанов" is ever published, the link must go away rather than
+ *  quietly point at whichever document GROQ happened to return first. */
+const FATHER_QUERY = /* groq */ `{
+  "count": count(*[_type == "person" && name == $name && defined(slug.current)]),
+  "slug": *[_type == "person" && name == $name && defined(slug.current)][0].slug.current
+}`;
+
+type FatherResult = { count: number; slug: string | null };
+
+// A mid-sentence link, so `inline` rather than the `inline-block` the legal
+// page uses for its standalone links — inline-block would stop the name
+// wrapping with the paragraph. `border-b-2` at this size instead of the
+// standalone links' 3px: the rule sits inside running copy, not under a lone
+// address. Orange is the RULE, never the ink (D-1.02-1).
+const inlineLink = cn(
+  "border-b-2 border-orange pb-0.5 font-bold text-navy transition-colors hover:border-navy",
+  focusOnPaper,
+);
+
+export default async function AboutPage() {
+  let father: FatherResult = { count: 0, slug: null };
+  try {
+    father = await fetchOrThrow<FatherResult>(
+      FATHER_QUERY,
+      { name: ABOUT_FATHER_NAME },
+      "the About-page father link",
+    );
+  } catch {
+    // The copy is the page; the link is an affordance on top of it. A CDN
+    // wobble (D-3.05a-9) must not take the whole About page down with it, so
+    // this degrades to plain text — the same graceful-fallback reasoning the
+    // homepage records, and the same outcome as „no such person".
+    father = { count: 0, slug: null };
+  }
+
+  const fatherHref =
+    father.count === 1 && father.slug ? `/legendi/${father.slug}` : null;
+
+  // Split on the name so the rendered text is byte-identical to the constant
+  // whether or not the link resolves. `split` on a substring that occurs once
+  // yields exactly two parts; if the copy is ever edited so the name no longer
+  // appears, `after` is undefined and the whole paragraph renders unlinked.
+  const [beforeFather, afterFather] =
+    ABOUT_DEDICATION_PARAGRAPH.split(ABOUT_FATHER_NAME);
+
   return (
     <>
       <PageHeader
@@ -47,14 +106,32 @@ export default function AboutPage() {
           column, not a data document (§4). */}
       <Container className="py-section">
         <div className="max-w-measure">
-          <ProvisionalBanner />
+          <Reveal>
+            <p className="text-body-l text-ink">{ABOUT_AUTHOR_PARAGRAPH}</p>
+
+            <p className="mt-6 text-body-l text-ink">
+              {fatherHref && afterFather !== undefined ? (
+                <>
+                  {beforeFather}
+                  <Link href={fatherHref} className={inlineLink}>
+                    {ABOUT_FATHER_NAME}
+                  </Link>
+                  {afterFather}
+                </>
+              ) : (
+                ABOUT_DEDICATION_PARAGRAPH
+              )}
+            </p>
+          </Reveal>
 
           {/* OV-3 — VERIFIED, rendered verbatim from `facts.md` via
               `@/lib/facts`. Set apart in a white block capped by the orange
               bar: this is the statement the whole site is built around, and
-              brand rule 2 puts it on every page. */}
+              brand rule 2 puts it on every page. It sits AFTER the author's
+              copy now — his words open the page, the site's own framing closes
+              it. */}
           <Reveal>
-            <div className="u-cap mt-10 bg-white p-6 md:p-8">
+            <div className="u-cap mt-12 bg-white p-6 md:p-8">
               <p className="text-overline font-bold uppercase tracking-overline text-neutral-700">
                 {UNOFFICIAL_ARCHIVE_LABEL}
               </p>
@@ -63,69 +140,8 @@ export default function AboutPage() {
               </p>
             </div>
           </Reveal>
-
-          {/* PL-1 — Ace's public name + the About body. Both UNVERIFIED in
-              `facts.md` („deferred by owner to the About-page phase (3.03)"),
-              so both are chips. Writing a plausible paragraph here would be
-              exactly the invention content-truth forbids. */}
-          <Reveal>
-            <section aria-labelledby="story-heading" className="mt-14">
-              <h2
-                id="story-heading"
-                className="u-h3 text-navy"
-              >
-                Кој ја води архивата
-              </h2>
-              <p className="mt-4 flex flex-wrap items-center gap-2 text-body text-neutral-700">
-                <PlaceholderChip label="јавно име на авторот на архивата" />
-              </p>
-              <p className="mt-3">
-                <PlaceholderChip label="текст за архивата — кој ја создал и зошто" />
-              </p>
-            </section>
-          </Reveal>
-
-          {/* PL-2 — the father thread: former Belasica player, name + playing
-              years UNVERIFIED, deferred to 3.03. */}
-          <Reveal>
-            <section aria-labelledby="father-heading" className="mt-14">
-              <h2
-                id="father-heading"
-                className="u-h3 text-navy"
-              >
-                Врската со клубот
-              </h2>
-              <p className="mt-4 flex flex-wrap items-center gap-2">
-                <PlaceholderChip label="име на таткото (поранешен играч на Беласица)" />
-                <PlaceholderChip label="години на играње" />
-              </p>
-            </section>
-          </Reveal>
         </div>
       </Container>
     </>
-  );
-}
-
-/**
- * The in-page provisional banner (§4). Structural copy — it describes the
- * archive's own state and claims no fact about the club, so it needs no
- * `facts.md` entry, exactly like `SeasonEmptyNotice`.
- *
- * Mist rather than orange: this is a quiet caveat, and orange text on paper is
- * 2.8:1 and fails AA (D-1.02-1). It is a `<p>`, not a `role="status"` — the
- * text is present on first paint, not announced.
- */
-function ProvisionalBanner() {
-  return (
-    <div className="border border-dashed border-mist bg-white p-5">
-      <p className="text-overline font-bold uppercase tracking-overline text-neutral-700">
-        Страницата е во подготовка
-      </p>
-      <p className="mt-2 text-small text-neutral-700">
-        Текстот за архивата и за луѓето зад неа сѐ уште се дополнува. Полињата
-        означени подолу допрва се пополнуваат.
-      </p>
-    </div>
   );
 }
