@@ -146,6 +146,38 @@ So the wrap threshold moves from ~780 px to ~899 px, newly breaking roughly **76
 - **OV-41.** A native speaker should read the eight new pages on screen. The index intro, the seven card summaries and the source line are new Macedonian copy nobody has read aloud. *(The 101 transcribed paragraphs are the book's own words and need no such read — but they do carry the author's typos on purpose, and a reader should know that before flagging them.)*
 - **OV-42.** Ace should confirm that the seven topic titles and the section name „Разно" read right to him.
 
-## 6. Preview
+## 6. Preview — checked before asking for a merge
 
-Recorded on the pull request after the Vercel preview deploys — the eight new routes plus `/`, `/legendi` and `/arhiva`, read **on the preview**, not only locally. CLAUDE.md's self-review is the gate here; there is no GitHub Action on this repo (D-1.01-4, D-3.11-6).
+**PR:** [#46](https://github.com/DinovLazar/belasica-v2/pull/46) · **Preview:** `https://belasica-v2-1y7rm81rp-sunset-services-team.vercel.app` · Vercel build **Ready**, 1m.
+
+There is no GitHub Action on this repo (D-1.01-4, D-3.11-6), so CLAUDE.md's self-review is the gate. It ran. Three phases in a row bypassed it before 3.15 restored it; this one did not.
+
+**HTTP status — 13 routes, all as expected:**
+
+| Route | | Route | |
+|---|---|---|---|
+| `/razno` | **200** | `/razno/tiverija` | **200** |
+| `/razno/kup-na-uefa` | **200** | `/razno/stadion-blagoj-istatov` | **200** |
+| `/razno/mladinska-skola` | **200** | `/razno/ajduci` | **200** |
+| `/razno/viaredzo-kup` | **200** | `/` | **200** |
+| `/razno/partizan` | **200** | `/legendi` | **200** |
+| `/sitemap.xml` | **200** | `/arhiva` | **200** |
+| `/razno/nema-takva-tema` | **404** ✓ | | |
+
+**Read on the preview, not only locally:**
+
+- **All 101 transcribed blocks are present in the deployed HTML**, per page: 11 / 19 / 10 / 7 / 50 / 1 / 3. Re-derived from `data/book/razno-source.md` against the live response, not against the local build.
+- **Source credit: exactly 1 per detail page**, 7 in total.
+- **`[PLACEHOLDER`: 0** on all eight new routes.
+- **„Разно" marked active** (`aria-current="page"` + `border-orange`) on all seven detail pages and on the index.
+- **`/razno` renders 7 cards and the „7 теми" meta line.**
+- **All 8 `<title>`s distinct and correct** on the live pages.
+- **`/sitemap.xml` lists `/razno` and all seven topics** — canonical origin still `belasica-v2.vercel.app`, i.e. `metadataBase` untouched and **PL-4 still open**, as intended.
+
+### Five things for Lazar to eyeball on the preview
+
+1. **`/razno`** — do the seven card titles and one-line summaries read right, and is the order the one Ace wants (УЕФА → Младинска школа → Виареџо → Партизан → Тиверија → Стадион → Ајдуци)?
+2. **`/razno/tiverija`** — the 46-row derby list. Every row is styled the same, so the season/competition lines („1929/30", „1955/56, Штипски потсојуз") sit in the list rather than above it. That is what the brief's classification table specifies; say if it should be sub-headed instead.
+3. **`/razno/kup-na-uefa`** — the second paragraph ends „…Беласица доживува уште една катастрофа и губи со 0:5." That sentence was split across two paragraphs in the `.docx` and is rejoined here. Confirm it reads as one sentence.
+4. **Any detail page, at the bottom** — „Извор: Аце Стојанов, „ФК Беласица – гордоста на Струмица“, 2025 година." Is that the attribution Ace wants on his own text?
+5. **The header at tablet width** — open any page at roughly 800 px wide and look at the menu. It is **two rows**. See **OV-40**; it needs a decision, and the fix is outside this phase's edit list.
