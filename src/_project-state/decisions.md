@@ -2281,3 +2281,114 @@
 - **Alternatives considered:** *Copy `careerStats.appearances` into `legendAppearances` for ranks 3–50* — rejected, though tempting and nearly certainly correct: the field is documented, in the schema and in Studio, as **„the book's printed value"**, and `careerStats` has a different recorded provenance („entered here from the source docs", D-2.01-3). Copying it would assert a provenance that has not been verified, in the one field whose entire purpose is to be a faithful transcription. If Ace confirms the two sources are the same numbers, the backfill is a one-line change to the same script. *Render the count from `careerStats` when `legendAppearances` is absent* — rejected for the same reason, and it would additionally hide the gap rather than show it.
 - **Consequences:** The Играчи band shows counts for ranks 1–2 and 51–80 and none for 3–50 — a visible, deliberately un-papered gap (D-3.15-5). Cross-check performed and clean: for all 32 written, `careerStats.appearances` and the book **never disagree** (0 conflicts), and the owner's two values are independently corroborated by `careerStats` (555 and 383 exactly). Nine values are ranges, normalised from the extract's hyphen to the repo's en dash. **OV-39** asks Ace to confirm whether the book prints counts for ranks 3–50.
 - **Links:** D-3.15-4; D-3.15-5; D-2.01-3; D-3.12-2; OV-39; `data/book/legends.json`.
+
+### D-3.16-1 · 2026-08-09 · The seven slugs come from the brief's Task 3 table, not from the source file's own annotations
+- **Status:** Accepted
+- **Context:** `data/book/razno-source.md` carries a `Slug:` line under each chapter heading, and three of them disagree with the brief's Task 3 table: `uefa-kup` vs **`kup-na-uefa`**, `viaredzo` vs **`viaredzo-kup`**, `stadion` vs **`stadion-blagoj-istatov`**. The other four match.
+- **Decision:** Use the Task 3 table. The brief calls those „their exact slugs" and the Definition of Done re-states „the exact seven slugs from the Task 3 table"; the source file's annotations are extraction metadata, written before the routes existed.
+- **Alternatives considered:** *Follow the source file* — rejected: it is data, and the brief is the instruction. *Edit the source file's annotations to agree* — rejected: the file is committed „unmodified" by the same brief, and a mismatch that is visible is safer than one that has been tidied away.
+- **Consequences:** The three annotations in `data/book/razno-source.md` are now stale relative to the live routes. Anyone reading that file for a URL will get the wrong one; the module in `src/content/razno.ts` is the only slug authority.
+- **Links:** brief Task 3; `src/content/razno.ts`; `src/app/(site)/razno/[slug]/page.tsx`.
+
+### D-3.16-2 · 2026-08-09 · „Разно" is a typed TS content module, not a Sanity document type
+- **Status:** Accepted — a deliberate divergence from the Sanity-first content rule
+- **Context:** Every other body of copy on this site lives in Sanity so Ace can edit it. These seven pages are ~27.000 characters of **verbatim transcription of a printed book chapter**. The orchestrator and the owner resolved this before the phase opened; the brief asks that it be logged here.
+- **Decision:** Hold the copy in `src/content/razno.ts` — a typed, ordered array of seven topics, each with `blocks: { kind, line, text }[]`. **No new schema type, no schema deploy, no Sanity write, no query change** in this phase.
+- **Alternatives considered:** *A `raznoTopic` Sanity type* — rejected for now: it would mean re-keying 101 paragraphs through Studio by hand, which is transcription rather than editing, and the text does not change season to season. *Portable Text in a JSON file read at build time* — rejected: it buys nothing over a typed module and loses type-checking on the block kinds.
+- **Consequences:** Ace **cannot** edit these seven pages in Studio. If he wants to, that is a separate phase — and the migration is mechanical, because the module is already one block per source paragraph. The pages are fully static in exchange: no `revalidate`, no Sanity read, no CDN failure mode.
+- **Links:** brief decision 2; D-3.07-8 (a static route deliberately carries no `revalidate`); `src/content/razno.ts`.
+
+### D-3.16-3 · 2026-08-09 · The book's paragraphs are transcribed byte-for-byte, typos included, and no `humanizer` pass touches them
+- **Status:** Accepted
+- **Context:** The source carries the author's own typos („додеака", „изборуваше", „Беласива", „најмногу финалиња" run together as „претставуванајмногу") and words the `.docx` lost the space between („својотклуб", „својап риказна", „весникот„Време“од"). Phase 3.12 set the precedent for the biographies: the author's typos are his.
+- **Decision:** Transcribe verbatim. `src/content/razno.ts` is **generated from** `data/book/razno-source.md` rather than typed, so byte-identity is a property of the build, and an out-of-band script re-derives every block from the source and diffs it — **101/101 identical**. The `humanizer` pass ran on the 16 new connective strings only (index intro, seven card summaries, the source line, eight meta descriptions), never on a transcribed paragraph.
+- **Alternatives considered:** *Fix the obvious typos* — rejected by the brief and by content-truth: these pages are attributed to the book, and silently correcting them makes the attribution false. *Restore the lost inter-word spaces, as 3.12 did for the biographies* — rejected here: 3.12's segmenter was built and reviewed for that phase's 126.297 characters, and re-running a vocabulary-driven guesser over new text without the same review would be a new, unreviewed transformation.
+- **Consequences:** Visible typos on seven live pages. That is the correct failure direction for a transcription. **Anyone tempted to „fix" one must edit `data/book/razno-source.md`, not the module** — the diff check fails otherwise.
+- **Links:** D-3.12-1; D-3.12-4; brief §Scope („no rewording, no summarising, no typo correction"); `data/book/razno-source.md`.
+
+### D-3.16-4 · 2026-08-09 · L6934 and L6935 are joined — an extraction repair, not an edit
+- **Status:** Accepted
+- **Context:** The `.docx` broke one sentence across two paragraphs: L6934 ends „…Беласица доживува уште" and L6935 begins „една катастрофа и губи со 0:5." Rendered as two blocks they read as a truncation.
+- **Decision:** Join them with exactly one space into a single `para` block carrying `line: 6934`. The verifier asserts this specific join and would fail on any other.
+- **Alternatives considered:** *Render both blocks as printed* — rejected: it renders a sentence fragment. *Re-split the sentence at a natural boundary* — rejected: that would be editing.
+- **Consequences:** One of the 101 blocks is not a 1:1 map to a source line; L6935 has no block of its own. This is the **only** exception to byte-identity besides D-3.16-5.
+- **Links:** brief Task 3 („the one permitted text change"); D-3.16-3.
+
+### D-3.16-5 · 2026-08-09 · The markdown bullet marker is stripped from five lines; the ranking numerals are kept
+- **Status:** Accepted
+- **Context:** Five source lines reach the extract with a leading `* ` — L7105 (the Тиверија/Југославија renaming note) and L7156–L7159 (the four Партизан dates). That is the markdown renderer's glyph for a `.docx` list item, not a character the author typed. Two other lines, L6945 and L6946, carry `1. ` and `2. ` — the book's own ranking of its two European scorers.
+- **Decision:** Strip the `* `; keep the `1. ` / `2. `. Rendering „* 11.09.1979 година – …" as a row of a list that is already a list would print the extraction's own formatting on the page.
+- **Alternatives considered:** *Keep the asterisks* — rejected: a literal `*` reads as a bug. *Strip the ordinals too, for consistency* — rejected: the numerals are information (Балдовалиев is #1 with three goals, Ахметовиќ #2 with two), and the site already prints ranked lists that way (`1. Петар Андреев 555`). The asymmetry is justified by content, not convention.
+- **Consequences:** The verifier accepts `"* " + text === source` for exactly those five lines and byte-identity for the other 96, and prints the five it used — so the exception can never widen unnoticed.
+- **Links:** D-3.16-3; D-3.16-4; D-3.15-4 (ranked lists on cards).
+
+### D-3.16-6 · 2026-08-09 · Record runs are rendered directly, not through `SeasonRecordList`
+- **Status:** Accepted
+- **Context:** The brief asks for „the visual language `SeasonRecordList variant=\"results\"` already uses" — a hairline-separated row per line, `tabular-nums`, `text-neutral-700`. That component takes `PortableTextBlock[]`; these blocks are plain strings.
+- **Decision:** Render the rows directly in `BlockRun`, with the identical classes (`border-b border-mist py-2.5 text-body last:border-b-0` inside a `tabular-nums text-neutral-700` wrapper).
+- **Alternatives considered:** *Wrap each string in a synthetic Portable Text block to reuse the component* — rejected, and the brief says so explicitly: it would fabricate `_key`/`_type` scaffolding to satisfy a renderer. *Widen `SeasonRecordList` to accept strings* — rejected: it renders on 95 season pages and this phase must not touch it.
+- **Consequences:** The row treatment now exists in two files. If the season page's results cadence changes, this one does not follow. The comment at each site says so.
+- **Links:** D-3.04-9; `src/components/archive/SeasonRecordList.tsx`; `src/app/(site)/razno/[slug]/page.tsx`.
+
+### D-3.16-7 · 2026-08-09 · `RaznoNeighbourNav` copies `SeasonNeighbourNav` rather than generalising it
+- **Status:** Accepted
+- **Context:** The prev/next spine is identical in behaviour; `SeasonNeighbourNav` hardcodes `/arhiva/<slug>` and the labels „Претходна сезона" / „Следна сезона".
+- **Decision:** A new `src/components/razno/RaznoNeighbourNav.tsx` with the same markup, classes and empty-neighbour behaviour, and the labels „Претходна тема" / „Следна тема".
+- **Alternatives considered:** *Parameterise `SeasonNeighbourNav` with a base path and label pair* — rejected: it renders on all 96 season pages, and widening it to serve seven new ones puts the archive spine at risk for no user-visible gain. The repo already settled this trade the same way at 2.06, where the person page wrote its own season chips rather than widen `PersonChip`.
+- **Consequences:** Two components to keep in step. The duplication is deliberate and documented in both files.
+- **Links:** D-3.04-1; D-2.06 (the `PersonChip` precedent, `src/app/(site)/legendi/[slug]/page.tsx`).
+
+### D-3.16-8 · 2026-08-09 · The detail page's prose section is an unnamed `<section>`
+- **Status:** Accepted
+- **Context:** It first shipped as `<section aria-label={topic.title}>`. A named `<section>` is a `region` landmark, so a screen reader announced „Куп на УЕФА region" immediately after „Куп на УЕФА heading level 1" — a duplicate landmark wrapping the page's only body.
+- **Decision:** Drop the label from the prose section. The navigation section below keeps `aria-label="Навигација низ темите"`, because it genuinely is a separate region — the same treatment the season page gives „Навигација низ архивата".
+- **Alternatives considered:** *`aria-labelledby` pointing at the `<h1>`* — rejected: same duplicate announcement, more markup. *Keep it for symmetry with the person page* — rejected: those sections each have their own `<h2>` to name, and this one has none.
+- **Consequences:** The detail pages carry one `<h1>` and no `<h2>` — correct for a single-flow chapter. Landmarks on a detail page: `header`, two `nav`, `main`, the navigation region, `footer`.
+- **Links:** `/impeccable audit` (this phase); `src/app/(site)/legendi/[slug]/page.tsx`.
+
+### D-3.16-9 · 2026-08-09 · The Виареџо card summary's „против европските академии" was corrected — five of the 24 opponents were not European
+- **Status:** Accepted — **a deliberate divergence from a string the brief supplies as „verbatim"**
+- **Context:** The brief's Task 4 table gives the Виареџо card summary as „Осум изданија на „Копа карневале" во Италија и 24 натпревари против европските академии." and instructs that the summaries be used verbatim. It also requires („Check each one before you ship it") that every figure be checked against the source. The figures check out — L7009 gives „8 изданија" and „24 натпревари". **The geography does not:** the source names Килмес (Аргентина, L6989), Сантос Лагуна (Мексико, L6994), Индепиенте од Санта Фе (Колумбија, L6999), Национал од Парагвај (L7007) and „малезискиот тим" (L6997) among the opponents.
+- **Decision:** Ship „…и 24 натпревари против младински екипи од Европа, Америка и Азија." — every element of which is checkable in `data/book/razno-source.md`. The parallel meta description was corrected the same way.
+- **Alternatives considered:** *Ship the brief's string as written* — rejected: CLAUDE.md's content-truth rule is non-negotiable and outranks a brief's wording („Factual claims rendered on the site come only from `facts.md`… Nothing invented"), and this phase's own decision 5 states that nothing outside the source file may become a factual claim on these pages. *Drop the geography entirely („…и 24 натпревари.")* — rejected as a needless loss: three continents is a more interesting and equally checkable fact. *Ask first and block* — rejected: the correction is minimal, the reasoning is on the record here, and the rest of the phase does not depend on the answer.
+- **Consequences:** One of the seven card summaries and one meta description differ from the brief's text. **The orchestrator should ratify or overrule this.** The other six summaries and the index intro are verbatim as supplied.
+- **Links:** CLAUDE.md §Content truth; brief decision 5; brief Task 4; L6989 / L6994 / L6997 / L6999 / L7007 / L7009.
+
+### D-3.16-10 · 2026-08-09 · The cards keep `u-card`'s 4px hover lift, not the brief's 2px
+- **Status:** Accepted
+- **Context:** Task 4 asks for the cards to sit „in the `SeasonCard` / `LegendCard` visual language minus the photo: serif navy title, summary line, **2px lift** on hover, no shadow". Those two components use `u-card`, whose lift is **4px**, and `brand.md` §Components and §Motion both specify „plus a 4px lift".
+- **Decision:** Use `u-card u-card--light` unchanged — 4px lift, 6px orange bar wiping in along the bottom edge, no shadow.
+- **Alternatives considered:** *Override the lift to 2px on these seven cards* — rejected on two counts: `brand.md` is the only token source and says 4px, and a 2px lift would make these cards behave differently from every other card on the site while the same sentence asks them to match those cards.
+- **Consequences:** The brief's „2px" is not implemented. Nothing else in the card anatomy differs.
+- **Links:** `brand.md` §Components / §Motion; `globals.css` `.u-card`; CLAUDE.md („never hardcode a color, font, or spacing value").
+
+### D-3.16-11 · 2026-08-09 · A seventh nav item widens a pre-existing header wrap; `SiteHeader` was measured, not edited
+- **Status:** Accepted (raises **OV-40**)
+- **Context:** The Definition of Done asks that the seven-item header nav not wrap at 375px. It does not — below `md` the desktop nav is `display: none` and the burger panel takes over, where all seven stack with a 48px target each and „Разно" carries the orange left bar. **But a sweep across widths found a real regression above that.** Measured, with the „Разно" item toggled off to get the pre-phase baseline in the same DOM: at **768px the six-item nav already wrapped** to two rows and the header was already 101px against a `--spacing-header` token of 78px — pre-existing. At **790, 820 and 860px, six items fit on one row at 78px and seven wrap to two rows at 101px.** At **899px and above** (and at 900, 1280, 1408) seven fit on one row at 78px. So this phase moves the wrap threshold from ~780px to ~899px, newly breaking a band of roughly **769–898px** — which includes iPad portrait at 810 and 820. No horizontal overflow at any width tested (375 / 768 / 790 / 820 / 860 / 899 / 900 / 1280 / 1408).
+- **Decision:** Report it; do not fix it here. The brief states that „`nav.ts` and `sitemap.ts` are the only shared files this phase edits", and `SiteHeader.tsx` is neither.
+- **Alternatives considered:** *Reduce `gap-7` to `gap-5` in the `md` range* — the smallest fix, and it likely clears the whole band, but it restyles the header on every route. *Move the burger breakpoint from `md` to `lg`* — cleaner, and it would fix the pre-existing 768px break too, but it is a visible design change at tablet widths and the owner's call. *Shorten a label* — rejected: the labels are content.
+- **Consequences:** Between ~769 and ~898px the sticky header is **101px tall while `--spacing-header` still claims 78px**, so every `scroll-mt-header` anchor in that band lands ~23px under the header and the archive's decade rail sticks 23px too high. That was already true at 768px before this phase; the band is now ~130px wider. **OV-40** carries the fix.
+- **Links:** `src/components/SiteHeader.tsx`; `globals.css` `--spacing-header`; brief Task 7 and §Scope.
+
+### D-3.16-12 · 2026-08-09 · The new copy uses „…“ and the source line is one constant
+- **Status:** Accepted
+- **Context:** The brief renders the book title and „Копа карневале" with a straight closing quote in places. The repo settled the convention at 3.07: „…“ (U+201E … U+201C), matching Macedonian typography and the book's own text.
+- **Decision:** „…“ throughout the new strings. The attribution — „Извор: Аце Стојанов, „ФК Беласица – гордоста на Струмица“, 2025 година." — lives in a single `RAZNO_SOURCE_CREDIT` constant rendered once per detail page, in the `neutral-500` provenance register above a mist hairline. Verified in the built HTML: **exactly one occurrence on each of the seven pages, seven in total.**
+- **Alternatives considered:** *Copy the brief's quote characters* — rejected: it would put two quote conventions on one page. *Write the line per page* — rejected: seven copies of an attribution is seven chances for one to drift.
+- **Links:** D-3.07-9; `src/content/razno.ts`.
+
+### D-3.16-13 · 2026-08-09 · The source file was reconstructed from the brief's inline copy; the brief itself was not committed
+- **Status:** Accepted
+- **Context:** The brief says „`data/book/razno-source.md` ships **with this brief**" and lists `briefs/Part-3-Phase-16-Code.md` as the first thing to read. **Neither existed on disk** — both arrived inline in the session, and `briefs/` holds seven files for far more phases than that.
+- **Decision:** Write `data/book/razno-source.md` from the brief's inline copy, because the brief names it as a required tracked output. Do **not** create `briefs/Part-3-Phase-16-Code.md`, because it is not in „Outputs & where they go" and `file-map.md` already records that most phases run from a brief pasted into the session rather than committed.
+- **Alternatives considered:** *Commit the brief too* — reasonable, and it would make its own „read first" line true; left to Lazar, who files briefs. *Refuse to proceed without the real file* — rejected: the inline copy is complete, and every one of its 109 paragraphs is machine-checked against what renders.
+- **Consequences:** The DoD line „byte-identical to the supplied file" is satisfied against the brief's inline text, which is the only copy this session ever had. If a canonical `razno-source.md` exists elsewhere, **diff it against the committed one before trusting either.**
+- **Links:** `data/book/razno-source.md`; `file-map.md` §Docs & rules.
+
+### D-3.16-14 · 2026-08-09 · The seven sitemap entries carry no `lastModified`
+- **Status:** Accepted
+- **Context:** Every other slug in `sitemap.ts` carries the document's own `_updatedAt` from Sanity. These seven have no document and therefore no revision time.
+- **Decision:** Emit them as `url` only, alongside the seven static paths, which already work that way.
+- **Alternatives considered:** *Use the build date* — rejected: it would claim the pages changed on every deploy, which is a made-up date in a field crawlers act on. *Hand-maintain a date per topic* — rejected: it would go stale the first time anyone edits the module.
+- **Consequences:** `/razno` and its seven children look, to a crawler, exactly like `/legendi` and `/za-nas` do today.
+- **Links:** D-3.04d-4; `src/app/sitemap.ts`.

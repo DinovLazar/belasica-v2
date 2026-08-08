@@ -9,6 +9,7 @@ export const NAV_ITEMS = [
   { label: "Архива", href: "/arhiva" },
   { label: "Легенди", href: "/legendi" },
   { label: "Статистика", href: "/statistika" },
+  { label: "Разно", href: "/razno" },
   { label: "За нас", href: "/za-nas" },
   { label: "Контакт", href: "/kontakt" },
 ] as const;
