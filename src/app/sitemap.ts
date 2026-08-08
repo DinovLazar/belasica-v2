@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { client } from "@/sanity/client";
+import { RAZNO_TOPICS } from "@/content/razno";
 
 // Production origin — the Vercel default domain; no custom domain yet. Kept in
 // sync by hand with src/app/layout.tsx (metadataBase) and src/app/robots.ts —
@@ -34,7 +35,7 @@ type SitemapData = {
   people: SlugEntry[] | null;
 };
 
-// The six static routes — every top-level nav destination. /studio is
+// The seven static routes — every top-level nav destination. /studio is
 // deliberately absent (robots.ts disallows it too): an editing tool, not
 // archive content.
 const STATIC_PATHS = [
@@ -42,6 +43,7 @@ const STATIC_PATHS = [
   "/arhiva",
   "/statistika",
   "/legendi",
+  "/razno",
   "/za-nas",
   "/kontakt",
 ] as const;
@@ -61,6 +63,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url: `${SITE_URL}${path}`,
   }));
 
+  // The seven „Разно" topics. Listed from the same array the routes are
+  // generated from, so a topic can never be prerendered without appearing here.
+  // No `lastModified`: unlike a season or a person these carry no `_updatedAt`
+  // — they change when the repo changes — and inventing a date for them would
+  // be exactly the kind of made-up value the archive does not publish.
+  const raznoRoutes: MetadataRoute.Sitemap = RAZNO_TOPICS.map((topic) => ({
+    url: `${SITE_URL}/razno/${topic.slug}`,
+  }));
+
   const seasonRoutes: MetadataRoute.Sitemap = (data?.seasons ?? []).map(
     (season) => ({
       url: `${SITE_URL}/arhiva/${season.slug}`,
@@ -75,5 +86,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }),
   );
 
-  return [...staticRoutes, ...seasonRoutes, ...personRoutes];
+  return [...staticRoutes, ...raznoRoutes, ...seasonRoutes, ...personRoutes];
 }
