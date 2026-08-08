@@ -121,7 +121,9 @@ Full text for all thirteen is in `decisions.md`. The remaining entries — the p
 
 ## 5. Changed files / deliverables
 
-**Branch:** `phase-3.15-about-socials-legends`, cut from `main` @ `cc4214c`. **PR:** see the link recorded at merge time in §7. **Nothing was committed to `main`.**
+**Branch:** `phase-3.15-about-socials-legends`, cut from `main` @ `cc4214c`. **Commit** `c19d261`. **PR:** [#45](https://github.com/DinovLazar/belasica-v2/pull/45) → `main`, **open, not merged**. **Nothing was committed to `main`.**
+
+**Self-review of the diff** (CLAUDE.md requires it, since this repo has no automated review gate — D-1.01-4/D-1.06-1): 10 source files, **+507 / −184**. Checked and clean — **no hardcoded colour literal** added (`grep` for `#hex`/`rgb(`/`oklch(` on added lines → empty), **no inline focus ring** (every focusable element uses `src/lib/focus.ts`), **no new arbitrary-value Tailwind class**, and all ten out-of-scope files absent. ⚠️ **The Vercel preview has not been opened by a human yet** — that is the remaining gate and it is Lazar's, see §7.
 
 **New (2):**
 - `src/components/SocialLinks.tsx` — the two profiles as icon links, both surfaces, one source.
