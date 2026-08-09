@@ -26,6 +26,22 @@ export const BAND_TITLE: Record<PersonRole, string> = {
 };
 
 /**
+ * The `<section id>` each band renders on /legendi, and therefore the target of
+ * its jump-rail link (3.17). Latin slugs, like every other anchor on the site
+ * (`prikazna`, `rezultati`, `tabela`, `fotografii`), so a shared `#…` link
+ * survives copy-paste out of a URL bar.
+ *
+ * Lives here beside `BAND_TITLE` for the same reason that does: a band's title,
+ * its count noun and now its anchor read from one source rather than being
+ * restated at the call site.
+ */
+export const BAND_ANCHOR: Record<PersonRole, string> = {
+  player: "igraci",
+  trainer: "treneri",
+  president: "pretsedateli",
+};
+
+/**
  * Band order **and** placement priority in one list (D-2.05-2): a person holding
  * several roles is placed exactly once, in the band of their highest-priority
  * role — player > trainer > president — and never duplicated across bands.

@@ -25,8 +25,14 @@ import { cn } from "@/lib/utils";
  * keep the apps/goals and the scorelines in visual columns without imposing a
  * table structure the source text does not have. Nothing is reformatted — the
  * transcribed text (source OCR quirks included) renders verbatim.
+ *
+ * The `roster` variant additionally draws one hairline after the line numbered
+ * 11 — see `rosterDividerKey` and `RosterDivider` below (3.17).
  */
-function componentsFor(variant: "roster" | "results"): PortableTextComponents {
+function componentsFor(
+  variant: "roster" | "results",
+  dividerKey: string | null,
+): PortableTextComponents {
   // `text-body` lives here so each variant owns its full row treatment. (It
   // no longer needs to dodge cn(): the custom type scale is registered in
   // src/lib/utils.ts, so size and colour merge correctly — D-3.04-12,
@@ -45,14 +51,20 @@ function componentsFor(variant: "roster" | "results"): PortableTextComponents {
   // „Резултати" (h2 → h3) and a sibling of „Состав и статистика" in the roster
   // block (h3 → h3). Either way no level is skipped.
   const subheading = ({ children }: { children?: React.ReactNode }) => (
-    <h3 className="mt-8 u-h3 text-navy">
-      {children}
-    </h3>
+    <h3 className="mt-8 u-h3 text-navy">{children}</h3>
   );
 
   return {
     block: {
-      normal: ({ children }) => <p className={row}>{children}</p>,
+      normal:
+        dividerKey === null
+          ? ({ children }) => <p className={row}>{children}</p>
+          : ({ children, value }) => (
+              <>
+                <p className={row}>{children}</p>
+                {value._key === dividerKey && <RosterDivider />}
+              </>
+            ),
       h1: subheading,
       h2: subheading,
       h3: subheading,
@@ -94,12 +106,75 @@ function componentsFor(variant: "roster" | "results"): PortableTextComponents {
   };
 }
 
-// Built once at module scope, like `SeasonStory`'s map — the config is static,
-// so rebuilding it per render would only churn object identity.
-const COMPONENTS: Record<"roster" | "results", PortableTextComponents> = {
-  roster: componentsFor("roster"),
-  results: componentsFor("results"),
-};
+/**
+ * A numbered roster line: „11. Г. Узунов 27+0/8". The separators are whatever
+ * the transcription actually holds — the live data has „1 Д. Георгиев 15+0 /0"
+ * with no dot at all, „2.М. Василев 27+0/3" with no space, and „19.Г. Стојменов
+ * 2+7/2" with both — so the dot and the space are each optional.
+ *
+ * The `(?=\D)` lookahead is the guard: it requires a non-digit after the
+ * number, which is what stops a scoreline („2:1 …") or a bare year from being
+ * read as a roster position.
+ */
+const ROSTER_LINE = /^\s*(\d{1,2})\s*[.)]?\s*(?=\D)/;
+
+/** The number a block opens with as a roster line, or null if it is not one. */
+function rosterNumber(block: PortableTextBlock): number | null {
+  if (block._type !== "block") return null;
+  if ((block.style ?? "normal") !== "normal") return null;
+
+  const text = (block.children ?? [])
+    .map((child) => (typeof child.text === "string" ? child.text : ""))
+    .join("");
+
+  const match = ROSTER_LINE.exec(text);
+  return match ? Number.parseInt(match[1], 10) : null;
+}
+
+/**
+ * The `_key` of the roster line the divider goes under — the first line
+ * numbered 11 — or null when no divider should be drawn (owner, 2026-08-09).
+ *
+ * Two conditions, both required. There must be a line numbered 11, and a
+ * *later* line numbered 12: if the roster stops at eleven there is nothing on
+ * the other side of the rule to separate, so none is drawn (`1952` is the one
+ * published season in that position). On the live data this returns a key for
+ * 51 of the 96 seasons and null for the other 45, and no season holds a second
+ * block numbered 11, so no page can render two dividers.
+ */
+function rosterDividerKey(blocks: PortableTextBlock[]): string | null {
+  const eleventh = blocks.findIndex((block) => rosterNumber(block) === 11);
+  if (eleventh === -1) return null;
+
+  const hasTwelfth = blocks
+    .slice(eleventh + 1)
+    .some((block) => rosterNumber(block) === 12);
+
+  return hasTwelfth ? (blocks[eleventh]._key ?? null) : null;
+}
+
+/**
+ * The rule after the eleventh roster line (owner, 2026-08-09).
+ *
+ * **No text, no label, no `<hr>`, and `aria-hidden`.** The book prints a
+ * numbered list; it does not print the words „стартна единаесторка". Grouping
+ * the first eleven visually is what the owner asked for — *stating* that those
+ * eleven started is a fact the archive would be asserting on the book's behalf,
+ * which content-truth forbids. `<hr>` is a semantic thematic break and would
+ * make that same claim to a screen reader, so this is a presentational `<div>`
+ * hidden from the accessibility tree: the numbered list it separates already
+ * reads correctly without it (D-3.17-4).
+ */
+function RosterDivider() {
+  return <div aria-hidden className="mt-4 mb-1 h-px bg-mist" />;
+}
+
+// The results config is static and built once, like `SeasonStory`'s map. The
+// roster's depends on which line the divider falls under, so it is built per
+// render — and passing `null` here is what makes the results variant provably
+// divider-free: its `normal` renderer is the same one-line paragraph it has
+// always been, with no key comparison in it at all.
+const RESULTS_COMPONENTS = componentsFor("results", null);
 
 export function SeasonRecordList({
   blocks,
@@ -110,6 +185,11 @@ export function SeasonRecordList({
   variant: "roster" | "results";
   className?: string;
 }) {
+  const components =
+    variant === "results"
+      ? RESULTS_COMPONENTS
+      : componentsFor("roster", rosterDividerKey(blocks));
+
   return (
     <div
       className={cn(
@@ -117,7 +197,7 @@ export function SeasonRecordList({
         className,
       )}
     >
-      <PortableText value={blocks} components={COMPONENTS[variant]} />
+      <PortableText value={blocks} components={components} />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { client } from "@/sanity/client";
 import { Container } from "@/components/Container";
+import { JumpNav, type JumpItem } from "@/components/JumpNav";
 import { PageHeader } from "@/components/PageHeader";
 import { SectionHeading } from "@/components/archive/SectionHeading";
 import { BalanceSummary } from "@/components/stats/BalanceSummary";
@@ -13,7 +14,6 @@ import {
 } from "@/components/stats/StatTable";
 import { Reveal } from "@/components/home/Reveal";
 import { seasonCountLabel } from "@/lib/archive";
-import { cn } from "@/lib/utils";
 import {
   aggregateClubBalance,
   groupClubRecords,
@@ -193,6 +193,20 @@ export default async function StatisticsPage() {
   const balance = aggregateClubBalance(data?.balanceSeasons ?? []);
   const recordGroups = groupClubRecords(data?.records ?? []);
 
+  // Every label leads the heading it jumps to (D-3.13-1) — „Севкупен биланс" is
+  // that heading's own opening words, not a paraphrase of it. The first three
+  // sections always render (each carries its own empty notice); the records
+  // section self-omits when there are no records, and the rail follows it, so
+  // it can never offer a jump to a heading that is not in the document.
+  const railItems: JumpItem[] = [
+    { id: "strelci", label: "Најдобри стрелци" },
+    { id: "nastapi", label: "Најмногу настапи" },
+    { id: "bilans", label: "Севкупен биланс" },
+    ...(recordGroups.length > 0
+      ? [{ id: "rekordi", label: "Клупски рекорди" }]
+      : []),
+  ];
+
   // Sorting „Сезона" descending must mean newest first, whatever a title looks
   // like („Сезона 1950" vs „Беласица 1922–1926"). The query already ordered the
   // seasons chronologically, so the negated index carries that order into the
@@ -227,34 +241,21 @@ export default async function StatisticsPage() {
         intro="Збирни бројки од архивата. Прегледот се пополнува како што се внесуваат сезоните и играчите."
       />
 
-      {/* The curated records lead the page: they are the club's headline facts,
-          and the three tables below are the detail behind them. Unlike those
-          three, this section has no empty notice — with no records there is
-          nothing to say that the page does not already say, so it omits itself
-          entirely (D-2.02-3). */}
-      {recordGroups.length > 0 && (
-        <section aria-labelledby="records-heading" className="py-section">
-          <Container>
-            <Reveal>
-              <SectionHeading id="records-heading">
-                Клупски рекорди
-              </SectionHeading>
-            </Reveal>
-            <ClubRecordList groups={recordGroups} />
-          </Container>
-        </section>
-      )}
+      <JumpNav items={railItems} ariaLabel="Скок низ статистиката" />
 
-      {/* The hairline only exists BETWEEN two paper sections. When the records
-          section omits itself this one leads the page again, and its top edge
-          is the navy header's colour change — a rule there would be a second
-          boundary drawn on top of the first. */}
+      {/* The scorers lead the page (owner, 2026-08-09): „Најдобри стрелци" is
+          the table readers open this page for, so it is the first thing under
+          the header, and the curated records — a shorter, editorial list — now
+          close it instead of standing in front of it.
+          Leading the page, this section takes no hairline: its top edge is
+          already the navy rail's colour change, and a rule there would be a
+          second boundary drawn on top of the first. */}
       <section
+        id="strelci"
         aria-labelledby="scorers-heading"
-        className={cn(
-          "py-section",
-          recordGroups.length > 0 && "border-t border-mist",
-        )}
+        // Clear BOTH sticky bars when jumped to: the site header
+        // (`--spacing-header`) plus the jump rail's own height.
+        className="scroll-mt-[calc(var(--spacing-header)+3.25rem)] py-section"
       >
         <Container>
           <Reveal>
@@ -295,8 +296,9 @@ export default async function StatisticsPage() {
       </section>
 
       <section
+        id="nastapi"
         aria-labelledby="appearances-heading"
-        className="border-t border-mist py-section"
+        className="scroll-mt-[calc(var(--spacing-header)+3.25rem)] border-t border-mist py-section"
       >
         <Container>
           <Reveal>
@@ -325,8 +327,9 @@ export default async function StatisticsPage() {
       </section>
 
       <section
+        id="bilans"
         aria-labelledby="balance-heading"
-        className="border-t border-mist py-section"
+        className="scroll-mt-[calc(var(--spacing-header)+3.25rem)] border-t border-mist py-section"
       >
         <Container>
           <Reveal>
@@ -389,6 +392,31 @@ export default async function StatisticsPage() {
           )}
         </Container>
       </section>
+
+      {/* The curated records close the page (owner, 2026-08-09). They are the
+          club's headline facts and they used to lead, but they are an
+          editorial selection standing in front of the three tables the page
+          exists for; behind them they read as the summary they are.
+          Unlike those three, this section has no empty notice — with no
+          records there is nothing to say that the page does not already say,
+          so it omits itself entirely (D-2.02-3). It now always follows a paper
+          section, so its hairline is unconditional. */}
+      {recordGroups.length > 0 && (
+        <section
+          id="rekordi"
+          aria-labelledby="records-heading"
+          className="scroll-mt-[calc(var(--spacing-header)+3.25rem)] border-t border-mist py-section"
+        >
+          <Container>
+            <Reveal>
+              <SectionHeading id="records-heading">
+                Клупски рекорди
+              </SectionHeading>
+            </Reveal>
+            <ClubRecordList groups={recordGroups} />
+          </Container>
+        </section>
+      )}
     </>
   );
 }

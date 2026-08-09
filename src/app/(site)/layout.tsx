@@ -1,3 +1,4 @@
+import { BackToTop } from "@/components/BackToTop";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { focusOnNavy } from "@/lib/focus";
@@ -47,6 +48,10 @@ export default function SiteLayout({
         {children}
       </main>
       <SiteFooter />
+      {/* Mounted once for the whole public site (3.17). It renders nothing
+          until the reader is 1.5 viewports down, so it is absent from every
+          prerendered page and costs the routes that never need it nothing. */}
+      <BackToTop />
     </>
   );
 }
