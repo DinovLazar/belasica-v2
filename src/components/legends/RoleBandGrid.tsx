@@ -24,11 +24,16 @@ export function RoleBandGrid({
   role,
   people,
   headingId,
+  anchorId,
   leadsPage = false,
 }: {
   role: PersonRole;
   people: LegendCardData[];
   headingId: string;
+  /** The band's own `#…` target, from `BAND_ANCHOR` — what the page's jump rail
+   *  links to (3.17). Distinct from `headingId`, which stays on the `<h2>` and
+   *  names the section for assistive tech. */
+  anchorId: string;
   /** Set on the first band that actually renders. Its first card holds the
    *  page's LCP element and is treated accordingly (D-3.09-2/3). */
   leadsPage?: boolean;
@@ -36,7 +41,14 @@ export function RoleBandGrid({
   if (people.length === 0) return null;
 
   return (
-    <section aria-labelledby={headingId}>
+    <section
+      id={anchorId}
+      aria-labelledby={headingId}
+      // Clear BOTH sticky bars when jumped to: the site header
+      // (`--spacing-header`) plus the jump rail's own height, or the heading
+      // lands underneath them. Same offset as /arhiva's decade sections.
+      className="scroll-mt-[calc(var(--spacing-header)+3.25rem)]"
+    >
       <header>
         {/* The 6px orange bar caps the band, exactly as it caps a decade on
             /arhiva and every tile on the site. Decorative — the H2 below

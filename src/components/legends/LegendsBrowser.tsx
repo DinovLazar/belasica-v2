@@ -3,9 +3,15 @@
 import { useId, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Container } from "@/components/Container";
+import { JumpNav } from "@/components/JumpNav";
 import { PageHeader } from "@/components/PageHeader";
 import { focusOnNavy } from "@/lib/focus";
-import { personCountLabel, type PersonRole } from "@/lib/people";
+import {
+  BAND_ANCHOR,
+  BAND_TITLE,
+  personCountLabel,
+  type PersonRole,
+} from "@/lib/people";
 import { matchesName } from "@/lib/translit";
 import type { LegendCardData } from "./LegendCard";
 import { RoleBandGrid } from "./RoleBandGrid";
@@ -56,6 +62,19 @@ export function LegendsBrowser({ bands }: { bands: LegendBand[] }) {
 
   const matches = visible.reduce((sum, band) => sum + band.people.length, 0);
   const leadRole = visible.find((band) => band.people.length > 0)?.role;
+
+  // Built from `visible`, not from `bands`: a band that filtered down to nobody
+  // renders nothing (`RoleBandGrid` self-omits), so a rail built from the full
+  // roster would point at a `<section id>` that is not in the document. A search
+  // that leaves only one band standing leaves one item, and `JumpNav` declines
+  // to render a rail of one. Labels come from `BAND_TITLE`, never retyped, so a
+  // band's heading and its rail link cannot drift apart (D-3.13-1).
+  const railItems = visible
+    .filter((band) => band.people.length > 0)
+    .map((band) => ({
+      id: BAND_ANCHOR[band.role],
+      label: BAND_TITLE[band.role],
+    }));
 
   // The archive total, not the filtered count — the live result count below the
   // input already reports the filter. Counted from the bands themselves, so it
@@ -144,6 +163,8 @@ export function LegendsBrowser({ bands }: { bands: LegendBand[] }) {
         </div>
       </PageHeader>
 
+      <JumpNav items={railItems} ariaLabel="Скок по улога" />
+
       <Container className="py-section">
         {searching && matches === 0 ? (
           <p className="border border-mist bg-white p-5 text-body text-neutral-700">
@@ -157,6 +178,7 @@ export function LegendsBrowser({ bands }: { bands: LegendBand[] }) {
                 role={band.role}
                 people={band.people}
                 headingId={`band-${band.role}`}
+                anchorId={BAND_ANCHOR[band.role]}
                 // The first band with anything in it leads the page, so its first
                 // card carries the LCP. `RoleBandGrid` renders nothing when its
                 // list is empty, so „first non-empty" is also „first visible" —

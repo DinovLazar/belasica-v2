@@ -2392,3 +2392,75 @@
 - **Alternatives considered:** *Use the build date* — rejected: it would claim the pages changed on every deploy, which is a made-up date in a field crawlers act on. *Hand-maintain a date per topic* — rejected: it would go stale the first time anyone edits the module.
 - **Consequences:** `/razno` and its seven children look, to a crawler, exactly like `/legendi` and `/za-nas` do today.
 - **Links:** D-3.04d-4; `src/app/sitemap.ts`.
+
+### D-3.17-1 · 2026-08-09 · Phase 3.17 runs out of the plan's order; the NEXT line still points at 3.08
+- **Status:** Accepted
+- **Context:** `current-state.md`'s first line has read `NEXT: 3.08 — Domain cutover` since 3.15, and PL-4 (the three hardcoded Vercel origins in `metadataBase`, `robots.ts`, `sitemap.ts`) is still the only open placeholder. This phase is four owner-requested navigation and reading fixes, briefed ahead of that cutover.
+- **Decision:** Run 3.17 now and leave the NEXT line naming **3.08**, unchanged, after this phase merges. The brief states this explicitly.
+- **Alternatives considered:** *Renumber this work as 3.08a and move the cutover* — rejected: it would bury a launch blocker behind a UI phase in the record. *Point NEXT at 3.18* — rejected: nothing is planned there, and it would quietly retire PL-4 from the top of the snapshot, which is the one place it is guaranteed to be read.
+- **Consequences:** The phase numbering is no longer a reading order. Anyone reconstructing the sequence from the completion reports will find 3.17 filed before 3.08; the NEXT line, not the number, is the pointer.
+- **Links:** PL-4; D-3.15-0 (the phase-id collision that made numbering fragile); `src/_project-state/current-state.md`.
+
+### D-3.17-2 · 2026-08-09 · `rounded-full` on the back-to-top button — the single named exception to „radius 0 everywhere"
+- **Status:** Accepted — amends brand.md §Components / §Spacing & layout
+- **Context:** brand.md rule 6 is „Radius is 0. No component reintroduces rounding", and §Spacing & layout states there is no radius value above zero anywhere. The owner asked for a circular back-to-top button on 2026-08-09.
+- **Decision:** Give `BackToTop` `rounded-full` and record it in brand.md §Components as **the** named exception, in the same line that describes the button. Nothing else on the site gains a radius.
+- **Alternatives considered:** *A 48px square* — rejected: it is not what the owner asked for. *Soften the rule to „radius 0 except for floating controls"* — rejected: a category-shaped exception invites the next one; a single named component cannot spread. *Leave brand.md alone and let the code diverge* — rejected outright: an undocumented exception is how a token system stops being one.
+- **Consequences:** brand.md now has one place where the code legitimately contradicts rule 6, and it says so out loud. Any future reviewer who greps for `rounded-` will find exactly one hit and one line explaining it. The hard-edged direction is otherwise intact — the button is the only circle on the site.
+- **Links:** brand.md §Components, rule 6; `src/components/BackToTop.tsx`.
+
+### D-3.17-3 · 2026-08-09 · `/statistika` opens with „Најдобри стрелци"; „Клупски рекорди" closes it
+- **Status:** Accepted — supersedes the ordering half of the 3.02F records-lead-the-page comment
+- **Context:** The page led with the curated `clubRecord` list, on the reasoning that they are the club's headline facts and the three tables are the detail behind them. The owner's instruction of 2026-08-09 is that the page should open with the table readers come for.
+- **Decision:** Order the sections Најдобри стрелци → Најмногу настапи → Севкупен биланс → Клупски рекорди. Only JSX order and the hairlines change: `STATS_QUERY`, `SCORER_MIN_GOALS`, every column definition, every empty notice, every caption and the scorer threshold line are byte-identical.
+- **Alternatives considered:** *Keep the records first and add the rail so readers can skip them* — rejected: the rail was briefed as an addition to this change, not a substitute for it, and a jump link is a worse answer than putting the thing readers want first. *Move the records to a page of their own* — rejected: out of scope, and it would strand a short editorial list on an empty route.
+- **Consequences:** **The hairline logic inverts.** Најдобри стрелци now always leads and takes no `border-t` — the conditional `cn()` expression that used to guard it is deleted, along with the `cn` import, which nothing else in the file used. Клупски рекорди gains an unconditional `border-t`, because it now always follows a paper section when it renders at all. Two block comments that stated the old reasoning were false the moment the order changed and were rewritten in the same commit rather than left standing.
+- **Links:** D-2.02-3 (the records section self-omits); D-3.12-5 (the 21-goal threshold line); `src/app/(site)/statistika/page.tsx`.
+
+### D-3.17-4 · 2026-08-09 · The roster divider is wordless, `aria-hidden`, and deliberately not an `<hr>`
+- **Status:** Accepted
+- **Context:** The owner asked for a rule after the eleventh line of a season's numbered roster, separating the eleven from the rest. The obvious reading is „the starting eleven" — but the book prints a numbered list and does not print those words, and no source in the archive states that the first eleven names started.
+- **Decision:** Render `<div aria-hidden className="mt-4 mb-1 h-px bg-mist" />` — presentation only. No text, no label, no `<hr>`.
+- **Alternatives considered:** *Label it „Стартна единаесторка"* — rejected: that is a factual claim about the club that no VERIFIED entry supports, and content-truth forbids inventing it. *Use `<hr>`* — rejected for the same reason one level down: `<hr>` is a semantic thematic break, so a screen reader would announce a division the source does not make. *Number-driven CSS (`nth-child`)* — rejected: the roster's first line is not the block's first child on most seasons, and three seasons open the numbering after a top-scorer sentence.
+- **Consequences:** The grouping is visible to a sighted reader and absent from the accessibility tree, which is exactly the asymmetry intended: the numbered list already reads correctly without it. A screen-reader user loses the visual grouping and loses nothing factual. **It also means the divider cannot be found by assistive tech**, so if the owner ever wants the eleven *stated*, that needs a source and a new decision, not a CSS change.
+- **Links:** CLAUDE.md §Content truth; D-3.16-3 (nothing is written on the book's behalf); `src/components/archive/SeasonRecordList.tsx`.
+
+### D-3.17-5 · 2026-08-09 · `BAND_ANCHOR` lives in `@/lib/people`, beside `BAND_TITLE`
+- **Status:** Accepted
+- **Context:** The `/legendi` rail needs a stable `#id` per role. The brief fixes the values (`igraci` · `treneri` · `pretsedateli`) and says they are keyed off `PersonRole`, but not where the map belongs.
+- **Decision:** A `BAND_ANCHOR: Record<PersonRole, string>` next to `BAND_TITLE` in `src/lib/people.ts`. `LegendsBrowser` reads it for the rail and passes it to `RoleBandGrid` as a new `anchorId` prop; `RoleBandGrid` puts it on the `<section>` and leaves `headingId` on the `<h2>`.
+- **Alternatives considered:** *Derive the anchor inside `RoleBandGrid` and let the rail re-derive it* — rejected: two derivations of one string is how a rail starts pointing at an id that no longer exists. *Reuse `headingId` (`band-player`) as the anchor* — rejected: it is an internal `aria-labelledby` target, it is Latin-with-English-role rather than the site's Macedonian-Latin slug convention (`prikazna`, `rezultati`), and repurposing it would make a shared `#band-player` URL depend on an accessibility detail.
+- **Consequences:** A band's title, its count noun and its anchor now all read from one module — the same argument `RoleBandGrid` already makes for `BAND_TITLE`. Adding a fourth role means adding one line in three maps, and TypeScript fails the build if any is missed. The three `#…` links are now public URLs and should not be renamed casually (D-3.13-3's rule).
+- **Links:** D-3.13-3; `src/lib/people.ts`; `src/components/legends/RoleBandGrid.tsx`.
+
+### D-3.17-6 · 2026-08-09 · „Fewer than two links is not navigation" now governs all three rails, and costs a 46px shift on /legendi
+- **Status:** Accepted
+- **Context:** `SeasonAnchorNav` has always returned `null` below two anchors; `DecadeJumpNav` never had that guard. The brief puts the rule in the shared `JumpNav`, which means `DecadeJumpNav` inherits it and `/legendi`'s rail disappears whenever a search narrows the page to one band.
+- **Decision:** Keep the rule in `JumpNav`, for all three call sites.
+- **Alternatives considered:** *Make the guard opt-in per call site* — rejected: a rail of one link is a link to the thing directly below it on every page, not just on a season. *Keep the single link and grey it out* — rejected: it is still not navigation, and a disabled control is worse than no control.
+- **Consequences:** Two measured effects. (1) On **/arhiva** the branch is unreachable with the published data — the index renders its own empty state at zero seasons, and eleven decades have them — so the rendered page is unchanged, which was verified against a `main` baseline build rather than assumed. (2) On **/legendi** the rail is inside the client component, so typing a query that leaves one band standing removes a 47px sticky bar and **shifts the content below it up by 46px, measured**. The search input sits *above* the rail, so the shift is always below the reader's focus point; it is the accepted cost of never showing a one-link rail.
+- **Links:** `src/components/archive/SeasonAnchorNav.tsx`; `src/components/JumpNav.tsx`; D-3.09-6.
+
+### D-3.17-7 · 2026-08-09 · /arhiva's „byte-identical" DoD item is met at the rendered DOM, not at the whole file
+- **Status:** Accepted — a DoD item reported as measured rather than as passed verbatim
+- **Context:** The DoD asks that `/arhiva`'s built HTML be byte-identical to a `main` baseline. Two things make whole-file identity unreachable for any change at all: Next writes a fresh **build ID** into every page on every build, and webpack's **chunk filenames** are content hashes that shift when the module graph gains a file — which `JumpNav.tsx` is.
+- **Decision:** Prove the claim the DoD is actually making — that the refactor changed nothing a reader can see — by comparing the **rendered DOM**, and report the residue precisely instead of declaring a pass.
+- **Alternatives considered:** *Inline `JumpNav` into `DecadeJumpNav` so no module is added* — rejected: it defeats the phase's purpose. *Call the item failed* — rejected as misleading: nothing about the page changed. *Normalise the flight payload's module-reference table and diff that* — attempted and abandoned: the renumbering is not reliably reversible by regex, and it proves less than the DOM comparison does.
+- **Consequences:** Measured three ways, on a baseline build of `main` and on a **second build of this branch with the `BackToTop` mount removed**, isolating the rail refactor: the rendered DOM is **byte-identical at 291.164 bytes**, `/arhiva`'s CSS bundle hash is **unchanged** (`cfa10d9c…`), and the rail's own `<nav>…</nav>` markup hashes identically. What differs in the file is the build ID, the chunk filenames, and — in the full branch — the RSC flight payload's module table, which gains a `BackToTop` row because the component is mounted in the shared `(site)` layout. That last one is Task 2's doing and appears on **every** route, not just `/arhiva`.
+- **Links:** brief DoD; `src/components/JumpNav.tsx`; `src/app/(site)/layout.tsx`.
+
+### D-3.17-8 · 2026-08-09 · The button moves focus to the skip link, as its Behaviour section specifies — which is not quite what its DoD describes
+- **Status:** Accepted — a brief-internal contradiction, resolved toward the specified code
+- **Context:** The brief's Task 2 Behaviour gives the exact call — `document.querySelector<HTMLElement>('a[href="#main"]')?.focus()` — while its DoD says „the next Tab press lands on the skip link". Those are different end states: focusing the skip link puts focus **on** it, so the next Tab moves past it into the header.
+- **Decision:** Implement the specified code. Report the measured end state rather than bending either statement.
+- **Alternatives considered:** *Blur to `<body>` instead, matching the DoD sentence* — rejected: it is not what Behaviour asks for, and it is the weaker outcome. The button unmounts itself as soon as the scroll passes its threshold, so focus would be destroyed mid-scroll and fall to the document anyway; handing it to the skip link **before** that happens is what makes the outcome deterministic instead of browser-dependent.
+- **Consequences:** Measured after a real click: `scrollY` is `0` and `document.activeElement` is the skip link, whose text is „Прескокни на содржина" — so the control the DoD names is the one focus lands on, one step earlier than the sentence says. A keyboard user's next Tab enters the header. **The DoD sentence is satisfied in substance and not in letter**, and the difference is one Tab press.
+- **Links:** brief Task 2; `src/components/BackToTop.tsx`; `src/app/(site)/layout.tsx`.
+
+### D-3.17-9 · 2026-08-09 · The roster's Portable Text config is rebuilt per render; `results` keeps the module-scope object
+- **Status:** Accepted
+- **Context:** `SeasonRecordList` built both variants' `PortableTextComponents` once at module scope, with a comment saying rebuilding per render would only churn object identity. The divider key depends on the blocks being rendered, so the roster's config can no longer be static.
+- **Decision:** Keep `RESULTS_COMPONENTS` at module scope, built with `dividerKey: null`; build the roster's config per render from `rosterDividerKey(blocks)`. The `normal` renderer is a plain paragraph when the key is `null` and only carries the `_key` comparison when it is not.
+- **Alternatives considered:** *One config that always compares `value._key` against a possibly-null key* — rejected: it puts the divider's code path inside the results renderer, and „the results variant is provably unaffected" is a DoD item, not a hope. *Compute the divider outside and wrap the blocks* — rejected: it would mean synthesising Portable Text, which D-3.16-6 already refused for the same component.
+- **Consequences:** The roster variant allocates one components object per season page render. That is 51 server renders at build time and nothing at runtime — both call sites are server components on statically generated pages. The old comment was rewritten to say which half is still static and why.
+- **Links:** D-3.04-9; D-3.16-6; `src/components/archive/SeasonRecordList.tsx`.

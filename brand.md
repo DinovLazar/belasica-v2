@@ -152,6 +152,7 @@ Headings are **condensed, uppercase and tightly leaded** — that is the directi
 - **Photo figure + caption** — a hard-edged block: no frame, no radius, no mat on presentation surfaces. Caption = `u-label` (orange bar + tracked caps) + the description.
 - **Placeholder chip** — dashed border, hatched fill (α 0.18), mono text `[PLACEHOLDER: …]`. Every unknown from `facts.md` uses this — never invented.
 - **Buttons** — primary is an **orange fill with navy ink**, hover swaps the fill to paper. Secondary is a 2px paper inset outline on navy, hover swaps to a paper fill with navy ink. Text link: condensed caps with a **3px orange underline**, hover swaps the underline to the text colour.
+- **Back-to-top button** — a 48px `navy` circle fixed bottom-right with a paper arrow and no label, hover swaps the fill to **orange with navy ink**; its `rounded-full` is **the single named exception to „radius 0 everywhere", by owner instruction (D-3.17-2)** — no other component may round a corner.
 - **Archival photo sets** keep the **mist mat** and `object-contain` — see §Photo treatment. The hard-edge rule governs *presentation* surfaces; a scan's true aspect is information.
 
 ---
