@@ -22,6 +22,11 @@ export type LegendCardData = {
    *  string, because nine of the eighty are given as a range („120–135").
    *  See `person.legendAppearances` in the schema (D-3.15-4). */
   legendAppearances?: string | null;
+  /** The authoritative career total — the same field the person page shows.
+   *  The FALLBACK count: it is what the card prints for everyone the book does
+   *  not list a printed figure for (3.19, owner: „кај сите играчи треба да има
+   *  бројка на натпревари"). */
+  careerStats?: { appearances: number | null } | null;
   /** Already resolved to a CDN URL by the server, via `framedImage()`. This
    *  card is reached through `LegendsBrowser`'s client boundary on /legendi, so
    *  it may not hold a raw Sanity asset or import the URL builder (D-3.09-1). */
@@ -70,13 +75,29 @@ export function LegendCard({
   const roles = orderedRoles(person.role);
   const years = person.playingYears?.trim() || null;
 
-  // The rank + count pair. Both must be present for the count to show: a rank
-  // with no printed figure renders `3. Ристо Панов` and nothing else — never a
-  // zero, a dash or a chip, because the book simply does not give one
-  // (D-3.15-5). Everyone the book does not rank — the Тренери and Претседатели
-  // bands, and the unranked players — renders exactly as before.
+  // The count is now independent of the rank (3.19). Until then it showed only
+  // for the eighty players the book ranks AND prints a figure for, so most of
+  // the roster carried no number at all; the owner asked for one on every
+  // player. Two sources, in order:
+  //
+  //   1. `legendAppearances` — the book's printed figure, kept as a string
+  //      because nine of the eighty are given as a range („120–135").
+  //   2. `careerStats.appearances` — the authoritative career total, and the
+  //      same number `/legendi/<slug>` prints under „Настапи". 48 players hold
+  //      one of these and no printed figure.
+  //
+  // A person with neither renders no number — never a zero, a dash or a chip,
+  // because the archive simply does not hold one (content truth; the no-`0`
+  // rule from 2.04). `!= null` rather than falsiness, so a genuine recorded 0
+  // survives, exactly as on the person page. Trainers and officials are
+  // unaffected in practice: no one outside the Играчи band carries
+  // `careerStats.appearances` today, and the field is only ever read, never
+  // derived.
   const rank = person.legendRank ?? null;
-  const appearances = person.legendAppearances?.trim() || null;
+  const career = person.careerStats?.appearances;
+  const appearances =
+    person.legendAppearances?.trim() ||
+    (career != null ? String(career) : null);
 
   // Quieter than the name, on whichever surface the card sits: `paper/80` is
   // 9.90:1 on navy, `neutral-500` is 6.69:1 on the white card. Both clear AA
@@ -143,7 +164,7 @@ export function LegendCard({
                 )}
               </span>
 
-              {rank !== null && appearances && (
+              {appearances && (
                 <span className={cn("shrink-0 text-small tabular-nums", quiet)}>
                   {appearances}
                   <span className="sr-only"> настапи</span>
