@@ -17,12 +17,24 @@ export type SeasonAnchor = { id: string; label: string };
  * measured token that drifts the moment the rail's padding changes. Sitting in
  * the flow, the single `scroll-mt-header` on each section is provably right.
  */
-export function SeasonAnchorNav({ anchors }: { anchors: SeasonAnchor[] }) {
+export function SeasonAnchorNav({
+  anchors,
+  label = "Скок низ сезоната",
+}: {
+  anchors: SeasonAnchor[];
+  /**
+   * The rail's accessible name. Defaults to the season page's, and is
+   * overridden where the same rail serves another document — „Разно" passes
+   * its own, because a landmark called „Скок низ сезоната" on a topic page
+   * would name a thing that page does not have (3.19).
+   */
+  label?: string;
+}) {
   // One link is not navigation — it is a link to the thing right below it.
   if (anchors.length < 2) return null;
 
   return (
-    <nav aria-label="Скок низ сезоната" className="bg-navy-2">
+    <nav aria-label={label} className="bg-navy-2">
       {/* Vertical rhythm is split container/link (py-1 + py-2) so each link is
           a ≥24px tap target (WCAG 2.5.8) without changing the rail's height. */}
       <div className="relative mx-auto w-full max-w-page overflow-x-auto px-5 py-1 md:px-8">

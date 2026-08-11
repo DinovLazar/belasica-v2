@@ -5,6 +5,11 @@ import { Container } from "@/components/Container";
 import { PageHeader } from "@/components/PageHeader";
 import { Reveal } from "@/components/home/Reveal";
 import { RaznoNeighbourNav } from "@/components/razno/RaznoNeighbourNav";
+import { SectionHeading } from "@/components/archive/SectionHeading";
+import {
+  SeasonAnchorNav,
+  type SeasonAnchor,
+} from "@/components/archive/SeasonAnchorNav";
 import { focusOnPaper } from "@/lib/focus";
 import { cn } from "@/lib/utils";
 import {
@@ -67,6 +72,55 @@ function toRuns(blocks: RaznoBlock[]): Run[] {
   }, []);
 }
 
+/**
+ * The two sections a topic can split into, and the anchor rail built from them
+ * (3.19, owner instruction: „како што е кај архивата").
+ *
+ * Mirrors the season page's `SECTIONS` map, including its governing rule —
+ * **only sections that actually hold something appear**, and the rail is built
+ * from whatever survives that filter. Разно has no results, no table and no
+ * squad, so the split it can honestly carry is prose vs. the book's lists.
+ *
+ * There is deliberately no „Фотографии" key: the topics' photographs are not in
+ * the CMS yet, and a section rendered for an empty set would ship a visibly
+ * empty frame. When they land, a third entry here plus a third slice in
+ * `toSections` is the whole change.
+ */
+const SECTIONS = {
+  overview: { id: "pregled", label: "Преглед", heading: "Преглед" },
+  records: { id: "rekordi", label: "Рекорди", heading: "Рекорди" },
+} as const;
+
+type SectionKey = keyof typeof SECTIONS;
+type TopicSection = { key: SectionKey; blocks: RaznoBlock[] };
+
+/**
+ * Split a topic at its FIRST `record` block — never by filtering kinds.
+ *
+ * These pages are a verbatim transcription of a printed chapter, so source
+ * order is content: „Куп на УЕФА" and „Партизан" both interleave prose with
+ * their lists, and gathering every `record` under one heading would silently
+ * reorder the author's text. Cutting once, at the point the chapter turns from
+ * narrative to lists, keeps every line where the book put it — the prose that
+ * sits between two runs of records simply belongs to „Рекорди", which is what
+ * it reads as anyway.
+ *
+ * A topic with no records is one section, so `SeasonAnchorNav` suppresses
+ * itself and the page renders exactly as it did before — the right outcome for
+ * a chapter that is a single unbroken read.
+ */
+function toSections(blocks: RaznoBlock[]): TopicSection[] {
+  const firstRecord = blocks.findIndex((block) => block.kind === "record");
+  if (firstRecord < 0) return [{ key: "overview", blocks }];
+
+  return (
+    [
+      { key: "overview", blocks: blocks.slice(0, firstRecord) },
+      { key: "records", blocks: blocks.slice(firstRecord) },
+    ] as TopicSection[]
+  ).filter((section) => section.blocks.length > 0);
+}
+
 export default async function RaznoTopicPage({
   params,
 }: {
@@ -79,8 +133,18 @@ export default async function RaznoTopicPage({
   // already fixes the seven, so this only fires for a hand-typed URL.
   if (!topic) notFound();
 
-  const runs = toRuns(topic.blocks);
+  const sections = toSections(topic.blocks);
   const { previous, next } = raznoNeighbours(topic.slug);
+
+  // One section is not a document with parts — it is the chapter itself. In
+  // that case the rail suppresses itself (< 2 anchors) and the headings are
+  // suppressed with it, so a prose-only topic is not given a „Преглед" heading
+  // that names the page a second time, right under its own H1.
+  const isSplit = sections.length > 1;
+  const anchors: SeasonAnchor[] = sections.map((section) => ({
+    id: SECTIONS[section.key].id,
+    label: SECTIONS[section.key].label,
+  }));
 
   return (
     <>
@@ -93,40 +157,73 @@ export default async function RaznoTopicPage({
         ]}
       />
 
+      {/* Sits directly under the navy `PageHeader`, `navy-2` on navy, exactly
+          as it does under the season page's title band. Self-suppressing below
+          two anchors, so four of the seven topics show no rail at all. */}
+      <SeasonAnchorNav anchors={anchors} label="Скок низ темата" />
+
       {/* One editorial column at the reading measure — this is a chapter of a
           book, read end to end, not a data document. The first section takes no
-          top rule: the navy header block's colour change already terminates
-          that edge (brand.md — a block boundary is a colour change, not a
-          border). */}
-      {/* Deliberately unlabelled. A named `<section>` is a `region` landmark,
-          and naming this one after the topic would announce „Куп на УЕФА
-          region" straight after „Куп на УЕФА heading level 1" — a duplicate
-          landmark for the page's only body. The navigation section below IS
-          named, because it is a genuinely separate region (D-3.16-8). */}
-      <section className="py-section">
-        <Container>
-          <div className="max-w-measure">
-            {runs.map((run, i) => (
-              <Reveal
-                key={run.blocks[0].line}
-                className={i === 0 ? undefined : "mt-8"}
-              >
-                <BlockRun run={run} />
-              </Reveal>
-            ))}
+          top rule: the navy block above it (header, or the rail) already
+          terminates that edge by colour change (brand.md — a block boundary is
+          a colour change, not a border).
 
-            {/* Provenance, not prose: the quiet register the archive uses for a
-                photo credit, set apart by a hairline rather than a heading. It
-                is rendered on every one of the seven pages, from one constant,
-                never reworded per topic. */}
-            <Reveal>
-              <p className="mt-12 border-t border-mist pt-6 text-small text-neutral-500">
-                {RAZNO_SOURCE_CREDIT}
-              </p>
-            </Reveal>
-          </div>
-        </Container>
-      </section>
+          D-3.16-8 kept this body deliberately unlabelled, because a lone
+          `<section>` named after the topic would announce „Куп на УЕФА region"
+          straight after „Куп на УЕФА heading level 1". That reasoning holds
+          only while there is ONE body region: where the chapter splits, the two
+          parts are genuinely separate regions with their own headings, named
+          „Преглед" and „Рекорди" rather than after the page — so they are
+          labelled, and the unsplit case still is not. */}
+      {sections.map((section, index) => {
+        const meta = SECTIONS[section.key];
+        const headingId = `${meta.id}-heading`;
+
+        return (
+          <section
+            key={meta.id}
+            id={isSplit ? meta.id : undefined}
+            aria-labelledby={isSplit ? headingId : undefined}
+            className={cn(
+              "scroll-mt-header py-section",
+              index > 0 && "border-t border-mist",
+            )}
+          >
+            <Container>
+              <div className="max-w-measure">
+                {isSplit && (
+                  <Reveal className="mb-8">
+                    <SectionHeading id={headingId}>
+                      {meta.heading}
+                    </SectionHeading>
+                  </Reveal>
+                )}
+
+                {toRuns(section.blocks).map((run, i) => (
+                  <Reveal
+                    key={run.blocks[0].line}
+                    className={i === 0 ? undefined : "mt-8"}
+                  >
+                    <BlockRun run={run} />
+                  </Reveal>
+                ))}
+
+                {/* Provenance, not prose: the quiet register the archive uses
+                    for a photo credit, set apart by a hairline rather than a
+                    heading. Once per page — on the last section, whichever that
+                    is — from one constant, never reworded per topic. */}
+                {index === sections.length - 1 && (
+                  <Reveal>
+                    <p className="mt-12 border-t border-mist pt-6 text-small text-neutral-500">
+                      {RAZNO_SOURCE_CREDIT}
+                    </p>
+                  </Reveal>
+                )}
+              </div>
+            </Container>
+          </section>
+        );
+      })}
 
       {/* Prev/next + back-link — navigation, not content. Mirrors the season
           page's tail exactly (D-3.04-1). */}

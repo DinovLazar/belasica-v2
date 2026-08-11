@@ -148,13 +148,14 @@ export default async function LegendsPage() {
       .sort(role === "player" ? compareByLegendRank : compareByRecency)
       // `LegendsBrowser` is a client component. Projecting **by name** is what
       // keeps the server-only sort inputs out of the client bundle — `bioLead`
-      // and the derived `sortYear`, and with them the `careerStats` a spread
-      // carried across since 3.12 (D-3.13-6).
+      // and the derived `sortYear` (D-3.13-6).
       //
-      // `legendRank` and `legendAppearances` cross the boundary from 3.15 and
-      // are the exception that proves the rule: they are no longer sort inputs
-      // only, they are **rendered** on the card („1. Петар Андреев 555"), so
-      // they have to reach it. `careerStats` and `bioLead` still do not.
+      // `legendRank` and `legendAppearances` cross the boundary from 3.15, and
+      // `careerStats.appearances` joins them at 3.19: all three are no longer
+      // sort inputs only, they are **rendered** on the card („1. Петар Андреев
+      // 555"), so they have to reach it. The single number is sent on its own
+      // rather than by spreading `careerStats`, so nothing else in that object
+      // (goals) rides along. `bioLead` and `sortYear` still do not cross.
       .map((person) => ({
         name: person.name,
         slug: person.slug,
@@ -162,6 +163,10 @@ export default async function LegendsPage() {
         playingYears: person.playingYears,
         legendRank: person.legendRank,
         legendAppearances: person.legendAppearances,
+        careerStats:
+          person.careerStats?.appearances != null
+            ? { appearances: person.careerStats.appearances }
+            : null,
         portrait: person.portrait,
       })),
   }));

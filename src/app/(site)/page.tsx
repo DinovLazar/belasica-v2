@@ -93,6 +93,7 @@ const HOME_QUERY = /* groq */ `{
     playingYears,
     legendRank,
     legendAppearances,
+    careerStats { appearances },
     "portrait": *[_type == "photo" && relatedPerson._ref == ^._id][0].image
   },
   "records": *[_type == "clubRecord"]{ label, value, category, order },
@@ -117,9 +118,16 @@ type Legend = {
   /** The book's rank and the count it is built on. Rendered on the card as
    *  „1. Петар Андреев 555", the same format `/legendi` uses — the two pages
    *  show the same ten people and must not describe them differently
-   *  (D-3.15-5). */
+   *  (D-3.15-5).
+   *
+   *  `careerStats` is the count's FALLBACK source and is selected here for
+   *  exactly that invariant: at 3.19 `/legendi` began falling back to it, and
+   *  the printed figure exists for only ranks 1–2 of the ten, so without it
+   *  this band showed a number on two cards where `/legendi` showed one on all
+   *  ten — the same people, described differently (D-3.19-2). */
   legendRank: number | null;
   legendAppearances: string | null;
+  careerStats: { appearances: number | null } | null;
   portrait: SanityImageSource | null;
 };
 
@@ -168,6 +176,21 @@ const QUICK_LINKS: { href: string; label: string; sub: string }[] = [
   { href: "/legendi", label: "Легенди", sub: "Играчи и личности" },
   { href: "/statistika", label: "Статистика", sub: "Рекорди и табели" },
   { href: "/za-nas", label: "За нас", sub: "За овој проект" },
+];
+
+/**
+ * The three pennants in the hero badge, in the owner's order (3.19): znamenca
+ * 1, 6 and 9 of the set in `public/znamenca/`.
+ *
+ * `width`/`height` are the files' intrinsic pixels — all three are 520 tall,
+ * which is what lets a single `h-*` normalise them into a set. They are listed
+ * here rather than inline so the order is one edit, and so nothing about them
+ * is duplicated between the markup and this table.
+ */
+const ZNAMENCA: { src: string; width: number; height: number }[] = [
+  { src: "/znamenca/zname-01.webp", width: 368, height: 520 },
+  { src: "/znamenca/zname-06.webp", width: 476, height: 520 },
+  { src: "/znamenca/zname-09.webp", width: 418, height: 520 },
 ];
 
 /** Last-resort hero alt — used only when nothing on the photo names it. */
@@ -311,50 +334,65 @@ export default async function Home() {
 
         <Container>
           {/* Badge + wordmark as one bottom-aligned lockup along the
-              photograph's lower edge. No panel behind the crest: its own left
-              half is white and its background is transparent, so on navy — or
-              over the photograph — the artwork carries itself, and the white
+              photograph's lower edge. No panel behind the badge: the artwork
+              carries itself on navy — or over the photograph — and a white
               rectangle only read as a sticker (owner decision, 3.06a,
-              superseding D-crest-2). Decorative — the <h1> beside it carries
-              the accessible name. */}
+              superseding D-crest-2).
+
+              Since 3.19 the badge is THREE pennants rather than the single
+              crest (owner instruction, Ace): znamenca 1, 6 and 9, in that
+              order. `/crest.svg` is unchanged and still the header's mark —
+              only this hero swapped. */}
           <div className="flex flex-wrap items-end gap-5 lg:gap-8">
-            <div className="relative z-10 -mt-13 flex-none md:-mt-17 lg:-mt-19">
-              <div className="flex items-center justify-center">
-                {/* `/crest.svg` + `unoptimized` — see the note in `SiteHeader`.
-                    The vector master matters most here: this is the crest's
-                    largest appearance on the site (128px tall at `lg`), which
-                    is where the old raster's clipped edge and flattened
-                    pennant point were visible. `/crest.png` stays the canonical
-                    asset for the Open Graph card and the favicon lineage, at
-                    its unchanged 864×1220. */}
-                {/* A plain <img loading="lazy">, matching `SiteHeader` — see
-                    the note there. Both crests point at the same 33 KB
-                    `/crest.svg`, and this page's LCP is the hero *photograph*
-                    behind them, so neither may be promised to the network
-                    ahead of it. `lazy` is what actually removes the preload:
-                    React 19 hoists any non-lazy SSR image into one, so a bare
-                    <img> here kept the homepage preloading the crest after the
-                    header had stopped (measured on the deployed preview).
-                    Decorative — the <h1> beside it carries the name, and it
-                    sits in the first viewport, so the browser fetches it as
-                    soon as layout places it (D-3.09-2). */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/crest.svg"
-                  alt=""
-                  width={864}
-                  height={1233}
-                  loading="lazy"
-                  decoding="async"
-                  className="h-24 w-auto md:h-32 lg:h-40"
-                />
+            <div className="relative z-10 -mt-9 flex-none md:-mt-11 lg:-mt-14">
+              {/* One accessible object, not three. The three pennants are the
+                  club's mark shown three ways; read out individually they would
+                  be three near-identical announcements in front of an <h1> that
+                  already says „ФК Беласица". So the row carries a single
+                  `role="img"` + `aria-label` and every <img> is `alt=""`.
+                  The label names the group and nothing more: dating the
+                  pennants would be a factual claim, and `facts.md` holds no
+                  entry for them. */}
+              <div
+                role="img"
+                aria-label="Три знаменца на ФК Беласица"
+                className="flex items-end gap-3 md:gap-4"
+              >
+                {/* Normalised by HEIGHT, not width: all three scans are 520px
+                    tall with different widths (368 / 476 / 418), so one `h-*`
+                    plus `w-auto` makes them read as a set and each keeps its
+                    own proportions. Heights are ~2/3 of the single crest's
+                    (h-24/32/40) so three side by side do not outweigh the
+                    wordmark; below `md` the row simply wraps onto its own line
+                    above the <h1> rather than shrinking to illegibility.
+
+                    Plain <img loading="lazy">, matching `SiteHeader` and the
+                    crest this replaced: this page's LCP is the hero
+                    *photograph* behind them, so nothing here may be promised
+                    to the network ahead of it. `lazy` is what actually removes
+                    the preload — React 19 hoists any non-lazy SSR image into
+                    one (D-3.09-2). Intrinsic `width`/`height` on each so the
+                    row reserves its box before the bytes land. */}
+                {ZNAMENCA.map((zname) => (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    key={zname.src}
+                    src={zname.src}
+                    alt=""
+                    width={zname.width}
+                    height={zname.height}
+                    loading="lazy"
+                    decoding="async"
+                    className="h-16 w-auto md:h-20 lg:h-28"
+                  />
+                ))}
               </div>
             </div>
 
-            {/* No <br>: it sets on one line from `lg` up and wraps to two on
+            {/* No <br>: it sets on one line from `md` up and wraps to two on
                 narrow screens, which is the right break for the lockup. The
                 wordmark carries its own clamp rather than `u-display`'s, so
-                „ФК БЕЛАСИЦА" holds one line beside a ~150px badge. */}
+                „ФК БЕЛАСИЦА" holds one line beside the pennant row. */}
             <h1
               id="hero-heading"
               className="u-display pb-[0.15em] text-wordmark text-paper"

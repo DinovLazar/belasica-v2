@@ -20,7 +20,9 @@ import { focusOnNavy, focusOnPaper } from "@/lib/focus";
  * 3-up grid, matted at `3/2`. That is the right index, but it is not a way to
  * *look* at a photograph — a team photo from 1963 arrives about 380px wide,
  * and the faces in it are the substance of the archive. This opens the scan on
- * the navy ground at up to 92vw × 82vh, with its caption and date beside it.
+ * the navy ground as large as it can go without running under a control — the
+ * arrows hold a gutter beside it and the cap is written to match (3.19) — with
+ * its caption and date beneath it.
  *
  * **Why a provider + a trigger, rather than one component.** `PhotoGrid` and
  * the season page stay **server** components: the Sanity image URLs are built
@@ -223,7 +225,10 @@ export function PhotoLightboxProvider({
         className={cn(
           // Radius 0 and no shadow (brand rules 6 and 7) — the overlay is a
           // navy block over the page, not a floating card.
-          "fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-navy/96 p-4",
+          // `pt-20` reserves the 64px band the close button occupies (top-4 +
+          // 48px), so a tall scan is centred BELOW it and can never run under
+          // it — the vertical half of the same clearance the arrows get.
+          "fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-navy/96 p-4 pt-20",
           // Entry motion: transform + opacity, 160ms ease-out (brand.md
           // §Motion), as a pure CSS ANIMATION from the already-imported
           // `tw-animate-css` — not a state-flipped transition.
@@ -249,76 +254,97 @@ export function PhotoLightboxProvider({
           <X className="size-6" aria-hidden />
         </button>
 
-        {/* Both arrows are absent — not merely hidden — for a season with one
-            photograph, where „next" would only ever return the same scan. */}
-        {!single && (
-          <>
+        {/* The arrows and the scan share ONE flex row, rather than being
+            absolutely positioned over the whole viewport.
+
+            Until 3.19 both buttons sat at `left-4` / `right-4` against the
+            full-bleed overlay while the image was allowed `max-w-[92vw]`: at
+            most 4vw of clearance a side against a 48px control, so a wide scan
+            — the owner's newspaper clipping — ran underneath both of them and
+            became unreadable. Here the row is the layout: the buttons hold a
+            real gutter and the image's cap is written to match it exactly
+            (2 × 48px control + 2 × 16px gap + the overlay's 2 × 16px padding,
+            plus a little slack = 11rem), so the picture stops where the gutter
+            starts at every width.
+
+            Below `sm` a gutter that wide would leave the photograph too small,
+            so the row WRAPS instead: the figure takes the full line and the two
+            arrows fall beneath it, under the „3 / 8" counter. `order` does that
+            with one set of buttons in one place in the DOM — a second, hidden
+            pair would duplicate the labels and the tab stops. */}
+        <div className="flex w-full min-w-0 flex-wrap items-center justify-center gap-4">
+          {/* Both arrows are absent — not merely hidden — for a season with one
+              photograph, where „next" would only ever return the same scan. */}
+          {!single && (
             <button
               type="button"
               onClick={() => step(-1)}
               className={cn(
                 CONTROL,
                 focusOnNavy,
-                "absolute left-4 top-1/2 -translate-y-1/2",
+                "order-2 shrink-0 sm:order-none",
               )}
             >
               <span className="sr-only">Претходна фотографија</span>
               <ChevronLeft className="size-6" aria-hidden />
             </button>
+          )}
+
+          <figure className="order-1 flex min-h-0 w-full min-w-0 flex-col items-center gap-5 sm:order-none sm:w-auto">
+            {/* `object-contain` inside the cap above, so a tall portrait scan
+                and a wide team photo both arrive whole. Keyed by id: without it
+                React reuses the same image element across a step and the
+                previous photo lingers until the next one decodes. */}
+            <Image
+              key={photo.id}
+              src={photo.url}
+              alt={photo.caption ?? UNCAPTIONED}
+              width={photo.width}
+              height={photo.height}
+              sizes="92vw"
+              className="h-auto max-h-[62vh] w-auto max-w-[92vw] object-contain sm:max-h-[76vh] sm:max-w-[calc(100vw-11rem)]"
+            />
+
+            <figcaption className="max-w-measure text-center">
+              {photo.date && (
+                <p className="text-overline font-bold uppercase tracking-overline text-paper/80">
+                  {photo.date}
+                </p>
+              )}
+              {photo.caption && (
+                <p className={cn("text-body text-paper", photo.date && "mt-2")}>
+                  {photo.caption}
+                </p>
+              )}
+              {!single && (
+                <p
+                  aria-live="polite"
+                  className={cn(
+                    "text-overline font-bold uppercase tracking-overline text-paper/80",
+                    (photo.date || photo.caption) && "mt-3",
+                  )}
+                >
+                  {index + 1} / {count}
+                </p>
+              )}
+            </figcaption>
+          </figure>
+
+          {!single && (
             <button
               type="button"
               onClick={() => step(1)}
               className={cn(
                 CONTROL,
                 focusOnNavy,
-                "absolute right-4 top-1/2 -translate-y-1/2",
+                "order-3 shrink-0 sm:order-none",
               )}
             >
               <span className="sr-only">Следна фотографија</span>
               <ChevronRight className="size-6" aria-hidden />
             </button>
-          </>
-        )}
-
-        <figure className="flex min-h-0 flex-col items-center gap-5">
-          {/* `object-contain` inside a 92vw × 82vh cap, so a tall portrait scan
-              and a wide team photo both arrive whole. Keyed by id: without it
-              React reuses the same image element across a step and the previous
-              photo lingers until the next one decodes. */}
-          <Image
-            key={photo.id}
-            src={photo.url}
-            alt={photo.caption ?? UNCAPTIONED}
-            width={photo.width}
-            height={photo.height}
-            sizes="92vw"
-            className="h-auto max-h-[82vh] w-auto max-w-[92vw] object-contain"
-          />
-
-          <figcaption className="max-w-measure text-center">
-            {photo.date && (
-              <p className="text-overline font-bold uppercase tracking-overline text-paper/80">
-                {photo.date}
-              </p>
-            )}
-            {photo.caption && (
-              <p className={cn("text-body text-paper", photo.date && "mt-2")}>
-                {photo.caption}
-              </p>
-            )}
-            {!single && (
-              <p
-                aria-live="polite"
-                className={cn(
-                  "text-overline font-bold uppercase tracking-overline text-paper/80",
-                  (photo.date || photo.caption) && "mt-3",
-                )}
-              >
-                {index + 1} / {count}
-              </p>
-            )}
-          </figcaption>
-        </figure>
+          )}
+        </div>
       </div>
     </LightboxContext.Provider>
   );
