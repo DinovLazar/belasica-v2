@@ -2592,3 +2592,51 @@
 - **Alternatives considered:** *One shape with both fields optional* — rejected: every consumer would then have to defend against a prose section with no blocks, a state that cannot occur; the compiler stops enforcing what the data guarantees.
 - **Consequences:** `toSections` returns a union and the render branches once on `section.key === "photos"`. `tsc --noEmit` is clean.
 - **Links:** D-3.19-5; `src/app/(site)/razno/[slug]/page.tsx`.
+
+### D-3.21-1 · 2026-08-11 · The season page's own narrative outranks Ace's coach list where they disagree
+- **Status:** Accepted
+- **Context:** Ace supplied a complete coaches-by-season list (77 seasons, 121 coach-season entries). 71 of the 77 rows matched Sanity exactly. Two rows at the end did not: his list puts „Александар Стојанов, Панче Стојанов" at **2024/25** and „Мартин Алаѓозовски" at **2025/26**, but `season-2025-26`'s own story — Ace's text, entered in 3.19 — reads „По поразот од Осогово, Александар Стојанов си даде оставка, а на негово место дојде Панче Стојанов", its стручен штаб block reads „Стојанов Панче — главен тренер", and `season-2024-25`'s story reads „Беласица оваа сезона ја стартува со Александар Стојанов како тренер" with no change of coach recorded. Both sources are Ace's.
+- **Decision:** Where a season document's own narrative names a coach, that narrative governs `season.trainer`. 2024/25 ships `Александар Стојанов`; 2025/26 ships `Александар Стојанов, Панче Стојанов`. Мартин Алаѓозовски is recorded in `facts.md` as UNVERIFIED as a season coach and referred to Ace.
+- **Alternatives considered:** *Take the newer list at face value* (Lazar's first instruction, given before the contradiction was found and reversed by him once it was) — rejected: it would have left the 2025/26 page naming Панче in its prose and staff block while its coach field said Мартин, i.e. a page contradicting itself. *Change nothing and refer both to Ace* — rejected: 2024/25 would have kept an empty coach field that its own story fills unambiguously.
+- **Consequences:** Every season page is internally consistent. Мартин Алаѓозовски still has no season naming him, so he sorts to the end of the Тренери band on `/legendi` despite being the current coach — that resolves the moment Ace confirms 2026/27. The departure is documented in `facts.md` next to the list itself.
+- **Links:** D-3.13-4 (coach ordering derives from `season.trainer`); `facts.md` §Тренери по сезони; OV-photo-rights unaffected.
+
+### D-3.21-2 · 2026-08-11 · Every coach addition was checked against its own season's prose before being written
+- **Status:** Accepted
+- **Context:** Six seasons were missing a name that Ace's list supplies. Writing them straight from the list would have repeated the 2025/26 error at six more places.
+- **Decision:** Each was confirmed against that season's own story text before writing. 1958/59 („Беласица во првите две кола ја предводи Т. Ефтимов, а потоа на чело на тимот доаѓа Ј. Николов-Бокото"), 1991/92 („во есенскиот дел ја предводи Благој Митев… во пролетниот дел… пак доаѓа Б. Истатов"), 1992/93 („со тренерот Гоце Петровски (помошник Илија Андреев)… екипата ја презема Илија Андреев"), 2009/10 („ја води… Милко Ѓуровски… во пролетниот дел, екипата ја води Југослав Тренчовски") and 2011/12 („тимот предводен од Ш. Арифовски") are all confirmed by their own prose. 2006/07 names no coach in its story and was written on Ace's list alone, bracketed by 2005/06 and 2007/08 which both already end and begin with Звонко Тодоров.
+- **Alternatives considered:** *Bulk-apply the list* — rejected on the evidence above. *Refuse 2006/07 for lack of in-page confirmation* — rejected: the list is a verified source in its own right, and the surrounding seasons corroborate it.
+- **Consequences:** Six seasons gained a coach; none contradicts its page. 2006/07 is the one row resting on the list alone and is noted as such.
+- **Links:** D-3.21-1; `facts.md` §Тренери по сезони.
+
+### D-3.21-3 · 2026-08-11 · „Томе Ефтимов" is the surviving spelling; the duplicate record stays for now
+- **Status:** Accepted
+- **Context:** `person-tome-eftimov` and `person-tomche-eftimov` carry near-identical biographies of the same man — Жонглер, brother Тимо, the 1950 cup semi-final, 250+ matches, second only to Петар Андреев in seasons played. Two transcriptions of one book passage. Ace's coach list uses both spellings.
+- **Decision:** „Томе Ефтимов" survives: both biographies open with it, every existing `season.trainer` string uses it, and 1958/59's story writes „Т. Ефтимов". `playingYears` „1950–1967" was copied from the duplicate onto the survivor. Per Lazar, **both records stay published for now** — nothing was merged or deleted.
+- **Alternatives considered:** *Merge and delete the duplicate* — declined by Lazar this session. *Ask Ace first* — also offered and not taken. *Treat them as two men* — rejected on the text.
+- **Consequences:** The Тренери band on `/legendi` shows the same man twice until the duplicate is removed in Studio. Only one thing references `person-tomche-eftimov` — its own portrait photo document — so removing it later breaks nothing else. This is an owed item.
+- **Links:** `facts.md` §Тренери по сезони (1958/59 note).
+
+### D-3.21-4 · 2026-08-11 · Biographies were taken from club-page announcements for two coaches, and refused for two others
+- **Status:** Accepted
+- **Context:** Of twelve Facebook links, three were not archival biographies at all. `1CMMspxTSG` (Андреј Чернишов) and `1BkadssNof` (Ѓоре Јовановски) are appointment announcements on the **club's own** page and each carries a real, factual career summary. `1bn5Fb3D6w` (Ѓоко Хаџиевски) is a one-line teaser on Gol.mk Битола saying only „Легендарниот тренер ќе продолжи со работа по разделбата со Спартак Варна". `1E3Uj3WVNQ` is a Mak Sport item about Никола Илиевски Џиџи resigning at Охрид, with no Belasica connection stated.
+- **Decision:** Write the two announcements as biographies, each led by the existing verified line naming the season they coached, with the well-wishing PR sentences dropped and every factual career sentence kept verbatim. Write **nothing** for Ѓоко Хаџиевски (no content) and nothing for Никола Илиевски (the item is about a different club, and that the man in it is the same Никола Илиевски who coached Belasica in 1993/94 and 2000/01 is not established).
+- **Alternatives considered:** *Reject the club-page announcements too* — rejected: Чернишов's page has been an open question for two sessions purely for want of a source, and the career facts in both posts are unambiguous. *Take the two third-party items as biographies* — rejected: no Belasica content, weak provenance, and in the Илиевски case an unconfirmed identity.
+- **Consequences:** Чернишов closes as an open item. Ѓоко Хаџиевски and Никола Илиевски keep their stub biographies. Provenance for the two announcement-sourced biographies names the club page, not Ace's archive — but `person` has no provenance field (it lives on `photo`), so that provenance is recorded only in the completion document. That is an owed item.
+- **Links:** D-3.21-5; `claude/Facebook-link-map-for-coaches.md`.
+
+### D-3.21-5 · 2026-08-11 · Belasica-only appearance and goal totals were written to `careerStats` where a post states them outright
+- **Status:** Accepted
+- **Context:** `person.careerStats` carries the comment „never an invented or summed number". Three of the harvested posts state a Belasica total in so many words: Секулов „на 80 натпревари ќе постигне 43 голови", Хаџиосмановиќ „Вкупно за Беласица во двете сезони одигрува 47 првенствени натпревари и 20 голови", Петковски „за Беласица има одиграно 119 натпревари во 9 сезони".
+- **Decision:** Write those three. Sum nothing, and take nothing from the per-season tables that accompany two of the posts.
+- **Alternatives considered:** *Add the per-season tables up* — rejected outright by the field's own rule. *Write no stats at all* — rejected: these are stated totals from a verified source, and `/legendi` shows a match count for every player from exactly this field.
+- **Consequences:** Three more players show a match count on `/legendi`. Петковски has appearances but no goal total, because the post gives none.
+- **Links:** D-3.19-2 (match counts on `/legendi`); `src/sanity/schemaTypes/person.ts`.
+
+### D-3.21-6 · 2026-08-11 · Ace's link groupings were discarded wholesale after being wrong on 7 of 10
+- **Status:** Accepted
+- **Context:** The link map already carried one correction where a link attributed to Васе Беќаров turned out to be Благој Гуцев. This batch arrived grouped under three names. Opening each post and reading its first sentence showed the grouping wrong on seven of ten links: the two filed under Раде Цицмиловиќ are Бранко Роксандиќ and Ристо Панов; the four filed under Драган Канатларовски are Никола Секулов, Ристо Анчев, Дервиш Хаџиосмановиќ and Трајче Георгиев; the one filed under Милко Ѓуровски is Никола Илиевски Џиџи.
+- **Decision:** Subject identity comes from the post's first sentence and nothing else. No link is ever written against the name it arrived under.
+- **Alternatives considered:** None — this is the existing standing rule, now with a measured failure rate.
+- **Consequences:** Neither Раде Цицмиловиќ, Драган Канатларовски nor Милко Ѓуровски gained anything from this batch; all three keep their stub biographies. Four coaches nobody was expecting gained one instead.
+- **Links:** `claude/Facebook-link-map-for-coaches.md`.
