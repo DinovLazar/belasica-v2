@@ -93,6 +93,7 @@ const HOME_QUERY = /* groq */ `{
     playingYears,
     legendRank,
     legendAppearances,
+    careerStats { appearances },
     "portrait": *[_type == "photo" && relatedPerson._ref == ^._id][0].image
   },
   "records": *[_type == "clubRecord"]{ label, value, category, order },
@@ -117,9 +118,16 @@ type Legend = {
   /** The book's rank and the count it is built on. Rendered on the card as
    *  „1. Петар Андреев 555", the same format `/legendi` uses — the two pages
    *  show the same ten people and must not describe them differently
-   *  (D-3.15-5). */
+   *  (D-3.15-5).
+   *
+   *  `careerStats` is the count's FALLBACK source and is selected here for
+   *  exactly that invariant: at 3.19 `/legendi` began falling back to it, and
+   *  the printed figure exists for only ranks 1–2 of the ten, so without it
+   *  this band showed a number on two cards where `/legendi` showed one on all
+   *  ten — the same people, described differently (D-3.19-2). */
   legendRank: number | null;
   legendAppearances: string | null;
+  careerStats: { appearances: number | null } | null;
   portrait: SanityImageSource | null;
 };
 
