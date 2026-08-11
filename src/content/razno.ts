@@ -34,6 +34,8 @@
  * not code; this module is its transcription, checked against it out of band.
  */
 
+import { RAZNO_PHOTOS, type RaznoPhoto } from "./razno-photos";
+
 /**
  * How a block reads on the page:
  *  - `para`    — prose, at the reading measure.
@@ -62,6 +64,12 @@ export type RaznoTopic = {
   summary: string;
   metaDescription: string;
   blocks: RaznoBlock[];
+  /**
+   * The topic's photographs, in file order (3.20). Optional because the
+   * model must survive a topic the archive holds no pictures for — the
+   * page renders „Фотографии" only where this is a non-empty array.
+   */
+  photos?: RaznoPhoto[];
 };
 
 /**
@@ -101,6 +109,7 @@ export const RAZNO_TOPICS: RaznoTopic[] = [
       "Двете европски учества на Беласица, во 2002 и 2003 година — четири натпревари и пет гола.",
     metaDescription:
       "Беласица играше во купот на УЕФА два пати, во 2002 против Лешоеш и во 2003 против Публикум. Четири натпревари, пет гола.",
+    photos: RAZNO_PHOTOS["kup-na-uefa"],
     blocks: [
       {
         kind: "para",
@@ -167,6 +176,7 @@ export const RAZNO_TOPICS: RaznoTopic[] = [
       "Генерациите од кои излегоа Пандев, Стојков, Масев и Балдовалиев — финалиња, купови и двојни круни.",
     metaDescription:
       "Младинската школа на ФК Беласица од 1950 година до денес: финалињата на македонскиот куп и играчите што излегоа од неа.",
+    photos: RAZNO_PHOTOS["mladinska-skola"],
     blocks: [
       {
         kind: "para",
@@ -273,6 +283,7 @@ export const RAZNO_TOPICS: RaznoTopic[] = [
       "Осум изданија на „Копа карневале“ во Италија и 24 натпревари против младински екипи од Европа, Америка и Азија.",
     metaDescription:
       "Осум учества на ФК Беласица на „Копа карневале“ во Виареџо, од 2001 до 2014 година, и 24 натпревари против младински екипи од Европа, Америка и Азија.",
+    photos: RAZNO_PHOTOS["viaredzo-kup"],
     blocks: [
       {
         kind: "para",
@@ -334,6 +345,7 @@ export const RAZNO_TOPICS: RaznoTopic[] = [
       "Четири гостувања на Партизан во Струмица, две од нив на простувањата на Истатов и на Андреев.",
     metaDescription:
       "Четирите гостувања на Партизан во Струмица, од 1979 до 2000 година, и простувањата на Благој Истатов и на Петар Андреев.",
+    photos: RAZNO_PHOTOS["partizan"],
     blocks: [
       {
         kind: "para",
@@ -379,6 +391,7 @@ export const RAZNO_TOPICS: RaznoTopic[] = [
     summary: "Дваесет и девет струмички дербија, од 1929 до 2017 година.",
     metaDescription:
       "Струмичкото дерби Беласица – Тиверија: 29 првенствени натпревари од 1929 до 2017 година, со резултатите и стрелците.",
+    photos: RAZNO_PHOTOS["tiverija"],
     blocks: [
       {
         kind: "para",
@@ -640,6 +653,7 @@ export const RAZNO_TOPICS: RaznoTopic[] = [
       "Од теренот отворен во 1931 година до денешната арена што го носи името на голманот.",
     metaDescription:
       "Стадионот на ФК Беласица, од теренот отворен во 1931 година до денешната арена што го носи името на Благој Истатов.",
+    photos: RAZNO_PHOTOS["stadion-blagoj-istatov"],
     blocks: [
       {
         kind: "para",
@@ -655,6 +669,7 @@ export const RAZNO_TOPICS: RaznoTopic[] = [
     summary: "Од „Блу Драгон“ во 1988 година до северната трибина денес.",
     metaDescription:
       "Навивачите на ФК Беласица: од „Блу Драгон“ во 1988 година до „Ајдуците“ на северната трибина денес.",
+    photos: RAZNO_PHOTOS["ajduci"],
     blocks: [
       {
         kind: "para",

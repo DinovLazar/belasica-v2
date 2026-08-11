@@ -5,6 +5,7 @@ import { Container } from "@/components/Container";
 import { PageHeader } from "@/components/PageHeader";
 import { Reveal } from "@/components/home/Reveal";
 import { RaznoNeighbourNav } from "@/components/razno/RaznoNeighbourNav";
+import { RaznoPhotoGrid } from "@/components/razno/RaznoPhotoGrid";
 import { SectionHeading } from "@/components/archive/SectionHeading";
 import {
   SeasonAnchorNav,
@@ -20,7 +21,9 @@ import {
   raznoTopic,
   type RaznoBlock,
   type RaznoBlockKind,
+  type RaznoTopic,
 } from "@/content/razno";
+import type { RaznoPhoto } from "@/content/razno-photos";
 
 /**
  * /razno/<slug> — one topic, transcribed from Аце Стојанов's book.
@@ -81,18 +84,30 @@ function toRuns(blocks: RaznoBlock[]): Run[] {
  * from whatever survives that filter. Разно has no results, no table and no
  * squad, so the split it can honestly carry is prose vs. the book's lists.
  *
- * There is deliberately no „Фотографии" key: the topics' photographs are not in
- * the CMS yet, and a section rendered for an empty set would ship a visibly
- * empty frame. When they land, a third entry here plus a third slice in
- * `toSections` is the whole change.
+ * „Фотографии" is the third entry this file's 3.19 note anticipated, and it
+ * lands on the same governing rule as the other two: it appears only where the
+ * topic actually has photographs, never as an empty frame. All seven currently
+ * do — so all seven now hold at least two sections and every one of them shows
+ * the rail, including the four that were a single unbroken read before (the
+ * owner's „нека ги има сите горе, како што е кај архивата").
+ *
+ * It always sorts LAST, after the book's own text, mirroring the season page
+ * where „Фотографии" is the final content section.
  */
 const SECTIONS = {
   overview: { id: "pregled", label: "Преглед", heading: "Преглед" },
   records: { id: "rekordi", label: "Рекорди", heading: "Рекорди" },
+  photos: { id: "fotografii", label: "Фотографии", heading: "Фотографии" },
 } as const;
 
-type SectionKey = keyof typeof SECTIONS;
-type TopicSection = { key: SectionKey; blocks: RaznoBlock[] };
+/**
+ * A section is either a slice of the chapter or the topic's photographs — the
+ * two render at different widths and share no markup, so they are distinct
+ * shapes rather than one shape with an empty half.
+ */
+type TopicSection =
+  | { key: "overview" | "records"; blocks: RaznoBlock[] }
+  | { key: "photos"; photos: RaznoPhoto[] };
 
 /**
  * Split a topic at its FIRST `record` block — never by filtering kinds.
@@ -109,16 +124,24 @@ type TopicSection = { key: SectionKey; blocks: RaznoBlock[] };
  * itself and the page renders exactly as it did before — the right outcome for
  * a chapter that is a single unbroken read.
  */
-function toSections(blocks: RaznoBlock[]): TopicSection[] {
+function toSections(topic: RaznoTopic): TopicSection[] {
+  const { blocks } = topic;
   const firstRecord = blocks.findIndex((block) => block.kind === "record");
-  if (firstRecord < 0) return [{ key: "overview", blocks }];
 
-  return (
-    [
-      { key: "overview", blocks: blocks.slice(0, firstRecord) },
-      { key: "records", blocks: blocks.slice(firstRecord) },
-    ] as TopicSection[]
-  ).filter((section) => section.blocks.length > 0);
+  const prose: TopicSection[] =
+    firstRecord < 0
+      ? [{ key: "overview", blocks }]
+      : (
+          [
+            { key: "overview", blocks: blocks.slice(0, firstRecord) },
+            { key: "records", blocks: blocks.slice(firstRecord) },
+          ] as TopicSection[]
+        ).filter((section) => "blocks" in section && section.blocks.length > 0);
+
+  const photos = topic.photos ?? [];
+  return photos.length > 0
+    ? [...prose, { key: "photos", photos }]
+    : prose;
 }
 
 export default async function RaznoTopicPage({
@@ -133,14 +156,28 @@ export default async function RaznoTopicPage({
   // already fixes the seven, so this only fires for a hand-typed URL.
   if (!topic) notFound();
 
-  const sections = toSections(topic.blocks);
+  const sections = toSections(topic);
   const { previous, next } = raznoNeighbours(topic.slug);
 
   // One section is not a document with parts — it is the chapter itself. In
   // that case the rail suppresses itself (< 2 anchors) and the headings are
   // suppressed with it, so a prose-only topic is not given a „Преглед" heading
   // that names the page a second time, right under its own H1.
+  //
+  // Since 3.20 no live topic takes that branch: all seven have photographs, so
+  // every one of them holds at least „Преглед" + „Фотографии". The guard stays
+  // because the condition it guards is a property of the DATA, not a constant —
+  // a topic added without pictures and without records must still render.
   const isSplit = sections.length > 1;
+
+  // The source line credits the BOOK, so it closes the book's own text — the
+  // last prose section — not the page. Hanging it under „Фотографии" would
+  // read as attributing the photographs to Аце Стојанов's chapter, which is a
+  // provenance claim nobody has made.
+  const lastProseIndex = sections.reduce(
+    (last, section, i) => (section.key === "photos" ? last : i),
+    0,
+  );
   const anchors: SeasonAnchor[] = sections.map((section) => ({
     id: SECTIONS[section.key].id,
     label: SECTIONS[section.key].label,
@@ -159,7 +196,9 @@ export default async function RaznoTopicPage({
 
       {/* Sits directly under the navy `PageHeader`, `navy-2` on navy, exactly
           as it does under the season page's title band. Self-suppressing below
-          two anchors, so four of the seven topics show no rail at all. */}
+          two anchors — which, since „Фотографии" landed, no topic trips: all
+          seven now carry the rail, which is what the owner asked for („нека ги
+          има сите горе, како што е кај архивата"). */}
       <SeasonAnchorNav anchors={anchors} label="Скок низ темата" />
 
       {/* One editorial column at the reading measure — this is a chapter of a
@@ -190,36 +229,44 @@ export default async function RaznoTopicPage({
             )}
           >
             <Container>
-              <div className="max-w-measure">
-                {isSplit && (
-                  <Reveal className="mb-8">
-                    <SectionHeading id={headingId}>
-                      {meta.heading}
-                    </SectionHeading>
-                  </Reveal>
-                )}
+              {isSplit && (
+                <Reveal className="mb-8">
+                  <SectionHeading id={headingId}>{meta.heading}</SectionHeading>
+                </Reveal>
+              )}
 
-                {toRuns(section.blocks).map((run, i) => (
-                  <Reveal
-                    key={run.blocks[0].line}
-                    className={i === 0 ? undefined : "mt-8"}
-                  >
-                    <BlockRun run={run} />
-                  </Reveal>
-                ))}
+              {section.key === "photos" ? (
+                /* Deliberately OUTSIDE `max-w-measure`: the reading measure is
+                   for the chapter's text; the gallery takes the full page
+                   wrap, exactly as the season page's „Фотографии" does. */
+                <RaznoPhotoGrid
+                  photos={section.photos}
+                  label={`Фотографии — ${topic.title}`}
+                />
+              ) : (
+                <div className="max-w-measure">
+                  {toRuns(section.blocks).map((run, i) => (
+                    <Reveal
+                      key={run.blocks[0].line}
+                      className={i === 0 ? undefined : "mt-8"}
+                    >
+                      <BlockRun run={run} />
+                    </Reveal>
+                  ))}
 
-                {/* Provenance, not prose: the quiet register the archive uses
-                    for a photo credit, set apart by a hairline rather than a
-                    heading. Once per page — on the last section, whichever that
-                    is — from one constant, never reworded per topic. */}
-                {index === sections.length - 1 && (
-                  <Reveal>
-                    <p className="mt-12 border-t border-mist pt-6 text-small text-neutral-500">
-                      {RAZNO_SOURCE_CREDIT}
-                    </p>
-                  </Reveal>
-                )}
-              </div>
+                  {/* Provenance, not prose: the quiet register the archive uses
+                      for a photo credit, set apart by a hairline rather than a
+                      heading. Once per page — closing the book's own text —
+                      from one constant, never reworded per topic. */}
+                  {index === lastProseIndex && (
+                    <Reveal>
+                      <p className="mt-12 border-t border-mist pt-6 text-small text-neutral-500">
+                        {RAZNO_SOURCE_CREDIT}
+                      </p>
+                    </Reveal>
+                  )}
+                </div>
+              )}
             </Container>
           </section>
         );

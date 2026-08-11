@@ -63,9 +63,18 @@ const LightboxContext = createContext<LightboxContextValue | null>(null);
  * ------------------------------------------------------------------ */
 export function PhotoLightboxProvider({
   photos,
+  label = "Фотографии од сезоната",
   children,
 }: {
   photos: LightboxPhoto[];
+  /**
+   * The dialog's accessible name. Defaults to the season gallery's, and is
+   * overridden where the same overlay serves another set — „Разно" passes its
+   * own, because a dialog announced as „Фотографии од сезоната" on a topic
+   * page names a thing that page does not have (3.20). Same rule as
+   * `SeasonAnchorNav`'s `label`.
+   */
+  label?: string;
   children: React.ReactNode;
 }) {
   const [index, setIndex] = useState<number | null>(null);
@@ -214,7 +223,7 @@ export function PhotoLightboxProvider({
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
-        aria-label="Фотографии од сезоната"
+        aria-label={label}
         tabIndex={-1}
         onKeyDown={onKeyDown}
         // A click on the BACKDROP closes; a click on the photo or a control
