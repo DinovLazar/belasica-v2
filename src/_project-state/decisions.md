@@ -2528,3 +2528,67 @@
 - **Alternatives considered:** *Shrink the image to a fixed percentage* — rejected: it guesses at the clearance instead of deriving it, and drifts the moment a control's size changes. *A second, hidden pair of arrows for narrow screens* — rejected: it would duplicate the labels and the tab stops; `order` moves one set of buttons in one place in the DOM.
 - **Consequences:** Below `sm` the row **wraps**: the figure takes the full line and both arrows fall beneath it, under the „3 / 8" counter, where a wide gutter would otherwise leave the photograph too small. The `max-h` drops to `62vh` below `sm` and `76vh` above (from a flat `82vh`) to pay for the reserved close-button band. Single-photo seasons still render **no** arrows at all.
 - **Links:** D-3.05b-3; `src/components/archive/PhotoLightbox.tsx`.
+
+### D-3.20-1 · 2026-08-11 · The topics' photographs ship as static files under `public/`, not as Sanity assets
+- **Status:** Accepted
+- **Context:** „Разно" needed pictures. Every other photograph on this site is a Sanity `photo` document, resolved through `urlFor()` and rendered by `PhotoFrame`. These 64 arrived as local image files, already optimised to WebP at the size the grid shows them.
+- **Decision:** Commit them to `public/razno/<slug>/<slug>-NN.webp` and describe them in a generated TS module. No upload, no `photo` documents, no schema change.
+- **Alternatives considered:** *Ingest them into Sanity like the 889* — rejected for this phase: it is ingestion tooling (upload, document creation, `relatedTopic` modelling), which is a phase of its own, not a side effect of adding a gallery. *Keep them out until that phase* — rejected: the owner asked for the photographs now, and the text pages have been live since 3.16 without them.
+- **Consequences:** ⚠️ **Ace cannot add, replace, caption or remove these seven galleries in Studio** — the same divergence from the Sanity-first rule that D-3.16-2 accepted for the topics' text, now extended to their pictures. **9,3 MB of binaries enter the git history** and cannot be pruned without a rewrite. ⚠️ **They carry no `provenance` field**, because they are not documents — so unlike the 881 ingested photos (whose provenance strings were rewritten at D-3.02-5), **nothing in the repo records where these 64 came from** (**OV-51**).
+- **Links:** D-3.16-2; D-3.02-5; D-2.09R-2; OV-51; `public/razno/`; `src/content/razno-photos.ts`.
+
+### D-3.20-2 · 2026-08-11 · A new `RaznoPhotoGrid`, but the lightbox is reused exactly as it stands
+- **Status:** Accepted
+- **Context:** The archive already has both a grid (`PhotoGrid`) and an overlay (`PhotoLightbox`). `PhotoGrid` is Sanity-shaped end to end — it takes a `SanityImageSource`, builds CDN URLs with `urlFor()` and renders through `PhotoFrame → framedImage()`, which resolves an asset ref and a hotspot. `PhotoLightbox` is not: D-3.05b-3 had already split it so the **server** hands the client plain `url · width · height · caption`.
+- **Decision:** Write a new grid; reuse the lightbox unchanged apart from its new `label` prop.
+- **Alternatives considered:** *Satisfy `PhotoGrid` by fabricating Sanity image objects* — rejected: inventing asset refs and hotspots for files that have none, to reach markup that is a frame and an `<img>`. *Widen `PhotoGrid` to accept either shape* — rejected: it would put a Sanity/not-Sanity branch through `PhotoFrame` and `framedImage()`, the two places most likely to be touched by real Sanity work later.
+- **Consequences:** The overlay behaviour fixed at 3.19 — arrows holding a gutter rather than lying over the scan, wrapping beneath it below `sm` — **is the same code here, not a second implementation**. The cost is a second grid component; it is ~50 lines and shares the `3/2` matted frame and caption anatomy by convention, not by inheritance.
+- **Links:** D-3.05b-3; D-2.02-7; D-3.19-8; `src/components/razno/RaznoPhotoGrid.tsx`.
+
+### D-3.20-3 · 2026-08-11 · `PhotoLightboxProvider` takes a `label` prop — the same move as `SeasonAnchorNav`'s
+- **Status:** Accepted
+- **Context:** The dialog's `aria-label` was the hardcoded „Фотографии од сезоната". A topic page has no season.
+- **Decision:** Add an optional `label` defaulting to that string; „Разно" passes `Фотографии — <наслов на темата>`.
+- **Alternatives considered:** *Leave the season wording* — rejected: it names a thing the page does not have, which is exactly what D-3.19-7 rejected for the rail. *Derive the label inside the provider from its photos* — rejected: the provider does not know what set it is showing, and guessing from a URL prefix is a rule that breaks the first time a path changes.
+- **Consequences:** The season gallery's call site and rendered output are unchanged. ⚠️ **Not verifiable from static output:** the dialog is **not server-rendered at all** — `role="dialog"` appears **0 times** in both `/razno/tiverija` and `/arhiva/1985-86` prerendered HTML, because it mounts only when opened. The new label was therefore **not confirmed** (**OV-52**).
+- **Links:** D-3.19-7; D-3.05b-3; OV-52; `src/components/archive/PhotoLightbox.tsx`.
+
+### D-3.20-4 · 2026-08-11 · „Фотографии" sorts last and appears only where photographs exist — so all seven topics now carry the rail
+- **Status:** Accepted
+- **Context:** D-3.19-5's `SECTIONS` note anticipated this third entry and set the governing rule: **only sections that actually hold something appear**. At 3.19 four of the seven topics had no records, so they rendered one section, no rail and no headings.
+- **Decision:** Add `photos` as a third section, always last — after the book's own text, mirroring the season page where „Фотографии" is the final content section — and only where the topic has a non-empty array.
+- **Alternatives considered:** *Put the gallery first* — rejected: these pages are a chapter, and the chapter's text is the page's substance. *Force the rail on regardless* — unnecessary: the data already produces ≥ 2 sections everywhere.
+- **Consequences:** **All seven topics now hold at least „Преглед" + „Фотографии", so every one shows the rail** — where 3.19 recorded „four of the seven topics show no rail at all", which is now false and was corrected in this file's snapshot. That is the owner's „нека ги има сите горе, како што е кај архивата". **The `isSplit` guard stays** even though no live topic trips it: the condition is a property of the data, not a constant, and a topic added with neither records nor pictures must still render.
+- **Links:** D-3.19-5; D-3.19-6; D-3.17-6; `src/app/(site)/razno/[slug]/page.tsx`.
+
+### D-3.20-5 · 2026-08-11 · The source credit closes the last PROSE section, not the page
+- **Status:** Accepted
+- **Context:** At 3.19 the credit („Извор: Аце Стојанов, „ФК Беласица – гордоста на Струмица", 2025 година.") rendered on `index === sections.length - 1` — the last section, whichever it was. With „Фотографии" appended, that expression puts it under the gallery.
+- **Decision:** Track the last **non-photo** section index and render the credit there.
+- **Alternatives considered:** *Leave it at the end of the page* — rejected: it credits **the book**, so hanging it under the photographs reads as attributing them to Аце Стојанов's chapter — a provenance claim nobody has made, and one that is *less* supportable given OV-51. *Add a second credit for the photographs* — rejected: nothing records where they came from, so there is no line to write.
+- **Consequences:** The credit renders **once** per page, closing the transcribed text, exactly as at 3.16/3.19. Verified in the built HTML: one occurrence in the body of each of the seven pages (the second match is the inlined RSC payload, not a second render).
+- **Links:** D-3.16-3; D-3.19-5; OV-51; `src/app/(site)/razno/[slug]/page.tsx`.
+
+### D-3.20-6 · 2026-08-11 · Thirty-five photographs have no caption and are given none
+- **Status:** Accepted
+- **Context:** 29 of the 64 carry a caption. The rest arrived with machine-generated filenames (`FB_IMG_…`, `Messenger_creation_…`) that say nothing about the picture.
+- **Decision:** Render no caption and `alt=""` for those 35. Write nothing.
+- **Alternatives considered:** *Caption them with the topic title* — rejected: „Ајдуци" under a photograph is not a description of it, and repeating it 8 times is noise a screen reader must sit through. *Derive a caption from the filename or the year in a neighbouring one* — rejected outright: that is reading a fact out of a string (`CLAUDE.md` §Content truth). *A visible `[PLACEHOLDER]` chip* — rejected: 3.15 cleared the last chip from the site and reintroducing 35 would undo that; a missing caption is not a missing *fact the page promises*, it is simply an undescribed scan.
+- **Consequences:** The set is still announced — the section is „Фотографии" and each thumbnail's button takes the lightbox's „Архивска фотографија" fallback name — but a screen-reader user gets no description of 35 pictures. That is the honest state of the archive and is **OV-50**.
+- **Links:** D-3.15-x (zero placeholders); OV-50; `src/components/razno/RaznoPhotoGrid.tsx`.
+
+### D-3.20-7 · 2026-08-11 · Plain `<img>`, not `next/image`, for all 64
+- **Status:** Accepted
+- **Context:** These files were optimised once, ahead of time, to WebP at the size the grid shows them. `next/image` would re-derive variants at request time through the Vercel optimiser.
+- **Decision:** Plain `<img loading="lazy" decoding="async">` with intrinsic `width`/`height`, matching the choice already made for the crest and the 3.19 pennants.
+- **Alternatives considered:** *`next/image`* — rejected: it buys nothing for a pre-sized local WebP and would put **64 more images on the optimiser**, which this project has hit a hard limit on before (a `402 PAYMENT_REQUIRED` on `/_next/image` for uncached variants). `unoptimized` would reach the same bytes through more machinery.
+- **Consequences:** No optimiser entries and no per-variant cost for any of the 64. Each cell reserves its box before the bytes land because the intrinsic dimensions travel in `razno-photos.ts`. Responsive art direction is given up — these render at one size and scale in CSS.
+- **Links:** D-3.09-2; D-3.05b-7; `src/components/razno/RaznoPhotoGrid.tsx`.
+
+### D-3.20-8 · 2026-08-11 · `TopicSection` became a discriminated union rather than one shape with an unused half
+- **Status:** Accepted
+- **Context:** `TopicSection` was `{ key, blocks }`. A photo section has no blocks, and a prose section has no photos; the two also render at different widths (the gallery sits **outside** `max-w-measure`, the text inside).
+- **Decision:** `{ key: "overview" | "records"; blocks } | { key: "photos"; photos }`, narrowed at the one render branch that needs it.
+- **Alternatives considered:** *One shape with both fields optional* — rejected: every consumer would then have to defend against a prose section with no blocks, a state that cannot occur; the compiler stops enforcing what the data guarantees.
+- **Consequences:** `toSections` returns a union and the render branches once on `section.key === "photos"`. `tsc --noEmit` is clean.
+- **Links:** D-3.19-5; `src/app/(site)/razno/[slug]/page.tsx`.
