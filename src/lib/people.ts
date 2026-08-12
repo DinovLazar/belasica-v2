@@ -18,35 +18,64 @@ export const ROLE_LABEL: Record<PersonRole, string> = {
   president: "Претседател",
 };
 
-/** The band a role owns, in fixed top→bottom order (handover §2). */
-export const BAND_TITLE: Record<PersonRole, string> = {
+/**
+ * The four categories /legendi is divided into since the owner's feedback of
+ * 11.08.2026 („кога завршуваат играчите, не сакам да продолжуваат тренерите —
+ * туку нека се во 3 теми", plus a fourth for the internationals).
+ *
+ * A category is NOT a role. Three of them are named after a role and hold
+ * everyone who has it; the fourth, `international`, is a membership list Ace
+ * supplies by hand (`@/content/legendi`) and corresponds to no schema value.
+ * The two ideas were the same thing until 3.22 and are now deliberately apart.
+ */
+export type LegendCategory = PersonRole | "international";
+
+/** Category order on the page and in the tab rail, top→bottom, left→right. */
+export const CATEGORY_ORDER: readonly LegendCategory[] = [
+  "player",
+  "trainer",
+  "president",
+  "international",
+] as const;
+
+/** The section heading each category renders. */
+export const CATEGORY_TITLE: Record<LegendCategory, string> = {
   player: "Играчи",
   trainer: "Тренери",
   president: "Претседатели",
+  international: "Репрезентативци и интернационалци",
 };
 
 /**
- * The `<section id>` each band renders on /legendi, and therefore the target of
- * its jump-rail link (3.17). Latin slugs, like every other anchor on the site
- * (`prikazna`, `rezultati`, `tabela`, `fotografii`), so a shared `#…` link
- * survives copy-paste out of a URL bar.
+ * The tab's own label, which is the heading everywhere it fits.
  *
- * Lives here beside `BAND_TITLE` for the same reason that does: a band's title,
- * its count noun and now its anchor read from one source rather than being
- * restated at the call site.
+ * „Репрезентативци и интернационалци" is 34 characters — as a tab it pushes the
+ * other three off a phone screen and turns a four-item rail into a scroll. The
+ * tab therefore carries the first noun and the section heading below it carries
+ * Ace's full phrase, so nothing is renamed and nothing is truncated mid-word.
  */
-export const BAND_ANCHOR: Record<PersonRole, string> = {
+export const CATEGORY_TAB_LABEL: Record<LegendCategory, string> = {
+  ...{
+    player: "Играчи",
+    trainer: "Тренери",
+    president: "Претседатели",
+  },
+  international: "Репрезентативци",
+};
+
+/**
+ * The `<section id>` each category renders on, and therefore the target its tab
+ * controls. Latin slugs, like every other anchor on the site (`prikazna`,
+ * `rezultati`, `fotografii`), so a shared `#…` survives copy-paste out of a URL
+ * bar.
+ */
+export const CATEGORY_ANCHOR: Record<LegendCategory, string> = {
   player: "igraci",
   trainer: "treneri",
   president: "pretsedateli",
+  international: "reprezentativci",
 };
 
-/**
- * Band order **and** placement priority in one list (D-2.05-2): a person holding
- * several roles is placed exactly once, in the band of their highest-priority
- * role — player > trainer > president — and never duplicated across bands.
- * Their other roles still show as chips on the card, so nothing is hidden.
- */
 export const ROLE_PRIORITY: readonly PersonRole[] = [
   "player",
   "trainer",
@@ -168,16 +197,26 @@ export function seasonStartYear(
 }
 
 /**
- * Trainer name → the latest season they are recorded as coaching, built once
+ * Trainer name → a **sort key** for how recently they last coached, built once
  * from every season carrying a `trainer` string.
  *
- * A season's `trainer` is one or more names separated by commas, so each is
- * split and trimmed, and the index keys on the **exact** trimmed name.
- * Deliberately not a substring match: „Благој Истатов" is a substring of seven
- * different multi-name season strings, and matching loosely would credit
+ * The key is `year + position-within-that-season`, and only its ORDER is
+ * meaningful — it is never rendered, never printed and never compared to a real
+ * date. The fraction is what makes 3.22 correct: a season's `trainer` holds one
+ * or more names „listed in the order they held the job" (`facts.md`), so within
+ * 2025/26 — „Александар Стојанов, Панче Стојанов" — Панче took the job second
+ * and is therefore the more recent of the two. Keying on the year alone made
+ * them tie, and the alphabet then put Александар first, which is the reverse of
+ * both the season's own story („Александар Стојанов си даде оставка, а на негово
+ * место дојде Панче Стојанов") and of Ace's list. The fraction is strictly less
+ * than 1, so it can never lift a coach past a man from a later season.
+ *
+ * Each name is split and trimmed, and the index keys on the **exact** trimmed
+ * name. Deliberately not a substring match: „Благој Истатов" is a substring of
+ * seven different multi-name season strings, and matching loosely would credit
  * seasons to the wrong man. A name that never matches a person document simply
- * never gets looked up, and a person the index does not hold sorts to the end
- * of their band (`compareByRecency`) rather than to a guessed year.
+ * never gets looked up, and a person the index does not hold sorts to the end of
+ * their category (`compareByRecency`) rather than to a guessed year.
  */
 export function buildTrainerYearIndex(
   seasons: { slug: string | null; trainer: string | null }[],
@@ -188,12 +227,18 @@ export function buildTrainerYearIndex(
     const year = seasonStartYear(season.slug);
     if (year === null) continue;
 
-    for (const part of (season.trainer ?? "").split(",")) {
-      const name = part.trim();
-      if (!name) continue;
+    const names = (season.trainer ?? "")
+      .split(",")
+      .map((part) => part.trim())
+      .filter(Boolean);
+
+    names.forEach((name, position) => {
+      // Strictly inside (0, 1): a lone coach lands mid-year rather than on the
+      // boundary, so no key can collide with a bare `year` from anywhere else.
+      const key = year + (position + 1) / (names.length + 1);
       const known = index.get(name);
-      index.set(name, known === undefined ? year : Math.max(known, year));
-    }
+      index.set(name, known === undefined ? key : Math.max(known, key));
+    });
   }
 
   return index;
@@ -213,6 +258,57 @@ export function tenureEndYear(
 ): number | null {
   const years = (bioLead ?? "").match(/\b(1[89]\d{2}|20\d{2})\b/g);
   return years === null ? null : Math.max(...years.map(Number));
+}
+
+/**
+ * A president's sort year — the fix for the one ordering bug the owner could see
+ * on the page (11.08.2026: „Исто и кај претседателите, првин Славе Пинда, па се
+ * оди со Петар Мишовски, Ванчо Таковски и назад").
+ *
+ * `tenureEndYear` alone got this wrong. It reads the largest year out of the
+ * biography's opening line, and the two most recent presidents both yield
+ * **2015** — Славчо Васков-Пинда because his term opened in 2015 and has not
+ * closed, Петар Мишевски because his term closed in it. A tie falls to the
+ * alphabet, and „Петар" precedes „Славчо", so the club's sitting president sat
+ * second on his own page.
+ *
+ * `playingYears` settles it. For these men the 3.02F pass wrote their TERM into
+ * that field, not a playing span — „2015–", „2007–2015", „1999–2007" — so an
+ * open-ended value is a term still running, and sorts ahead of every closed one.
+ *
+ * Read **only for a president who holds no other role**. For a man who also
+ * played, `playingYears` means what its name says and would be his playing span,
+ * not his presidency: Александар Трендов's „1950–1959" is when he played. He
+ * falls through to the biography line, exactly as before.
+ *
+ * `Number.POSITIVE_INFINITY` rather than a hardcoded future year, so this needs
+ * no maintenance when the calendar moves; `compareByRecency` only ever compares
+ * these values, never prints one.
+ */
+export function tenureSortYear(
+  person: {
+    role?: string[] | null;
+    playingYears?: string | null;
+    bioLead?: string | null;
+  },
+): number | null {
+  const roles = orderedRoles(person.role);
+  const presidentOnly = roles.length === 1 && roles[0] === "president";
+
+  if (presidentOnly) {
+    const term = (person.playingYears ?? "").trim();
+    // „2015–" / „2015-" — an opening year and no closing one.
+    if (/^(1[89]\d{2}|20\d{2})\s*[–-]\s*$/.test(term)) {
+      return Number.POSITIVE_INFINITY;
+    }
+    // „2007–2015" — take the closing year.
+    const closed = /^(?:1[89]\d{2}|20\d{2})\s*[–-]\s*(1[89]\d{2}|20\d{2})$/.exec(
+      term,
+    );
+    if (closed) return Number.parseInt(closed[1], 10);
+  }
+
+  return tenureEndYear(person.bioLead);
 }
 
 /** The shape `compareByRecency` needs — a subset of the roster row. */
@@ -253,25 +349,33 @@ export function compareByRecency(a: DatedPerson, b: DatedPerson): number {
  * Macedonian count label per band, same singular rule as D-2.02-12: only 1 takes
  * the singular. Each band counts its own noun — „3 играчи" reads naturally under
  * „Играчи", where a generic „3 личности" would not. Since 3.14 that holds for
- * all three: the officials band is named „Претседатели" after the role it holds
- * rather than after the body, so it counts претседатели and no longer членови
- * (D-3.14-1).
+ * the officials too: their category is named „Претседатели" after the role it
+ * holds rather than after the body, so it counts претседатели and no longer
+ * членови (D-3.14-1). The fourth category counts репрезентативци.
  */
-const BAND_COUNT_NOUN: Record<PersonRole, [singular: string, plural: string]> =
-  {
-    player: ["играч", "играчи"],
-    trainer: ["тренер", "тренери"],
-    president: ["претседател", "претседатели"],
-  };
+const CATEGORY_COUNT_NOUN: Record<
+  LegendCategory,
+  [singular: string, plural: string]
+> = {
+  player: ["играч", "играчи"],
+  trainer: ["тренер", "тренери"],
+  president: ["претседател", "претседатели"],
+  international: ["репрезентативец", "репрезентативци"],
+};
 
-export function bandCountLabel(role: PersonRole, count: number): string {
-  const [singular, plural] = BAND_COUNT_NOUN[role];
+export function categoryCountLabel(
+  category: LegendCategory,
+  count: number,
+): string {
+  const [singular, plural] = CATEGORY_COUNT_NOUN[category];
   return `${count} ${count === 1 ? singular : plural}`;
 }
 
 /**
  * The roster total for the /legendi header, same singular rule again. It counts
- * across all three bands, so it takes the neutral „личност" rather than a role
+ * DISTINCT people, not category memberships — since 3.22 a player-coach is in
+ * two categories and would otherwise be counted twice — so it takes the neutral
+ * „личност" rather than a role
  * noun — „160 играчи" would be a false claim about people who are not players.
  * The caller only reaches this with a real, non-zero count: a roster of nobody
  * renders the page's empty branch instead of a „0" line.
