@@ -1,51 +1,69 @@
 "use client";
 
-import { useId, useMemo, useState } from "react";
+import { useId, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Container } from "@/components/Container";
-import { JumpNav } from "@/components/JumpNav";
 import { PageHeader } from "@/components/PageHeader";
 import { focusOnNavy } from "@/lib/focus";
 import {
-  BAND_ANCHOR,
-  BAND_TITLE,
+  CATEGORY_ANCHOR,
+  CATEGORY_TAB_LABEL,
   personCountLabel,
-  type PersonRole,
+  type LegendCategory,
 } from "@/lib/people";
 import { matchesName } from "@/lib/translit";
 import type { LegendCardData } from "./LegendCard";
 import { RoleBandGrid } from "./RoleBandGrid";
 
-export type LegendBand = { role: PersonRole; people: LegendCardData[] };
+export type LegendBand = { category: LegendCategory; people: LegendCardData[] };
 
 /**
- * The whole of /legendi below the site header: the navy page-header block and
- * the bands under it.
+ * The whole of /legendi below the site header: the navy page-header block, the
+ * category tabs, and the one category showing under them.
  *
- * **It owns the header** as of 3.10 (D-3.10-2). The search field used to open
- * the paper section, which left a wide empty band between the navy header and
- * the first orange band rule. Moving the field into the header closes that gap
- * — and because the input and the filtered list share one component, they can
- * still share state without lifting it into a context or the URL.
+ * **Tabs, since 3.22.** The four categories used to stack down one page behind a
+ * jump rail, which is what the owner was objecting to on 11.08.2026 — „кога
+ * завршуваат играчите, не сакам да продолжуваат тренерите. Туку нека се во 3
+ * теми." A rail is a shortcut past content that is still there; a tab means the
+ * players genuinely stop. Only one category renders at a time, so scrolling off
+ * the end of Играчи now ends the page instead of arriving in Тренери.
+ *
+ * Every panel is still in the HTML, hidden rather than unmounted, so the page
+ * ships whole to a crawler and switching tabs costs no request and no layout
+ * work beyond a class change.
  *
  * The roster is small enough to ship whole (one Sanity read on the server), so
  * the filter runs in the browser against the already-rendered list: no request
- * per keystroke, no loading state, and the page still renders every person
- * with JS off — the input is the only thing that needs JS.
+ * per keystroke and no loading state.
  *
- * Placement stays a server decision: this receives the bands already built and
- * name-sorted, and only hides the people whose name does not match. Because
- * `RoleBandGrid` renders nothing when its list is empty, a band with no match
- * disappears on its own — no „0 играчи" heading can appear mid-search.
+ * **The active tab is derived, never stored.** State holds only which tab the
+ * user asked for; the tab actually shown is that one if it still has matches,
+ * otherwise the first that does. So typing a coach's name while Играчи is open
+ * moves you to Тренери on its own, and there is no effect to keep in sync and no
+ * frame where the page shows an empty panel next to a non-zero result count.
  *
  * Matching is on **name only**, and accepts Latin spellings (`@/lib/translit`).
  * Role and years are visible on the card but are not searched: a query like
- * „играч" would otherwise return the whole band and read as a broken search
- * rather than a filter.
+ * „играч" would otherwise return a whole category and read as a broken search.
  */
-export function LegendsBrowser({ bands }: { bands: LegendBand[] }) {
+export function LegendsBrowser({
+  bands,
+  total,
+}: {
+  bands: LegendBand[];
+  /**
+   * DISTINCT people across the roster, counted on the server. It cannot be
+   * summed from `bands`: since 3.22 a player-coach appears in two of them, and
+   * adding the categories up would report 261 people where the archive holds
+   * 211.
+   */
+  total: number;
+}) {
   const [query, setQuery] = useState("");
+  const [requested, setRequested] = useState<LegendCategory | null>(null);
   const inputId = useId();
+  const tabsId = useId();
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   const needle = normalise(query);
   const searching = needle.length > 0;
@@ -53,7 +71,7 @@ export function LegendsBrowser({ bands }: { bands: LegendBand[] }) {
   const visible = useMemo(() => {
     if (!needle) return bands;
     return bands.map((band) => ({
-      role: band.role,
+      category: band.category,
       people: band.people.filter((person) =>
         matchesName(person.name ?? "", needle),
       ),
@@ -61,25 +79,43 @@ export function LegendsBrowser({ bands }: { bands: LegendBand[] }) {
   }, [bands, needle]);
 
   const matches = visible.reduce((sum, band) => sum + band.people.length, 0);
-  const leadRole = visible.find((band) => band.people.length > 0)?.role;
 
-  // Built from `visible`, not from `bands`: a band that filtered down to nobody
-  // renders nothing (`RoleBandGrid` self-omits), so a rail built from the full
-  // roster would point at a `<section id>` that is not in the document. A search
-  // that leaves only one band standing leaves one item, and `JumpNav` declines
-  // to render a rail of one. Labels come from `BAND_TITLE`, never retyped, so a
-  // band's heading and its rail link cannot drift apart (D-3.13-1).
-  const railItems = visible
-    .filter((band) => band.people.length > 0)
-    .map((band) => ({
-      id: BAND_ANCHOR[band.role],
-      label: BAND_TITLE[band.role],
-    }));
+  // A tab exists for every category that holds anyone at all; whether it can be
+  // SELECTED depends on the current filter. Built from `bands`, not `visible`,
+  // so the rail keeps its shape while typing instead of flickering between two
+  // and four items.
+  const tabs = bands.filter((band) => band.people.length > 0);
+  const countOf = (category: LegendCategory) =>
+    visible.find((band) => band.category === category)?.people.length ?? 0;
 
-  // The archive total, not the filtered count — the live result count below the
-  // input already reports the filter. Counted from the bands themselves, so it
-  // can only ever state what the page actually renders.
-  const placed = bands.reduce((sum, band) => sum + band.people.length, 0);
+  const selectable = tabs
+    .map((band) => band.category)
+    .filter((category) => countOf(category) > 0);
+  const active =
+    requested !== null && selectable.includes(requested)
+      ? requested
+      : (selectable[0] ?? null);
+
+  // Arrow-key navigation across the rail, per the tabs pattern. Only selectable
+  // tabs are reachable — stepping onto a tab with no matches and being unable to
+  // open it would be a dead end.
+  function onTabKeyDown(event: React.KeyboardEvent, index: number) {
+    const step =
+      event.key === "ArrowRight" ? 1 : event.key === "ArrowLeft" ? -1 : 0;
+    if (step === 0) return;
+    event.preventDefault();
+
+    const reachable = tabs
+      .map((band, i) => ({ category: band.category, i }))
+      .filter(({ category }) => countOf(category) > 0);
+    if (reachable.length === 0) return;
+
+    const at = reachable.findIndex(({ i }) => i === index);
+    const next =
+      reachable[(at + step + reachable.length) % reachable.length];
+    setRequested(next.category);
+    tabRefs.current[next.i]?.focus();
+  }
 
   return (
     <>
@@ -88,7 +124,7 @@ export function LegendsBrowser({ bands }: { bands: LegendBand[] }) {
         crumbs={[{ label: "Почетна", href: "/" }, { label: "Легенди" }]}
         // Structural copy — describes the page, claims no fact about the club.
         intro="Играчите, тренерите и раководството што го обележале клубот низ годините."
-        meta={personCountLabel(placed)}
+        meta={personCountLabel(total)}
       >
         {/* Full width on a phone, where `max-w-md` would strand the field mid
             -row; capped from `sm` up so it stays a field rather than a banner. */}
@@ -163,7 +199,64 @@ export function LegendsBrowser({ bands }: { bands: LegendBand[] }) {
         </div>
       </PageHeader>
 
-      <JumpNav items={railItems} ariaLabel="Скок по улога" />
+      {/* The tab rail takes `JumpNav`'s exact surface — sticky beneath the site
+          header at `top-header`, on the second navy so header and rail read as
+          two bands of one block, horizontally scrollable rather than wrapping.
+          No new token: the only thing a tab does that a jump link did not is
+          hold the orange rule permanently when it is the open one. */}
+      <div className="sticky top-header z-30 bg-navy-2">
+        <div className="relative mx-auto w-full max-w-page overflow-x-auto px-5 py-1 md:px-8">
+          <div
+            role="tablist"
+            aria-label="Теми"
+            className="flex min-w-max items-center gap-5"
+          >
+            {tabs.map((band, i) => {
+              const count = countOf(band.category);
+              const isActive = band.category === active;
+              const isSelectable = count > 0;
+
+              return (
+                <button
+                  key={band.category}
+                  ref={(node) => {
+                    tabRefs.current[i] = node;
+                  }}
+                  type="button"
+                  role="tab"
+                  id={`${tabsId}-${band.category}`}
+                  aria-selected={isActive}
+                  aria-controls={`${tabsId}-panel-${band.category}`}
+                  // Roving tabindex: one stop for the whole rail, then arrows.
+                  tabIndex={isActive ? 0 : -1}
+                  disabled={!isSelectable}
+                  onClick={() => setRequested(band.category)}
+                  onKeyDown={(event) => onTabKeyDown(event, i)}
+                  className={cn(
+                    "block border-b-2 py-2 text-small font-bold uppercase tracking-[0.12em] tabular-nums transition-colors",
+                    isActive
+                      ? "border-orange text-paper"
+                      : "border-transparent text-paper/80",
+                    isSelectable
+                      ? "hover:border-orange hover:text-paper"
+                      : // A category the current search does not reach. Kept in
+                        // the rail so it cannot look deleted, but it says so.
+                        "cursor-not-allowed text-paper/40",
+                    focusOnNavy,
+                  )}
+                >
+                  {CATEGORY_TAB_LABEL[band.category]}
+                  {/* The count rides in the tab while searching, so a user can
+                      see where their matches are without opening each one. */}
+                  {searching && (
+                    <span className="ml-1.5 font-normal">({count})</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
 
       <Container className="py-section">
         {searching && matches === 0 ? (
@@ -171,22 +264,32 @@ export function LegendsBrowser({ bands }: { bands: LegendBand[] }) {
             Нема личност со такво име во архивата.
           </p>
         ) : (
-          <div className="flex flex-col gap-section">
-            {visible.map((band) => (
+          tabs.map((band) => (
+            <div
+              key={band.category}
+              role="tabpanel"
+              id={`${tabsId}-panel-${band.category}`}
+              aria-labelledby={`${tabsId}-${band.category}`}
+              // Hidden, not unmounted: the whole roster stays in the HTML for a
+              // crawler and for the browser's own find-on-page after the tab is
+              // opened, and switching costs a class rather than a re-render of
+              // 100 cards.
+              className={cn(band.category !== active && "hidden")}
+            >
               <RoleBandGrid
-                key={band.role}
-                role={band.role}
-                people={band.people}
-                headingId={`band-${band.role}`}
-                anchorId={BAND_ANCHOR[band.role]}
-                // The first band with anything in it leads the page, so its first
-                // card carries the LCP. `RoleBandGrid` renders nothing when its
-                // list is empty, so „first non-empty" is also „first visible" —
-                // and during a search that correctly follows the results.
-                leadsPage={band.role === leadRole}
+                category={band.category}
+                people={
+                  visible.find((v) => v.category === band.category)?.people ?? []
+                }
+                headingId={`band-${band.category}`}
+                anchorId={CATEGORY_ANCHOR[band.category]}
+                // Играчи opens the page, so its first card carries the LCP. The
+                // other three are hidden on first paint and must not compete for
+                // it, whichever tab the user later opens.
+                leadsPage={band.category === "player"}
               />
-            ))}
-          </div>
+            </div>
+          ))
         )}
       </Container>
     </>
@@ -203,7 +306,8 @@ function normalise(value: string): string {
   return value.trim().toLocaleLowerCase("mk");
 }
 
-/** Same singular rule as the band counts (D-2.02-12): only 1 takes the singular. */
+/** Same singular rule as the category counts (D-2.02-12): only 1 takes the
+ *  singular. */
 function resultLabel(count: number): string {
   return `${count} ${count === 1 ? "резултат" : "резултати"}`;
 }

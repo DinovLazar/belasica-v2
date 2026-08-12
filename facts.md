@@ -43,6 +43,26 @@ Verification source format: (who, where, date).
 
 Populated during Part 2 ingestion. Rule for this category: a historical fact is VERIFIED when it is present in Ace's Drive material (source: "Drive, <file/folder>, <date checked>"). Facts found only on the open web and not in the Drive are UNVERIFIED until Ace confirms them.
 
+### Настапи — три исправки (appearance corrections)
+
+Three players' appearance totals were corrected by Ace — VERIFIED (Ace, chat via Lazar, 2026-08-11). These supersede the figures the book prints, and they move the men in the all-time ranking on `/legendi`:
+
+- **Стефан Сулев** — **261** настапи (was 235). 7-мо место.
+- **Александар Милушев** — **239** настапи (was 209). 11-то место.
+- **Александар Коцев** — **130** настапи (was 115). Ace asked only for „понапред" and named no position; 130 places him **53rd**, directly behind Митко Џорлев, who also has 130 and keeps the earlier rank. That position is DERIVED from Ace's own figure and his own ordering rule, not stated by him — it is the one number on this page he has not personally confirmed.
+
+Applying the first two shifts the ranks between them; 23 person records changed and the list is still 80 long. Ace's two stated positions are mutually consistent with a clean insert-and-shift, which is how they were applied.
+
+### Репрезентативци и интернационалци
+
+The membership of the fourth category on `/legendi` — VERIFIED (Ace: Drive folder `010. Репрезентативци на Македонија`, whose numbered file order is the category's order, cross-checked against his chat message via Lazar, 2026-08-11):
+
+Горан Пандев, Ацо Стојков, Горан Попов, Роберт Попов, Игор Ѓузелов, Панче Стојанов, Дени Масев, Зоран Балдовалиев, Никола Танушев, Тони Бандулиев.
+
+Being in this category does not remove a man from the Играчи ranking — Ace: „не е проблем и да се споменуваат и кај играчи и кај тренери".
+
+**Four men Ace named have no person record yet** and are therefore absent from the category, not omitted from it: **Васил Рингов, Благој Георгиев, Сашко Пандев, Дејан Илиев**. Owed.
+
 ### Тренери по сезони (coaches by season)
 
 Ace's own list of every Belasica coach he holds a record for, supplied verbatim — VERIFIED (Ace, chat via Lazar, 2026-08-11). 77 seasons, 121 coach-season entries, 59 distinct coaches. Rendered on the site through `season.trainer`, which also orders the Тренери band on `/legendi`.
@@ -133,5 +153,5 @@ Four rows where the site does not simply mirror the list above. In each case the
 
 - **2024/25** ships as `Александар Стојанов`. That season's story reads „Беласица оваа сезона ја стартува со Александар Стојанов како тренер" and records no change of coach.
 - **2025/26** ships as `Александар Стојанов, Панче Стојанов`. That season's story reads „По поразот од Осогово, Александар Стојанов си даде оставка, а на негово место дојде Панче Стојанов", and its стручен штаб block reads „Стојанов Панче — главен тренер". Мартин Алаѓозовски is not named anywhere in it.
-- **Мартин Алаѓозовски** is UNVERIFIED as a season coach. Ace's list puts him at 2025/26 and the link map calls him „сегашен тренер"; both are consistent with him being the 2026/27 coach, a season that has no record yet. Needs Ace.
+- **Мартин Алаѓозовски** is the **2026** coach — VERIFIED (Ace, chat via Lazar, 2026-08-11). This closes the question left open above: asked to order the coaches „од последниот па назад", Ace wrote „Martin Alagjozovski 2026 / Pance Stojanov 2025-2026 / Aleksandar Stojanov / Vase Bekarov". So he did NOT coach 2025/26; he is the coach of a season the archive holds no record for. No season document names him, so `/legendi` orders him from `COACH_YEAR_OVERRIDE` in `src/content/legendi.ts` — remove that entry the moment a 2026/27 season is published.
 - **1958/59** ships as `Томе Ефтимов, Јордан Николов`. Ace's list spells the first name „Томче"; the season's own story reads „Беласица во првите две кола ја предводи Т. Ефтимов, а потоа на чело на тимот доаѓа Ј. Николов-Бокото", which confirms both men and the order.

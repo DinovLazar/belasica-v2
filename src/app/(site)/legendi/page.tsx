@@ -12,12 +12,16 @@ import {
 } from "@/components/legends/LegendsBrowser";
 import {
   buildTrainerYearIndex,
+  CATEGORY_ORDER,
   compareByLegendRank,
   compareByRecency,
-  primaryRole,
-  ROLE_PRIORITY,
-  tenureEndYear,
+  orderedRoles,
+  tenureSortYear,
 } from "@/lib/people";
+import {
+  COACH_YEAR_OVERRIDE,
+  INTERNATIONAL_SLUGS,
+} from "@/content/legendi";
 
 // Match the archive (D-1.05-4): a person published in Studio appears within
 // ~a minute, without a redeploy.
@@ -102,76 +106,115 @@ export default async function LegendsPage() {
   // are parsed one time, and each trainer is then a single Map lookup.
   const trainerYears = buildTrainerYearIndex(seasons);
 
-  const resolved = people.map((person) => {
-    const role = primaryRole(person.role);
-
-    return {
-      ...person,
-      // 800px matches the card's largest rendered width (a 3-up track at 1408).
-      portrait: framedImage(person.portrait, 800),
-      // Derived here, on the server, and never rendered — a sort key only.
-      // Players do not use it: their band is ordered by `legendRank`.
-      sortYear:
-        role === "trainer"
-          ? (trainerYears.get(person.name ?? "") ?? null)
-          : role === "president"
-            ? tenureEndYear(person.bioLead)
-            : null,
-    };
-  });
-
-  // Placement is a whole-roster decision, so it happens here rather than inside
-  // a band: each person lands in exactly one band — the one for their
-  // highest-priority role (player > trainer > president, D-2.05-2) — and never
-  // appears twice. Their other roles still show as chips on the card.
-  //
-  // A person holding no recognised role is placed in no band; inventing a
-  // fourth band for them would be a design decision this phase does not own.
-  // Their `/legendi/<slug>` page still renders, and nothing links to it.
-  //
-  // Each band then takes its own order. Играчи is the club's all-time
-  // appearance ranking, most-capped first — the owner's instruction at 3.12
-  // („наредете ги според број на натпревари, а не по азбучен ред"), read from
-  // `legendRank` (D-3.12-2).
-  //
-  // Тренери and Претседатели are ordered by **most recent service** (D-3.13-4),
-  // so the club's latest coach and its last president open their bands instead
-  // of sitting mid-alphabet. Neither year is stored: a trainer's comes from the
-  // latest `season.trainer` naming them, an official's from the term in their
-  // own biography. This is a chronology, not a ranking — the book ranks nobody
-  // in these two bands, and none is invented here. Anyone with no derivable
-  // year falls to the end of their band, alphabetically.
-  const bands: LegendBand[] = ROLE_PRIORITY.map((role) => ({
-    role,
-    people: resolved
-      .filter((person) => primaryRole(person.role) === role)
-      .sort(role === "player" ? compareByLegendRank : compareByRecency)
-      // `LegendsBrowser` is a client component. Projecting **by name** is what
-      // keeps the server-only sort inputs out of the client bundle — `bioLead`
-      // and the derived `sortYear` (D-3.13-6).
-      //
-      // `legendRank` and `legendAppearances` cross the boundary from 3.15, and
-      // `careerStats.appearances` joins them at 3.19: all three are no longer
-      // sort inputs only, they are **rendered** on the card („1. Петар Андреев
-      // 555"), so they have to reach it. The single number is sent on its own
-      // rather than by spreading `careerStats`, so nothing else in that object
-      // (goals) rides along. `bioLead` and `sortYear` still do not cross.
-      .map((person) => ({
-        name: person.name,
-        slug: person.slug,
-        role: person.role,
-        playingYears: person.playingYears,
-        legendRank: person.legendRank,
-        legendAppearances: person.legendAppearances,
-        careerStats:
-          person.careerStats?.appearances != null
-            ? { appearances: person.careerStats.appearances }
-            : null,
-        portrait: person.portrait,
-      })),
+  // Both sort years are derived for EVERY person who holds the matching role,
+  // not just for the one category they used to be filed under. Since 3.22 a
+  // player-coach is in Играчи and Тренери at once, and his coaching year has to
+  // exist to order the second of those.
+  const resolved = people.map((person) => ({
+    ...person,
+    // 800px matches the card's largest rendered width (a 3-up track at 1408).
+    portrait: framedImage(person.portrait, 800),
+    // The override wins over the season index: Ace states Мартин Алаѓозовски is
+    // the 2026 coach and no 2026/27 season exists, so the index cannot know it
+    // and he would otherwise sort to the bottom of a band his own list opens.
+    trainerYear:
+      COACH_YEAR_OVERRIDE[person.name ?? ""] ??
+      trainerYears.get(person.name ?? "") ??
+      null,
+    // Reads the term out of `playingYears` for a president who held no other
+    // role, and falls back to the biography's opening line. Without it the two
+    // most recent presidents both derive 2015 and the alphabet puts Петар
+    // Мишевски above the sitting president (fixed at 3.22).
+    presidentYear: tenureSortYear(person),
   }));
 
-  const placed = bands.reduce((sum, band) => sum + band.people.length, 0);
+  // `LegendsBrowser` is a client component. Projecting **by name** is what keeps
+  // the server-only sort inputs out of the client bundle — `bioLead` and the two
+  // derived years (D-3.13-6).
+  //
+  // `legendRank` and `legendAppearances` cross the boundary from 3.15, and
+  // `careerStats.appearances` joins them at 3.19: all three are no longer sort
+  // inputs only, they are **rendered** on the card („1. Петар Андреев 555"), so
+  // they have to reach it. The single number is sent on its own rather than by
+  // spreading `careerStats`, so nothing else in that object (goals) rides along.
+  const project = (person: (typeof resolved)[number]): LegendCardData => ({
+    name: person.name,
+    slug: person.slug,
+    role: person.role,
+    playingYears: person.playingYears,
+    legendRank: person.legendRank,
+    legendAppearances: person.legendAppearances,
+    careerStats:
+      person.careerStats?.appearances != null
+        ? { appearances: person.careerStats.appearances }
+        : null,
+    portrait: person.portrait,
+  });
+
+  // Placement, rewritten at 3.22 on the owner's instruction. A person is now in
+  // **every** category they qualify for rather than only the highest-priority
+  // one (D-2.05-2, withdrawn): „не е проблем и да се споменуваат и кај играчи и
+  // кај тренери". That single rule is what fixes his „хаос" — under the old one
+  // all 37 player-coaches were filed under Играчи, so Тренери was missing
+  // Мартин Алаѓозовски, Панче Стојанов, Александар Стојанов and Васе Беќаров,
+  // the four men his own list opens with.
+  //
+  // A person holding no recognised role is still placed nowhere. Their
+  // `/legendi/<slug>` page renders; nothing links to it.
+  //
+  // Each category then takes its own order:
+  //  - Играчи — the club's all-time appearance ranking, most-capped first
+  //    (D-3.12-2), read from `legendRank`.
+  //  - Тренери and Претседатели — most recent service first (D-3.13-4), which is
+  //    a chronology and not a ranking; the book ranks nobody in either.
+  //  - Репрезентативци — Ace's own numbering, taken from the file order of his
+  //    Drive folder. Not sorted here at all: the list IS the order.
+  const bands: LegendBand[] = CATEGORY_ORDER.map((category) => {
+    if (category === "international") {
+      return {
+        category,
+        // A slug that resolves to nobody is dropped rather than rendered as a
+        // gap. Four men Ace named — Васил Рингов, Благој Георгиев, Сашко Пандев,
+        // Дејан Илиев — have no person document yet and are owed, not omitted.
+        people: INTERNATIONAL_SLUGS.map((slug) =>
+          resolved.find((person) => person.slug === slug),
+        )
+          .filter((person) => person !== undefined)
+          .map(project),
+      };
+    }
+
+    const held = resolved.filter((person) =>
+      orderedRoles(person.role).includes(category),
+    );
+
+    const ordered =
+      category === "player"
+        ? held.sort(compareByLegendRank)
+        : held.sort((a, b) =>
+            compareByRecency(
+              {
+                name: a.name,
+                sortYear:
+                  category === "trainer" ? a.trainerYear : a.presidentYear,
+              },
+              {
+                name: b.name,
+                sortYear:
+                  category === "trainer" ? b.trainerYear : b.presidentYear,
+              },
+            ),
+          );
+
+    return { category, people: ordered.map(project) };
+  });
+
+  // DISTINCT people, not category memberships: a player-coach is in two bands
+  // and summing them would report 261 where the archive holds 211.
+  const distinct = new Set(
+    bands.flatMap((band) => band.people.map((person) => person.slug)),
+  );
+  const placed = distinct.size;
 
   // The empty branch keeps its own header: it has no search field to host and
   // no real count to state, so `LegendsBrowser` — which since 3.10 renders the
@@ -203,5 +246,5 @@ export default async function LegendsPage() {
 
   // Bands are built here (placement is a whole-roster decision); the browser
   // renders the navy header, the name filter and the bands under it.
-  return <LegendsBrowser bands={bands} />;
+  return <LegendsBrowser bands={bands} total={placed} />;
 }

@@ -1,41 +1,53 @@
-import { bandCountLabel, BAND_TITLE, type PersonRole } from "@/lib/people";
+import {
+  categoryCountLabel,
+  CATEGORY_TITLE,
+  type LegendCategory,
+} from "@/lib/people";
 import { LegendCard, type LegendCardData } from "./LegendCard";
 
 /**
- * One role band on /legendi (handover §6.2) — sub-heading + real count + a
- * 3/2/1 grid of `LegendCard`, matching the archive's `DecadeSectionHeader`
- * (brand.md §Components): serif H2, neutral count overline, orange rule marker.
+ * One category on /legendi — sub-heading + real count + a 3/2/1 grid of
+ * `LegendCard`, matching the archive's `DecadeSectionHeader` (brand.md
+ * §Components): serif H2, neutral count overline, orange rule marker.
  *
- * **Self-omitting** (§2): a band with no people renders nothing at all — no
+ * Called a "band" until 3.22, when the page became four tabbed categories and a
+ * person stopped being confined to one of them. The markup is unchanged; what
+ * changed is what it is handed. It now takes a `LegendCategory`, which is a
+ * superset of `PersonRole` — three categories are named after a role, the
+ * fourth („Репрезентативци и интернационалци") is a membership list and
+ * corresponds to no schema value.
+ *
+ * **Self-omitting**: a category with no people renders nothing at all — no
  * heading, no placeholder text. The count is therefore always real and „0
  * играчи" can never appear, exactly as a zero-season decade is never listed
  * (2.02 §7).
  *
- * The handover specs the props as `title` + `people[]`; this takes `role`
- * instead and derives the title from `BAND_TITLE`, so the band's title, its
- * placement priority and its count noun all read from one source in
- * `@/lib/people` rather than being restated at the call site.
+ * Title and count noun are derived from the category rather than passed in, so
+ * a section's heading, its tab's label and its count all read from one source in
+ * `@/lib/people` and cannot drift apart (D-3.13-1).
  *
- * `people` arrives already filtered and name-sorted — placement is a
- * whole-roster decision (a person must appear in exactly one band, D-2.05-2),
- * which a single band cannot make for itself.
+ * `people` arrives already filtered and sorted: each category takes a different
+ * order (Играчи by appearance rank, Тренери and Претседатели newest-first,
+ * Репрезентативци in Ace's own numbering), and that is a whole-roster decision a
+ * single section cannot make for itself.
  */
 export function RoleBandGrid({
-  role,
+  category,
   people,
   headingId,
   anchorId,
   leadsPage = false,
 }: {
-  role: PersonRole;
+  category: LegendCategory;
   people: LegendCardData[];
   headingId: string;
-  /** The band's own `#…` target, from `BAND_ANCHOR` — what the page's jump rail
-   *  links to (3.17). Distinct from `headingId`, which stays on the `<h2>` and
+  /** The section's own `#…` target, from `CATEGORY_ANCHOR`. It is also what the
+   *  tab rail's `aria-controls` points at, so it must be on the element that
+   *  holds the panel. Distinct from `headingId`, which stays on the `<h2>` and
    *  names the section for assistive tech. */
   anchorId: string;
-  /** Set on the first band that actually renders. Its first card holds the
-   *  page's LCP element and is treated accordingly (D-3.09-2/3). */
+  /** Set on the category that opens the page. Its first card holds the page's
+   *  LCP element and is treated accordingly (D-3.09-2/3). */
   leadsPage?: boolean;
 }) {
   if (people.length === 0) return null;
@@ -45,21 +57,21 @@ export function RoleBandGrid({
       id={anchorId}
       aria-labelledby={headingId}
       // Clear BOTH sticky bars when jumped to: the site header
-      // (`--spacing-header`) plus the jump rail's own height, or the heading
+      // (`--spacing-header`) plus the tab rail's own height, or the heading
       // lands underneath them. Same offset as /arhiva's decade sections.
       className="scroll-mt-[calc(var(--spacing-header)+3.25rem)]"
     >
       <header>
-        {/* The 6px orange bar caps the band, exactly as it caps a decade on
+        {/* The 6px orange bar caps the section, exactly as it caps a decade on
             /arhiva and every tile on the site. Decorative — the H2 below
             carries the section's accessible name. */}
         <div aria-hidden className="h-1.5 w-full bg-orange" />
         <div className="mt-4 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
           <h2 id={headingId} className="u-h2 text-navy">
-            {BAND_TITLE[role]}
+            {CATEGORY_TITLE[category]}
           </h2>
           <p className="text-overline font-bold uppercase tracking-overline tabular-nums text-neutral-500">
-            {bandCountLabel(role, people.length)}
+            {categoryCountLabel(category, people.length)}
           </p>
         </div>
       </header>
