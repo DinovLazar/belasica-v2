@@ -48,9 +48,33 @@ Six decisions were taken with the owner by the Cowork session and are logged her
 - **No `/impeccable audit` was run**, which `CLAUDE.md` §UI phases requires. The brief scopes this session to verify-and-ship and explicitly forbids re-implementation, and an audit's findings would have to be fixed in-phase. Flagged rather than skipped silently; it is owed together with the visual sign-off the brief already puts on the register.
 - **Enter/Space on a tab was not separately exercised** — see §2.
 
+## 2b. Vercel PR preview — verified, not merely loaded
+
+**PR:** [#50](https://github.com/DinovLazar/belasica-v2/pull/50) · **Preview:** `https://belasica-v2-git-phase-322-legendi-c-0c9497-sunset-services-team.vercel.app` · Vercel check **pass**.
+
+Checked on the **deployed** preview, not only locally:
+
+- `/legendi`, `/razno`, `/statistika`, `/arhiva`, `/` — **all 200**.
+- Header reads **211 личности**; tabs `Играчи · Тренери · Претседатели · Репрезентативци`.
+- `#igraci` **153**, opening Андреев → Василев → Панов → Секулов.
+- `#treneri` **69**, opening **Алаѓозовски → Панче Стојанов → Александар Стојанов → Васе Беќаров**.
+- `#pretsedateli` **29**, opening Пинда → Мишевски → Таковски.
+- `#reprezentativci` **10**, opening Горан Пандев.
+- **0** `[PLACEHOLDER` occurrences.
+
+⚠️ **There is no GitHub Action to review this PR.** The brief says „let the GitHub Action review it"; `.github/` **does not exist** in this repo — the review gate was dropped by owner instruction at **D-1.01-4** and this was already recorded at **D-3.11-6**. What ran instead is `CLAUDE.md`'s own rule: the diff was reviewed by hand and the preview confirmed. Only the two Vercel checks report on the PR.
+
+### Five things for Lazar to eyeball
+
+1. **Тренери, top row** — Алаѓозовски, Панче Стојанов, Александар Стојанов. Is that the order Ace meant, and does each card correctly show **both** „Играч" and „Тренер"?
+2. **The tab rail on a phone** — four tabs scroll horizontally rather than wrapping. Does „Репрезентативци" read as truncated or as a scrollable rail?
+3. **Претседатели** — Славчо Васков-Пинда first. Confirm he is in fact the sitting president.
+4. **„Разно" cards** — each photograph is cropped to 3:2 (`object-cover`). Check nothing important is cut out of the seven chosen frames.
+5. **Играчи → Тренери switch** — the page should not jump or lose scroll position awkwardly when you change tab.
+
 ## 5. Changed files / deliverables
 
-**Branch:** `phase-3.22-legendi-categories` · **Code commit:** `a7e942e` · PR: see §7.
+**Branch:** `phase-3.22-legendi-categories` · **Code commit:** `a7e942e` · **PR:** [#50](https://github.com/DinovLazar/belasica-v2/pull/50).
 
 - **New:** `src/content/legendi.ts` — `INTERNATIONAL_SLUGS` (the fourth category's membership and order, by slug) + `COACH_YEAR_OVERRIDE` (Мартин Алаѓозовски → 2026).
 - **Edited:** `src/lib/people.ts` (category layer replacing `BAND_*`; `tenureSortYear`; order-aware `buildTrainerYearIndex`) · `src/app/(site)/legendi/page.tsx` (placement rewritten — every qualifying category, not the highest-priority one; distinct-slug header count) · `src/components/legends/LegendsBrowser.tsx` (stacked bands + jump rail → four tabs) · `src/components/legends/RoleBandGrid.tsx` (takes a `LegendCategory`; filename unchanged, D-3.22-7) · `src/content/razno.ts` (`cardPhoto` on `RaznoTopic` + one per topic) · `src/app/(site)/razno/page.tsx` (3:2 thumbnail on each card) · `facts.md` (three new VERIFIED blocks: the three appearance corrections, the internationals, and Алаѓозовски's 2026 closing an UNVERIFIED line).
