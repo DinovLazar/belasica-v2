@@ -2640,3 +2640,75 @@
 - **Alternatives considered:** None — this is the existing standing rule, now with a measured failure rate.
 - **Consequences:** Neither Раде Цицмиловиќ, Драган Канатларовски nor Милко Ѓуровски gained anything from this batch; all three keep their stub biographies. Four coaches nobody was expecting gained one instead.
 - **Links:** `claude/Facebook-link-map-for-coaches.md`.
+
+### D-3.22-1 · 2026-08-11 · `/legendi` became four tabbed categories instead of stacked bands behind a jump rail
+- **Status:** Accepted
+- **Context:** The owner's message of 11.08.2026 called the page „хаос" and asked: „кога завршуваат играчите, не сакам да продолжуваат тренерите. Туку нека се во 3 теми." The jump rail added at 3.17 is a shortcut *past* content that is still there — scrolling off the end of Играчи still arrived in Тренери.
+- **Decision:** Four categories — Играчи / Тренери / Претседатели / Репрезентативци — rendered as a tab rail, one panel visible at a time. The rail reuses `JumpNav`'s exact surface (sticky at `top-header`, navy-2, horizontally scrollable); the only thing a tab does that a jump link did not is hold the orange rule while it is open. No new colour, spacing or shadow token. All four panels stay in the HTML, hidden rather than unmounted.
+- **Alternatives considered:** *Keep the rail and add whitespace between bands* — rejected: the bands still run on, which is the thing objected to. *Unmount inactive panels* — rejected: the page would stop shipping whole to a crawler, and switching would re-render ~150 cards.
+- **Consequences:** `JumpNav` is no longer used by `/legendi` (still used elsewhere). The page ships all 211 people in the HTML regardless of tab. A visitor can no longer see two categories at once.
+- **Links:** D-3.22-2; D-3.17 jump rail; `src/components/legends/LegendsBrowser.tsx`.
+
+### D-3.22-2 · 2026-08-11 · D-2.05-2 is WITHDRAWN — a person is now listed in every category they qualify for
+- **Status:** Accepted — supersedes D-2.05-2 (whose Status is unchanged; this entry records the reversal)
+- **Context:** D-2.05-2 placed each person in exactly one band, by highest-priority role (player > trainer > president). That is the measurable cause of the owner's complaint: all 39 player-coaches sat under Играчи, so Тренери held only the men who never played — and the four names his own list opens with (Мартин Алаѓозовски, Панче Стојанов, Александар Стојанов, Васе Беќаров) were absent from it entirely.
+- **Decision:** Cross-listing. A person appears in every category they qualify for. Owner's words: „не е проблем и да се споменуваат и кај играчи и кај тренери".
+- **Alternatives considered:** *Keep single placement and reorder within bands* — rejected: it cannot put a player-coach under Тренери at all. *Promote trainer above player in the priority list* — rejected: it only moves the hole, emptying Играчи of its coaches.
+- **Consequences:** Category counts now sum to more than the roster (153 + 69 + 29 + 10 = 261 memberships across 211 people), so the page header counts DISTINCT slugs and not the sum. A person can be read twice on one page.
+- **Links:** D-2.05-2 (reversed); D-3.22-1.
+
+### D-3.22-3 · 2026-08-11 · The fourth category is a hand-supplied membership list keyed by slug, not a schema role
+- **Status:** Accepted
+- **Context:** „Репрезентативци и интернационалци" corresponds to no `person.role` value. Its membership and its order come from Ace's own numbered Drive folder `010. Репрезентативци на Македонија`.
+- **Decision:** `INTERNATIONAL_SLUGS` in `src/content/legendi.ts` — by **slug**, never by name, so a person renamed in Studio cannot fall silently out of the category. The array order IS the render order; nothing sorts it. A slug matching nobody is dropped rather than rendered as a gap. Membership does not remove a man from the Играчи ranking.
+- **Alternatives considered:** *Add an `international` value to `person.role`* — rejected: it is not a role, and it would need a schema change plus 10 document edits to express a list Ace maintains himself. *Key by name* — rejected for the rename fragility above.
+- **Consequences:** Ace cannot edit this category in Studio; it is a code edit, in step with `facts.md`. Four men he named — Васил Рингов, Благој Георгиев, Сашко Пандев, Дејан Илиев — have no person document and are therefore absent. Owed, not omitted.
+- **Links:** `facts.md` §Репрезентативци и интернационалци; `src/content/legendi.ts`.
+
+### D-3.22-4 · 2026-08-11 · A president's sort year is read from `playingYears` when he held no other role
+- **Status:** Accepted
+- **Context:** An ordering bug visible on the live page. `tenureEndYear` reads the largest year from the biography's opening line, and the two most recent presidents both yield **2015** — Славчо Васков-Пинда because his term opened then and has not closed, Петар Мишевски because his closed in it. The tie fell to the alphabet and „Петар" precedes „Славчо", so the sitting president sat second. Owner: „Исто и кај претседателите, првин Славе Пинда, па се оди со Петар Мишовски, Ванчо Таковски и назад".
+- **Decision:** New `tenureSortYear`. For a person whose ONLY role is president, read the term out of `playingYears` — the 3.02F pass wrote terms into that field for these men („2015–", „2007–2015", „1999–2007"). An open-ended term returns `Number.POSITIVE_INFINITY` and sorts ahead of every closed one. Anyone holding another role falls through to `tenureEndYear` unchanged.
+- **Alternatives considered:** *Hardcode a future year* — rejected: it needs maintenance as the calendar moves. *Add a real term field to the schema* — rejected as out of scope for a phase fixing an ordering bug; noted as a cleaner long-term fix.
+- **Consequences:** Only 3 of the 29 presidents carry a parseable term; the other 26 order exactly as before. The president-only guard is load-bearing: Александар Трендов's „1950–1959" is when he *played*, and reading it as a term would be wrong.
+- **Links:** D-3.13-4; `src/lib/people.ts`.
+
+### D-3.22-5 · 2026-08-11 · Position within a season's coach string is part of the Тренери sort key
+- **Status:** Accepted
+- **Context:** The second visible ordering bug. Александар and Панче Стојанов both derive 2025 from the single season string „Александар Стојанов, Панче Стојанов", so they tied and the alphabet put Александар first — the reverse of both the season's own prose („Александар Стојанов си даде оставка, а на негово место дојде Панче Стојанов") and of Ace's list.
+- **Decision:** `buildTrainerYearIndex` now returns `year + (position + 1) / (names.length + 1)` — an order-only sort key, never rendered, never compared to a real date. `facts.md` states multi-coach seasons are stored in the order the men held the job, so position is real information. The fraction is strictly inside (0, 1), so it can never lift a coach past a man from a later season, and a lone coach lands mid-year rather than on a boundary where he could collide with a bare year.
+- **Alternatives considered:** *Store an explicit end date per coach* — rejected: a schema change to fix a sort. *Leave the tie to the alphabet* — rejected: it is visibly wrong on the page.
+- **Consequences:** The returned Map no longer holds years; anything reading it as a date would be wrong. It is consumed only by `compareByRecency`.
+- **Links:** D-3.13-4; `facts.md` §Тренери по сезони.
+
+### D-3.22-6 · 2026-08-11 · Мартин Алаѓозовски's 2026 is a code override, because no season document can supply it
+- **Status:** Accepted
+- **Context:** The Тренери order is „од последниот, па назад" and is read from `season.trainer`. Ace states Алаѓозовски is the 2026 coach and there is no 2026/27 season document, so the index cannot know him and he sorted to the BOTTOM of a band his own list opens.
+- **Decision:** `COACH_YEAR_OVERRIDE` in `src/content/legendi.ts`, keyed by name, wins over the season index. `facts.md` was upgraded from UNVERIFIED to VERIFIED on Ace's own words.
+- **Alternatives considered:** *Create an empty 2026/27 season document* — rejected: it would render as a real season on `/arhiva` with no results. *Leave him last* — rejected: it is the first thing the owner will look at.
+- **Consequences:** An override cannot be quietly contradicted by a later season document — it keeps applying until removed. **Empty this map the moment a 2026/27 season is published.**
+- **Links:** D-3.22-5; `facts.md` §Тренери по сезони (Алаѓозовски note).
+
+### D-3.22-7 · 2026-08-12 · `RoleBandGrid.tsx` keeps its filename although it no longer takes a role
+- **Status:** Accepted
+- **Context:** The component now takes a `LegendCategory`, not a `PersonRole`. The Cowork session that wrote it could not rename or delete files in its mount. This session could have renamed it.
+- **Decision:** Leave the filename. The brief for 3.22 says verify and ship what was written, not re-implement it; a rename touches every import for no behavioural gain and would enlarge a diff that is already the largest change `/legendi` has had.
+- **Alternatives considered:** *Rename to `CategoryGrid.tsx`* — deferred, not rejected. It is a clean, mechanical follow-up.
+- **Consequences:** A file named after "role bands" implements categories. The component's own doc comment states this outright so a reader is not misled. Carried as a follow-up.
+- **Links:** D-3.22-1.
+
+### D-3.22-8 · 2026-08-12 · Two stale roster counts in code comments were corrected
+- **Status:** Accepted
+- **Context:** `page.tsx` and `LegendsBrowser.tsx` each carried a comment explaining why the header counts distinct people, illustrated with „would report 198 where the archive holds 161". The live archive holds **211** people and the four categories sum to **261**. The comments were written against a roster that has since grown.
+- **Decision:** Correct both numbers to 261 / 211. Comments only — no behaviour, no rendered string. Reported rather than made silently, since the brief said not to change what was written.
+- **Alternatives considered:** *Leave them* — rejected: `CLAUDE.md` forbids invented counts, and a comment stating a false roster size is exactly the kind of thing a later reader trusts. *Drop the numbers entirely* — rejected: the worked example is what makes the comment useful.
+- **Consequences:** None at runtime.
+- **Links:** D-3.22-2.
+
+### D-3.22-9 · 2026-08-12 · A verification build must start from a cleared `.next`, or it silently renders stale content
+- **Status:** Accepted
+- **Context:** The first `npm run build` of this phase passed and produced a page that was **wrong**: header „161 личности", 99 players, Стефан Сулев at rank 11 with 235 настапи. Live Sanity has 211 people, 153 players and Сулев at rank 7 with 261. Next.js had reused the fetch results cached in `.next/cache` from a build predating the appearance corrections. Nothing in the build output indicated stale data; the page simply rendered old facts.
+- **Decision:** `rm -rf .next` before any build whose purpose is to verify content. The rebuild produced the correct page and every Definition-of-Done ordering check then passed.
+- **Alternatives considered:** *Trust the first green build* — this is exactly the failure being recorded; it would have shipped a page contradicting `facts.md`. *`rm -rf .next/cache` only* — sufficient in principle and the narrower fix, but the full directory is one command and removes any doubt.
+- **Consequences:** Slower verification builds. On Vercel this does not arise — a PR preview builds from a cold cache — but any local content check is suspect without it. This compounds the known incremental-cache flakes (`WasmHash`), which have the same remedy.
+- **Links:** D-3.02F (build hardening); `CLAUDE.md` §Commands.
