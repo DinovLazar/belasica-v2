@@ -69,7 +69,28 @@ Four register items closed: **OV-40** (the header nav wrap, unfixed since 3.16),
 - **Console**, on the production build across 7 template types: the **only** output is the `/_vercel/insights/script.js` 404, which exists only on Vercel's edge. **0** hydration warnings — the known `.js` mismatch (D-1.05-5) is dev-only and did not appear.
 - **Horizontal overflow at 375: 0 px.** Burger toggle **48×48** at every width it shows.
 
-⚠️ **The Vercel PR preview gate is NOT yet satisfied** — see §7. This report is filed with the local production build as the evidence base; the preview URLs must be added before merge.
+### 2c. Vercel PR preview — verified, not merely loaded
+
+**PR:** https://github.com/DinovLazar/belasica-v2/pull/51
+**Preview:** https://belasica-v2-7gpb3ll6v-sunset-services-team.vercel.app
+
+Checked against the deployed preview, not the local build:
+
+- **15/15 routes return 200** — `/`, `/arhiva`, `/arhiva/1982-83`, `/legendi`, `/legendi/goran-pandev`, `/statistika`, `/razno`, `/razno/tiverija`, `/za-nas`, `/kontakt`, `/pravni-informacii`, `/sitemap.xml`, `/robots.txt`, `/llms.txt`, `/og-default.png`.
+- **Unknown paths return 404**, both an unmatched URL and a `notFound()` route — and `/nepostoecka-stranica` renders the archive's own page: „Страницата не постои" + header nav + `<footer>` + the onward nav, all present.
+- **Canonicals resolve against the Vercel origin** (`https://belasica-v2.vercel.app/arhiva`, `…/legendi/goran-pandev`) — correct, since `NEXT_PUBLIC_SITE_URL` is deliberately unset.
+- **`og:image` → `/og-default.png`** and **`twitter:card` = `summary_large_image`** on all three sampled routes.
+- **JSON-LD per route type is exactly as designed:** `/` → `[WebSite]`; `/arhiva` → `[WebSite, BreadcrumbList]`; `/legendi/goran-pandev` → `[WebSite, Person, BreadcrumbList]`.
+- **No `google-site-verification` meta** is emitted anywhere.
+- **Sitemap: 322 URLs, including `/pravni-informacii`.**
+
+### 5-item eyeball checklist for Lazar
+
+1. Open `/nepostoecka-stranica` — does the 404 read right in Macedonian, and is the way back obvious?
+2. Resize any page through **~800 px** — the header now shows a burger below 1024. Acceptable on iPad?
+3. Look at `/og-default.png` at full size — it becomes the site's face in every share.
+4. `/pravni-informacii` — read the new **§11** and check the „Последно ажурирање" date now says 14 август 2026.
+5. `/legendi` → open a coach's page (e.g. a man with a range like „120–135") — the appearance count should now match what his card shows.
 
 ---
 
@@ -138,8 +159,8 @@ Four register items closed: **OV-40** (the header nav wrap, unfixed since 3.16),
 
 ### Not verified — stated plainly
 
-12. ⚠️ **The Vercel PR preview gate is not satisfied in this report.** The PR must be opened and the preview URL confirmed loading `/`, `/arhiva`, a season page, `/legendi`, a person page, `/statistika`, `/razno`, a topic, `/za-nas`, `/kontakt`, `/pravni-informacii`, `/sitemap.xml`, `/robots.txt`, `/llms.txt` at 200 and an unknown path at 404 **before merge**. Everything above was measured on a local clean production build.
-13. ⚠️ **The error boundary was never made to fire.** Structurally verified only.
+12. ✅ **The Vercel PR preview gate IS satisfied** — see §2c. All 15 routes 200, unknown paths 404 rendering the archive's own page, canonicals/OG/JSON-LD confirmed on the deployed build, sitemap 322.
+13. ⚠️ **The error boundary was never made to fire.** Structurally verified only — it compiles, is a client component, exposes `reset`, and renders no digest or stack. Triggering it needs a Sanity read to fail during an ISR revalidation, which cannot be staged without fault injection this phase did not build. **This is the one deliverable whose runtime behaviour is unproven.**
 14. ⚠️ **The Facebook link's status code could not be confirmed** — live via a 302 to a real profile, but scripted GETs get a 400 anti-automation page.
 15. ⚠️ **No VoiceOver / computed-role pass** — OV-21's limitation stands.
 16. ⚠️ **The „Разно" lightbox is still never opened** — OV-52 carries forward unchanged.
