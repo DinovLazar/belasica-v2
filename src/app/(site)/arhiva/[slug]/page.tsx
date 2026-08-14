@@ -209,6 +209,11 @@ export async function generateMetadata({
   );
   if (!season) return {};
   return {
+    // Built from the slug, not the title (3.23, B2): the slug IS the route, so
+    // the canonical cannot drift from the URL it names. Relative, resolved
+    // against `metadataBase`. The unknown-slug branch above returns `{}` and
+    // emits none — that page 404s, and a canonical on a 404 is a claim it exists.
+    alternates: { canonical: `/arhiva/${slug}` },
     title: season.title ?? "Сезона",
     description: season.title
       ? `${season.title} — архивска страница во неофицијалната архива на ФК Беласица.`

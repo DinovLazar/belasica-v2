@@ -34,6 +34,9 @@ import {
  */
 
 export const metadata: Metadata = {
+  // Its own path, relative — resolved against `metadataBase`, so the
+  // domain cutover stays one environment variable (3.23, B2).
+  alternates: { canonical: "/razno" },
   title: RAZNO_TITLE,
   description: RAZNO_META_DESCRIPTION,
 };
@@ -126,7 +129,9 @@ export default function RaznoPage() {
                         the page's H1, but „Средби со Партизан од Белград" set in
                         condensed caps runs to three lines in a card column. */}
                     <h2 className="u-h3 text-navy">{topic.navTitle}</h2>
-                    <p className="text-body text-neutral-700">{topic.summary}</p>
+                    <p className="text-body text-neutral-700">
+                      {topic.summary}
+                    </p>
                   </div>
                 </Link>
               </Reveal>

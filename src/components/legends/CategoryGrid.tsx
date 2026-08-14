@@ -6,15 +6,21 @@ import {
 import { LegendCard, type LegendCardData } from "./LegendCard";
 
 /**
- * One category on /legendi — sub-heading + real count + a 3/2/1 grid of
+ * One category panel on /legendi — sub-heading + real count + a 3/2/1 grid of
  * `LegendCard`, matching the archive's `DecadeSectionHeader` (brand.md
  * §Components): serif H2, neutral count overline, orange rule marker.
  *
- * Called a "band" until 3.22, when the page became four tabbed categories and a
- * person stopped being confined to one of them. The markup is unchanged; what
- * changed is what it is handed. It now takes a `LegendCategory`, which is a
- * superset of `PersonRole` — three categories are named after a role, the
- * fourth („Репрезентативци и интернационалци") is a membership list and
+ * **Named `RoleBandGrid` until 3.23.** It stopped rendering a role band at 3.22,
+ * when /legendi became four tabbed categories and a person stopped being
+ * confined to one of them — but the Cowork session that made that change could
+ * not rename a file, and the rename was out of that phase's scope (D-3.22-7).
+ * The old name then described neither of the two things this renders: not a
+ * „role" (one of the four categories corresponds to no schema role at all) and
+ * not a „band" (they are tab panels, only one of which is visible).
+ *
+ * It takes a `LegendCategory`, which is a superset of `PersonRole` — three
+ * categories are named after a role, the fourth („Репрезентативци и
+ * интернационалци") is a membership list from `INTERNATIONAL_SLUGS` and
  * corresponds to no schema value.
  *
  * **Self-omitting**: a category with no people renders nothing at all — no
@@ -31,7 +37,7 @@ import { LegendCard, type LegendCardData } from "./LegendCard";
  * Репрезентативци in Ace's own numbering), and that is a whole-roster decision a
  * single section cannot make for itself.
  */
-export function RoleBandGrid({
+export function CategoryGrid({
   category,
   people,
   headingId,

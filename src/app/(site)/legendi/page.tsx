@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { SanityImageSource } from "@sanity/image-url";
-import { client } from "@/sanity/client";
+import { fetchOrThrow } from "@/sanity/fetch";
 import { framedImage } from "@/sanity/frame";
 import { Container } from "@/components/Container";
 import { PageHeader } from "@/components/PageHeader";
@@ -18,16 +18,16 @@ import {
   orderedRoles,
   tenureSortYear,
 } from "@/lib/people";
-import {
-  COACH_YEAR_OVERRIDE,
-  INTERNATIONAL_SLUGS,
-} from "@/content/legendi";
+import { COACH_YEAR_OVERRIDE, INTERNATIONAL_SLUGS } from "@/content/legendi";
 
 // Match the archive (D-1.05-4): a person published in Studio appears within
 // ~a minute, without a redeploy.
 export const revalidate = 60;
 
 export const metadata: Metadata = {
+  // Its own path, relative — resolved against `metadataBase`, so the
+  // domain cutover stays one environment variable (3.23, B2).
+  alternates: { canonical: "/legendi" },
   title: "Легенди",
   description:
     "Играчите, тренерите и раководството што го обележале ФК Беласица — неофицијална архива.",
@@ -35,9 +35,17 @@ export const metadata: Metadata = {
 
 /**
  * Every published person, with the portrait by back-reference
- * (`photo.relatedPerson`, D-2.01-1 — there is no `person.photos` array). `[0]`
- * after `coalesce(date,"9999") asc` is the portrait, the same ordering key the
- * homepage and the archive use.
+ * (`photo.relatedPerson`, D-2.01-1 — there is no `person.photos` array).
+ *
+ * **The ordering key gained an explicit definedness rank at 3.23 (A2/P2).**
+ * `coalesce(date, "9999")` alone did not put undated photos last: `photo.date`
+ * is FREE TEXT (schema: „Слободен текст — на пр. „околу 1985""), and live values
+ * include `April 2, 2026` and `околу 2002`. Compared as strings the `"9999"`
+ * sentinel sorts *before* any letter- or Cyrillic-leading value ('9' < 'A' <
+ * 'о'), so an undated photo could beat a dated one and take the portrait slot.
+ * `select(defined(date) => 0, 1)` makes „undated last" independent of what the
+ * text starts with, and `_id` makes ties stable — the same key the homepage and
+ * the season gallery already use (D-2.08-3 / D-3.04-2).
  *
  * `seasons` rides along in the same round trip (D-3.13-5): the Тренери band is
  * ordered from `season.trainer`, so the two reads are one query rather than two
@@ -61,7 +69,7 @@ const LEGENDS_QUERY = /* groq */ `{
     careerStats{ appearances },
     "bioLead": bio[0].children[0].text,
     "portrait": *[_type == "photo" && relatedPerson._ref == ^._id]
-      | order(coalesce(date, "9999") asc)[0].image
+      | order(select(defined(date) => 0, 1) asc, coalesce(date, "9999") asc, _id asc)[0].image
   },
   "seasons": *[_type == "season" && defined(trainer)]{
     "slug": slug.current,
@@ -92,7 +100,15 @@ export default async function LegendsPage() {
   let people: PersonRow[] = [];
   let seasons: SeasonTrainerRow[] = [];
   try {
-    const data = await client.fetch<LegendsData>(LEGENDS_QUERY);
+    // Retried through the shared helper since 3.23 (C3). The existing catch is
+    // KEPT: this page's chosen failure mode is its honest empty notice, not a
+    // dead build. The helper only means five bounded attempts happen first, so
+    // a wobble no longer empties the roster on a page that renders 211 people.
+    const data = await fetchOrThrow<LegendsData>(
+      LEGENDS_QUERY,
+      {},
+      "the legends roster",
+    );
     people = data?.people ?? [];
     seasons = data?.seasons ?? [];
   } catch {

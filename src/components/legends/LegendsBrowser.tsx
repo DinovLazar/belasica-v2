@@ -13,7 +13,7 @@ import {
 } from "@/lib/people";
 import { matchesName } from "@/lib/translit";
 import type { LegendCardData } from "./LegendCard";
-import { RoleBandGrid } from "./RoleBandGrid";
+import { CategoryGrid } from "./CategoryGrid";
 
 export type LegendBand = { category: LegendCategory; people: LegendCardData[] };
 
@@ -78,7 +78,16 @@ export function LegendsBrowser({
     }));
   }, [bands, needle]);
 
-  const matches = visible.reduce((sum, band) => sum + band.people.length, 0);
+  // DISTINCT people, not band memberships (3.23, A2/P2). Summing the bands
+  // double-counts everyone who is cross-listed, which since 3.22 is 49 of the
+  // 211 people — so a search matching a player-coach announced „2 резултати"
+  // over a single card. This is the same trap the `total` prop's own doc
+  // records twelve lines above; the live count had simply not been changed with
+  // it (D-3.23-11). The per-tab `countOf` numbers stay memberships, which is
+  // correct: those are scoped to one category.
+  const matches = new Set(
+    visible.flatMap((band) => band.people.map((person) => person.slug)),
+  ).size;
 
   // A tab exists for every category that holds anyone at all; whether it can be
   // SELECTED depends on the current filter. Built from `bands`, not `visible`,
@@ -111,8 +120,7 @@ export function LegendsBrowser({
     if (reachable.length === 0) return;
 
     const at = reachable.findIndex(({ i }) => i === index);
-    const next =
-      reachable[(at + step + reachable.length) % reachable.length];
+    const next = reachable[(at + step + reachable.length) % reachable.length];
     setRequested(next.category);
     tabRefs.current[next.i]?.focus();
   }
@@ -276,10 +284,11 @@ export function LegendsBrowser({
               // 100 cards.
               className={cn(band.category !== active && "hidden")}
             >
-              <RoleBandGrid
+              <CategoryGrid
                 category={band.category}
                 people={
-                  visible.find((v) => v.category === band.category)?.people ?? []
+                  visible.find((v) => v.category === band.category)?.people ??
+                  []
                 }
                 headingId={`band-${band.category}`}
                 anchorId={CATEGORY_ANCHOR[band.category]}

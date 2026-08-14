@@ -21,6 +21,7 @@ export function PageHeader({
   intro,
   meta,
   children,
+  crumbStructuredData = true,
 }: {
   title: string;
   crumbs: Crumb[];
@@ -30,14 +31,22 @@ export function PageHeader({
   meta?: React.ReactNode;
   /** Extra content inside the block, below the meta line. */
   children?: React.ReactNode;
+  /** Forwarded to `Breadcrumb`. Off on the 404 and error pages (3.23, B6). */
+  crumbStructuredData?: boolean;
 }) {
   return (
     <header className="bg-navy">
       <Container className="py-section">
-        <Breadcrumb items={crumbs} onNavy />
+        <Breadcrumb
+          items={crumbs}
+          onNavy
+          structuredData={crumbStructuredData}
+        />
         <h1 className="u-h1 mt-6 text-paper">{title}</h1>
         {intro && (
-          <p className="mt-5 max-w-measure text-body-l text-paper/80">{intro}</p>
+          <p className="mt-5 max-w-measure text-body-l text-paper/80">
+            {intro}
+          </p>
         )}
         {meta && (
           <p className="mt-5 text-overline font-bold uppercase tracking-overline tabular-nums text-paper/80">

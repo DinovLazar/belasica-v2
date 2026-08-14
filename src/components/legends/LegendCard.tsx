@@ -57,7 +57,7 @@ export function LegendCard({
   delayIndex = 0,
   onNavy = false,
   priority = false,
-  // Default matches /legendi's RoleBandGrid (1 col → sm:2 → lg:3). A grid
+  // Default matches /legendi's CategoryGrid (1 col → sm:2 → lg:3). A grid
   // with other tracks (the homepage 2/3/5 marquee) passes its own string —
   // the default overfetches ~106 KiB there (Lighthouse image-delivery).
   sizes = "(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw",

@@ -92,10 +92,18 @@ export function SiteHeader() {
           <span className="u-h3 text-paper">ФК Беласица</span>
         </Link>
 
-        {/* Desktop nav */}
+        {/* Desktop nav — `lg`, not `md` (3.23, OV-40).
+            Seven items do not fit on one row below 899px: between ~769 and
+            898px they wrapped to two, which made this sticky header **101px**
+            tall while `--spacing-header` still declared 78px, so every
+            `scroll-mt-header` anchor on the site landed ~23px underneath it —
+            including iPad portrait at 810 and 820. The 768px break predates the
+            seventh item and a gap reduction would not have cleared it.
+            Raising the breakpoint hands everything below 1024px to the burger
+            panel, which already lists all seven at 48px targets (D-3.23-1). */}
         <nav
           aria-label="Главна навигација"
-          className="hidden items-center gap-7 md:flex lg:gap-9"
+          className="hidden items-center gap-7 lg:flex lg:gap-9"
         >
           {NAV_ITEMS.map((item) => {
             const active = isActivePath(pathname, item.href);
@@ -118,14 +126,17 @@ export function SiteHeader() {
           })}
         </nav>
 
-        {/* Mobile toggle — 24px icon + 12px padding a side = a 48px target. */}
+        {/* Mobile toggle — 24px icon + 12px padding a side = a 48px target.
+            `lg:hidden` must track the nav's `lg:flex` above: while this said
+            `md:hidden` and the nav said `lg:flex`, every width from 768 to
+            1023px showed NEITHER — the header had no navigation at all. */}
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
           aria-controls="mobile-nav"
           className={cn(
-            "inline-flex items-center justify-center p-3 text-paper md:hidden",
+            "inline-flex items-center justify-center p-3 text-paper lg:hidden",
             focusOnNavy,
           )}
         >
@@ -146,7 +157,7 @@ export function SiteHeader() {
         <nav
           id="mobile-nav"
           aria-label="Главна навигација"
-          className="bg-navy-2 md:hidden"
+          className="bg-navy-2 lg:hidden"
         >
           <Container className="flex flex-col py-2">
             {NAV_ITEMS.map((item) => {

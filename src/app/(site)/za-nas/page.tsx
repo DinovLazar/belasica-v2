@@ -20,6 +20,9 @@ import {
 export const revalidate = 60;
 
 export const metadata: Metadata = {
+  // Its own path, relative — resolved against `metadataBase`, so the
+  // domain cutover stays one environment variable (3.23, B2).
+  alternates: { canonical: "/za-nas" },
   title: "За нас",
   description:
     "За неофицијалната архива на ФК Беласица — што е ова место и кој стои зад него.",
