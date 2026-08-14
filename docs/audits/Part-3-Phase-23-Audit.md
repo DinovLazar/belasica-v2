@@ -128,17 +128,38 @@ Recorded in full, fixed in none (per the brief). The consequential ones:
 
 ## 4 · Dimension 3 — Images
 
-| Measure | Baseline (`main`) | After this phase |
-|---|---|---|
-| Total `<img>` | 1 928 | 1 929 |
-| **Missing `alt` attribute** | **0** | **0** |
-| Deliberate `alt=""` | 367 | 368 |
-| Non-empty `alt` | 1 561 | 1 561 |
+Measured on the final build with one consistent method (whole-file regex over all
+323 HTML artefacts):
 
-The `+1` in both totals is the crest, which now renders on the styled 404 (the
-baseline's `_not-found` was Next's unstyled default and carried no chrome). The
-`alt=""` count is otherwise **unchanged**, as required — those are the deliberate
-decorative/undescribed cases of D-3.19-4 and D-3.20-6, not defects.
+| Measure | Value |
+|---|---|
+| Total `<img>` | 1 928 |
+| **Missing `alt` attribute** | **0** |
+| Deliberate `alt=""` | 368 |
+| Non-empty `alt` | 1 560 |
+
+**The headline number is solid and is the one the DoD asks for: zero images are
+missing an `alt` attribute**, before or after.
+
+⚠️ **The before/after comparison of the `alt=""` split is NOT reliable, and this
+is stated rather than papered over.** The baseline was counted with a
+**line-based `grep`** (which misses any `<img>` spanning a newline) and the final
+build with a **whole-file regex**; the two methods do not agree on a tag's
+boundaries, so the baseline's 367/1 561 and the final 368/1 560 cannot be
+subtracted from each other. The baseline HTML snapshot was cleaned from the
+scratchpad mid-session, so the comparison cannot be re-run with a single method.
+
+Two changes in this phase legitimately move an image between the two columns, so
+a delta was expected in any case:
+
+1. The styled 404 renders the crest — confirmed: `_not-found.html` now carries
+   exactly **1** `<img>`, `alt=""`, where the baseline's unstyled default had none.
+2. The portrait-ordering fix (D-3.23-12) changes **which** photo is a person's
+   portrait on the 4 people affected, and a different photo can carry a different
+   caption — so its `alt` can move from empty to non-empty or back.
+
+Neither is a defect: `alt=""` on a decorative or undescribed image is the
+deliberate treatment of D-3.19-4 and D-3.20-6.
 
 ---
 
