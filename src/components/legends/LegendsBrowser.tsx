@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Container } from "@/components/Container";
 import { PageHeader } from "@/components/PageHeader";
@@ -45,6 +45,14 @@ export type LegendBand = { category: LegendCategory; people: LegendCardData[] };
  * Matching is on **name only**, and accepts Latin spellings (`@/lib/translit`).
  * Role and years are visible on the card but are not searched: a query like
  * „играч" would otherwise return a whole category and read as a broken search.
+ *
+ * **Pressing a tab scrolls back up to it.** Swapping the panel on its own left
+ * the reader's scroll where it was, so someone 100 cards down Играчи who pressed
+ * Тренери arrived 100 cards down Тренери — the rail was the only thing on screen
+ * that had changed. A press now lands the opened category's orange bar directly
+ * under the rail, the same place the old jump links landed. Up only: someone
+ * still reading the page header asked to change category, not to be sent past
+ * the header and the search field.
  */
 export function LegendsBrowser({
   bands,
@@ -61,6 +69,17 @@ export function LegendsBrowser({
 }) {
   const [query, setQuery] = useState("");
   const [requested, setRequested] = useState<LegendCategory | null>(null);
+  /**
+   * A tab press as a value: which category it opened, plus a counter so that
+   * pressing the SAME tab twice reads as two presses. The scroll effect below is
+   * keyed on this rather than on `active`, which is the whole point — `active`
+   * also moves on its own when a search empties the open category, and being
+   * thrown up the page mid-word is not what the typist asked for.
+   */
+  const [press, setPress] = useState<{
+    category: LegendCategory;
+    nth: number;
+  } | null>(null);
   const inputId = useId();
   const tabsId = useId();
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -105,6 +124,42 @@ export function LegendsBrowser({
       ? requested
       : (selectable[0] ?? null);
 
+  function openTab(category: LegendCategory) {
+    setRequested(category);
+    setPress((previous) => ({ category, nth: (previous?.nth ?? 0) + 1 }));
+  }
+
+  // Runs after the commit that un-hides the pressed panel — before then the
+  // section is `display:none` and has no box to measure.
+  useEffect(() => {
+    if (press === null) return;
+
+    const section = document.getElementById(CATEGORY_ANCHOR[press.category]);
+    // `getClientRects()` is empty for anything not rendered. A disabled tab
+    // cannot be pressed, so this should not happen; measuring a hidden element
+    // would silently scroll to the wrong place if it ever did.
+    if (!section || section.getClientRects().length === 0) return;
+
+    // The clearance for the two sticky bars is read off the section's own
+    // `scroll-mt-*` rather than restated here, so it stays right if the header
+    // token or the rail's height ever change.
+    const clearance = parseFloat(getComputedStyle(section).scrollMarginTop) || 0;
+    const top = Math.max(
+      0,
+      section.getBoundingClientRect().top + window.scrollY - clearance,
+    );
+
+    if (window.scrollY <= top) return;
+
+    // Read at press time, not at mount: the setting can change under a running
+    // page, and this is the only moment its answer matters (`BackToTop`).
+    const behavior = window.matchMedia("(prefers-reduced-motion: reduce)")
+      .matches
+      ? "auto"
+      : "smooth";
+    window.scrollTo({ top, behavior });
+  }, [press]);
+
   // Arrow-key navigation across the rail, per the tabs pattern. Only selectable
   // tabs are reachable — stepping onto a tab with no matches and being unable to
   // open it would be a dead end.
@@ -121,7 +176,7 @@ export function LegendsBrowser({
 
     const at = reachable.findIndex(({ i }) => i === index);
     const next = reachable[(at + step + reachable.length) % reachable.length];
-    setRequested(next.category);
+    openTab(next.category);
     tabRefs.current[next.i]?.focus();
   }
 
@@ -238,7 +293,7 @@ export function LegendsBrowser({
                   // Roving tabindex: one stop for the whole rail, then arrows.
                   tabIndex={isActive ? 0 : -1}
                   disabled={!isSelectable}
-                  onClick={() => setRequested(band.category)}
+                  onClick={() => openTab(band.category)}
                   onKeyDown={(event) => onTabKeyDown(event, i)}
                   className={cn(
                     "block border-b-2 py-2 text-small font-bold uppercase tracking-[0.12em] tabular-nums transition-colors",
