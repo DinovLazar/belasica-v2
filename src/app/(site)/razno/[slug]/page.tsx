@@ -51,7 +51,13 @@ export async function generateMetadata({
   const { slug } = await params;
   const topic = raznoTopic(slug);
   if (!topic) return {};
-  return { title: topic.title, description: topic.metaDescription };
+  return {
+    // From the topic's own slug (3.23, B2), so it matches the route
+    // `generateStaticParams` produced from the same array.
+    alternates: { canonical: `/razno/${topic.slug}` },
+    title: topic.title,
+    description: topic.metaDescription,
+  };
 }
 
 /**
@@ -128,20 +134,36 @@ function toSections(topic: RaznoTopic): TopicSection[] {
   const { blocks } = topic;
   const firstRecord = blocks.findIndex((block) => block.kind === "record");
 
+  /**
+   * 3.23 (A2/P2) — do not orphan the sentence that introduces the list.
+   *
+   * Cutting exactly at the first `record` left „Преглед" ending on a dangling
+   * colon while the list it announced opened under a different heading. It was
+   * true of **all three** topics that split today: „…ги има забележано овие
+   * резултати:" (kup-na-uefa), „…четири пати во Струмица, и тоа:" (partizan)
+   * and tiverija's equivalent. The lead-in belongs to the list, so the cut moves
+   * one block earlier when the preceding paragraph ends in a colon. Source order
+   * is still never reordered and no kind is ever filtered — only where the one
+   * cut falls (D-3.23-14).
+   */
+  const lead = firstRecord > 0 ? blocks[firstRecord - 1] : undefined;
+  const cut =
+    lead && lead.kind === "para" && lead.text.trimEnd().endsWith(":")
+      ? firstRecord - 1
+      : firstRecord;
+
   const prose: TopicSection[] =
     firstRecord < 0
       ? [{ key: "overview", blocks }]
       : (
           [
-            { key: "overview", blocks: blocks.slice(0, firstRecord) },
-            { key: "records", blocks: blocks.slice(firstRecord) },
+            { key: "overview", blocks: blocks.slice(0, cut) },
+            { key: "records", blocks: blocks.slice(cut) },
           ] as TopicSection[]
         ).filter((section) => "blocks" in section && section.blocks.length > 0);
 
   const photos = topic.photos ?? [];
-  return photos.length > 0
-    ? [...prose, { key: "photos", photos }]
-    : prose;
+  return photos.length > 0 ? [...prose, { key: "photos", photos }] : prose;
 }
 
 export default async function RaznoTopicPage({

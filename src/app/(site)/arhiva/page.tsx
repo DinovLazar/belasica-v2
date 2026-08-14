@@ -1,20 +1,30 @@
 import type { Metadata } from "next";
 import type { SanityImageSource } from "@sanity/image-url";
-import { client } from "@/sanity/client";
+import { fetchOrThrow } from "@/sanity/fetch";
 import { Container } from "@/components/Container";
 import { PageHeader } from "@/components/PageHeader";
 import { DecadeJumpNav } from "@/components/archive/DecadeJumpNav";
 import { DecadeSectionHeader } from "@/components/archive/DecadeSectionHeader";
-import { SeasonCard, type SeasonCardData } from "@/components/archive/SeasonCard";
+import {
+  SeasonCard,
+  type SeasonCardData,
+} from "@/components/archive/SeasonCard";
 import { PlaceholderChip } from "@/components/home/PlaceholderChip";
 import { Reveal } from "@/components/home/Reveal";
-import { decadeAnchor, decadeCountLabel, seasonCountLabel } from "@/lib/archive";
+import {
+  decadeAnchor,
+  decadeCountLabel,
+  seasonCountLabel,
+} from "@/lib/archive";
 
 // Match the homepage (D-1.05-4): hand-curated seasons appear on the site within
 // ~a minute of publishing, without a redeploy.
 export const revalidate = 60;
 
 export const metadata: Metadata = {
+  // Its own path, relative — resolved against `metadataBase`, so the
+  // domain cutover stays one environment variable (3.23, B2).
+  alternates: { canonical: "/arhiva" },
   title: "Архива по сезони",
   description:
     "Секоја сезона од историјата на ФК Беласица, подредена по деценија — неофицијална архива.",
@@ -38,6 +48,16 @@ export const metadata: Metadata = {
  * caption first — the curator's other lever — then date, then `_id` as a stable
  * total order, D-2.08-3) rather than the unstable date-only key.
  *
+ * **3.23 (A2/P2): the fallback now excludes `tablePhoto` as well**, mirroring the
+ * exclusion the detail page has applied since D-3.04-2. Without it the fallback
+ * matched *every* photo back-referencing the season, so a season with no
+ * `teamPhoto` but with a league-table screenshot could lead its card with that
+ * screenshot — measured on **5 of the 96** cards (`1931-32`, `1932-33`,
+ * `1935-36`, `1936-37`, `1952`), and on `1932-33` the table scan is the season's
+ * only photo, so it won every time. `^.teamPhoto._ref` in the list is a no-op
+ * (this branch only runs when `teamPhoto` is null) and is kept so the two
+ * queries read as the same rule (D-3.23-10).
+ *
  * Ordering is `slug.current desc`, not `title` (D-2.02-2): every slug starts
  * with a 4-digit year (`1992-93`, `1950`, `1922-26`), so lexical desc is
  * chronological desc for all folder shapes, whereas titles are not uniform
@@ -53,7 +73,8 @@ const ARCHIVE_QUERY = /* groq */ `
     decade,
     "leadPhoto": coalesce(
       teamPhoto->{ "image": image, caption },
-      *[_type == "photo" && relatedSeason._ref == ^._id]
+      *[_type == "photo" && relatedSeason._ref == ^._id
+          && !(_id in [^.teamPhoto._ref, ^.tablePhoto._ref])]
         | order(
             select(defined(caption) && caption != "" => 0, 1) asc,
             coalesce(date, "9999") asc,
@@ -91,11 +112,23 @@ function groupByDecade(seasons: ArchiveSeason[]) {
     });
     groups.set(season.decade, list);
   }
-  return [...groups.entries()].map(([decade, seasons]) => ({ decade, seasons }));
+  return [...groups.entries()].map(([decade, seasons]) => ({
+    decade,
+    seasons,
+  }));
 }
 
 export default async function ArchivePage() {
-  const seasons = await client.fetch<ArchiveSeason[]>(ARCHIVE_QUERY);
+  // Retried, then loud (3.23, C3). No try/catch here by design — this page has
+  // always failed loudly, and that is correct: an archive index that quietly
+  // renders „no seasons" is worse than a build that stops. The helper adds five
+  // bounded attempts before that failure, so one transient CDN timeout no
+  // longer kills a deploy (D-3.02F-C-2's measured numbers).
+  const seasons = await fetchOrThrow<ArchiveSeason[]>(
+    ARCHIVE_QUERY,
+    {},
+    "the archive index",
+  );
   const decades = groupByDecade(seasons ?? []);
   const total = decades.reduce((sum, d) => sum + d.seasons.length, 0);
 

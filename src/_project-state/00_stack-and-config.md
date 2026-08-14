@@ -233,3 +233,25 @@ Notes:
 - **One Sanity write:** a single `role` field on a single `person` document (D-3.14-4). No batch, no ingest re-run.
 - `npm run build` (**271/271 pages**), `npm run lint` and `npx tsc --noEmit` all exit 0 on this stack, on **Node 24.17.0** (v2 has no `.nvmrc` and no `engines` field; the v1-era Node 22 pin does not apply here).
 - ⚠️ **Next's persistent fetch cache served stale Sanity data to a rebuild.** After the `role` patch went live, a rebuild still rendered the old value — `useCdn = true` (`src/sanity/env.ts`) plus the fetch cache under `.next/cache`. `rm -rf .next/cache` and a rebuild picked up the new value; the Sanity CDN itself was already correct (checked directly against `apicdn.sanity.io`). **Any future phase that verifies a content edit against a local build must clear `.next/cache` first**, or it will verify the previous state and believe it.
+
+## 2026-08-14 — Phase 3.23-Code (site-wide audit, bugfixes and launch furniture)
+
+- ⚠️ **TWO RUNTIME DEPENDENCIES REMOVED — the first dependency removal in this project.**
+  - `radix-ui@1.6.2` — **removed**
+  - `class-variance-authority@0.7.1` — **removed**
+
+  **Evidence before removing, not after:** `grep -rn "radix-ui|class-variance-authority|cva(" src/` returns **0** hits, and a script walking the `dependencies` **and** `peerDependencies` of **every installed package** in `node_modules` (including `sanity` 4.22.0 and `next-sanity` 11.6.13, which back the embedded Studio at `/studio`) found **no installed package requiring either**. `npm run build` after removal: **330/330 pages, exit 0**, `/studio` compiles unchanged.
+
+  `components.json` is **kept** — it is shadcn's generator config, not a runtime dependency; deleting it would break a future `npx shadcn add` without removing any shipped byte.
+- **Nothing else added or upgraded.** Versions unchanged: Next.js 15.5.20, React 19.2.4, Tailwind CSS 4.3.2, `sanity` 4.22.0, `next-sanity` 11.6.13, `@sanity/vision` 4.22.0, `@sanity/image-url` 2.1.1, `@portabletext/react` 6.2.0, `@vercel/analytics` 2.0.1, Motion 12.42.2, Lucide 1.24.0, `clsx` 2.1.1, `tailwind-merge` 3.6.0, `styled-components` 6.4.3, `@sanity/client` 7.23.1 (dev), `lighthouse` 13.4.1 (dev).
+- **TWO ENV VARS ADDED to `.env.example`, both EMPTY and set NOWHERE.**
+  - `NEXT_PUBLIC_SITE_URL` — the site's own public origin, read by `src/lib/site.ts` and feeding `metadataBase`, `robots.ts`, `sitemap.ts` and all 322 canonical URLs. **Unset keeps the Vercel origin**, which is correct until DNS moves. Setting it to `https://www.belasicahistory.mk` **is** the cutover. ⚠️ `NEXT_PUBLIC_*` is inlined at build time → **needs a redeploy**, not just a variable change.
+  - `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` — while empty, **no** `<meta name="google-site-verification">` is emitted at all. No value was invented; supplying the real token is an owner step after cutover.
+
+  Neither is in `.env.local` and neither is on Vercel — verified.
+- **FIVE STATIC FILES DELETED from `public/`:** `file.svg`, `globe.svg`, `next.svg`, `vercel.svg`, `window.svg` — Next.js scaffolding from Phase 1.01, **0 references** anywhere in `src/`, `public/`, `docs/` or `scripts/`.
+- **TWO STATIC FILES ADDED to `public/`:** `og-default.png` (**1200×630**, 76 494 bytes, confirmed with `sips` against the file on disk) and `llms.txt` (plain text, ~1,6 KB). ⚠️ **`llms.txt` hardcodes the origin** and cannot import `SITE_URL`; it is the fourth place needing a hand edit at cutover, and `src/lib/site.ts` names it in a comment.
+- **No `next.config.ts`, `eslint.config.mjs`, `globals.css`, `@theme` or `brand.md` change**, so the D-3.04d-1 `tailwind-merge` registration duty is untouched (`display, h1, h2, h3, stat, stat-lead, wordmark, body-l, body, small, overline` + `tracking-overline`). **No token was added** — the 404, the error page and the share image are built entirely from existing tokens.
+- **No schema change and NO Sanity write of any kind.** `src/sanity/schemaTypes/` is byte-identical. The only Sanity traffic was read queries during builds.
+- `rm -rf .next && npm run build` → **330/330 pages, exit 0** (323 HTML artefacts, unchanged from the `main` baseline — no page added or removed). `npm run lint` and `npx tsc --noEmit` both exit 0. Prettier applied. Node 26.3.0.
+- ℹ️ **A throwaway route existed briefly and is gone:** `src/app/og-preview/page.tsx`, used only to compose the share image at 1200×630 with the site's real self-hosted fonts before it was screenshotted with headless Chrome. **Deleted before commit** (D-3.23-4). Regenerating the PNG means recreating that route. ⚠️ After deleting it, `npx tsc --noEmit` reported two errors against stale generated types at `.next/types/app/og-preview/` — `rm -rf .next/types/app/og-preview` (or any clean build) clears them.

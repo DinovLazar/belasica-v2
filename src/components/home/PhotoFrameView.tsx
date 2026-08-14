@@ -23,7 +23,7 @@ export type FramedImage = {
  *
  * Split out of `PhotoFrame` at 3.09 for one measured reason: `LegendsBrowser`
  * is a client component, so everything it imports crosses the client boundary,
- * and through `RoleBandGrid → LegendCard → PhotoFrame → urlFor` that dragged
+ * and through `CategoryGrid → LegendCard → PhotoFrame → urlFor` that dragged
  * the whole `@sanity/image-url` builder into `/legendi`'s bundle — measured at
  * **17.3 KB** of client JS whose only job is to build a string the server
  * already knows (D-3.09-1). This file is the half a client component may

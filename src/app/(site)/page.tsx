@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import type { SanityImageSource } from "@sanity/image-url";
 import { fetchOrThrow } from "@/sanity/fetch";
@@ -19,6 +20,18 @@ import { compareByLegendRank } from "@/lib/people";
 // Re-read published Sanity content ~every 60s (D-1.05-4) — new editorial
 // content (a captioned photo, a fresh clubRecord) surfaces without a redeploy.
 export const revalidate = 60;
+
+/**
+ * The homepage's only metadata is its canonical (3.23, B2) — title, description
+ * and the share card all inherit from the root layout, which is correct: this
+ * page IS the site, so restating them here would be two sources for one string.
+ *
+ * A relative path, resolved against `metadataBase`. That is what makes the
+ * domain cutover a single environment variable rather than 322 edits.
+ */
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 /**
  * The season whose team photo opens the site, pinned in code (D-3.10-4).

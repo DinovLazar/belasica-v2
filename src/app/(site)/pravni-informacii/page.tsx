@@ -25,6 +25,9 @@ import { CONTACT_EMAIL } from "@/lib/facts";
  */
 
 export const metadata: Metadata = {
+  // Its own path, relative — resolved against `metadataBase`, so the
+  // domain cutover stays one environment variable (3.23, B2).
+  alternates: { canonical: "/pravni-informacii" },
   title: "Правни информации",
   description:
     "Правни информации за неофицијалната архива на ФК Беласица — авторски права, точност на податоците и барање за отстранување материјал.",
@@ -200,6 +203,43 @@ const SECTIONS: Section[] = [
       { kind: "p", text: "Одговараме на секое барање." },
     ],
   },
+  /**
+   * §11 — NEW at 3.23 (B8). **APPENDED, never inserted.** §5 is referenced by
+   * its number from `current-state.md` and from OV-23, so renumbering the ten
+   * sections above would silently break those references.
+   *
+   * Why there is no cookie banner: this site sets no cookies of its own, and
+   * Vercel Web Analytics identifies a visitor by a hash of the incoming request
+   * rather than by storing one — so no consent is required. Regulator guidance
+   * is nonetheless that analytics should be *named* in the privacy notice, which
+   * is what this section does. Decision already taken; not re-opened here.
+   *
+   * ⚠️ **This is the only copy on this page that is NOT the owner's.** Every
+   * other word was supplied by him as final, native-reviewed text and is
+   * rendered verbatim (41/41 lines diff-proven, D-3.07-7). These three
+   * paragraphs are the orchestrator's wording and are owed both an owner
+   * approval and a native-speaker read. They are descriptive rather than a legal
+   * commitment, which is why they ship pending that read rather than blocking on
+   * it (D-3.23-9).
+   */
+  {
+    id: "sekcija-11",
+    heading: "11. Приватност и аналитика",
+    blocks: [
+      {
+        kind: "p",
+        text: "Оваа страница користи Vercel Web Analytics за да измери колку луѓе ја посетуваат и кои страници ги читаат. Vercel Web Analytics не поставува колачиња (cookies) и не собира податоци што би можеле лично да ве идентификуваат — статистиката е збирна и анонимна. Затоа оваа страница нема банер за согласност за колачиња.",
+      },
+      {
+        kind: "p",
+        text: "Формуларот за контакт се испраќа преку услугата Formspree. Кога ќе го пополните, вашето име, вашата е-пошта и вашата порака се пренесуваат преку Formspree до сопственикот на архивата и се користат само за да ви одговориме. Не водиме листа за е-пошта и не испраќаме реклами.",
+      },
+      {
+        kind: "p",
+        text: "Страницата се хостира на Vercel, кој — како и секој веб-сервер — привремено ги запишува техничките податоци на секое барање, како IP-адресата, времето и адресата на побараната страница.",
+      },
+    ],
+  },
 ];
 
 /**
@@ -225,7 +265,14 @@ export default function LegalPage() {
           { label: "Почетна", href: "/" },
           { label: "Правни информации" },
         ]}
-        meta="Последно ажурирање: 16 август 2026"
+        // 3.23 (A2/P2): this read „16 август 2026" — a date in the FUTURE,
+        // written 16 days ahead of the commit that introduced it (git: c2fb001,
+        // 2026-07-31) and still ahead of today. §9 makes this label
+        // load-bearing („Датумот на последното ажурирање е наведен на почетокот
+        // на страницата"), so a wrong date is a wrong statement on the one page
+        // that exists to be accurate. Set to the date this phase actually
+        // changed the copy by appending §11 (D-3.23-15).
+        meta="Последно ажурирање: 14 август 2026"
       />
 
       {/* One editorial column at the reading measure, like /za-nas — this is

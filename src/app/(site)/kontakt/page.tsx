@@ -14,6 +14,9 @@ import { CONTACT_EMAIL } from "@/lib/facts";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
+  // Its own path, relative — resolved against `metadataBase`, so the
+  // domain cutover stays one environment variable (3.23, B2).
+  alternates: { canonical: "/kontakt" },
   title: "Контакт",
   description:
     "Контакт со неофицијалната архива на ФК Беласица — прашања, исправки и материјали за архивата.",

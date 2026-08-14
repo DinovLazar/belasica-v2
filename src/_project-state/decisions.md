@@ -2712,3 +2712,131 @@
 - **Alternatives considered:** *Trust the first green build* — this is exactly the failure being recorded; it would have shipped a page contradicting `facts.md`. *`rm -rf .next/cache` only* — sufficient in principle and the narrower fix, but the full directory is one command and removes any doubt.
 - **Consequences:** Slower verification builds. On Vercel this does not arise — a PR preview builds from a cold cache — but any local content check is suspect without it. This compounds the known incremental-cache flakes (`WasmHash`), which have the same remedy.
 - **Links:** D-3.02F (build hardening); `CLAUDE.md` §Commands.
+
+### D-3.23-1 · 2026-08-14 · The header's burger breakpoint moves from `md` to `lg`, closing OV-40
+- **Status:** Accepted
+- **Context:** OV-40, measured at 3.16 and unfixed since: seven nav items wrap to two rows between ~769 and 898 px, making the sticky header **101 px** tall while `--spacing-header` still declares 78 px. Re-measured at the top of this phase and confirmed exactly — at 810 px the header was 101 px, delta **+23 px**, 7 links on 2 rows. Every `scroll-mt-header` anchor on the site therefore landed ~18–23 px underneath the header in that band, which includes iPad portrait at 810 and 820.
+- **Decision:** `md:flex` → `lg:flex` on the desktop nav, and the burger toggle and its panel move to `lg:hidden` with it. Below 1024 px the burger panel — which already lists all seven items at 48 px targets — covers everything.
+- **Alternatives considered:** *`gap-7` → `gap-5` in the `md` range* — rejected: it does not clear the **pre-existing 768 px break**, which predates the seventh item, so the bug would survive at exactly the width most tablets report. *Leave it* — rejected: it is a live layout break on every route at tablet widths.
+- **Consequences:** The header now shows a burger on every route from 375 to 1023 px, which is a visible change at tablet widths and is **owed the owner's confirmation**. Measured after the change at **375, 768, 810, 820, 899, 1024, 1280, 1408**: header height is **78 px at all eight**, delta 0. ⚠️ Moving the nav without moving the toggle left 768–1023 px with **no navigation at all**; caught by measuring rather than by reading, which is why the burger and panel changed in the same edit.
+- **Links:** OV-40; `brand.md` §Spacing & layout; D-3.16-11.
+
+### D-3.23-2 · 2026-08-14 · One `SITE_URL` constant, defaulting to the Vercel origin
+- **Status:** Accepted
+- **Context:** PL-4, the last open placeholder: `https://belasica-v2.vercel.app` was hardcoded in `layout.tsx`, `robots.ts` and `sitemap.ts`, kept in step by a comment in each.
+- **Decision:** New `src/lib/site.ts` exporting `SITE_URL`, read from `NEXT_PUBLIC_SITE_URL` with the Vercel origin as the fallback. All three files import it. `NEXT_PUBLIC_SITE_URL` and `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` added to `.env.example`, both empty, and **set nowhere** — not in `.env.local`, not on Vercel.
+- **Alternatives considered:** *Point the default at `www.belasicahistory.mk` now* — rejected and explicitly out of scope: DNS does not resolve there yet, and canonical tags plus a sitemap advertising a dead host are worse than none. *A build-time constant with no env override* — rejected: it makes the cutover a code change and a PR instead of one variable.
+- **Consequences:** `grep -rn "belasica-v2.vercel.app" src/` now returns hits in `src/lib/site.ts` only. ⚠️ **`public/llms.txt` is a fourth place** that hardcodes the origin and cannot import the constant; a comment in `site.ts` names it so it cannot be silently forgotten. `NEXT_PUBLIC_*` is inlined at build time, so the cutover needs a **redeploy**, not just a variable change.
+- **Links:** PL-4; `.env.example`; D-3.23-3.
+
+### D-3.23-3 · 2026-08-14 · Canonical URLs are declared per route, never in the root layout
+- **Status:** Accepted
+- **Context:** Every route needed `alternates.canonical`. The obvious place looks like the root layout, which already owns `metadataBase`.
+- **Decision:** Each of the 11 route modules declares its own relative canonical; the root layout declares **none**, and carries a comment saying why. The homepage gained its first-ever `metadata` export to hold one.
+- **Alternatives considered:** *Set it once in the root layout* — rejected, and it would have been a serious SEO defect: Next merges metadata parent→child, so a root canonical is **inherited by every page that does not override it**, telling search engines all 322 pages are the homepage. *Absolute URLs per page* — rejected: relative paths resolve against `metadataBase`, which is what keeps the cutover to one variable.
+- **Consequences:** Verified on the built output: **322 of 323** HTML files emit **exactly one** canonical, 322 distinct values, **0** duplicates, **0** pages with more than one. The single file without one is `_not-found.html` — correct, since a canonical on a 404 asserts the URL exists.
+- **Links:** D-3.23-2; B2.
+
+### D-3.23-4 · 2026-08-14 · The share image is a committed static PNG, captured from a throwaway route
+- **Status:** Accepted
+- **Context:** The Open Graph image was `/crest.png` at **864×1220** — a portrait image in a landscape slot — and `twitter:card` was `summary`, so every share rendered as a letterboxed crest in a thumbnail.
+- **Decision:** A committed `public/og-default.png` at exactly **1200×630**, confirmed with `sips` against the file on disk. It was composed as a temporary Next route (`src/app/og-preview`) so it inherited the site's own self-hosted Oswald/Golos and its real colour tokens, screenshotted with headless Chrome at that exact viewport, then **the route was deleted**. `twitter.card` → `summary_large_image`.
+- **Alternatives considered:** *`next/og` / `ImageResponse`* — rejected by the brief and on merit: a runtime image route is build fragility this archive does not need. *A standalone HTML file with `@font-face`* — rejected: it would have had to re-declare the fonts by hand and risked falling back to a system face, which is exactly the „AI default" tell. *Add a screenshot dependency* — rejected: zero new dependencies.
+- **Consequences:** The throwaway route is gone from the tree, so the PNG is now an artefact with no generator in the repo — **regenerating it means rebuilding that route**. The recipe is recorded in this entry and in the completion report. Verified in the built `<head>` of `/`, `/arhiva` and a season page; **0** pages still reference `crest.png` as an OG image.
+- **Links:** B5; `brand.md` §Color, §Typography.
+
+### D-3.23-5 · 2026-08-14 · JSON-LD is three node types and nothing else — no entity for the club
+- **Status:** Accepted
+- **Context:** The site is an unofficial archive *about* FK Belasica. Structured data is the one place where a careless node tells a search engine that this site **is** the club.
+- **Decision:** Emit exactly `WebSite` (root layout, once), `BreadcrumbList` (generated inside `Breadcrumb` itself, from the same `items` the visible trail renders) and `Person` on `/legendi/<slug>` carrying **only** `name`, `url` and `image`.
+- **Alternatives considered:** *`SportsTeam`/`SportsOrganization`/`Organization` for the club* — rejected: it would give the club an entity whose `url` is this domain, which is exactly the claim `/pravni-informacii` §1 exists to deny. *`foundingDate: 1922`* — rejected: `facts.md` lists the founding year **UNVERIFIED**; it renders on the homepage only inside owner-authored CMS copy, which is not licence to assert it machine-readably. *`potentialAction`/SearchAction* — rejected: there is no server-side search endpoint, and declaring one that does not exist is the invented claim this project does not ship. *`jobTitle` from `person.role`* — rejected: **OV-35** records that nobody has checked whether all 28 people in Претседатели were presidents, so it would publish an unverified claim at scale. Same for `nationality`, dates and any team affiliation.
+- **Consequences:** `BreadcrumbList` lives in the component rather than in each page, so the two forms cannot disagree — the D-3.19-3 failure mode, designed out. Verified on the built output: `WebSite` **323/323, exactly once each**; `BreadcrumbList` **321**, matching the 322 pages with a visible trail minus the 404 (deliberately suppressed); `Person` **211**, all on `/legendi/<slug>` and **0** elsewhere; **0** blocks fail to parse as JSON. `grep` for `SportsTeam`, `SportsOrganization`, `Organization`, `LocalBusiness`, `foundingDate`, `jobTitle`, `aggregateRating` across all 323 files returns **0** for every one.
+- **Links:** B6; OV-35; `facts.md`; `/pravni-informacii` §1.
+
+### D-3.23-6 · 2026-08-14 · The 404's onward links carry the footer column's anatomy with paper values
+- **Status:** Accepted
+- **Context:** The brief asks the 404's onward links to use „the same link treatment the footer's navigation column already uses". That treatment is `text-paper/80` with an orange hover rule — values for a **navy** ground.
+- **Decision:** Keep the anatomy exactly (transparent 2px underline filling orange on hover, `py-1.5` hit padding, `w-fit`) and swap only the two colour values to their paper equivalents: navy ink, which is **14.95:1** on paper.
+- **Alternatives considered:** *Copy the footer's classes verbatim* — rejected: `paper/80` on paper measures ~1.1:1 and would be invisible. *Put the links inside the navy band instead, where the footer's classes apply unchanged* — rejected: header, band and footer are all navy, so the page would have read as one undifferentiated navy mass, against `brand.md`'s rule that adjacent blocks alternate value.
+- **Consequences:** One more place that must be updated if the footer's link treatment changes. Measured at **14.95:1**.
+- **Links:** B3; `brand.md` §Components, §Color.
+
+### D-3.23-7 · 2026-08-14 · `radix-ui` and `class-variance-authority` are removed
+- **Status:** Accepted
+- **Context:** The A1 audit found **0** imports of either anywhere in `src/`.
+- **Decision:** Remove both from `package.json`.
+- **Alternatives considered:** *Leave them* — rejected: they are runtime dependencies of a public archive that imports neither. *Remove `components.json` too* — rejected: it is shadcn's generator config, not a runtime dependency, and deleting it would break a future `shadcn add`.
+- **Consequences:** Verified before removing by walking `dependencies` **and** `peerDependencies` of **every installed package** — including `sanity` and `next-sanity`, which back the embedded Studio: **no installed package requires either**. Build and `/studio` compile unchanged. Recorded in `00_stack-and-config.md`.
+- **Links:** A6; `00_stack-and-config.md`.
+
+### D-3.23-8 · 2026-08-14 · The 404 lives at the app root, not in the `(site)` group, and mounts the chrome itself
+- **Status:** Accepted
+- **Context:** The brief specifies `src/app/(site)/not-found.tsx` so the page inherits the site chrome from `(site)/layout.tsx`.
+- **Decision:** It is at **`src/app/not-found.tsx`** instead, and renders the skip link, `SiteHeader`, `<main>`, `SiteFooter` and `BackToTop` itself.
+- **Alternatives considered:** *Follow the brief literally* — **built it that way first and measured it**: a `not-found.tsx` inside a route group is reached only by an explicit `notFound()` call from within that group. A genuinely unmatched URL has no segment to match, so Next resolved the **root** boundary and served its own English default — `/nepostoecka-stranica` returned `next-error-h1` markup with the archive's own 404 sitting unused one directory away. *Keep both files, sharing a body component* — rejected: two 404 files and a third component for one page is more surface for the same result.
+- **Consequences:** ⚠️ The chrome is now written in two places. **If `(site)/layout.tsx` gains a chrome element, it must be added here too** — the file says so at the top. Verified on the production build: `/nepostoecka-stranica` returns **404** with header, footer and onward nav; the three `notFound()` routes (`/arhiva/…`, `/legendi/…`, `/razno/…`) also return **404** and render the same page in the browser.
+- **Links:** B3.
+
+### D-3.23-9 · 2026-08-14 · §11 is appended to `/pravni-informacii`, and it is the only copy on that page that is not the owner's
+- **Status:** Accepted
+- **Context:** Regulator guidance is that analytics should be named in a privacy notice even where no consent banner is required. Vercel Web Analytics sets no cookies, so no banner is needed.
+- **Decision:** Append a new **§11 „Приватност и аналитика"** after §10 — **appended, never inserted**, because §5 is referenced by number from `current-state.md` and OV-23, and renumbering would break those references. No cookie banner.
+- **Alternatives considered:** *Insert it thematically (e.g. beside §7)* — rejected for the renumbering reason above. *Add a consent banner* — rejected: the decision was already taken and there is nothing to consent to.
+- **Consequences:** ⚠️ **Every other word on that page is the owner's**, supplied as final and rendered verbatim (41/41 lines diff-proven, D-3.07-7). These three paragraphs are the orchestrator's and are owed both an owner approval and a native-speaker read. They are descriptive rather than a legal commitment, which is why they ship pending that read. Verified: the page now renders **eleven** sections and the **first ten are byte-identical** to the `main` baseline.
+- **Links:** B8; D-3.07-7; OV-23.
+
+### D-3.23-10 · 2026-08-14 · The archive index's fallback lead photo excludes `tablePhoto`
+- **Status:** Accepted
+- **Context:** A2/P2. The fallback branch matched **every** photo back-referencing the season, so a season with no `teamPhoto` but with a league-table screenshot could lead its card with that screenshot. Measured on **5 of 96** cards (`1931-32`, `1932-33`, `1935-36`, `1936-37`, `1952`); on `1932-33` the table scan is the season's only photo, so it won every time.
+- **Decision:** Add `&& !(_id in [^.teamPhoto._ref, ^.tablePhoto._ref])`, mirroring the exclusion the detail page has applied since D-3.04-2.
+- **Alternatives considered:** *Exclude only `tablePhoto`* — the `teamPhoto` term is a no-op here (the branch only runs when it is null) but is kept so the index and detail queries read as the same rule. *Leave it* — rejected: a table screenshot is the least representative image a season card can show.
+- **Consequences:** Those 5 cards now fall through to the next photo, or to no photo where the table scan was the only one — which is the honest outcome, and the card degrades to its text form rather than showing a spreadsheet.
+- **Links:** D-3.04-2; D-3.04b-2.
+
+### D-3.23-11 · 2026-08-14 · The `/legendi` search count counts distinct people, not band memberships
+- **Status:** Accepted
+- **Context:** A2/P2. `matches` summed the filtered bands, so each of the **49** cross-listed people counted two or three times — a search matching one player-coach announced „2 резултати" over a single card. This is the exact sum the same component's own `total` prop doc forbids twelve lines above.
+- **Decision:** Count distinct slugs.
+- **Alternatives considered:** *Leave the per-tab counts as memberships* — kept deliberately: those are scoped to one category, where a membership **is** the count.
+- **Consequences:** The announced total now matches the number of cards a reader can reach. The `matches === 0` empty-state test is unaffected.
+- **Links:** D-3.22-2 (cross-listing); LegendsBrowser `total` prop doc.
+
+### D-3.23-12 · 2026-08-14 · The person page reads `legendAppearances`, and photo ordering gains an explicit definedness rank
+- **Status:** Accepted
+- **Context:** A2/P2, two defects in one query. (a) `PERSON_QUERY` never selected `legendAppearances`, which `LegendCard` has rendered in preference to `careerStats.appearances` since 3.19 — so **19 men whose only appearance figure is the book's printed one showed a count on `/legendi` and nothing at all in Кариера on their own page**. That is the D-3.19-3 shape mirrored onto the person template. (b) `order(coalesce(date,"9999") asc)` did **not** put undated photos last: `photo.date` is free text, and `"9999"` string-sorts before `April 2, 2026` or `околу 2002` ('9' < 'A' < 'о'), so an undated photo beat a dated one and won the portrait slot on 4 people.
+- **Decision:** Select `legendAppearances` and build the Настапи figure with `LegendCard`'s identical precedence. Change both photo orderings — here and on `/legendi` — to `select(defined(date) => 0, 1) asc, coalesce(date,"9999") asc, _id asc`.
+- **Alternatives considered:** *Backfill `legendAppearances` into `careerStats` (or the reverse)* — rejected, and it is the whole point: the two fields have different recorded provenance (D-2.01-3 vs the book's printed value) and **OV-39 is still open**. Reading both with a stated precedence asserts nothing; copying one into the other would assert a provenance nobody has checked. *Sort by date descending* — rejected: it would change which photo is the portrait everywhere, which is not this phase's call.
+- **Consequences:** Verified on the built output: **138** person pages now render a Настапи tile, and **19** of them show the book's printed **range** („120–135", „107–110", …) — values that were structurally unreachable before. No Sanity write was made.
+- **Links:** D-3.19-3; D-3.15-4; D-2.08-3; OV-39.
+
+### D-3.23-13 · 2026-08-14 · The scorer table's coverage line says „внесени"
+- **Status:** Accepted
+- **Context:** A2/P2. „Листата ги опфаќа играчите со 21 или повеќе првенствени голови" reads as a **completeness claim** — every such player is here. The data does not support it, and the same page contradicts it: the curated „Ранг-листа на голгетери" record names players the table has no entered total for.
+- **Decision:** Add „внесени", the qualifier the sibling empty notice three lines below already uses.
+- **Alternatives considered:** *Change the query* — rejected: nothing is wrong with the query. The note should describe what the archive **holds**, not what the book records. *Leave it* — rejected under `CLAUDE.md` §Content truth: a sentence that overstates coverage is a claim the archive cannot support.
+- **Consequences:** One more Macedonian string differing from the owner's original wording by one word; listed as owed a native read.
+- **Links:** D-3.12-5; OV-13; `CLAUDE.md` §Content truth.
+
+### D-3.23-14 · 2026-08-14 · A „Разно" topic splits before the sentence that introduces its list, not after it
+- **Status:** Accepted
+- **Context:** A2/P2. `toSections()` cut at the first `record` block, which orphaned the lead-in paragraph: „Преглед" **ended on a dangling colon** and the list it announced opened under a different heading. True of **all three** topics that split (`kup-na-uefa`, `partizan`, `tiverija`).
+- **Decision:** When the block immediately before the first `record` is a `para` ending in „:", the cut moves one block earlier so the sentence travels with its list.
+- **Alternatives considered:** *Gather every `record` under one heading* — rejected, and already rejected at D-3.19-5: these are verbatim transcriptions and it would silently reorder the author's text. *Leave it* — rejected: a heading that ends on a colon reads as truncated content.
+- **Consequences:** **No transcribed text was edited** — `src/content/razno.ts` is untouched, as the brief requires; only where the single cut falls changed. Verified: all three „Рекорди" sections now open with their lead-in sentence, and all three „Преглед" sections end on a complete sentence.
+- **Links:** D-3.19-5; D-3.16-3.
+
+### D-3.23-15 · 2026-08-14 · `/pravni-informacii`'s „last updated" date is corrected to a real date
+- **Status:** Accepted
+- **Context:** A2/P2. The page stated „Последно ажурирање: **16 август 2026**" — a date in the **future**, introduced on 2026-07-31 in `c2fb001`, i.e. written 16 days ahead of the commit that wrote it. §9 of the same page makes that label load-bearing: „Датумот на последното ажурирање е наведен на почетокот на страницата."
+- **Decision:** Set it to **14 август 2026**, the date this phase actually changed the copy by appending §11.
+- **Alternatives considered:** *Set it to 2026-07-31, when the ten sections last changed* — rejected: the page genuinely changes today, so that would be wrong in the other direction. *Derive it from the file's mtime* — rejected: it would move on every unrelated edit (a canonical tag is not a copy change). *Leave it* — rejected: a wrong date on the one page that exists to be accurate.
+- **Consequences:** The literal must be updated by hand whenever the legal copy changes; nothing enforces that mechanically. This is a change to the owner's page and is listed as owed his confirmation.
+- **Links:** D-3.07-7; B8.
+
+### D-3.23-16 · 2026-08-14 · Six P2 findings are reported rather than fixed
+- **Status:** Accepted
+- **Context:** The brief says „Fix every P1 and P2 finding in this phase." Fourteen P2s were found. Eight were fixed (D-3.23-1, -10 … -15). Six were not.
+- **Decision:** Report the remaining six with their reasons rather than fixing them: **(a)** the gallery's `_id`-only dedupe, which lets two `photo` documents sharing one asset both render (`1969-70`, `1982-83`) — **D-3.04-10 already decided against asset-level dedupe** because it would delete the only captioned copy, and the fix is a Sanity write this phase must not make; **(b)** „Статистика на играчи" heading a coach-only section on `/arhiva/1922-26` — an owner labelling call on a shared heading affecting all 96 pages, exact sibling of OV-36; **(c)** `legendRank` printing as a leading list index inside the three bands not ordered by rank (39 of 69 Тренери cards); **(d)** the filled role chip naming the highest-priority role rather than the category being read — (c) and (d) are both visible design changes to a page **the owner redesigned last phase by his own instruction**; **(e)** „Рекорди" heading four anecdotes on `/razno/partizan` — a naming judgement for Ace, sibling of OV-42; **(f)** the Сезони section reading only the legacy `squad[]`/`trainers[]` arrays, so it shows nothing for 208 of 211 people — matching on the live `season.trainer` string needs exact-name discipline („Благој Истатов" is a substring of seven other strings and of the stadium's name) and is its own phase, not a bugfix.
+- **Alternatives considered:** *Fix all six* — rejected: two are Sanity content, two are the owner's design calls on a page he just had rebuilt, one is a naming judgement for Ace, and one is a feature. Making any of them silently would repeat this project's recorded failure mode of shipping unreviewed changes to the owner's own pages. *Downgrade them to P3 so the DoD reads clean* — rejected outright: they are P2, and saying so is the point.
+- **Consequences:** The DoD line „every P1 and P2 code finding is fixed" **does not pass as written**; 8 of 14 are fixed and the other 6 are documented here, in the audit and in §4 of the completion report. Four of the six need an owner or Ace decision before anyone can act.
+- **Links:** `docs/audits/Part-3-Phase-23-Audit.md` §2; D-3.04-10; OV-36; OV-42; D-3.22-2.

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { PlaceholderChip } from "@/components/home/PlaceholderChip";
 import { focusOnNavy, focusOnPaper } from "@/lib/focus";
+import { SITE_URL } from "@/lib/site";
 
 export type Crumb = {
   label: string | null;
@@ -18,16 +19,60 @@ export type Crumb = {
  * need a second treatment for the photo-less variant. On paper it is one
  * treatment for both.
  */
+/**
+ * The `BreadcrumbList` twin of the visible trail (3.23, B6).
+ *
+ * Built here, from the same `items` the `<ol>` below renders, precisely so the
+ * two can never disagree — a structured-data block assembled separately in each
+ * page would be one more thing to keep in step by hand, which is how the
+ * homepage and /legendi ended up describing the same ten men differently
+ * (D-3.19-3).
+ *
+ * Returns `null` rather than a partial list when any crumb has no label. A
+ * breadcrumb whose visible form is a `[PLACEHOLDER]` chip has nothing true to
+ * say in machine-readable form, and emitting the placeholder text as a `name`
+ * would publish „непозната ставка" as though it were the page's title.
+ */
+function breadcrumbJsonLd(items: Crumb[]): string | null {
+  if (items.length === 0 || items.some((item) => item.label == null))
+    return null;
+  return JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: item.label,
+      // Absolute, per schema.org. The last crumb is the current page and
+      // carries no `href`, so it correctly emits no `item`.
+      ...(item.href ? { item: `${SITE_URL}${item.href}` } : {}),
+    })),
+  });
+}
+
 export function Breadcrumb({
   items,
   onNavy = false,
+  structuredData = true,
 }: {
   items: Crumb[];
   /** Set inside a navy page-header block, where the navy links would vanish. */
   onNavy?: boolean;
+  /** Off on the 404 and error pages: those return a 4xx/5xx and describe no
+   *  real place in the archive, so they get the visible trail (a way back) but
+   *  no machine-readable claim that the path exists. */
+  structuredData?: boolean;
 }) {
+  const jsonLd = structuredData ? breadcrumbJsonLd(items) : null;
+
   return (
     <nav aria-label="Патека">
+      {jsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLd }}
+        />
+      )}
       <ol className="flex flex-wrap items-center gap-x-2 gap-y-1 text-overline font-bold uppercase tracking-[0.12em]">
         {items.map((item, i) => {
           const isLast = i === items.length - 1;

@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import type { PortableTextBlock } from "@portabletext/types";
 import type { SanityImageSource } from "@sanity/image-url";
 import { fetchOrThrow } from "@/sanity/fetch";
+import { framedImage } from "@/sanity/frame";
+import { SITE_URL } from "@/lib/site";
 import { Container } from "@/components/Container";
 import { PhotoGrid, type ArchivePhoto } from "@/components/archive/PhotoGrid";
 import { SeasonStory } from "@/components/archive/SeasonStory";
@@ -28,6 +30,26 @@ type SeasonRef = { title: string | null; slug: string | null };
  * (D-2.01-3): the squad rows are per-season detail, and adding them up would
  * fabricate a career total out of whatever seasons happen to be published.
  *
+ * **`legendAppearances` joins it at 3.23 (A2/P2).** It is the book's printed
+ * figure and is a *string* because for some players the book prints a range
+ * („120–135", D-3.15-4). `LegendCard` has rendered it in preference to
+ * `careerStats.appearances` since 3.19, but this query never selected it — so
+ * **19 men whose only appearance figure is the book's showed a count on
+ * /legendi and nothing in Кариера on their own page.** That is exactly the
+ * D-3.19-3 shape (one page describing a man differently from another) mirrored
+ * onto the person template, and it is fixed by reading the same two fields with
+ * the same precedence rather than by copying one into the other — the two have
+ * different recorded provenance and OV-39 is still open (D-3.23-12).
+ *
+ * **Photo ordering, same phase.** `order(coalesce(date,"9999") asc)` did NOT put
+ * undated photos last: `photo.date` is free text (schema: „Слободен текст — на
+ * пр. „околу 1985""), and live values include `April 2, 2026` and `околу 2002`.
+ * String-compared, the `"9999"` sentinel sorts *before* any letter- or
+ * Cyrillic-leading value ('9' < 'A' < 'о'), so an undated photo beat a dated one
+ * and won the portrait slot on 4 people. An explicit definedness rank makes
+ * „undated last" independent of what the text happens to start with — the key
+ * the homepage and the season gallery already moved to (D-2.08-3 / D-3.04-2).
+ *
  * Seasons match on **either** `squad[].player` or `trainers[]`. The handover §3
  * says „read from `season.squad`", which is true for players but would leave
  * every trainer's Сезони section empty even though the season page links
@@ -40,12 +62,13 @@ const PERSON_QUERY = /* groq */ `
   "slug": slug.current,
   role,
   playingYears,
+  legendAppearances,
   bio,
   careerStats{ appearances, goals },
   "portrait": *[_type == "photo" && relatedPerson._ref == ^._id]
-    | order(coalesce(date, "9999") asc)[0].image,
+    | order(select(defined(date) => 0, 1) asc, coalesce(date, "9999") asc, _id asc)[0].image,
   "photos": *[_type == "photo" && relatedPerson._ref == ^._id]
-    | order(coalesce(date, "9999") asc){
+    | order(select(defined(date) => 0, 1) asc, coalesce(date, "9999") asc, _id asc){
       "id": _id,
       "image": image,
       caption,
@@ -64,6 +87,9 @@ type PersonData = {
   slug: string;
   role: string[] | null;
   playingYears: string | null;
+  /** The book's printed appearance figure — a STRING, because for some players
+   *  the book prints a range rather than a number (D-3.15-4). */
+  legendAppearances: string | null;
   bio: PortableTextBlock[] | null;
   careerStats: { appearances: number | null; goals: number | null } | null;
   portrait: SanityImageSource | null;
@@ -98,6 +124,8 @@ export async function generateMetadata({
   );
   if (!person) return {};
   return {
+    // From the slug, so it always matches the route (3.23, B2).
+    alternates: { canonical: `/legendi/${slug}` },
     title: person.name ?? "Личност",
     description: person.name
       ? `${person.name} — во неофицијалната архива на ФК Беласица.`
@@ -124,6 +152,9 @@ export default async function PersonPage({
   if (!person) notFound();
 
   const roles = orderedRoles(person.role);
+  // Resolved once, on the server: the hero renders it and the `Person` node
+  // below carries the same URL, so the two can never point at different images.
+  const portraitUrl = framedImage(person.portrait, 800)?.src ?? null;
   const bio = person.bio ?? [];
   const photos = person.photos ?? [];
   const seasons = (person.seasons ?? []).filter(
@@ -137,8 +168,18 @@ export default async function PersonPage({
   // which is why these test `!= null` rather than falsiness.
   const appearances = person.careerStats?.appearances ?? null;
   const goals = person.careerStats?.goals ?? null;
+
+  // The SAME precedence `LegendCard` uses (LegendCard.tsx — the book's printed
+  // figure first, the compiled career total as the fallback), so a man's card on
+  // /legendi and his own page can no longer state different appearance counts
+  // (3.23, A2/P2). Nothing is copied between the two fields: they carry
+  // different recorded provenance and OV-39 is still open.
+  const appearancesLabel =
+    person.legendAppearances?.trim() ||
+    (appearances != null ? String(appearances) : null);
+
   const careerFigures = [
-    appearances != null && { label: "Настапи", value: String(appearances) },
+    appearancesLabel != null && { label: "Настапи", value: appearancesLabel },
     goals != null && { label: "Голови", value: String(goals) },
   ].filter((figure): figure is { label: string; value: string } => !!figure);
 
@@ -146,6 +187,35 @@ export default async function PersonPage({
   const hasCareer = careerFigures.length > 0;
   const hasSeasons = seasons.length > 0;
   const hasPhotos = photos.length > 0;
+
+  /**
+   * `Person` structured data (3.23, B6) — deliberately three fields and no more.
+   *
+   * **No `jobTitle`.** It is the obvious thing to derive from `role`, and it is
+   * exactly what must not be published: OV-35 records that nobody has checked
+   * whether all 28 people in the Претседатели category were actually club
+   * presidents, so a machine-readable „jobTitle: President" would assert at
+   * scale a claim the archive has never verified. The same reasoning rules out
+   * `nationality`, `birthDate`, `worksFor` and any team affiliation — none is a
+   * verified fact for these 211 people, and `athlete`/`memberOf` would also
+   * imply the club relationship `/pravni-informacii` §1 denies.
+   *
+   * Emitted only when the person has a name: a `Person` node whose `name` is a
+   * placeholder is worse than no node.
+   */
+  const personJsonLd = person.name
+    ? JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Person",
+        name: person.name,
+        url: `${SITE_URL}/legendi/${person.slug}`,
+        // The same portrait the hero renders, resolved on the server through
+        // the one seam that owns `@sanity/image-url` (D-3.09-1). Omitted
+        // entirely where there is none — most trainers and officials get the
+        // monogram plate, which is a brand element and not a photograph of them.
+        ...(portraitUrl ? { image: portraitUrl } : {}),
+      })
+    : null;
 
   // Section cadence: a mist rule + `py-section`. The rule is dropped on the
   // first section, because the hero is now always the navy block and that
@@ -164,6 +234,13 @@ export default async function PersonPage({
 
   return (
     <>
+      {personJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: personJsonLd }}
+        />
+      )}
+
       {/* The breadcrumb rides inside the hero block (D-2.02-5): one treatment
           for both the portrait and the monogram variant, both now on navy. */}
       <PersonHero

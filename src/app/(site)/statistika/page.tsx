@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { client } from "@/sanity/client";
+import { fetchOrThrow } from "@/sanity/fetch";
 import { Container } from "@/components/Container";
 import { JumpNav, type JumpItem } from "@/components/JumpNav";
 import { PageHeader } from "@/components/PageHeader";
@@ -26,6 +26,9 @@ import {
 export const revalidate = 60;
 
 export const metadata: Metadata = {
+  // Its own path, relative — resolved against `metadataBase`, so the
+  // domain cutover stays one environment variable (3.23, B2).
+  alternates: { canonical: "/statistika" },
   title: "Статистика",
   description:
     "Најдобри стрелци, најмногу настапи и севкупниот биланс на ФК Беласица — неофицијална архива.",
@@ -186,7 +189,16 @@ const BALANCE_COLUMNS: StatColumn[] = [
 ];
 
 export default async function StatisticsPage() {
-  const data = await client.fetch<StatsData>(STATS_QUERY);
+  // Retried, then loud (3.23, C3). Like /arhiva this page carries no try/catch
+  // and that is deliberate: every section here already has an honest empty
+  // notice, but reaching them because the CDN blinked would publish „no
+  // scorers" as though it were the archive's record. The helper adds five
+  // bounded attempts; the failure mode past them is unchanged.
+  const data = await fetchOrThrow<StatsData>(
+    STATS_QUERY,
+    {},
+    "the statistics tables",
+  );
 
   const scorers = data?.scorers ?? [];
   const appearances = data?.appearances ?? [];
@@ -265,10 +277,19 @@ export default async function StatisticsPage() {
             {/* States the cut rather than leaving a reader to wonder why a
                 player they know is not in the table (D-3.12-5). Structural
                 copy: it describes the table, it claims nothing about the club. */}
+            {/* „внесени" added at 3.23 (A2/P2). Without it the sentence read as
+                a completeness claim — „every player with 21+ goals is here" —
+                which the data does not support and which the page contradicts
+                three sections below, where the curated „Ранг-листа на голгетери"
+                record names players the table has no entered total for. The
+                empty notice a few lines down was already careful to say
+                „внесени"; this line simply had not been (D-3.23-13). No query
+                changed: the note now describes what the archive HOLDS, not what
+                the book records. */}
             {scorers.length > 0 && (
               <p className="mt-4 max-w-[60ch] text-small text-neutral-700">
-                Листата ги опфаќа играчите со {SCORER_MIN_GOALS} или повеќе
-                првенствени голови за Беласица.
+                Листата ги опфаќа играчите со внесени {SCORER_MIN_GOALS} или
+                повеќе првенствени голови за Беласица.
               </p>
             )}
           </Reveal>
