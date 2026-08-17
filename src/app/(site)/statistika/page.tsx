@@ -43,6 +43,30 @@ export const metadata: Metadata = {
 const SCORER_MIN_GOALS = 21;
 
 /**
+ * Lowest appearance total the „Најмногу настапи" table lists (owner, 3.24).
+ *
+ * A THRESHOLD, deliberately, and not a row cap — the same shape as
+ * `SCORER_MIN_GOALS` above (D-3.12-2/D-3.12-5). A fixed-length list has to push
+ * somebody off whenever a new figure is entered in Studio; a threshold lets a
+ * player who later gains his 46th appearance enter on his own merits, and lets
+ * the table's length follow the archive instead of a number typed here.
+ *
+ * Like the scorers' cut it is a DISPLAY rule and not a data change: every total
+ * stays in Sanity and still shows on the player's own page and in the
+ * appearances column of the scorers table above.
+ *
+ * ⚠️ READ THE COMPLETION REPORT FOR 3.24 BEFORE CHANGING THIS NUMBER. The cut
+ * was chosen against a snapshot of the archive that held **71** rows here; the
+ * archive holds **119** today, of which **116** clear 46. So it removes three
+ * players rather than the ~24 it was meant to, and the three are
+ * Горан Пандев (38), Ацо Стојков (35) and Горан Попов (26) — the internationals
+ * whose Беласица totals are small precisely because they left young. That is
+ * reported to the owner rather than fixed here: which figure cuts the table is
+ * his call, not this phase's (D-3.24-4).
+ */
+const APPEARANCE_MIN = 46;
+
+/**
  * Four reads in one round trip.
  *
  * (d) is the curated records section (3.02F). `clubRecord` carries the
@@ -54,8 +78,13 @@ const SCORER_MIN_GOALS = 21;
  * (a)/(b) rank **only** `person.careerStats`, the authoritative career total
  * (D-2.01-3). `season.squad` is per-season detail and is never summed into a
  * career total — a partial archive would produce a confidently wrong number.
- * `defined(...)` omits players whose total was never entered: an unknown cannot
- * be ranked, and showing it as 0 would invent a fact.
+ * A player whose total was never entered is omitted: an unknown cannot be
+ * ranked, and showing it as 0 would invent a fact. Since 3.24 both express that
+ * through their threshold rather than through `defined(...)` — `>= n` is false
+ * for an undefined field, so the explicit guard (b) used to carry is redundant,
+ * not dropped. A genuine recorded `0` is still a number and is still treated as
+ * one; it simply does not clear a cut of 21 or 46, which is a different thing
+ * from being filtered out for being falsy.
  *
  * (a) also stops at `SCORER_MIN_GOALS`. The owner set the cut at 3.12 — „во
  * листата со стрелци треба да се оди до 21 гол (до Ристо Панов), не треба да се
@@ -79,7 +108,7 @@ const STATS_QUERY = /* groq */ `{
       "goals": careerStats.goals,
       "appearances": careerStats.appearances
     },
-  "appearances": *[_type == "person" && "player" in role && defined(careerStats.appearances)]
+  "appearances": *[_type == "person" && "player" in role && careerStats.appearances >= ${APPEARANCE_MIN}]
     | order(careerStats.appearances desc, name asc){
       "id": _id,
       name,
@@ -326,11 +355,28 @@ export default async function StatisticsPage() {
             <SectionHeading id="appearances-heading">
               Најмногу настапи
             </SectionHeading>
+            {/* The cut is stated, for the same reason the scorers' is (3.24).
+                A reader who knows Горан Пандев played for Беласица and cannot
+                find him in a table headed „Најмногу настапи" is owed the reason
+                — otherwise the table reads as incomplete rather than as
+                bounded. „внесени" carries the same load it carries above
+                (D-3.23-13): this describes what the archive HOLDS, not what the
+                club's history contains. */}
+            {appearances.length > 0 && (
+              <p className="mt-4 max-w-[60ch] text-small text-neutral-700">
+                Листата ги опфаќа играчите со {APPEARANCE_MIN} или повеќе
+                внесени првенствени настапи за Беласица.
+              </p>
+            )}
           </Reveal>
           <div className="mt-8">
             {appearances.length === 0 ? (
               <StatsEmptyNotice
-                note="Сѐ уште нема внесени настапи за ниту еден играч, па нема што да се подреди."
+                // Since 3.24 the section can also be empty because nobody
+                // clears the threshold, so the note no longer claims the
+                // stronger „нема внесени настапи за ниту еден играч" — the same
+                // correction the scorers' notice took at 3.11.
+                note={`Сѐ уште нема играч со ${APPEARANCE_MIN} или повеќе внесени настапи, па нема што да се подреди.`}
                 pending="настапи по играч"
               />
             ) : (

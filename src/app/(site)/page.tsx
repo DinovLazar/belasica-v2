@@ -47,6 +47,45 @@ const HERO_SEASON_SLUG = "1982-83";
 /** That season's `teamPhoto`, kept out of „Момент од историјата" (see below). */
 const HERO_PHOTO_ID = "photo-1bb63ff6de96c8152fae78794736fd7cd990ad81";
 
+/**
+ * The photograph in „Момент од историјата", pinned in code (3.24) on the same
+ * pattern and for the same reason as `HERO_PHOTO_ID` above (D-3.10-4).
+ *
+ * Until now the section resolved its picture deterministically — oldest era,
+ * captioned, season-anchored, widest crop (D-3.03-4) — which is stable but not
+ * FIXED: publish an older captioned landscape scan in Studio and the front
+ * page changes on the next revalidate. That was tolerable while the section was
+ * only a photograph and its own caption. It stopped being tolerable the moment
+ * the section gained a link that names a specific topic (see `MOMENT_LINK`):
+ * a „read more about the youth school" sitting under a photograph that has
+ * quietly become something else is not a stale link, it is a false statement on
+ * the front door.
+ *
+ * This is „Младата екипа на Беласица со Купот на Македонија, 1993" — the side
+ * that won the club's first Macedonian youth Cup in season 1992/93, the team
+ * `razno.ts` describes at line 6959 of the book, beating Пелистер 5:3 in the
+ * final. Its `relatedSeason` is `1992-93`.
+ *
+ * The deterministic lookup below is KEPT beneath it as a fallback, and that is
+ * load-bearing: unpublish this document and the section quietly returns to the
+ * old ordering rather than opening on a placeholder — exactly the chain the
+ * hero has carried since 3.10.
+ */
+const MOMENT_PHOTO_ID = "39b358c0-be93-4130-be5e-da4d97fe7948";
+
+/**
+ * The link out of „Момент од историјата" (owner request, 3.24).
+ *
+ * It is rendered ONLY when the pinned photograph above is the one on screen —
+ * see `momentIsPinned` in the body. The fallback picture is by definition not
+ * the 1993 Cup side, so the sentence would stop being true the moment the
+ * fallback engaged.
+ */
+const MOMENT_LINK = {
+  href: "/razno/mladinska-skola",
+  label: "Прочитај повеќе за младинската школа",
+};
+
 /* ------------------------------------------------------------------ *
  * Homepage content — one GROQ round trip against the read client
  * (published only, no token).
@@ -74,12 +113,15 @@ const HERO_PHOTO_ID = "photo-1bb63ff6de96c8152fae78794736fd7cd990ad81";
  *    them all; `ClubRecords` renders the homepage's six by an explicit label
  *    whitelist, and `/statistika` renders all 30.
  *  - DECADES: every season's `decade`, reduced to per-decade counts.
- *  - MOMENT: one real, captioned, season-anchored, landscape archival photo,
- *    oldest era first then widest crop (D-3.03-4) — today the 1993 Cup photo.
- *    The hero photograph is excluded by `_id`, explicitly: it is a 1980s scan
- *    that the oldest-first ordering would now rank *first*, and the only thing
- *    keeping it out was its missing caption — one caption typed in Studio and
- *    the same picture would have opened the page and closed it (D-3.10-5).
+ *  - MOMENT: `momentPinned` is the 1993 Cup photograph, pinned by `_id`
+ *    (D-3.24-2 — see `MOMENT_PHOTO_ID`). `moment` is the older deterministic
+ *    lookup kept beneath it as the fallback: one real, captioned,
+ *    season-anchored, landscape archival photo, oldest era first then widest
+ *    crop (D-3.03-4). The hero photograph is excluded from THAT query by `_id`,
+ *    explicitly: it is a 1980s scan that the oldest-first ordering would now
+ *    rank *first*, and the only thing keeping it out was its missing caption —
+ *    one caption typed in Studio and the same picture would have opened the
+ *    page and closed it (D-3.10-5).
  *
  * Everything degrades to a visible placeholder (never invented) when a query
  * returns nothing — content-truth.
@@ -111,6 +153,9 @@ const HOME_QUERY = /* groq */ `{
   },
   "records": *[_type == "clubRecord"]{ label, value, category, order },
   "decadeValues": *[_type == "season" && defined(decade)].decade,
+  "momentPinned": *[_type == "photo" && _id == $momentPhotoId && defined(image)][0]{
+      "image": image, caption, date
+    },
   "moment": *[_type == "photo"
       && _id != $heroPhotoId
       && defined(caption) && caption != ""
@@ -146,6 +191,14 @@ type Legend = {
 
 type Season = { title: string | null; photo: Photo | null };
 
+/** „Момент од историјата" — the same shape whether it came from the pin or
+ *  from the deterministic fallback, so the two are interchangeable. */
+type MomentPhoto = {
+  image: SanityImageSource | null;
+  caption: string | null;
+  date: string | null;
+};
+
 type HomeData = {
   settings: { title: string | null; description: string | null } | null;
   heroPinned: Season | null;
@@ -154,11 +207,8 @@ type HomeData = {
   legends: Legend[];
   records: ClubRecordData[];
   decadeValues: number[];
-  moment: {
-    image: SanityImageSource | null;
-    caption: string | null;
-    date: string | null;
-  } | null;
+  momentPinned: MomentPhoto | null;
+  moment: MomentPhoto | null;
 };
 
 const EMPTY: HomeData = {
@@ -169,6 +219,7 @@ const EMPTY: HomeData = {
   legends: [],
   records: [],
   decadeValues: [],
+  momentPinned: null,
   moment: null,
 };
 
@@ -184,12 +235,37 @@ const DECADES_LEAD =
 
 // Section 7 — quick links. Labels/sublabels are navigation copy (what each
 // destination is), not factual claims — safe under content-truth.
+//
+// „Разно" joined at 3.24 (owner request). It sits between „Статистика" and „За
+// нас", the position it already holds in `src/lib/nav.ts` — a reader who learns
+// an order from the header should not meet a different one at the foot of the
+// homepage. Its sub-label reuses the opening words of `RAZNO_INTRO`, the voice
+// `/razno` describes itself in, rather than inventing a second register for the
+// same destination.
 const QUICK_LINKS: { href: string; label: string; sub: string }[] = [
   { href: "/arhiva", label: "Архива", sub: "Сезона по сезона" },
   { href: "/legendi", label: "Легенди", sub: "Играчи и личности" },
   { href: "/statistika", label: "Статистика", sub: "Рекорди и табели" },
+  { href: "/razno", label: "Разно", sub: "Теми од историјата" },
   { href: "/za-nas", label: "За нас", sub: "За овој проект" },
 ];
+
+/**
+ * The extra classes the LAST quick-link box needs so it never sits alone in a
+ * half-empty row.
+ *
+ * The grid runs 1 / 2 / 5 tracks. At five boxes the `lg` row is exact, but the
+ * two-track row between `sm` and `lg` leaves the fifth on a line of its own, so
+ * it widens to close that line — the same „widen the last cell rather than
+ * leave an empty track" move `ClubRecords` makes (D-3.05b-2). `lg:col-span-1`
+ * is not redundant: it cancels the `sm` span again once the row is exact, and
+ * without it the wide cell would leak up into the five-track layout.
+ *
+ * Derived from the array's length, so adding a sixth box changes the outcome
+ * instead of silently breaking the row.
+ */
+const LAST_TILE_SPAN =
+  QUICK_LINKS.length % 2 === 1 ? "sm:col-span-2 lg:col-span-1" : "";
 
 /**
  * The three marks in the hero badge, in the owner's order (3.19): znamenca
@@ -272,21 +348,22 @@ export default async function Home() {
     // that will not load at all. It never invents filler (content-truth).
     data = await fetchOrThrow<HomeData>(
       HOME_QUERY,
-      { heroSeasonSlug: HERO_SEASON_SLUG, heroPhotoId: HERO_PHOTO_ID },
+      {
+        heroSeasonSlug: HERO_SEASON_SLUG,
+        heroPhotoId: HERO_PHOTO_ID,
+        momentPhotoId: MOMENT_PHOTO_ID,
+      },
       "the homepage",
     );
   } catch {
     data = EMPTY;
   }
 
-  const {
-    settings,
-    heroPinned,
-    heroSeason,
-    heroFallbackPhoto,
-    records,
-    moment,
-  } = data;
+  const { settings, heroPinned, heroSeason, heroFallbackPhoto, records } = data;
+
+  // The pin wins; the deterministic lookup catches the fall (D-3.24-2).
+  const momentIsPinned = Boolean(data.momentPinned?.image);
+  const moment = data.momentPinned ?? data.moment;
 
   const heroTitle = settings?.title?.trim() || "ФК Беласица";
   const heroPhoto =
@@ -606,6 +683,28 @@ export default async function Home() {
               {moment.caption && (
                 <p className="u-h2 mt-3 text-paper">{moment.caption}</p>
               )}
+
+              {/* Gated on the PIN, not merely on there being a photograph
+                  (3.24). The label names the youth school, and only the pinned
+                  1993 Cup side is that story; if the pin is ever unpublished
+                  the section falls back to a different picture, and the link
+                  would then be a sentence the page cannot support. It goes away
+                  rather than becoming false.
+
+                  `u-link` — the site's text link, the same one „Сите легенди"
+                  and „За архивата" use, so this reads as a link rather than a
+                  fifth button. `self-start` keeps the orange rule the width of
+                  the words: the figcaption is a column flex, which would
+                  otherwise stretch an inline-flex child across the whole
+                  panel. Orange ring, because this sits on navy. */}
+              {momentIsPinned && (
+                <Link
+                  href={MOMENT_LINK.href}
+                  className={`u-link mt-7 self-start text-paper ${focusOnNavy}`}
+                >
+                  {MOMENT_LINK.label}
+                </Link>
+              )}
             </figcaption>
           </figure>
         </section>
@@ -621,9 +720,21 @@ export default async function Home() {
             </h2>
           </Reveal>
 
-          <ul className="mt-10 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {/* Five tracks at `lg`, not four: „Разно" joined the row at 3.24 and
+              a fifth box under a four-track grid would stand alone on a second
+              line with three empty tracks beside it. The tiles are short — a
+              label over one line of meta — so five across at 1248px is a
+              comfortable ~185px each rather than a squeeze. */}
+          <ul className="mt-10 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
             {QUICK_LINKS.map((card, i) => (
-              <Reveal as="li" key={card.href} delayIndex={i}>
+              <Reveal
+                as="li"
+                key={card.href}
+                delayIndex={i}
+                className={
+                  i === QUICK_LINKS.length - 1 ? LAST_TILE_SPAN : undefined
+                }
+              >
                 <Link href={card.href} className={`u-tile ${focusOnNavy}`}>
                   <h3 className="u-h3 text-paper">{card.label}</h3>
                   <span className="u-tile-meta">{card.sub}</span>

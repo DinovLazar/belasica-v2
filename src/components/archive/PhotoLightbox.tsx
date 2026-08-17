@@ -20,9 +20,10 @@ import { focusOnNavy, focusOnPaper } from "@/lib/focus";
  * 3-up grid, matted at `3/2`. That is the right index, but it is not a way to
  * *look* at a photograph — a team photo from 1963 arrives about 380px wide,
  * and the faces in it are the substance of the archive. This opens the scan on
- * the navy ground as large as it can go without running under a control — the
- * arrows hold a gutter beside it and the cap is written to match (3.19) — with
- * its caption and date beneath it.
+ * the navy ground **scaled to fill the overlay's usable area** — the arrows and
+ * the close button keep their gutters (3.19) and the picture takes everything
+ * that is left, upscaled where the file is smaller than that (3.24) — with its
+ * caption and date beneath it.
  *
  * **Why a provider + a trigger, rather than one component.** `PhotoGrid` and
  * the season page stay **server** components: the Sanity image URLs are built
@@ -176,7 +177,8 @@ export function PhotoLightboxProvider({
      the single-photo case — where the arrows are not rendered at all — traps
      correctly with just the close button. */
   const trapTab = (event: React.KeyboardEvent) => {
-    const focusable = dialogRef.current?.querySelectorAll<HTMLElement>("button");
+    const focusable =
+      dialogRef.current?.querySelectorAll<HTMLElement>("button");
     if (!focusable || focusable.length === 0) return;
     const first = focusable[0];
     const last = focusable[focusable.length - 1];
@@ -271,17 +273,39 @@ export function PhotoLightboxProvider({
             most 4vw of clearance a side against a 48px control, so a wide scan
             — the owner's newspaper clipping — ran underneath both of them and
             became unreadable. Here the row is the layout: the buttons hold a
-            real gutter and the image's cap is written to match it exactly
-            (2 × 48px control + 2 × 16px gap + the overlay's 2 × 16px padding,
-            plus a little slack = 11rem), so the picture stops where the gutter
-            starts at every width.
+            real gutter and the picture stops where the gutter starts, at every
+            width.
+
+            Since 3.24 the gutter is STRUCTURAL rather than arithmetic. It used
+            to be a `max-w-[calc(100vw-11rem)]` cap on the image, hand-derived
+            from the controls it had to clear; now the two buttons are
+            `shrink-0` and the figure is `flex-1`, so the figure is by
+            construction whatever is left over. The clearance can no longer
+            drift out of step with the control size, and the cap is gone.
 
             Below `sm` a gutter that wide would leave the photograph too small,
             so the row WRAPS instead: the figure takes the full line and the two
             arrows fall beneath it, under the „3 / 8" counter. `order` does that
             with one set of buttons in one place in the DOM — a second, hidden
-            pair would duplicate the labels and the tab stops. */}
-        <div className="flex w-full min-w-0 flex-wrap items-center justify-center gap-4">
+            pair would duplicate the labels and the tab stops.
+
+            `flex-1 min-h-0` is what makes the row the overlay's usable AREA
+            rather than a shrink-wrapped strip: it claims everything between the
+            close button's reserved band (`pt-20`) and the bottom padding, and
+            the figure inside it inherits that height.
+
+            ⚠️ `sm:flex-nowrap` is load-bearing, not tidying. A WRAPPING flex
+            container sizes itself from its flex lines, and a line is never
+            compressed below the content in it — so with `flex-wrap` left on at
+            desktop the row honoured `flex-1` for its own box and then let the
+            line overflow it anyway. Measured before the fix, at 1280×800: the
+            figure came out **1258px tall in an 800px viewport** (157vh), with
+            the arrows pushed to y=701 and the picture running off the bottom of
+            the screen. Switching the row to a single line above `sm` is what
+            makes `self-stretch` on the figure resolve against the ROW's height
+            rather than against the line's. Below `sm` the wrap is still the
+            mechanism that drops the arrows under the photograph, so it stays. */}
+        <div className="flex min-h-0 w-full min-w-0 flex-1 flex-wrap items-center justify-center gap-4 sm:flex-nowrap">
           {/* Both arrows are absent — not merely hidden — for a season with one
               photograph, where „next" would only ever return the same scan. */}
           {!single && (
@@ -299,22 +323,63 @@ export function PhotoLightboxProvider({
             </button>
           )}
 
-          <figure className="order-1 flex min-h-0 w-full min-w-0 flex-col items-center gap-5 sm:order-none sm:w-auto">
-            {/* `object-contain` inside the cap above, so a tall portrait scan
-                and a wide team photo both arrive whole. Keyed by id: without it
-                React reuses the same image element across a step and the
-                previous photo lingers until the next one decodes. */}
+          <figure className="order-1 flex min-h-0 w-full min-w-0 flex-col items-center gap-5 sm:order-none sm:w-auto sm:flex-1 sm:self-stretch">
+            {/* THE SCAN IS SCALED TO THE AREA, NOT SHOWN AT ITS OWN SIZE.
+
+                Until 3.24 this was `h-auto w-auto` under a pair of `max-*`
+                caps, which means „render at the file's true pixel size unless
+                that is too big". The archival scans are small — a great many
+                are about 520px tall — so the caps never engaged and the overlay
+                opened a postage stamp in the middle of a full-screen navy
+                block. The box was generous; nothing was ever scaling the
+                picture up to meet it.
+
+                Now the image IS the growing flex item: `flex-1` gives it the
+                figure's leftover height (the row's height minus the caption),
+                `w-full` gives it the figure's width, and `object-contain` fits
+                the photograph inside that box whole, upscaling when the file is
+                smaller than the box. Desktop lands at roughly 85vh of picture,
+                derived from the real chrome rather than from a magic number.
+
+                Below `sm` the height is content-driven instead: `w-full` +
+                `h-auto` upscales the scan to the full usable width of the phone
+                — the overlay's own 16px gutters and nothing else — and
+                `max-h-[62vh]` keeps a tall portrait from pushing the arrows off
+                the screen. `object-contain` is what makes that cap safe: when
+                it engages, the picture letterboxes inside the element instead
+                of stretching.
+
+                ⚠️ THE ACCEPTED TRADE (D-3.24-1). Upscaling a 520px scan to 85vh
+                is visibly softer than showing it at 1:1, and no sharper file
+                exists to fetch — `PhotoGrid` builds these URLs with
+                `fit("max")`, which never enlarges past the original. That is
+                the right way round: an archival photograph that is legible and
+                a little soft is worth more than one that is crisp and too small
+                to find a face in. The homepage hero already makes exactly this
+                trade. No sharpening filter, no fractional cap, no second
+                variant.
+
+                Keyed by id: without it React reuses the same image element
+                across a step and the previous photo lingers until the next one
+                decodes. */}
             <Image
               key={photo.id}
               src={photo.url}
               alt={photo.caption ?? UNCAPTIONED}
               width={photo.width}
               height={photo.height}
-              sizes="92vw"
-              className="h-auto max-h-[62vh] w-auto max-w-[92vw] object-contain sm:max-h-[76vh] sm:max-w-[calc(100vw-11rem)]"
+              // Matches the box the image now renders into, so the browser
+              // asks for a variant sized to what is on screen. It was `92vw`,
+              // written when the element was intrinsically sized and the hint
+              // described nothing that existed. `11rem` below is the row's own
+              // arithmetic — 2 × 48px control + 2 × 16px gap + the overlay's
+              // 2 × 16px padding — used here only as a WIDTH HINT; the layout
+              // no longer depends on it.
+              sizes="(min-width: 640px) calc(100vw - 11rem), calc(100vw - 2rem)"
+              className="h-auto max-h-[62vh] w-full object-contain sm:min-h-0 sm:max-h-none sm:flex-1"
             />
 
-            <figcaption className="max-w-measure text-center">
+            <figcaption className="max-w-measure shrink-0 text-center">
               {photo.date && (
                 <p className="text-overline font-bold uppercase tracking-overline text-paper/80">
                   {photo.date}
