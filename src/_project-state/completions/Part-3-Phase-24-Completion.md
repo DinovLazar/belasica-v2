@@ -118,7 +118,28 @@ Strings 1–3 are navigation copy; 4–5 describe the page's own state. **None m
 
 ### Vercel preview
 
-*To be filled in on the PR — see §7.*
+**PR [#54](https://github.com/DinovLazar/belasica-v2/pull/54)** · commit `99638c9` · **Vercel build: success**
+
+**https://belasica-v2-ipzu0y6gj-sunset-services-team.vercel.app**
+
+All six required routes **200**: `/`, `/statistika`, `/za-nas`, `/razno`, `/razno/mladinska-skola`, `/arhiva/1985-86`.
+
+Verified **on the deployed preview**, not only locally:
+
+- „Момент од историјата" renders the pinned caption „Младата екипа на Беласица со Купот на Македонија, 1993", and the section contains `href="/razno/mladinska-skola"` labelled „Прочитај повеќе за младинската школа".
+- „Каде понатаму" renders `/arhiva`, `/legendi`, `/statistika`, **`/razno`**, `/za-nas` in that order, on `grid-cols-1 sm:grid-cols-2 lg:grid-cols-5`, with the „Теми од историјата" sub-label present.
+- „Најмногу настапи" renders **116 rows**, carries the threshold sentence, contains **no** „Горан Пандев", and has **0** placeholder chips.
+- `/za-nas` serves `href="/legendi/tome-stojanov"` and **0** `<a>` elements with an absolute self-URL.
+
+### Five-item eyeball checklist for Lazar
+
+On **https://belasica-v2-ipzu0y6gj-sunset-services-team.vercel.app** — ideally once on a laptop and once on a phone:
+
+1. **Open a photograph on `/arhiva/1985-86` and on `/razno/mladinska-skola`.** It should now fill most of the screen. On „Младинска школа" the first scan is a 1950 newspaper clipping — **the printed names under it should be readable**. Step through with the arrows; nothing should ever sit on top of the picture. *(This also settles **OV-55**: tell me if an upscaled scan looks too soft.)*
+2. **Read the new link on the homepage** under the 1993 photograph: „Прочитај повеќе за младинската школа". Does the wording sound right, and **is that the photograph Ace wants on the front page?** *(**OV-56**)*
+3. **Look at „Каде понатаму"** at the bottom of the homepage — five boxes now. Check „Разно · Теми од историјата" reads naturally beside the other four, and that the row does not break on your phone.
+4. **On `/statistika`, scroll to „Најмногу настапи".** ⚠️ **Горан Пандев is no longer in it**, though he is still in „Најдобри стрелци" just above. That is the 46-appearance cut doing what it was told. **This is the decision I need back from you — see OV-57**; no threshold gives the 47 players the brief expected (≥131 → 46 rows, ≥130 → 48).
+5. **On `/statistika`, press Tab until a column heading is highlighted, then press Enter.** The table should re-sort. I could not test this myself — the browser I had would not deliver keystrokes *(**OV-54**)*.
 
 ---
 
