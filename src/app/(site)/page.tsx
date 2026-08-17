@@ -192,18 +192,29 @@ const QUICK_LINKS: { href: string; label: string; sub: string }[] = [
 ];
 
 /**
- * The three pennants in the hero badge, in the owner's order (3.19): znamenca
+ * The three marks in the hero badge, in the owner's order (3.19): znamenca
  * 1, 6 and 9 of the set in `public/znamenca/`.
  *
- * `width`/`height` are the files' intrinsic pixels — all three are 520 tall,
- * which is what lets a single `h-*` normalise them into a set. They are listed
- * here rather than inline so the order is one edit, and so nothing about them
- * is duplicated between the markup and this table.
+ * All three are **background-free** — the artwork is cut out, so it sits on
+ * the navy and on the photograph without a white card behind it. Since 3.24
+ * that is true of every slot, where before it was true of none: the first is
+ * now `/crest.svg` itself (the same transparent vector the header renders —
+ * it was always the same pennant as `zname-01.webp`, only with its white
+ * background still attached), and 6 and 9 were replaced in place by
+ * owner-supplied cut-outs of the same two crests.
+ *
+ * `width`/`height` are intrinsic — 364/446/438 × **520**. The shared 520 is
+ * deliberate and survived the swap: it is what lets a single `h-*` + `w-auto`
+ * normalise three different shapes into a set. `/crest.svg` has no pixels of
+ * its own, so its pair is its viewBox (864×1233) reduced to that same height.
+ *
+ * Listed here rather than inline so the order is one edit, and so nothing
+ * about them is duplicated between the markup and this table.
  */
 const ZNAMENCA: { src: string; width: number; height: number }[] = [
-  { src: "/znamenca/zname-01.webp", width: 368, height: 520 },
-  { src: "/znamenca/zname-06.webp", width: 476, height: 520 },
-  { src: "/znamenca/zname-09.webp", width: 418, height: 520 },
+  { src: "/crest.svg", width: 364, height: 520 },
+  { src: "/znamenca/zname-06.webp", width: 446, height: 520 },
+  { src: "/znamenca/zname-09.webp", width: 438, height: 520 },
 ];
 
 /** Last-resort hero alt — used only when nothing on the photo names it. */
@@ -352,10 +363,17 @@ export default async function Home() {
               rectangle only read as a sticker (owner decision, 3.06a,
               superseding D-crest-2).
 
-              Since 3.19 the badge is THREE pennants rather than the single
-              crest (owner instruction, Ace): znamenca 1, 6 and 9, in that
-              order. `/crest.svg` is unchanged and still the header's mark —
-              only this hero swapped. */}
+              Since 3.19 the badge is THREE marks rather than the single crest
+              (owner instruction, Ace): znamenca 1, 6 and 9, in that order.
+
+              3.24 made that decision literal. Until then the three were
+              scans WITH their white backgrounds, so the „no panel" above was
+              defeated by the files themselves — each one painted its own
+              white rectangle onto the navy, which is the sticker 3.06a threw
+              out. All three are now cut out, so the artwork really does carry
+              itself. `/crest.svg` is unchanged and still the header's mark;
+              slot 1 now points at it directly rather than at a second copy of
+              the same pennant. */}
           <div className="flex flex-wrap items-end gap-5 lg:gap-8">
             <div className="relative z-10 -mt-9 flex-none md:-mt-11 lg:-mt-14">
               {/* One accessible object, not three. The three pennants are the
@@ -371,10 +389,15 @@ export default async function Home() {
                 aria-label="Три знаменца на ФК Беласица"
                 className="flex items-end gap-3 md:gap-4"
               >
-                {/* Normalised by HEIGHT, not width: all three scans are 520px
-                    tall with different widths (368 / 476 / 418), so one `h-*`
+                {/* Normalised by HEIGHT, not width: all three are 520px tall
+                    with different widths (364 / 446 / 438), so one `h-*`
                     plus `w-auto` makes them read as a set and each keeps its
-                    own proportions. Heights are ~2/3 of the single crest's
+                    own proportions. Since 3.24 that height is the ARTWORK's,
+                    not a scan's — cutting the backgrounds out also trimmed
+                    the white margins each file used to carry, so the same
+                    `h-*` now renders visibly bigger marks. That is the
+                    intended result, not drift: the box was always mostly
+                    padding. Heights are ~2/3 of the single crest's
                     (h-24/32/40) so three side by side do not outweigh the
                     wordmark; below `md` the row simply wraps onto its own line
                     above the <h1> rather than shrinking to illegibility.
