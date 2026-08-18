@@ -134,7 +134,7 @@ export const person = defineType({
       type: "object",
       options: { collapsible: true, collapsed: false },
       description:
-        "Само настапи и голови ЗА БЕЛАСИЦА. За целата кариера постои полето подолу.",
+        "Само настапи и голови ЗА БЕЛАСИЦА. За репрезентацијата постои полето подолу.",
       fields: [
         defineField({ name: "appearances", title: "Настапи", type: "number" }),
         defineField({ name: "goals", title: "Голови", type: "number" }),
@@ -160,20 +160,20 @@ export const person = defineType({
     // figure and is rendered beside it on the person page.
     defineField({
       name: "nationalStats",
-      title: "Статистика од целата кариера",
+      title: "Статистика за репрезентацијата",
       type: "object",
       options: { collapsible: true, collapsed: true },
       description:
-        "Настапи и голови од ЦЕЛАТА кариера — сите клубови и репрезентацијата заедно. Ова НЕ е статистиката за Беласица. Се пополнува од јавни извори.",
+        "Настапи и голови САМО за македонската репрезентација. Ова НЕ е клупска статистика — ниту за Беласица, ниту за другите клубови.",
       fields: [
         defineField({
           name: "appearances",
-          title: "Настапи (цела кариера)",
+          title: "Настапи за репрезентацијата",
           type: "number",
         }),
         defineField({
           name: "goals",
-          title: "Голови (цела кариера)",
+          title: "Голови за репрезентацијата",
           type: "number",
         }),
         defineField({
@@ -181,7 +181,7 @@ export const person = defineType({
           title: "Извор на бројките",
           type: "string",
           description:
-            "Од каде се земени бројките, кратко — на пр. „Според Трансфермаркт, 2026“. Се прикажува на страницата на личноста, до бројките, за да може читателот да провери од каде се.",
+            "Од каде се земени бројките, кратко — на пр. „Според биографиите и книгата на Аце Стојанов“. Се прикажува на страницата на личноста, до бројките, за да може читателот да провери од каде се.",
         }),
       ],
     }),

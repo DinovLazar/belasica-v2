@@ -295,14 +295,20 @@ export function LegendCard({
             {years && <p className={cn("mt-3 text-small", quiet)}>{years}</p>}
 
             {/* Репрезентативци only. The scope is stated in the line itself —
-                „Цела кариера" — because that is the one thing a reader cannot
-                infer from a bare number, and because the same card shows a
-                Belasica figure on the Играчи tab. Never rendered beside the
+                „За репрезентацијата" — because that is the one thing a reader
+                cannot infer from a bare number, and because the same card shows
+                a Belasica figure on the Играчи tab. Never rendered beside the
                 Belasica count: the two never appear on the same card, so there
-                is no surface where a reader must guess which is which. */}
+                is no surface where a reader must guess which is which.
+
+                3.30 narrowed the claim from whole-career totals to
+                national-team caps: the whole-career figures proved
+                unsourceable (Transfermarkt blocks automated reads, Wikipedia
+                is league-only), while the caps agree across Ace's biographies
+                and his book (D-3.30-1). */}
             {wholeCareer && (
               <p className={cn("mt-3 text-small tabular-nums", quiet)}>
-                Цела кариера: {wholeCareer}
+                За репрезентацијата: {wholeCareer}
               </p>
             )}
           </div>
