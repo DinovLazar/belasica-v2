@@ -140,3 +140,25 @@ Group titles and есен/пролет labels are **not new strings** — they a
 ## 7. Out of scope — untouched, as instructed
 
 The two new league tables („Втора и трета југословенска лига", „Прва македонска лига") were **not started**. Section `id`s and headings unchanged. `StandingsTable`, `SquadTable` and `PersonChip` remain legacy and unrendered — **none was resurrected**. No other season-page section, no archive index, `/statistika`, homepage, `/legendi` or „Разно".
+
+---
+
+## 8. Vercel preview
+
+**PR [#56](https://github.com/DinovLazar/belasica-v2/pull/56)** · **https://belasica-v2-84p9cd1ox-sunset-services-team.vercel.app**
+
+**10/10 requested routes 200**, including the four „divergent" seasons: `/arhiva`, `/arhiva/1987-88` (structured), `/arhiva/1922-26` (prose), `/arhiva/1950`, `/arhiva/1950-51`, `/arhiva/1954-55`, `/arhiva/1987-88`, `/arhiva/2018-19`, `/arhiva/1938-39`, `/arhiva/2025-26`.
+
+Confirmed **on the deployed version**, not only locally:
+
+- **`/arhiva/1987-88`** renders three tables — „Прва македонска лига", „Финале на квалификациите за влез во Втората југословенска лига" and „Состав и статистика" — and **contains no prose renderer at all**.
+- **`/arhiva/1922-26`** renders **zero tables** and the prose renderer, exactly as before this phase.
+- **`/arhiva/1938-39`** proves the self-omitting column on one page: „Група Струмица" → `Натпревар|Резултат|Стрелци`; its three siblings → `Коло|Натпревар|Резултат|Стрелци`.
+
+### Five things for Lazar to eyeball
+
+1. **`/arhiva/1987-88`** — the qualification ties sit in their **own table** under the league season. Is that the split Аце meant?
+2. **`/arhiva/2018-19` on a phone** — the scorers sit **under** each row and nothing scrolls sideways.
+3. **`/arhiva/1938-39`** — the first table has **no „Коло" column** and the other three do, on the same page.
+4. **`/arhiva/2025-26`** — still the **prose**, with „22+0/0" intact; the table was deliberately withheld because the structured rows carry no figures.
+5. **Any squad table** — one lone underlined name among ~1.981 plain ones (**OV-63**). Decide whether that stays.
