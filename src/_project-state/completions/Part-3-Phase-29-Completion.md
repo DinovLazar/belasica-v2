@@ -22,7 +22,7 @@ The lasting deliverable is `docs/data-shapes.md`: every field of every content t
 - ✅ **If either PR was open, the phase stopped after Task 0 and no branch was created** — not applicable: **both were merged**, so the full brief ran. `gh pr list` shows #55 `MERGED 2026-08-18T00:02:10Z` and #56 `MERGED 2026-08-18T13:48:51Z`.
 - ✅ **`npm run build` passes; page count stated and compared; the 659 / 330 discrepancy explained or flagged** — evidence: clean build after `rm -rf .next` reports `Generating static pages (0/329)`. **329 vs 3.28's 330 is fully explained** — one fewer person page after the Ефтимов unpublish (211 → 210 persons). **3.27's 659 is a different metric**, not a page count: 3.27's own report says "`/legendi/[slug]` yields 424 manifest entries = 211 person pages × 2 (html + rsc)", and 424 cannot be a page count when only 211 person pages exist. ⚠️ **The exact 659 is flagged as not reproducible** — this build emits 322 `.html` + 322 `.rsc` = 644 artefacts at 210 persons (646 at 211), leaving 13 unaccounted for. It should not be used as a baseline (D-3.29-3).
 - ✅ **`tsc` clean, ESLint clean, prettier applied** — evidence: `npx tsc --noEmit` exit 0, no output; `npm run lint` no findings; `npx prettier --check` on this phase's four files → "All matched files use Prettier code style!" ⚠️ `00_stack-and-config.md` is flagged by prettier but was **not touched by this phase** (`git diff --name-only` does not list it) — a pre-existing warning, deliberately left alone per the "format only the paths the phase edited" rule.
-- ✅ **No Sanity write; no `patch`, `create`, `createOrReplace` or `commit()` in the diff** — evidence: **the diff contains no code at all.** `git status --porcelain | grep -v '\.md$'` returns **0** — every changed file is markdown. All Sanity access this phase was GROQ reads and two `get_schema` calls.
+- ✅ **No Sanity write; no `patch`, `create`, `createOrReplace` or `commit()` in the diff** — evidence: **the diff contains no code at all.** ⚠️ **See the §14 addendum:** this was true when the report was filed and remains true of the _diff_, but **two Sanity writes were made afterwards on Lazar's instruction** (D-3.29-6). The claim is left as filed rather than rewritten, per the audit-trail rule. `git status --porcelain | grep -v '\.md$'` returns **0** — every changed file is markdown. All Sanity access this phase was GROQ reads and two `get_schema` calls.
 - ✅ **No feature added; changes confined to `src/_project-state/`, `docs/`, and (only if needed) a schema redeploy** — evidence: `git diff --stat` = `current-state.md`, `decisions.md`, `file-map.md`, plus untracked `docs/data-shapes.md`. **No schema redeploy was needed or performed** (D-3.29-2).
 - ⚠️ **The Cowork report is committed verbatim; `D-3.25-1…-6` logged; OV-30 resolved; new owed items on the register** — **partial, and this is the one task the phase could not close.** ✅ OV-30 is resolved on the register with live evidence. ✅ The owed items the brief names are added. ✅ **D-3.25-2 is logged** in full, from the reasoning the brief carries. ❌ **The report is not committed and D-3.25-1/-3/-4/-5/-6 are not logged, because the report text does not exist anywhere reachable** — see §4 and D-3.29-1. The five IDs are **reserved, not consumed**.
 - ✅ **`current-state.md` describes the repo as Task 0 found it, NEXT line as specified** — evidence: first line now opens `NEXT: **3.30-Code — Репрезентативци, табела 2025/26 и список 135–161**`, states both PRs merged with their commits, and records that the Phase-1.01 premise was false. Stale "on branch" markers for 3.22/3.24/3.27 corrected to their merge commits; the 211-person and 659-page figures corrected throughout.
@@ -39,6 +39,7 @@ The lasting deliverable is `docs/data-shapes.md`: every field of every content t
 - ⏳ Lazar decides whether to relabel the internationals' section — **now decidable**, §6.2 (OV-71).
 - ⏳ Ace decides the appearances rule from the real distribution — **now decidable**, §6.3 (OV-57).
 - ⏳ Ace supplies the 24 missing trainer spans and confirms the rest — 45 of 69 coaches carry one.
+- ✅ **OV-67 and OV-68 RESOLVED 2026-08-18**, after this report was filed — see §14.
 
 ---
 
@@ -337,3 +338,29 @@ All five are logged in `decisions.md`.
 ## 13. What's now possible that wasn't before
 
 The next brief can be written from measured numbers instead of remembered ones — and the three decisions blocking 3.30 are now decisions rather than research.
+
+---
+
+## 14. Addendum — 2026-08-18, after this report was filed
+
+**Lazar instructed both Ефтимов residues be fixed.** Two Sanity writes were made; nothing else changed. Logged as **D-3.29-6**.
+
+**What changed**
+
+1. **OV-67 — the caption.** `portrait-person-tomche-eftimov`.`caption` set from „Томче Ефтимов" to **„Томе Ефтимов"** (`patch_documents` → `publish_documents`; `patch` writes only to a draft, so the publish is required). **One field fixed three surfaces** — `alt` derives from `caption` at `src/components/archive/PhotoGrid.tsx:84`, so the visible figcaption, the alt text and the lightbox label all corrected together.
+2. **OV-68 — the draft.** `drafts.person-tomche-eftimov` discarded.
+
+**The deletion was checked before it was made.** The draft was fetched in full and diffed against the surviving `person-tome-eftimov`. The **published record's biography is the better transcription** — it carries a sentence the draft lacks („Крајот на 70-тите години го предводи Единство од Пиперево, во Источен регион.") and renders the draft's „теи сезони" correctly as „три сезони". **Nothing unique to the draft was destroyed.**
+
+**Verified at `perspective: "raw"`** (which sees drafts, unlike `published`):
+
+- **0** `person` documents anywhere match `tomche` or „Томче"
+- **0** photo captions anywhere contain „Томче"
+- exactly **1** document holds `legendRank 9` — `person-tome-eftimov`
+- published persons still **210**
+
+**Verified live** (after ~90 s of ISR lag, per the `revalidate = 60` window): `/legendi/tome-eftimov` renders `<h1>` „Томе Ефтимов", both portrait `alt`s read „Томе" (`alt="Томе Ефтимов"` and `alt="Црно-бел портрет на Томе Ефтимов во пругаст дрес"`), and **„Томче" occurs 0 times on the page**. `/legendi/tomche-eftimov` still returns **404**.
+
+**Deliberately not changed:** the document `_id` `portrait-person-tomche-eftimov`. It is a React key, nothing links to it, and renaming a document id is a create-plus-delete for no rendered benefit.
+
+⚠️ **Correction to this report's own record.** §2 claims "No Sanity write". That was accurate when filed and is still accurate about the **diff** — the PR remains markdown-only. It is **not** accurate about the phase as a whole. The original line is left standing with a pointer here rather than being rewritten, so the audit trail shows what was claimed, when, and what changed it.
