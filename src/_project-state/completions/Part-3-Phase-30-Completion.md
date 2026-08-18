@@ -209,3 +209,28 @@ Six state the figure word for word; four are silent on the goals rather than con
 ## 9. What is now possible that was not
 
 Ten of the club's best-known names finally carry a number on the page that is _about them_ rather than about their two seasons in Strumica — and it is a number that says what it means. „Најмногу настапи" can be read at a glance. And 2025/26 has a final-table row built from the club's own results and checked against Ace's own sentence about it — taking the archive from 92 seasons with a table to **93 of 96**. ⚠️ Three seasons still have none, and this phase did not touch them.
+
+---
+
+## 10. Vercel preview — and the five things for Lazar to eyeball
+
+**Preview:** https://belasica-v2-c4gf4x3b4-sunset-services-team.vercel.app
+**PR:** https://github.com/DinovLazar/belasica-v2/pull/58
+
+All seven required routes return **200**: `/`, `/statistika`, `/legendi`, `/arhiva/2025-26`, and the three person pages `/legendi/goran-pandev`, `/legendi/robert-popov`, `/legendi/nikola-tanushev`.
+
+Confirmed on the deployed build, not just locally:
+
+- `/arhiva/2025-26` renders „Табела · Пласман **5** · Одиграни **30** · Победи **18** · Нерешени **4** · Порази **8** · Дадени голови **57** · Примени голови **21** · Бодови **58**".
+- `/statistika` renders „…играчите со **130** или повеќе внесени првенствени настапи…" and the table holds **48 data rows**.
+- `/legendi/goran-pandev` renders „За репрезентацијата · Настапи **122** · Голови **38**" with the source note.
+- `/legendi/robert-popov` renders „За репрезентацијата · Настапи **17** · Голови **0**" — the recorded zero, live.
+- **0 occurrences of „Цела кариера"** across `/statistika`, `/legendi` and a person page.
+
+### Five things to look at (2 minutes)
+
+1. **`/legendi` → Репрезентативци.** Ten cards should each carry a line reading „За репрезентацијата: 122 настапи, 38 голови". Does that heading say what you want it to say, in your own ear? It is the whole point of the phase — see **OV-74**.
+2. **`/legendi/robert-popov`, under „Кариера".** Two labelled groups: „Беласица 112 / 9" and „За репрезентацијата 17 / **0**". **The 0 is deliberate and true** — he has 17 caps and never scored. Confirm a rendered zero reads as a fact and not as a bug.
+3. **`/statistika` → „Најмногу настапи".** It should now feel like a table you can scan, not a directory. **48 rows.** Ace asked for 47; no threshold gives 47 — see **OV-75**.
+4. **`/arhiva/2025-26` → „Табела".** This is the one row in the whole archive not copied from Ace's book. Check it against his own closing sentence in the season story, which states the same 5th place, 58 points and 57:21 — see **OV-77**.
+5. **The book's title in the source note**, at the bottom of any of the ten career sections: „…книгата „ФК Беласица **—** гордоста на Струмица“." „Разно" spells it with a shorter dash (**–**) and `facts.md` with a hyphen (**-**). Three spellings, two of them now shipped — pick one — see **OV-76**.
