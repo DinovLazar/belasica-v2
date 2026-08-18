@@ -132,8 +132,8 @@ Projected by named field throughout; `nationalStats` is rebuilt from its two num
 ### ✅ Record files updated; report filed
 See §6.
 
-### ⚠️ Zero horizontal overflow at 375 / 768 / 1280 / 1408 px
-See §9 — measured on the deployed preview.
+### ✅ Zero horizontal overflow at 375 / 768 / 1280 / 1408 px
+Measured on the deployed preview — **0 px at all four widths** on both `/legendi` and a person page. Full table and the tab-rail containment proof in §9.
 
 ### ✅ One PR from `phase-3.27-role-scoped-profiles` → `main`; no secrets
 See §5. Nothing was committed to `main` directly. No secret is in the diff; `.env.local` was copied into the worktree for the build and is gitignored.
@@ -214,6 +214,57 @@ Ace can enter a coach's years, a president's term and a man's whole-career figur
 
 ---
 
-## 9. Vercel preview
+## 9. Vercel preview — confirmed on the deployed build
 
-*(filled in below once the PR deployment completed)*
+**PR [#55](https://github.com/DinovLazar/belasica-v2/pull/55)** · **Preview:** https://belasica-v2-l9rnnvqof-sunset-services-team.vercel.app
+
+**Routes — 10/10 return 200**, including the trainer's and the official's page the DoD names:
+`/` · `/legendi` · `/legendi/panche-stojanov` · `/legendi/martin-alagjozovski` *(trainer)* · `/legendi/slavcho-vaskov-pinda` *(official)* · `/legendi/goran-pandev` · `/statistika` · `/arhiva` · `/razno` · `/za-nas`
+
+**Roster on the deployed page:** header reads **„211 личности"**; 246 card links over **211 distinct people** — the membership rule removed 15 from Играчи without removing anyone from the site.
+
+**All four tabs, read from the deployed DOM:**
+
+| Tab | Count | „Ранг" present | „настапи" present | First card |
+|---|---|---|---|---|
+| Играчи | **138 играчи** | ✅ yes | ✅ yes | `РАНГ 1. ПЕТАР АНДРЕЕВ 555 НАСТАПИ · Играч · Тренер · 1974–1995` |
+| Тренери | **69 тренери** | ❌ **no** | ❌ **no** | `Мартин Алаѓозовски · Играч · Тренер` |
+| Претседатели | **29 претседатели** | ❌ **no** | ❌ **no** | `Славчо Васков-Пинда · Претседател` |
+| Репрезентативци | **10 репрезентативци** | ❌ **no** | ❌ **no** | `Горан Пандев · Играч` |
+
+**Панче Стојанов, the one man in three tabs, on the deployed site:**
+
+| Панel | His card |
+|---|---|
+| Играчи | `РАНГ 54. ПАНЧЕ СТОЈАНОВ 127 НАСТАПИ · Играч · Тренер · 1992–2012` |
+| Тренери | `Панче Стојанов · Играч · Тренер` |
+| Претседатели | *(absent — he is not one)* |
+| Репрезентативци | `Панче Стојанов · Играч · Тренер` |
+
+**Person page:** `/legendi/panche-stojanov` Кариера reads **„КАРИЕРА · БЕЛАСИЦА · НАСТАПИ 127 · ГОЛОВИ 13"** — the Belasica group labelled, „Цела кариера" and „Периоди" correctly self-omitted (their fields are empty). Zero em-dash cells.
+
+### ✅ Zero horizontal overflow at 375 / 768 / 1280 / 1408 px
+`document.documentElement.scrollWidth − clientWidth` measured on the deployed preview:
+
+| Width | `/legendi` | `/legendi/panche-stojanov` |
+|---|---|---|
+| 375 | **0 px** | **0 px** |
+| 768 | **0 px** | — |
+| 1280 | **0 px** | — |
+| 1408 | **0 px** | **0 px** |
+
+The tab rail measures 509 px at 375 px wide, but its parent is `overflow-x-auto` (`parentOverflowX: "auto"`, clientWidth 375) — it scrolls **inside its own container** by the 3.22 design, and the page body does not scroll. Verified explicitly rather than inferred.
+
+⚠️ **Not verified:** switching tabs by mouse on the preview. The in-app browser's input did not reach the page (a recorded quirk of this harness — `aria-selected` stayed on Играчи after two clicks). The tab **panels themselves were read from the deployed DOM**, which is the content this phase changed; the switching mechanism is 3.22 code and is not in this diff. **Nothing blocks a human check.**
+
+---
+
+## 10. Five-item eyeball checklist for Lazar
+
+On **https://belasica-v2-l9rnnvqof-sunset-services-team.vercel.app** — ideally once on a laptop and once on a phone:
+
+1. **„Легенди" → Играчи** should say **138 играчи** (was 153). Then read the 15 dropped names in §2 and tell me whether any of them belongs back — especially **Аце Стојанов** himself.
+2. **Press „Тренери".** Every card should show a name and its chips and **no rank and no number**. Мартин Алаѓозовски opens the tab.
+3. **Press „Репрезентативци".** Горан Пандев's card should show **no number at all** — his „38" was his Беласица count and has no business on this tab.
+4. **Open Панче Стојанов** (`/legendi/panche-stojanov`). Under „Кариера" you should see **„БЕЛАСИЦА"** above 127 / 13. That label is the whole point — a second group „Цела кариера" will appear beneath it once Ace's numbers are entered.
+5. **Read the new Studio strings** in §2's table — four titles and four descriptions, plus the retitled „Кариерна статистика (Беласица)". These are what Cowork and Ace will be reading while typing the data in.
