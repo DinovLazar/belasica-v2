@@ -3130,6 +3130,19 @@
 > decisions have no recorded reasoning to log. D-3.25-2 is logged because the 3.29 brief
 > carries its reasoning in full. **The remaining five stay unlogged rather than invented** —
 > see D-3.29-1. IDs `D-3.25-1`, `-3`, `-4`, `-5`, `-6` are **reserved, not free**.
+>
+> ✅ **RESOLVED at 3.30 (2026-08-18).** Lazar supplied the Cowork report; it is filed
+> verbatim at `completions/Part-3-Phase-25-Cowork-Completion.md`, and the five reserved IDs
+> are logged below from its own §3. **OV-69 is closed.** The reservation above no longer applies.
+
+### D-3.25-1 · 2026-08-18 · The Пинда portrait was not replaced — Lazar called it off and no replacement existed
+
+- **Status:** Accepted (logged retroactively at 3.30 from the Cowork report §3)
+- **Context:** Task 1 of the 3.25-Cowork brief was to replace Славчо Васков-Пинда's portrait. No Ace-supplied replacement image accompanied the brief.
+- **Decision:** Skip the task and keep the current official-Facebook portrait.
+- **Alternatives considered:** _Hunt through the Drive folders for a better portrait_ — rejected on Lazar's instruction of 18.08.2026; a name-search of the Drive had already found none, so the hunt had no known target.
+- **Consequences:** The portrait on `/legendi` and his person page is unchanged. Nothing is owed unless Ace supplies a replacement.
+- **Links:** Phase 3.25-Cowork task 1; OV-69 (closed at 3.30).
 
 ### D-3.25-2 · 2026-08-18 · The Ефтимов merge kept „Томе" and moved `legendRank 9` onto it — inverting the brief's tie-break
 
@@ -3139,6 +3152,42 @@
 - **Alternatives considered:** _Follow the brief and keep „Томче"_ — rejected: it satisfies the tie-break and breaks the season join. _Keep „Томче" and rewrite the five `season.trainer` strings_ — rejected: five content writes to fix a naming choice, when keeping the name the data already uses costs nothing. _Add an alias field_ — rejected: a second source of truth for a name, for one person.
 - **Consequences:** `/legendi/tome-eftimov` is the surviving page and returns **200**; `/legendi/tomche-eftimov` returns **404** and **nothing links to it** (0 occurrences of the path across the built output and the sitemap). Published persons **211 → 210**, `player` role 153 → 152, `trainer` 69 → 68, and the build **330 → 329 pages**. ⚠️ **Two residues, both confirmed live at 3.29:** the portrait photo document is still `_id: portrait-person-tomche-eftimov` with `caption: "Томче Ефтимов"`, so the surviving page renders an `<h1>` „Томе Ефтимов" above a photo captioned „Томче Ефтимов" (**OV-67**); and „Томче" was **unpublished, not deleted** — `drafts.person-tomche-eftimov` still exists still carrying `legendRank 9`, so publishing it would duplicate the rank (**OV-68**).
 - **Links:** OV-30 (resolved); OV-67; OV-68; D-3.29-1; Phase 3.25-Cowork; Phase 3.29 tasks 1 and 4.
+
+### D-3.25-3 · 2026-08-18 · `officialYears` came from Ace's presidents docx, not from the person bios
+
+- **Status:** Accepted (logged retroactively at 3.30 from the Cowork report §3)
+- **Context:** All 29 presidents needed a term span. Most president bios are empty, so the bios could not supply them.
+- **Decision:** Source every `officialYears` value from Ace's Drive file „Претседатели на ФК Беласица.docx", which states explicit terms for all 29.
+- **Alternatives considered:** _Bios only_ — rejected: it would have left roughly 25 of the 29 empty, which is the outcome the task existed to prevent.
+- **Consequences:** All 29 filled and live. The provenance is Ace's own Drive material, a legal historical source under `facts.md`; the spans are owed Ace's confirmation. The 29 strings are listed verbatim in the Cowork report §5.
+- **Links:** D-3.25-4; Phase 3.25-Cowork tasks 5–6; `facts.md`.
+
+### D-3.25-4 · 2026-08-18 · Пинда's term is open-ended („2015–"), not the docx's literal „2015-2024"
+
+- **Status:** Accepted (logged retroactively at 3.30 from the Cowork report §3)
+- **Context:** The presidents docx gives Славчо Васков-Пинда „2015-2024". Three independent signals say he is still serving.
+- **Decision:** Enter **„2015–"** — an open span — rather than the literal string.
+- **Alternatives considered:** _Copy the docx literally_ — rejected: the „2024" is the document's own write-date, and copying it would publish a false end to a term still running. The 2025/26 season lineup names him („Претседател на клуб: Васков Славчо - Пинда"), his `playingYears` already reads „2015–", and his bio says „актуелен".
+- **Consequences:** His page states an ongoing term. ⚠️ It must be closed by hand when he leaves — nothing derives the end year.
+- **Links:** D-3.25-3.
+
+### D-3.25-5 · 2026-08-18 · A single season renders as its full span („2025–2026"), and Алаѓозовски is entered from Ace's word alone
+
+- **Status:** Accepted (logged retroactively at 3.30 from the Cowork report §3)
+- **Context:** A coach who worked one season could be written as a bare year or as the season's span. Separately, Мартин Алаѓозовски has no season document to derive anything from.
+- **Decision:** Render a single season as its full span — 2025/26 → **„2025–2026"** — matching Ace's own phrasing („Pance Stojanov 2025-2026", 11.08.2026). Enter **„2026"** for Алаѓозовски from Ace's stated 2026/27 role.
+- **Alternatives considered:** _A bare year for one-season coaches_ — rejected: it reads as a partial term and does not match how Ace writes them. _Leave Алаѓозовски empty until a 2026/27 season exists_ — rejected: Ace has stated the role in his own words, and the site already carries a `COACH_YEAR_OVERRIDE` for exactly this man.
+- **Consequences:** Spans are uniform across all 45 coaches. ⚠️ Алаѓозовски's „2026" rests on Ace's message, not on a season document, and must be revisited when a 2026/27 season is published.
+- **Links:** D-3.13-4; `src/content/legendi.ts` `COACH_YEAR_OVERRIDE`; `facts.md` 11.08.2026.
+
+### D-3.25-6 · 2026-08-18 · The 2022/23 lead photo became the captioned squad image, not the higher-resolution uncaptioned one
+
+- **Status:** Accepted (logged retroactively at 3.30 from the Cowork report §3)
+- **Context:** `season-2022-23`.`teamPhoto` pointed at a warm-up jog. Two better candidates existed.
+- **Decision:** Repoint to `photo-a17ea5e6777bdcb7`, captioned „Фудбалерите на Беласица, сезона 2022/23", with rights confirmed.
+- **Alternatives considered:** _`photo-b6f3b1c7…` (1055×1040, higher resolution)_ — rejected here but left open for Ace: it carries no caption, so its provenance is weaker. _Keep the warm-up_ — rejected: it is not a squad photo.
+- **Consequences:** The season page and the archive index both show a real squad image. ⚠️ The chosen file is a goal celebration rather than a posed line-up and is only 624×379 — the visual call is Ace's and is still owed.
+- **Links:** Phase 3.25-Cowork task 2; OV-72 (2022/23 photo confirm).
 
 ---
 
@@ -3197,3 +3246,70 @@
 - **Alternatives considered:** _Leave both as owed items_ — rejected: the owner asked, and both are unambiguous corrections rather than judgement calls. _Also rename the photo document `_id`_ — rejected: the `_id` is cosmetic, nothing links to it, and it is only a React key; renaming a document id is a create+delete for no rendered benefit. _Edit `caption` without publishing_ — not viable: `patch_documents` writes only to a draft, so the site would never have seen it.
 - **Consequences:** Verified at `perspective: "raw"` (which sees drafts): **zero** `person` documents anywhere match `tomche`/„Томче", **zero** photo captions contain „Томче", exactly **one** document holds `legendRank 9` (`person-tome-eftimov`), and published persons remain **210**. Live after ~90 s of ISR lag: `/legendi/tome-eftimov` renders `<h1>` „Томе Ефтимов" with both portrait `alt`s reading „Томе", **0** occurrences of „Томче" on the page; `/legendi/tomche-eftimov` still **404**. `alt` derives from `caption` (`PhotoGrid.tsx:84`), so one field fixed the visible caption, the alt text and the lightbox label together. ⚠️ **This phase's „no Sanity write" claim is therefore true of its DIFF but not of the phase as a whole** — the completion report's §2 carries a pointer to its §14 addendum rather than being silently rewritten. **OV-67 and OV-68 are RESOLVED.**
 - **Links:** OV-67 (resolved); OV-68 (resolved); D-3.25-2; Phase 3.29 §14.
+
+---
+
+## Phase 3.30-Code
+
+### D-3.30-1 · 2026-08-18 · The internationals' figures became national-team caps, because whole-career totals are unsourceable
+
+- **Status:** Accepted — narrows the claim made by `nationalStats`, resolving **OV-71**
+- **Context:** `nationalStats` was built at 3.27 to hold whole-career totals — every club plus the national team — and shipped empty on all 210 people, so „Цела кариера" rendered nowhere. Phase 3.25-Cowork then tried to fill it and could not: Transfermarkt returns HTTP 403 to automated reads, and Wikipedia's career totals are league-only, so the two standard sources **disagree by scope** rather than by value (Cowork report §7). What *is* sourceable is national-team caps, which agree across Ace's biographies and his book.
+- **Decision:** Relabel the field to **„За репрезентацијата"** on both surfaces and in Studio, and fill it with caps only. Site strings: `label="Цела кариера"` → `label="За репрезентацијата"` (person page) and `Цела кариера: {wholeCareer}` → `За репрезентацијата: {wholeCareer}` (card). Studio: „Статистика од целата кариера" → **„Статистика за репрезентацијата"**, „Настапи (цела кариера)" → **„Настапи за репрезентацијата"**, „Голови (цела кариера)" → **„Голови за репрезентацијата"**.
+- **Alternatives considered:** _Keep the whole-career label and wait for the numbers_ — rejected: the numbers are not coming from any source both standards agree on, so the field would stay empty indefinitely while claiming a scope nothing can fill. _Fill it with Wikipedia's league-only totals under the whole-career label_ — rejected outright: that publishes a figure whose scope contradicts its own heading, which is the OV-47 defect. _Add a second field for caps and keep both_ — rejected: two overlapping statistics objects on one person is exactly the confusion D-3.27-7 retitled `careerStats` to prevent.
+- **Consequences:** The number a reader sees now means caps, not a career. **`careerStats` is untouched and still Belasica-only and authoritative** (D-2.01-3); the two are still never summed and neither falls back to the other. ⚠️ **The whole-career figures are now out of scope permanently unless Ace supplies them with a source** — the field can no longer hold them without a second relabel. Renaming the internal `wholeCareer`/`wholeCareerFigures` identifiers was declined as diff-expansion for no rendered benefit; the comments around them state the new scope.
+- **Links:** OV-71 (resolved); D-3.27-1/-2/-7; D-2.01-3; OV-47; Phase 3.25-Cowork §7; D-3.30-4.
+
+### D-3.30-2 · 2026-08-18 · The appearances cut is 130, and the 47 rows the owner asked for is unreachable at any threshold
+
+- **Status:** Accepted — resolves **OV-57**, supersedes D-3.24-4's value (not its threshold-over-row-cap principle)
+- **Context:** 3.24 set `APPEARANCE_MIN = 46` believing the table held 71 rows. It holds **119**, so 46 left **116** — a list, not a table — and cut only three men, all internationals. The owner asked for roughly 47 rows.
+- **Decision:** `APPEARANCE_MIN = 130`, giving **48 rows**.
+- **Alternatives considered:** _131_ — gives **46**, one short. _A row cap of exactly 47_ — rejected: it reintroduces the fixed-length list D-3.12-2/D-3.12-5 deliberately replaced with a threshold, and would push a man off the table whenever a new total is entered in Studio.
+- **Consequences:** ⚠️ **No threshold yields 47.** Александар Коцев and Митко Џорлев are tied on exactly **130**, so the count steps 48 → 46 with nothing between; the owner chose 130 and the row count follows from the rule, never the reverse. Measured live: ≥46 → 116, ≥130 → **48**, ≥131 → 46. **Known and accepted:** Горан Пандев (38), Ацо Стојков (35) and Горан Попов (26) are not in this table — their Беласица totals are small because they left young, and they belong to the Репрезентативци tab, which is where Ace asked for them. The coverage line and the empty-state notice both interpolate the constant, so they moved to „130" with no separate edit. Owed: Ace confirms 48 is acceptable where he asked for 47.
+- **Links:** OV-57 (resolved); D-3.24-4; D-3.12-2; D-3.12-5.
+
+### D-3.30-3 · 2026-08-18 · The 2025/26 row was derived from the season's own results, and the season's own story corroborates it to the point
+
+- **Status:** Accepted — resolves **OV-70**; takes option (b) of the three Phase 3.25-Cowork proposed
+- **Context:** `season-2025-26` was one of four seasons with no `finalTable`. Ace's Drive folder holds no table image, so no scan exists to transcribe (Cowork report §7). OV-70 left two things undecided: the scoring rule, and whether a row with no derivable `position` should ship at all.
+- **Decision:** Write **one** row — `position 5 · played 30 · W18 · D4 · L8 · 57:21 · points 58` — at **3 points for a win**.
+- **Alternatives considered:** _2 points for a win_ (the rule the other 92 rows use) — rejected on arithmetic: it gives 40, and the season's own story states 58. _Wait for a table image_ — rejected: none exists and none is expected. _Take the full league table from the public league site_ — rejected: outside Ace's archive, the provenance risk OV-47 records.
+- **Consequences:** Two independent sources agree to the point. **Derivation:** all 30 archived matches parsed — 15 home, 15 away — giving W18/D4/L8 and 57:21. **Text:** the story states „Беласица ја заврши сезоната на 5-то место, со 58 бода и гол-разлика 57:21." **Arithmetic:** 18×3 + 4 = **58**, exactly the story's figure, which is itself what fixes the scoring rule. ⚠️ **This is the only season row not taken from Ace's book, and `position 5` comes from the story text rather than from a derivation** — the archive holds no other club's 2025/26 results, so position could never have been derived. Owed: Ace confirms the record. ⚠️ **The older two-point rows were deliberately not „corrected"** — 1992/93 still reads `points: 34` (12×2 + 10), verified after the write; era, not error.
+- **Links:** OV-70 (resolved); Phase 3.25-Cowork §7 option (b); OV-47; D-3.30-4.
+
+### D-3.30-4 · 2026-08-18 · Eleven Sanity documents written, every value supplied rather than derived, and the bound verified from both ends
+
+- **Status:** Accepted (the brief authorised these writes and fixed their values)
+- **Context:** This is a code phase that writes content — unusual here, and the reason 3.29 was careful to record that its own two writes made its „no Sanity write" claim true of its diff but not of the phase (D-3.29-6). The brief supplied every figure and forbade computing, inferring or adjusting any of them.
+- **Decision:** Write exactly **eleven** documents — `season-2025-26` (D-3.30-3) and the ten named people — applying the given values verbatim, and verify the bound by counting what did *not* change as well as what did.
+- **Alternatives considered:** _Also create the four internationals Ace named who have no person document_ (Васил Рингов, Благој Георгиев, Сашко Пандев, Дејан Илиев) — rejected and explicitly out of scope: creating a person means deciding his roles and his rank, which is Ace's call. _Re-derive the caps from the bios rather than applying the brief's table_ — rejected: the brief is the owner's instruction, and the bios were used as a **check** on it, not as a rival source.
+- **Consequences:** Verified before and after: `careerStats` **132 people / 119 with appearances — unchanged**; published persons **210 — unchanged**; `legendRank` on **138 — unchanged**; roles player **152**, trainer **68**, president **29** — unchanged; seasons with a `finalTable` **92 → 93**; 1992/93 still `points: 34`. `nationalStats` went **0 → 10**. ⚠️ **All ten bios were checked for a conflicting cap figure and none conflicts** — six state the brief's figure exactly (Пандев 122/38, Стојков 42/5, Г. Попов 46/2, Ѓузелов 18/1, Балдовалиев 4/1, Танушев 4 and Бандулиев 4 and Масев 5), and the rest are silent on the number rather than contradicting it; **nobody was skipped.** ⚠️ **Measured correction to the brief:** it states seven of the ten carry a recorded zero for goals; it is **five** — Роберт Попов, Панче Стојанов, Дени Масев, Никола Танушев, Тони Бандулиев. The values themselves are unchanged, and all five are stored as a real `0` so the site's `!= null` guards render them rather than omitting the tile.
+- **Links:** D-3.30-3; D-3.30-1; D-3.29-6; Phase 3.25-Cowork §7.
+
+### D-3.30-5 · 2026-08-18 · Two Studio descriptions beyond the three named fields were corrected, because leaving them would have published a contradiction
+
+- **Status:** Accepted (deviation from the brief's Definition of Done)
+- **Context:** The brief's DoD says „Only the three titles and their descriptions changed. `git diff src/sanity/` shows nothing else." Two other descriptions referred to the old scope and became false the moment `nationalStats` was relabelled: `careerStats` read „За целата кариера постои полето подолу", pointing at a field that no longer holds a whole career; and `sourceNote`'s worked example was „Според Трансфермаркт, 2026“ — the very source Phase 3.25-Cowork rejected as unreachable.
+- **Decision:** Correct both. `careerStats` → „…За репрезентацијата постои полето подолу."; `sourceNote`'s example → „Според биографиите и книгата на Аце Стојанов“.
+- **Alternatives considered:** _Leave both to keep the diff inside the DoD's letter_ — rejected: it ships two Studio strings that are knowably wrong, and a field description telling the editor to look below for a whole career they will not find is precisely the two-surfaces-disagreeing defect recorded at **D-3.19-3**. _Change them in a follow-up phase_ — rejected: the contradiction would be live in the meantime, and the editor filling these fields is the person it would mislead.
+- **Consequences:** `git diff src/sanity/` shows **three titles and three descriptions** rather than the three-and-three the DoD anticipated. **No field was added, removed, renamed or retyped** — confirmed by reading the deployed schema back from workspace `belasica-v2`, where `nationalStats` is still `{appearances, goals, sourceNote}` and all eleven person fields are intact. The extra two are strings only.
+- **Links:** D-3.19-3; D-3.30-1; Phase 3.30 DoD.
+
+### D-3.30-6 · 2026-08-18 · The phase started with precondition 2 unmet, on Lazar's explicit approval — and the report arrived mid-phase
+
+- **Status:** Accepted (deviation from the brief's stop instruction) — **resolves OV-69**
+- **Context:** The brief forbids starting until Phase 3.25-Cowork's report has landed and `D-3.25-1, -3, -4, -5, -6` are logged. At session start neither was true: the report existed nowhere (OV-69, D-3.29-1) and the five IDs stood reserved. The brief says stop and tell Lazar.
+- **Decision:** Report the unmet precondition and stop for a decision rather than proceeding silently. Lazar chose „proceed anyway". Partway through, he supplied the report; it was filed **verbatim** at `completions/Part-3-Phase-25-Cowork-Completion.md` and the five reserved IDs were logged from its own §3.
+- **Alternatives considered:** _Hold the whole phase_ — offered and declined by the owner. _Proceed without telling him_ — never viable: the brief makes it a stop condition, and the reservation exists to stop a phase from consuming IDs that belong to another. _Reconstruct the report_ — rejected on the same grounds 3.29 rejected it (D-3.29-1): „verbatim" cannot be satisfied by a reconstruction.
+- **Consequences:** Nothing in this phase's five tasks depended on the report — verified before proceeding — and the brief's own instruction („never `D-3.25-*`; this phase uses `D-3.30-*`") already guaranteed the reserved IDs stayed intact. **OV-69 is closed** and the reservation note in the 3.25-Cowork section carries a dated resolution line rather than a rewrite. ⚠️ The Cowork report independently corroborates two of this phase's tasks: its §7 lists the same ten cap figures the brief supplies, and it recommends option (b) for the 2025/26 table, which is what D-3.30-3 does.
+- **Links:** OV-69 (resolved); D-3.29-1; D-3.25-1/-3/-4/-5/-6; D-3.30-3; D-3.30-4.
+
+### D-3.30-7 · 2026-08-18 · The book's title is punctuated three different ways in this project, and the new string follows the brief
+
+- **Status:** Accepted
+- **Context:** The `sourceNote` written to all ten people names Ace's book. The project already spells that title three ways: `src/content/razno.ts:98` ships „ФК Беласица – гордоста на Струмица“ with an **en dash**; `facts.md` uses a **hyphen**; the 3.30 brief specifies an **em dash**.
+- **Decision:** Use the brief's wording with a proper Macedonian closing quote — „ФК Беласица — гордоста на Струмица“ — and raise the inconsistency rather than silently normalising it.
+- **Alternatives considered:** _Match `razno.ts`'s en dash for internal consistency_ — rejected: it deviates further from a string the brief marked „verbatim", and picking a winner among three spellings is the owner's call, not this phase's. _Reproduce the brief's straight closing quote literally_ — rejected: every other user-visible quoted title in the codebase uses the „…“ pair, and a straight mark would read as a typographic defect on his native read.
+- **Consequences:** ⚠️ **Two shipped surfaces now spell the book differently** — `razno.ts` with an en dash, the ten `sourceNote`s with an em dash. That is a new owed item (**OV-76**), not a defect either surface can settle alone. The `sourceNote` string is identical across all ten people, verified by read-back.
+- **Links:** OV-76; `facts.md`; `src/content/razno.ts`; D-3.30-4.

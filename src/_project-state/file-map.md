@@ -86,6 +86,10 @@
 - `completions/Part-3-Phase-13-Completion.md` — Phase 3.13-**Code** completion report (two season sections renamed + Тренери/Претседатели ordered newest-first). ⚠️ **Indexed retroactively at 3.14** — 3.13 filed the report but never added this line
 - `completions/Part-3-Phase-14-Completion.md` — Phase 3.14-**Code** completion report (four owner-requested corrections: the officials band renamed to „Претседатели" with its count noun, two season `<h2>`s renamed, and Петар Андреев's role corrected to `["player","trainer"]` as a live Sanity write)
 - `completions/Part-3-Phase-16-Completion.md` — Phase 3.16-**Code** completion report („Разно“: seven topics from the book as an index + seven static detail pages, „Разно“ in the main nav and the sitemap; **zero new dependencies, no Sanity anything, 271 → 279 pages**; `D-3.16-1…-14`, and **OV-40**, the header-nav wrap that a seventh item widens)
+- `completions/Part-3-Phase-25-Cowork-Completion.md` — Phase 3.25-**Cowork** completion report, **filed retroactively at 3.30** from the text Lazar supplied. The Sanity-only content phase: 29 `officialYears` + 45 `trainerYears`, the Ефтимов duplicate merged, the 2022/23 lead photo repointed. ⚠️ **It wrote nothing to the repo by design**, and its report went missing for two phases (**OV-69**, D-3.29-1, closed by D-3.30-6). Its six decisions are `D-3.25-1…-6`
+- `completions/Part-3-Phase-30-Completion.md` — Phase 3.30-**Code** completion report (the internationals' figures relabelled to „За репрезентацијата", `APPEARANCE_MIN` 46 → **130** giving 48 rows, the derived **2025/26** table row, and **11 authorised Sanity writes**; `D-3.30-1…-7`; **OV-57/-69/-70/-71 resolved**, **OV-72…OV-80** opened)
+
+> ⚠️ **This list is behind the directory.** `completions/` holds **48** reports plus the template; **39** are indexed here. The gap predates 3.30 and covers phases between 3.16 and 3.29. 3.30 added only its own two lines rather than guessing at descriptions for reports it did not write — see **OV-80**.
 
 ## Application (`src/`)
 

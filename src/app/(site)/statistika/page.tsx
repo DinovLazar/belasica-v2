@@ -48,23 +48,30 @@ const SCORER_MIN_GOALS = 21;
  * A THRESHOLD, deliberately, and not a row cap — the same shape as
  * `SCORER_MIN_GOALS` above (D-3.12-2/D-3.12-5). A fixed-length list has to push
  * somebody off whenever a new figure is entered in Studio; a threshold lets a
- * player who later gains his 46th appearance enter on his own merits, and lets
+ * player who later gains his 130th appearance enter on his own merits, and lets
  * the table's length follow the archive instead of a number typed here.
  *
  * Like the scorers' cut it is a DISPLAY rule and not a data change: every total
  * stays in Sanity and still shows on the player's own page and in the
  * appearances column of the scorers table above.
  *
- * ⚠️ READ THE COMPLETION REPORT FOR 3.24 BEFORE CHANGING THIS NUMBER. The cut
- * was chosen against a snapshot of the archive that held **71** rows here; the
- * archive holds **119** today, of which **116** clear 46. So it removes three
- * players rather than the ~24 it was meant to, and the three are
- * Горан Пандев (38), Ацо Стојков (35) and Горан Попов (26) — the internationals
- * whose Беласица totals are small precisely because they left young. That is
- * reported to the owner rather than fixed here: which figure cuts the table is
- * his call, not this phase's (D-3.24-4).
+ * 3.24 set this to 46 against a stale belief that the table held 71 rows. It
+ * holds 119, so 46 cut only three men and left 116 — a list, not a table.
+ * The owner chose 130 (3.30, resolving OV-57). Measured on the live archive:
+ *
+ *   ≥46 → 116 rows   ≥130 → 48 rows   ≥131 → 46 rows
+ *
+ * ⚠️ NO THRESHOLD YIELDS THE 47 THE OWNER ORIGINALLY ASKED FOR — Александар
+ * Коцев and Митко Џорлев are tied on exactly 130, so the count steps 48 → 46
+ * with nothing in between. 130 is the owner's call and the row count follows
+ * from it, never the other way round (D-3.30-2).
+ *
+ * ⚠️ Known and accepted: Горан Пандев (38), Ацо Стојков (35) and Горан Попов
+ * (26) are NOT in this table. Their Беласица totals are small precisely because
+ * they left young; they belong to the Репрезентативци tab, which is where Ace
+ * asked for them.
  */
-const APPEARANCE_MIN = 46;
+const APPEARANCE_MIN = 130;
 
 /**
  * Four reads in one round trip.

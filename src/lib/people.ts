@@ -390,9 +390,10 @@ export function personCountLabel(count: number): string {
  * The Играчи card still prints its count bare beside the name, with an `sr-only`
  * qualifier — that layout is unchanged.
  *
- * These label a WHOLE-CAREER figure wherever they are used today. They are
- * deliberately scope-neutral all the same: the label states the noun, and the
- * caller states the scope („Цела кариера: …"), so neither can silently start
+ * These label a NATIONAL-TEAM figure wherever they are used today (3.30; the
+ * scope was the whole career from 3.27 until then). They are deliberately
+ * scope-neutral all the same: the label states the noun, and the caller states
+ * the scope („За репрезентацијата: …"), so neither can silently start
  * describing the other's numbers.
  */
 export function appearanceCountLabel(count: number): string {

@@ -368,7 +368,7 @@ export default async function PersonPage({
                 />
 
                 <FigureGroup
-                  label="Цела кариера"
+                  label="За репрезентацијата"
                   figures={wholeCareerFigures}
                   note={sourceNote}
                 />
