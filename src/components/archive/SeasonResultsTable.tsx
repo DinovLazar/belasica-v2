@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import type { SeasonMatch, SeasonMatchGroup } from "@/content/season-tables";
 import { cn } from "@/lib/utils";
 
@@ -47,23 +48,34 @@ function hasRound(group: SeasonMatchGroup): boolean {
 function Scorers({ scorers }: { scorers: SeasonMatch["scorers"] }) {
   if (scorers.length === 0) return null;
 
+  // A scorer and their figures never break apart (`whitespace-nowrap`), but the
+  // list of them must be able to break BETWEEN scorers — and an inline break
+  // needs actual whitespace to break at. The separator is therefore its own
+  // element with real spaces around it: without them the spans butt together,
+  // the browser finds no break opportunity, and a four-scorer cell runs 429px
+  // wide inside a 335px column (D-3.28-6).
   return (
     <>
       {scorers.map((scorer, index) => (
-        <span key={`${scorer.player}-${index}`} className="whitespace-nowrap">
+        <Fragment key={`${scorer.player}-${index}`}>
           {index > 0 && (
-            <span aria-hidden className="mx-1.5 text-mist">
-              ·
-            </span>
-          )}
-          {scorer.player}
-          {scorer.minutes.length > 0 && (
-            <span className="text-neutral-500">
+            <>
               {" "}
-              {scorer.minutes.join(", ")}
-            </span>
+              <span aria-hidden className="text-mist">
+                ·
+              </span>{" "}
+            </>
           )}
-        </span>
+          <span className="whitespace-nowrap">
+            {scorer.player}
+            {scorer.minutes.length > 0 && (
+              <span className="text-neutral-500">
+                {" "}
+                {scorer.minutes.join(", ")}
+              </span>
+            )}
+          </span>
+        </Fragment>
       ))}
     </>
   );
@@ -77,26 +89,32 @@ function GroupTable({ group }: { group: SeasonMatchGroup }) {
   // One DOM, one <table>, and no sideways scroll on a phone — which is how this
   // content became unreadable in the first place (D-3.28-6).
   const rowGrid = showRound
-    ? "grid grid-cols-[2.75rem_1fr_auto] sm:table-row"
+    ? "grid grid-cols-[2.25rem_1fr_auto] sm:table-row"
     : "grid grid-cols-[1fr_auto] sm:table-row";
 
   return (
-    <div className="mt-5 overflow-hidden">
+    <div className="mt-5">
       <table className="w-full border-collapse text-left tabular-nums">
         <caption className="sr-only">{group.title}</caption>
         <thead>
           <tr className={cn(rowGrid, "bg-navy text-paper")}>
             {showRound && (
-              <th scope="col" className="u-label px-3 py-2.5 sm:table-cell">
+              <th
+                scope="col"
+                className="font-sans text-overline font-bold tracking-overline uppercase px-2 py-2.5 sm:table-cell sm:px-3"
+              >
                 Коло
               </th>
             )}
-            <th scope="col" className="u-label px-3 py-2.5 sm:table-cell">
+            <th
+              scope="col"
+              className="font-sans text-overline font-bold tracking-overline uppercase px-2 py-2.5 sm:table-cell sm:px-3"
+            >
               Натпревар
             </th>
             <th
               scope="col"
-              className="u-label px-3 py-2.5 text-right sm:table-cell"
+              className="font-sans text-overline font-bold tracking-overline uppercase px-2 py-2.5 text-right sm:table-cell sm:px-3"
             >
               Резултат
             </th>
@@ -104,7 +122,7 @@ function GroupTable({ group }: { group: SeasonMatchGroup }) {
                 in a column, so a column head would label nothing. */}
             <th
               scope="col"
-              className="u-label hidden px-3 py-2.5 sm:table-cell"
+              className="font-sans text-overline font-bold tracking-overline uppercase hidden px-2 py-2.5 sm:table-cell sm:px-3"
             >
               Стрелци
             </th>
@@ -157,15 +175,15 @@ function PartRows({
           className={cn(rowGrid, "border-b border-mist last:border-b-0")}
         >
           {showRound && (
-            <td className="px-3 pt-2.5 text-small text-neutral-500 sm:table-cell sm:py-2.5">
+            <td className="px-2 pt-2.5 text-small text-neutral-500 sm:table-cell sm:px-3 sm:py-2.5">
               {match.round ?? ""}
             </td>
           )}
-          <td className="px-3 pt-2.5 text-body text-neutral-700 sm:table-cell sm:py-2.5">
+          <td className="min-w-0 px-2 pt-2.5 text-body break-words text-neutral-700 sm:table-cell sm:px-3 sm:py-2.5">
             {match.home} — {match.away}
           </td>
           {/* The strongest cell in the row: navy, bold, never wrapped. */}
-          <td className="px-3 pt-2.5 text-right text-body font-bold whitespace-nowrap text-navy sm:table-cell sm:py-2.5">
+          <td className="px-2 pt-2.5 text-right text-body font-bold whitespace-nowrap text-navy sm:table-cell sm:px-3 sm:py-2.5">
             {match.score}
           </td>
           {/* Always present from `sm` up, so every row has as many cells as the
@@ -176,7 +194,7 @@ function PartRows({
               occupy a grid row of its own. */}
           <td
             className={cn(
-              "px-3 text-small text-neutral-700 sm:table-cell sm:py-2.5",
+              "min-w-0 px-2 text-small break-words text-neutral-700 sm:table-cell sm:px-3 sm:py-2.5",
               match.scorers.length > 0
                 ? "col-span-full pb-2.5"
                 : "hidden sm:table-cell",

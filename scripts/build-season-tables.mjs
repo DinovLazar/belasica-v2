@@ -101,15 +101,26 @@ function buildSeason(bookSeason, matches) {
 
   for (const g of groups) delete g._parts;
 
+  const squad = (bookSeason.squad ?? []).map((p) => ({
+    no: p.no ?? null,
+    player: p.player,
+    apps: p.apps ?? null,
+    goals: p.goals ?? null,
+  }));
+
+  // ⚠️ A squad with no statistics is not „Состав и статистика", and shipping it
+  // as one LOSES information. Ten seasons list a roster without appearances or
+  // goals — 2025/26 among them, where the published prose reads „1. Трајков
+  // Ѓорѓи (2004) 22+0/0" and carries both figures the extract lacks. Rendering
+  // the table there would replace real numbers with two empty columns, which is
+  // the drop this phase is forbidden to cause. So a statless squad is simply
+  // not emitted, and the prose keeps the section (D-3.28-9).
+  const hasStats = squad.some((p) => p.apps != null || p.goals != null);
+
   return {
     slug: slugFor(bookSeason.id),
     matchGroups: groups,
-    squad: (bookSeason.squad ?? []).map((p) => ({
-      no: p.no ?? null,
-      player: p.player,
-      apps: p.apps ?? null,
-      goals: p.goals ?? null,
-    })),
+    squad: hasStats ? squad : [],
   };
 }
 

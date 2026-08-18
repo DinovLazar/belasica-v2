@@ -82,16 +82,28 @@ export function SeasonSquadTable({
         <caption className="sr-only">Состав и статистика</caption>
         <thead>
           <tr className="bg-navy text-paper">
-            <th scope="col" className="u-label px-3 py-2.5 text-right">
+            <th
+              scope="col"
+              className="font-sans text-overline font-bold tracking-overline uppercase px-2 py-2.5 text-right sm:px-3"
+            >
               №
             </th>
-            <th scope="col" className="u-label px-3 py-2.5">
+            <th
+              scope="col"
+              className="font-sans text-overline font-bold tracking-overline uppercase px-2 py-2.5 sm:px-3"
+            >
               Име
             </th>
-            <th scope="col" className="u-label px-3 py-2.5 text-right">
+            <th
+              scope="col"
+              className="font-sans text-overline font-bold tracking-overline uppercase px-2 py-2.5 text-right sm:px-3"
+            >
               Настапи
             </th>
-            <th scope="col" className="u-label px-3 py-2.5 text-right">
+            <th
+              scope="col"
+              className="font-sans text-overline font-bold tracking-overline uppercase px-2 py-2.5 text-right sm:px-3"
+            >
               Голови
             </th>
           </tr>
@@ -100,19 +112,19 @@ export function SeasonSquadTable({
           {rows.map((row, index) => (
             <Fragment key={`${row.no ?? "—"}-${row.player}-${index}`}>
               <tr className="border-b border-mist last:border-b-0">
-                <td className="px-3 py-2 text-right text-small text-neutral-500">
+                <td className="px-2 py-2 text-right text-small text-neutral-500 sm:px-3">
                   {row.no ?? ""}
                 </td>
-                <td className="px-3 py-2 text-body text-neutral-700">
+                <td className="px-2 py-2 text-body break-words text-neutral-700 sm:px-3">
                   <PlayerName
                     player={row.player}
                     slug={personSlugs.get(row.player)}
                   />
                 </td>
-                <td className="px-3 py-2 text-right text-body text-navy">
+                <td className="px-2 py-2 text-right text-body text-navy sm:px-3">
                   {row.apps ?? ""}
                 </td>
-                <td className="px-3 py-2 text-right text-body font-bold text-navy">
+                <td className="px-2 py-2 text-right text-body font-bold text-navy sm:px-3">
                   {row.goals ?? ""}
                 </td>
               </tr>
