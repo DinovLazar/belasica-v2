@@ -17,6 +17,7 @@ import {
   compareByRecency,
   orderedRoles,
   tenureSortYear,
+  type LegendCategory,
 } from "@/lib/people";
 import { COACH_YEAR_OVERRIDE, INTERNATIONAL_SLUGS } from "@/content/legendi";
 
@@ -67,6 +68,9 @@ const LEGENDS_QUERY = /* groq */ `{
     legendRank,
     legendAppearances,
     careerStats{ appearances },
+    trainerYears,
+    officialYears,
+    nationalStats{ appearances, goals },
     "bioLead": bio[0].children[0].text,
     "portrait": *[_type == "photo" && relatedPerson._ref == ^._id]
       | order(select(defined(date) => 0, 1) asc, coalesce(date, "9999") asc, _id asc)[0].image
@@ -77,15 +81,43 @@ const LEGENDS_QUERY = /* groq */ `{
   }
 }`;
 
-/** What the query returns: the portrait is still a raw Sanity asset here. It is
- *  resolved to a URL below, on the server — `LegendsBrowser` is a client
- *  component and may not receive one (D-3.09-1). */
-type PersonRow = Omit<LegendCardData, "portrait"> & {
-  portrait: SanityImageSource | null;
+/**
+ * What the query returns. The portrait is still a raw Sanity asset here — it is
+ * resolved to a URL below, on the server, because `LegendsBrowser` is a client
+ * component and may not receive one (D-3.09-1).
+ *
+ * **Stated in full rather than derived from `LegendCardData` (3.27).** It used to
+ * be `Omit<LegendCardData, "portrait"> & …`, which was right while the card
+ * showed every person the same way: the row and the card held the same facts.
+ *
+ * They now have opposite jobs. This is what the QUERY returns — everything about
+ * a person, always present. `LegendCardData` is what ONE TAB renders, and its
+ * fields are optional precisely so a Тренери card can be built without a rank.
+ * Deriving the row from the card would have made every field here optional too,
+ * and the server would have lost the type's help in knowing what it actually
+ * fetched.
+ */
+type PersonRow = {
+  name: string | null;
+  slug: string;
+  role: string[] | null;
+  playingYears: string | null;
   /** The book's all-time appearance rank, 1–80. Null for everyone it does not
-   *  list — most of the roster, and every trainer and official. */
+   *  list — most of the roster, and every trainer and official. Since 3.27 it is
+   *  also the MEMBERSHIP TEST for the Играчи tab, not only its order. */
   legendRank: number | null;
+  legendAppearances: string | null;
   careerStats: { appearances: number | null } | null;
+  /** Coaching and service spans (3.27). Empty across all 211 people until the
+   *  Cowork content pass — the cards omit the line rather than guess. */
+  trainerYears: string | null;
+  officialYears: string | null;
+  /** Whole-career figures, Репрезентативци only. Never mixed with `careerStats`,
+   *  which is Belasica-only and differently sourced (D-2.01-3, OV-47).
+   *  `sourceNote` is not selected here: no card prints provenance, so it would
+   *  be fetched and then dropped. The person page selects it for itself. */
+  nationalStats: { appearances: number | null; goals: number | null } | null;
+  portrait: SanityImageSource | null;
   /** First line of the biography, the source of an official's term. A **sort
    *  input only** — stripped below, before the bands reach the client. */
   bioLead: string | null;
@@ -153,18 +185,65 @@ export default async function LegendsPage() {
   // inputs only, they are **rendered** on the card („1. Петар Андреев 555"), so
   // they have to reach it. The single number is sent on its own rather than by
   // spreading `careerStats`, so nothing else in that object (goals) rides along.
-  const project = (person: (typeof resolved)[number]): LegendCardData => ({
+  /**
+   * **Projected per CATEGORY since 3.27.** The card for a tab carries the facts
+   * that tab renders and nothing else, so the scoping is enforced twice: here,
+   * by not sending the field, and in `LegendCard`, by not rendering it. Either
+   * alone would hold today; together, a future edit to one cannot quietly
+   * reintroduce a player's ranking onto a coaching card.
+   *
+   * It also keeps D-3.13-6 true as the model grows. `nationalStats`,
+   * `trainerYears` and `officialYears` cross the client boundary **only on the
+   * one tab that prints them** — a Играчи card ships no `nationalStats`, and none
+   * of the 138 of them carries the two spans. Named fields throughout, never a
+   * spread: `nationalStats` is rebuilt from its two numbers so `sourceNote`
+   * cannot ride along into the bundle, exactly as `careerStats.goals` has been
+   * kept out since 3.19.
+   *
+   * `name`, `slug`, `role` and `portrait` are on every card in every tab. `role`
+   * is what `RoleChips` renders, and it stays whole deliberately: Ace asked that
+   * a coach who played keep his player TAG here, and only lose the player
+   * DETAIL. The chip is the tag; the rank and the numbers are the detail.
+   */
+  const project = (
+    person: (typeof resolved)[number],
+    category: LegendCategory,
+  ): LegendCardData => ({
     name: person.name,
     slug: person.slug,
     role: person.role,
-    playingYears: person.playingYears,
-    legendRank: person.legendRank,
-    legendAppearances: person.legendAppearances,
-    careerStats:
-      person.careerStats?.appearances != null
-        ? { appearances: person.careerStats.appearances }
-        : null,
     portrait: person.portrait,
+
+    ...(category === "player"
+      ? {
+          playingYears: person.playingYears,
+          legendRank: person.legendRank,
+          legendAppearances: person.legendAppearances,
+          careerStats:
+            person.careerStats?.appearances != null
+              ? { appearances: person.careerStats.appearances }
+              : null,
+        }
+      : {}),
+
+    ...(category === "trainer" ? { trainerYears: person.trainerYears } : {}),
+
+    ...(category === "president"
+      ? { officialYears: person.officialYears }
+      : {}),
+
+    ...(category === "international"
+      ? {
+          nationalStats:
+            person.nationalStats?.appearances != null ||
+            person.nationalStats?.goals != null
+              ? {
+                  appearances: person.nationalStats.appearances ?? null,
+                  goals: person.nationalStats.goals ?? null,
+                }
+              : null,
+        }
+      : {}),
   });
 
   // Placement, rewritten at 3.22 on the owner's instruction. A person is now in
@@ -196,13 +275,38 @@ export default async function LegendsPage() {
           resolved.find((person) => person.slug === slug),
         )
           .filter((person) => person !== undefined)
-          .map(project),
+          .map((person) => project(person, category)),
       };
     }
 
-    const held = resolved.filter((person) =>
-      orderedRoles(person.role).includes(category),
-    );
+    /**
+     * **Играчи is `legendRank`, not the `player` role (3.27).**
+     *
+     * Ace's ranked list is what „is a Беласица player" means on this site, so the
+     * rank is the membership test and not merely the order. The rule removes 15
+     * of the 153 men who hold a `player` role: the five internationals the book
+     * never ranked, and ten player-coaches it never ranked either. It survives
+     * the list being extended to 161 without a code change, because a new rank
+     * typed in Studio adds its man on the next revalidate.
+     *
+     * **Nobody leaves the page.** All 15 keep a place in another tab — ten in
+     * Тренери, five in Репрезентативци — so the distinct roster stays at 211 and
+     * every `/legendi/<slug>` page is still linked from somewhere. That was
+     * verified against the live dataset before this rule was written, not
+     * assumed; the names are listed in the completion report for the owner's
+     * confirmation, because who counts as a player is his call and not the
+     * executor's.
+     *
+     * Deliberately NOT applied to the other three categories: a coach is a coach
+     * whether or not the book ever ranked him as a player, and testing the rank
+     * there would empty Тренери of almost everyone.
+     */
+    const held =
+      category === "player"
+        ? resolved.filter((person) => person.legendRank != null)
+        : resolved.filter((person) =>
+            orderedRoles(person.role).includes(category),
+          );
 
     const ordered =
       category === "player"
@@ -222,11 +326,17 @@ export default async function LegendsPage() {
             ),
           );
 
-    return { category, people: ordered.map(project) };
+    return {
+      category,
+      people: ordered.map((person) => project(person, category)),
+    };
   });
 
   // DISTINCT people, not category memberships: a player-coach is in two bands
-  // and summing them would report 261 where the archive holds 211.
+  // and summing them would report 246 where the archive holds 211. (261 before
+  // the 3.27 membership rule took 15 unranked men out of Играчи; the DISTINCT
+  // total is unchanged at 211, because every one of them is still in another
+  // category.)
   const distinct = new Set(
     bands.flatMap((band) => band.people.map((person) => person.slug)),
   );

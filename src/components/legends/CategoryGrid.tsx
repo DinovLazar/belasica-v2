@@ -87,6 +87,12 @@ export function CategoryGrid({
           <LegendCard
             key={person.slug}
             person={person}
+            // The card renders the facts belonging to THIS category (3.27) —
+            // the rank and the Belasica count under Играчи, the coaching span
+            // under Тренери, the whole-career figures under Репрезентативци. The
+            // grid already knows which panel it is, so the card is told rather
+            // than left to guess from the man's roles, which cannot answer it.
+            category={category}
             delayIndex={i % 3}
             priority={leadsPage && i === 0}
           />

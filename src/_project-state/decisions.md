@@ -2928,3 +2928,107 @@
 - **Alternatives considered:** *Log it only in the other repo* — rejected: the constraint being reversed was reasoned about here, and splitting a decision from its history is what this log exists to prevent. *Treat it as too small to log* — rejected: it is a public commitment with a date on it, which is exactly the class of choice a log is for.
 - **Consequences:** The site now publicly commits to 30 August 2026. ⚠️ **The original constraint's risk is unchanged and is now live** — if the date slips, the holding page has to be edited promptly, and nothing in this repo will remind anyone. That is the accepted downside of the owner's instruction.
 - **Links:** Phase 3.24, task 6; holding-page repository (outside `belasica-v2`).
+
+### D-3.27-1 · 2026-08-18 · Три нови полиња, не четири — `isNationalTeamPlayer` НЕ е додадено
+- **Status:** Accepted
+- **Context:** The brief asks for four fields, the fourth being „`isNationalTeamPlayer` — boolean, **or whatever mechanism the Репрезентативци tab already uses**", and instructs: read how that tab derives its ten members first, and if membership is already a role, a flag or a hardcoded list, extend what exists rather than adding a second source of truth.
+- **Decision:** Read it. Membership is **`INTERNATIONAL_SLUGS` in `src/content/legendi.ts`** — a hand-maintained list of ten slugs whose ORDER is itself the data (it reproduces the file order of Ace's numbered Drive folder `010. Репрезентативци на Македонија`, and the tab is deliberately not sorted). So no boolean was added. The phase ships **three** new fields: `trainerYears`, `officialYears`, `nationalStats`.
+- **Alternatives considered:** *Add the boolean as literally specified* — rejected: it would create exactly the second source of truth the brief forbids, and the two would silently disagree the first time someone ticked the box without editing the list. Worse, a boolean **cannot carry the ordering**, which is Ace's own numbering and is not derivable from anything else. *Migrate the list into the boolean and sort some other way* — rejected: there is no other source for that order, so the sort would have to be invented.
+- **Consequences:** Membership stays where Ace can see it beside its provenance comment, and stays byte-identical this phase. ⚠️ **A person is still added to Репрезентативци by editing code, not Studio** — Cowork cannot do it alone, and the four men Ace named who have no person document (Васил Рингов, Благој Георгиев, Сашко Пандев, Дејан Илиев) remain owed. That limitation is pre-existing and unchanged, but this phase declines to paper over it with a field that would not fix it.
+- **Links:** Phase 3.27, task 1.4; `src/content/legendi.ts`; D-3.22-*.
+
+### D-3.27-2 · 2026-08-18 · `nationalStats` е одвоено од `careerStats` и никогаш не се спојува со него
+- **Status:** Accepted
+- **Context:** `careerStats` is the Belasica-only authoritative total (D-2.01-3). The new numbers are a different scope (every club plus the national team) from a different source (public records, compiled by hand). The brief requires the two never be merged and never fall back to one another.
+- **Decision:** A separate object, `nationalStats{ appearances, goals, sourceNote }`. No code path sums them, and neither substitutes for the other on any surface. `sourceNote` exists so provenance travels **with** the figure and is rendered beside it on the person page.
+- **Alternatives considered:** *One `careerStats` with a scope flag* — rejected: every existing read would have had to learn the flag, and any missed one would print a whole-career number as a Belasica one. *Let `nationalStats` fall back to `careerStats` so the Репрезентативци cards are not empty on merge day* — rejected, and this was the tempting one: it would have filled ten cards immediately and it is precisely the defect on the register as **OV-47** — a number whose provenance the reader cannot determine. Empty is honest; wrong is not.
+- **Consequences:** Two figure sets coexist and must be labelled wherever both can appear, which is why Кариера became three labelled groups (D-3.27-8). ⚠️ **All ten Репрезентативци cards show no figures until the content pass**, which is correct and expected.
+- **Links:** Phase 3.27, task 1; D-2.01-3; OV-47; D-3.27-8.
+
+### D-3.27-3 · 2026-08-18 · „Играчи" е `legendRank`, а не улогата `player` — 153 → 138, 15 отпаѓаат
+- **Status:** Accepted
+- **Context:** Ace's ranked list is what „is a Беласица player" means on this site. The brief sets the rule and requires the before/after counts and the full list of names measured against live data before any code.
+- **Decision:** A person appears in Играчи **iff `legendRank != null`**. Measured on `production` before writing the rule: **153 → 138**, removing **15**. Applied to that tab only.
+- **Alternatives considered:** *Keep the `player` role as the test* — rejected: it is what the owner asked to change. *Rank-or-has-appearances* — rejected: it would keep 5 of the 15 on a technicality and make the rule unstatable in one sentence. *Hide the unranked behind a „show more"* — rejected: a category is a claim, not a default view.
+- **Consequences:** ⚠️ **This is a visible change to the site's most-read page and needs the owner's confirmation** — it is his call who counts as a player, not the executor's; the 15 names are listed in the completion report. **Nobody leaves `/legendi`:** all 15 remain in another tab (10 in Тренери, 5 in Репрезентативци), verified against live data, so the distinct roster is unchanged at **211** and no `/legendi/<slug>` page is orphaned. Notably the drop includes **Аце Стојанов himself** (he stays in Тренери) and five of the ten internationals — Пандев, Стојков, Горан Попов, Ѓузелов, Бандулиев — who keep their own tab. The band sum falls 261 → 246; distinct stays 211.
+- **Links:** Phase 3.27, task 2; D-3.12-2; D-2.05-2.
+
+### D-3.27-4 · 2026-08-18 · Улогата се предава како проп, а проекцијата е по категорија — двојна заштита
+- **Status:** Accepted
+- **Context:** `LegendCard` rendered the same facts wherever it appeared, so a coach's card carried his player ranking. The brief requires the role be passed as a prop rather than sniffed from context, and that the client bundle not receive fields it does not render (D-3.13-6).
+- **Decision:** Two mechanisms, deliberately both. (1) `LegendCard` takes a `category` prop and renders only that tab's facts. (2) The server's `project()` takes the category too and **sends only those fields**, by name — `nationalStats` is rebuilt from its two numbers so `sourceNote` cannot ride along. Verified in the built output: `nationalStats` appears 10×, `trainerYears` 69×, `officialYears` 29×, `legendRank`/`careerStats` 138×, `sourceNote` and `bioLead` **0×**.
+- **Alternatives considered:** *Derive the scope from `person.role` inside the card* — rejected: a man's own roles cannot say which tab he is being listed under, and 34 of 211 are cross-listed; deriving is what caused the defect. *Only the prop, projecting everything* — rejected: it ships facts the surface does not render and lets one careless edit re-expose them. *Only the projection* — rejected: the component would still render whatever it was handed.
+- **Consequences:** Slightly more code than either alone, and `project()` is now category-aware. In exchange a future edit to either layer cannot on its own put a rank back on a coaching card.
+- **Links:** Phase 3.27, task 3; D-3.13-6; D-3.19-2.
+
+### D-3.27-5 · 2026-08-18 · Сите нови полиња се испорачуваат ПРАЗНИ — нема пополнување, нема изведување
+- **Status:** Accepted
+- **Context:** The brief forbids any Sanity write and forbids deriving values for the new fields — not from the bio text, not from season records, not from the 3.13 derived sort years.
+- **Decision:** Zero documents written. The 211 person documents are byte-identical; only the schema manifest changed. `trainerYears` and `officialYears` are empty for everyone, `nationalStats` empty for everyone.
+- **Alternatives considered:** *Derive `trainerYears` from `buildTrainerYearIndex`* — rejected, and worth stating plainly: that index produces a **sort key that is never rendered** (D-3.13-4) and is a year plus a positional fraction, not a span. Printing it would put a fabricated „2026.33" where a fact belongs. *Parse `officialYears` out of the biography's opening line* — rejected: `tenureEndYear` already reads that line as a sort input, and promoting a regex result to displayed fact is how an archive starts asserting things nobody checked.
+- **Consequences:** ⚠️ **On merge day the Тренери and Претседатели cards show a name and chips and nothing else, and Репрезентативци shows no numbers.** That is the shape waiting for content, exactly as `/statistika` was built ahead of its data. The content pass (3.25-Cowork) fills them.
+- **Links:** Phase 3.27, scope; D-3.13-4; D-3.13-6.
+
+### D-3.27-6 · 2026-08-18 · Картичката „Репрезентативци" не печати `playingYears`
+- **Status:** Accepted
+- **Context:** The brief's table lists what the Репрезентативци card shows (`nationalStats.appearances` and `goals`) and what it must not (`legendRank`, `careerStats`). It does not mention `playingYears` either way.
+- **Decision:** Omit it. `playingYears` is the man's **Беласица** span, so printing it under a heading about his career elsewhere is the same category error as printing his Беласица appearance count there — the exact defect this tab exists to fix.
+- **Alternatives considered:** *Show it, since the brief does not forbid it* — rejected: the brief's „shows" column is exhaustive, and the reasoning against `careerStats` applies unchanged to a Belasica-scoped span. *Show it labelled „во Беласица"* — rejected: it reintroduces a Беласица fact onto the one tab that is not about Беласица.
+- **Consequences:** The Репрезентативци card is the sparsest of the four — name, chips, and the whole-career line once it has data. ⚠️ **Owed to Ace:** if he wants a Беласица span there after all, it is one line to add and one label to agree.
+- **Links:** Phase 3.27, task 3; D-3.27-2.
+
+### D-3.27-7 · 2026-08-18 · `careerStats` во Studio се преименува во „Кариерна статистика (Беласица)"
+- **Status:** Accepted
+- **Context:** `nationalStats` now sits directly beneath `careerStats` in the same Studio form, and both were labelled „статистика". Cowork and Ace fill these by hand.
+- **Decision:** Retitle the existing field to **„Кариерна статистика (Беласица)"** and give it a description saying Belasica-only. The field's name, meaning and data are unchanged — this is a label.
+- **Alternatives considered:** *Leave it* — rejected: two adjacent objects both called „статистика" is how a whole-career figure ends up typed into the authoritative Belasica field, which no validation could catch and which would silently corrupt D-2.01-3's guarantee. *Rename the field itself* — rejected: it would be a breaking model change for a labelling problem.
+- **Consequences:** ⚠️ **A visible Studio string change on a field that was not in the brief's scope** — included because the brief's own reason for `nationalStats` being separate is that a reader must be able to tell the two apart, and the person entering them is the first such reader. Needs Lazar's native read like the new strings.
+- **Links:** Phase 3.27, task 1; D-2.01-3.
+
+### D-3.27-8 · 2026-08-18 · „Кариера" станува три означени групи; периодите одат таму, а не во hero-от
+- **Status:** Accepted
+- **Context:** The person page must separate Belasica figures from whole-career figures with distinct labels, and must render `trainerYears`/`officialYears` labelled as coaching and as service. The brief does not say where the spans go.
+- **Decision:** Кариера renders up to three self-omitting labelled groups — **„Беласица"**, **„Цела кариера"** (with `sourceNote` beneath it), and **„Периоди"** (Тренер / Раководство). The hero is left untouched.
+- **Alternatives considered:** *Put the two new spans in the hero beside `playingYears`* — rejected: the hero prints its span unlabelled, so adding two more would force labels onto all three and change the opening block of **all 211 pages** for a change the brief scopes to the new fields. *One flat grid of four figures* — rejected: two „Настапи" tiles side by side with no scope between them is precisely the ambiguity of OV-47.
+- **Consequences:** A man with only Belasica figures sees the grid he saw before, now under a „Беласица" label. ⚠️ **Mild asymmetry:** the playing span sits in the hero unlabelled while the coaching and service spans sit in Кариера labelled. Accepted as the smaller change; if it reads oddly to Ace, moving all three into Кариера is the follow-up.
+- **Links:** Phase 3.27, task 4; OV-47.
+
+### D-3.27-9 · 2026-08-18 · Фазата се изведе надвор од планираниот редослед, по одлука на сопственикот
+- **Status:** Accepted
+- **Context:** The brief records that 3.27 runs before the Cowork content passes originally numbered 3.25 and 3.26, on the owner's decision, because the fields this phase creates are the fields that content must be entered into.
+- **Decision:** Run it out of order as instructed and log it. `NEXT` is set to `3.25-Cowork`.
+- **Alternatives considered:** *Run 3.25/3.26 first* — rejected: there would be nowhere to put the coaching years, the service years or the career figures, so the content pass would have to be run twice.
+- **Consequences:** The phase numbering in `completions/` is no longer chronological. ⚠️ **3.25 and 3.26 now depend on this schema being deployed** — it is (workspace `belasica-v2`), so Cowork can start.
+- **Links:** Phase 3.27, precondition note.
+
+### D-3.27-10 · 2026-08-18 · Бројките во брифот се застарени — измерено 211 личности, не 160
+- **Status:** Accepted
+- **Context:** The brief states the live role split is „**98 · 34 · 28 = 160** (OV-49)" and warns it has drifted before, instructing: measure, never assume.
+- **Decision:** Measured against `production` with a read-only client before writing any code. The live figures are **211 published people**, split **153 player · 69 trainer · 29 president · 10 international**. Every count in the code, the comments, the snapshot and the report uses the measured numbers.
+- **Alternatives considered:** *Trust the brief's 160* — rejected: it would have made the membership rule's impact unreportable and put four wrong numbers into the code comments.
+- **Consequences:** ⚠️ **The brief was stale by 51 people — the fourth recorded instance of a stale brief premise** (after the 3.11/3.13 phase-ID collisions and D-3.24-4/-6 in the previous phase alone). Three existing code comments stating 261 and 49 were recomputed to 246 and 34 rather than left to rot. **OV-49 should be re-read against 211/153/69/29/10.**
+- **Links:** Phase 3.27, context; OV-49; D-3.24-4; D-3.24-6.
+
+### D-3.27-11 · 2026-08-18 · „Три или повеќе улоги" е неисполнливо во податоците — заменето со три ТАБА
+- **Status:** Accepted
+- **Context:** The Definition of Done requires that at least one of the four quoted per-tab examples be „a man who holds three or more roles".
+- **Decision:** Measured: **nobody holds three roles.** `person.role` has three possible values and the maximum any of the 211 people holds is **two**. The requirement is unsatisfiable as literally written. Substituted the nearest thing that actually tests what the requirement is for — **Панче Стојанов**, the one man who appears in **three tabs** (Играчи, Тренери and Репрезентативци: `role=[player,trainer]`, `legendRank=54`, plus membership of `INTERNATIONAL_SLUGS`) — and quoted his card from all three panels of the built output.
+- **Alternatives considered:** *Report the item as failed* — rejected: the intent (prove scoping on a man who appears in several places) is fully testable and was tested. *Add a third role to someone so the letter is met* — rejected outright: it is a Sanity write, it is forbidden, and it would be inventing a fact about a real person to satisfy a checklist.
+- **Consequences:** The strongest single piece of evidence in the report is one man's three cards side by side: rank + 127 настапи + 1992–2012 under Играчи, name + chips only under Тренери, name + chips only under Репрезентативци. ⚠️ **The DoD line should be reworded for future phases** — „appears in three or more categories", which is a real property of this data.
+- **Links:** Phase 3.27, DoD; D-3.27-4.
+
+### D-3.27-12 · 2026-08-18 · `category` има стандардна вредност „player" за да остане почетната страница надвор од опсегот
+- **Status:** Accepted
+- **Context:** `LegendCard` is also used by the homepage marquee, which the brief puts explicitly out of scope. A required `category` prop would have forced an edit to that file.
+- **Decision:** `category` defaults to `"player"`. The homepage marquee selects its ten by `legendRank` in GROQ and prints rank, years and appearances — which **is** the player scope — so the default reproduces its current output exactly and the file is absent from the diff.
+- **Alternatives considered:** *Make the prop required and pass `"player"` from the homepage* — rejected: it edits an out-of-scope file for no behavioural gain. *Default to a neutral scope showing nothing* — rejected: it would silently strip the homepage cards.
+- **Consequences:** A card rendered with no `category` shows player facts. ⚠️ **Mild trap:** a future surface that forgets the prop gets player scoping rather than an error. The prop's doc comment says so.
+- **Links:** Phase 3.27, task 3; `src/app/(site)/page.tsx`.
+
+### D-3.27-13 · 2026-08-18 · Празните гранки се проверени со привремено внесени вредности, потоа вратено
+- **Status:** Accepted
+- **Context:** Every new field ships empty (D-3.27-5), so the „Цела кариера" group, the `sourceNote` line, the whole-career card line and the recorded-`0` rule had **no live data to exercise them**. Shipping four unexercised branches on the strength of reading the code is how a zero renders as a gap.
+- **Decision:** Temporarily injected test values into the two page components — `nationalStats {appearances: 412, goals: 0, sourceNote: …}`, `trainerYears`, `officialYears` — for two named slugs, ran a full production build, verified the rendered HTML, then **reverted both blocks**. Confirmed reverted by grep and by the final build. **No Sanity write; the injection was in local code only and is not in the diff.**
+- **Alternatives considered:** *Write test data to Sanity* — rejected: forbidden, and it would have put invented figures on a real person's live page. *Ship unverified* — rejected: the recorded-`0` rule is exactly the kind of thing `||` instead of `!= null` breaks silently, and „0 голови" would have vanished.
+- **Consequences:** Proven in built output: „Кариера / Беласица Настапи 127 Голови 13 / Цела кариера Настапи 412 **Голови 0** / Според Трансфермаркт, 2026. / Периоди Тренер 2024–2026 Раководство 2015–2024", and the card line „Цела кариера: 412 настапи, 0 голови". The two figure sets rendered under separate labels and were never summed. ⚠️ **412/0 are invented test numbers and exist nowhere in Sanity, in the repo, or on the deployed site.**
+- **Links:** Phase 3.27, DoD; D-3.27-5; D-3.27-2.
