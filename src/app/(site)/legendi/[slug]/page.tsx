@@ -62,9 +62,12 @@ const PERSON_QUERY = /* groq */ `
   "slug": slug.current,
   role,
   playingYears,
+  trainerYears,
+  officialYears,
   legendAppearances,
   bio,
   careerStats{ appearances, goals },
+  nationalStats{ appearances, goals, sourceNote },
   "portrait": *[_type == "photo" && relatedPerson._ref == ^._id]
     | order(select(defined(date) => 0, 1) asc, coalesce(date, "9999") asc, _id asc)[0].image,
   "photos": *[_type == "photo" && relatedPerson._ref == ^._id]
@@ -87,11 +90,26 @@ type PersonData = {
   slug: string;
   role: string[] | null;
   playingYears: string | null;
+  /** The coaching and service spans (3.27). This page is the one place a man's
+   *  WHOLE record belongs, so all three spans render here where present — each
+   *  under its own label, so „1982–1990" can never be read as when he coached. */
+  trainerYears: string | null;
+  officialYears: string | null;
   /** The book's printed appearance figure — a STRING, because for some players
    *  the book prints a range rather than a number (D-3.15-4). */
   legendAppearances: string | null;
   bio: PortableTextBlock[] | null;
+  /** BELASICA only, and authoritative (D-2.01-3). */
   careerStats: { appearances: number | null; goals: number | null } | null;
+  /** The WHOLE career — every club plus the national team, from public records
+   *  (3.27). A different scope from a different source, so it is rendered under
+   *  its own label and `sourceNote` travels with it. Never summed with
+   *  `careerStats` and never substituted for it (OV-47). */
+  nationalStats: {
+    appearances: number | null;
+    goals: number | null;
+    sourceNote: string | null;
+  } | null;
   portrait: SanityImageSource | null;
   photos: ArchivePhoto[] | null;
   seasons: SeasonRef[] | null;
@@ -178,13 +196,67 @@ export default async function PersonPage({
     person.legendAppearances?.trim() ||
     (appearances != null ? String(appearances) : null);
 
-  const careerFigures = [
+  /**
+   * **Кариера is three labelled groups since 3.27**, because this page now holds
+   * two sets of numbers with different scopes and different sources, and an
+   * unlabelled grid of four figures would have told the reader nothing about
+   * which was which — the defect recorded as OV-47.
+   *
+   * Each group self-omits, so a man with only Belasica figures gets exactly the
+   * grid he got before, under a „Беласица" label. Nothing is ever summed across
+   * the groups and neither set of numbers falls back to the other: they are
+   * separate claims from separate records and are printed as such.
+   */
+  const belasicaFigures = [
     appearancesLabel != null && { label: "Настапи", value: appearancesLabel },
     goals != null && { label: "Голови", value: String(goals) },
   ].filter((figure): figure is { label: string; value: string } => !!figure);
 
+  // `!= null`, never falsiness — a recorded 0 is a real figure and survives, on
+  // this page exactly as on the card.
+  const nationalAppearances = person.nationalStats?.appearances ?? null;
+  const nationalGoals = person.nationalStats?.goals ?? null;
+  const wholeCareerFigures = [
+    nationalAppearances != null && {
+      label: "Настапи",
+      value: String(nationalAppearances),
+    },
+    nationalGoals != null && { label: "Голови", value: String(nationalGoals) },
+  ].filter((figure): figure is { label: string; value: string } => !!figure);
+
+  // Where the whole-career numbers came from. Rendered only beside them, never
+  // on its own: a source note with no figure to source is not a fact about the
+  // man, and never beside the Belasica figures, whose provenance is the club's
+  // own records.
+  const sourceNote = person.nationalStats?.sourceNote?.trim() || null;
+
+  /**
+   * The role-scoped spans. `playingYears` is NOT among them: it is already the
+   * hero's own line, directly under the role chips, and repeating it here would
+   * state the same period twice on one page.
+   *
+   * These two exist because a coach's years and a president's term had nowhere
+   * to live before 3.27, so the only span the page could show was a playing one
+   * — which on a man who is on the page for his coaching is the wrong fact under
+   * the right heading. Both are empty across all 211 people until the Cowork
+   * content pass, and an empty span omits its tile rather than showing a dash.
+   */
+  const spanFigures = [
+    person.trainerYears?.trim() && {
+      label: "Тренер",
+      value: person.trainerYears.trim(),
+    },
+    person.officialYears?.trim() && {
+      label: "Раководство",
+      value: person.officialYears.trim(),
+    },
+  ].filter((figure): figure is { label: string; value: string } => !!figure);
+
   const hasBio = bio.length > 0;
-  const hasCareer = careerFigures.length > 0;
+  const hasCareer =
+    belasicaFigures.length > 0 ||
+    wholeCareerFigures.length > 0 ||
+    spanFigures.length > 0;
   const hasSeasons = seasons.length > 0;
   const hasPhotos = photos.length > 0;
 
@@ -282,23 +354,27 @@ export default async function PersonPage({
           <Container>
             <Reveal>
               <SectionHeading id="career-heading">Кариера</SectionHeading>
-              {/* The `BalanceSummary` visual language (§3): white tiles on a
-                  mist grid, overline label, serif navy figure. Not the
-                  component itself — it takes a `ClubBalance` and is shaped for
-                  ten fixed columns, and generalising it would mean refactoring
-                  a stats component this phase must not touch. */}
-              <dl className="mt-8 grid max-w-md grid-cols-2 gap-px overflow-hidden border border-mist bg-mist">
-                {careerFigures.map((figure) => (
-                  <div key={figure.label} className="bg-white px-4 py-5">
-                    <dt className="text-overline uppercase tracking-overline text-neutral-700">
-                      {figure.label}
-                    </dt>
-                    <dd className="mt-2 u-h3 tabular-nums text-navy">
-                      {figure.value}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
+
+              {/* Three self-omitting groups, each stating its own scope. The
+                  Belasica figures and the whole-career figures are never placed
+                  in one grid: two „Настапи" tiles side by side with no scope
+                  between them is precisely the ambiguity this phase removes. */}
+              <div className="mt-8 flex flex-col gap-8">
+                <FigureGroup
+                  label="Беласица"
+                  figures={belasicaFigures}
+                  // The club's own records — the authoritative Belasica total
+                  // (D-2.01-3). No source note: the archive IS the source.
+                />
+
+                <FigureGroup
+                  label="Цела кариера"
+                  figures={wholeCareerFigures}
+                  note={sourceNote}
+                />
+
+                <FigureGroup label="Периоди" figures={spanFigures} />
+              </div>
             </Reveal>
           </Container>
         </section>
@@ -378,5 +454,66 @@ export default async function PersonPage({
         </Container>
       </section>
     </>
+  );
+}
+
+/**
+ * One labelled group inside Кариера (3.27) — a scope label, a tile grid, and an
+ * optional source note under it.
+ *
+ * **The label is the point.** This page carries two sets of figures that share
+ * the same nouns („Настапи", „Голови") and do not share a scope or a source: the
+ * club's own Belasica records, and a whole-career total compiled from public
+ * ones. Printing them in a single grid would produce four tiles whose meaning a
+ * reader could not recover, which is the defect on the register as OV-47. Each
+ * group therefore states what it is, and nothing is ever summed across them.
+ *
+ * **Self-omitting**, like every section on this page: a group with no figures
+ * renders nothing at all — no label, no empty grid, no dash and no placeholder
+ * chip. Today that is the normal case for two of the three groups, because 3.27
+ * creates the fields and enters no data into them.
+ *
+ * The tile treatment is unchanged — the `BalanceSummary` visual language (§3),
+ * white tiles on a mist grid with an overline label and a serif navy figure — so
+ * a man who only has Belasica figures sees exactly the grid he saw before, now
+ * with its scope named above it.
+ */
+function FigureGroup({
+  label,
+  figures,
+  note = null,
+}: {
+  label: string;
+  figures: { label: string; value: string }[];
+  /** Provenance for the figures in THIS group, rendered only where the group has
+   *  both a note and figures to source. */
+  note?: string | null;
+}) {
+  if (figures.length === 0) return null;
+
+  return (
+    <div>
+      {/* Navy and overline-sized, so it reads as a level above the tiles' own
+          neutral labels without introducing a heading into the section's
+          outline — the `<h2>` „Кариера" is the section's only heading. */}
+      <p className="text-overline font-bold uppercase tracking-overline text-navy">
+        {label}
+      </p>
+
+      <dl className="mt-3 grid max-w-md grid-cols-2 gap-px overflow-hidden border border-mist bg-mist">
+        {figures.map((figure) => (
+          <div key={figure.label} className="bg-white px-4 py-5">
+            <dt className="text-overline uppercase tracking-overline text-neutral-700">
+              {figure.label}
+            </dt>
+            <dd className="mt-2 u-h3 tabular-nums text-navy">{figure.value}</dd>
+          </div>
+        ))}
+      </dl>
+
+      {note && (
+        <p className="mt-3 max-w-md text-small text-neutral-700">{note}</p>
+      )}
+    </div>
   );
 }

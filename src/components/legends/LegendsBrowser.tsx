@@ -62,8 +62,10 @@ export function LegendsBrowser({
   /**
    * DISTINCT people across the roster, counted on the server. It cannot be
    * summed from `bands`: since 3.22 a player-coach appears in two of them, and
-   * adding the categories up would report 261 people where the archive holds
-   * 211.
+   * adding the categories up would report 246 people where the archive holds
+   * 211. (246 rather than 261 since the 3.27 membership rule; the distinct total
+   * did not move, because the 15 men it took out of Играчи are all still in
+   * another category.)
    */
   total: number;
 }) {
@@ -98,8 +100,9 @@ export function LegendsBrowser({
   }, [bands, needle]);
 
   // DISTINCT people, not band memberships (3.23, A2/P2). Summing the bands
-  // double-counts everyone who is cross-listed, which since 3.22 is 49 of the
-  // 211 people — so a search matching a player-coach announced „2 резултати"
+  // double-counts everyone who is cross-listed, which since 3.27 is 34 of the
+  // 211 people (49 before its membership rule) — so a search matching a
+  // player-coach announced „2 резултати"
   // over a single card. This is the same trap the `total` prop's own doc
   // records twelve lines above; the live count had simply not been changed with
   // it (D-3.23-11). The per-tab `countOf` numbers stay memberships, which is
@@ -143,7 +146,8 @@ export function LegendsBrowser({
     // The clearance for the two sticky bars is read off the section's own
     // `scroll-mt-*` rather than restated here, so it stays right if the header
     // token or the rail's height ever change.
-    const clearance = parseFloat(getComputedStyle(section).scrollMarginTop) || 0;
+    const clearance =
+      parseFloat(getComputedStyle(section).scrollMarginTop) || 0;
     const top = Math.max(
       0,
       section.getBoundingClientRect().top + window.scrollY - clearance,

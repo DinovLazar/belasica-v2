@@ -285,13 +285,11 @@ export function tenureEndYear(
  * no maintenance when the calendar moves; `compareByRecency` only ever compares
  * these values, never prints one.
  */
-export function tenureSortYear(
-  person: {
-    role?: string[] | null;
-    playingYears?: string | null;
-    bioLead?: string | null;
-  },
-): number | null {
+export function tenureSortYear(person: {
+  role?: string[] | null;
+  playingYears?: string | null;
+  bioLead?: string | null;
+}): number | null {
   const roles = orderedRoles(person.role);
   const presidentOnly = roles.length === 1 && roles[0] === "president";
 
@@ -302,9 +300,8 @@ export function tenureSortYear(
       return Number.POSITIVE_INFINITY;
     }
     // „2007–2015" — take the closing year.
-    const closed = /^(?:1[89]\d{2}|20\d{2})\s*[–-]\s*(1[89]\d{2}|20\d{2})$/.exec(
-      term,
-    );
+    const closed =
+      /^(?:1[89]\d{2}|20\d{2})\s*[–-]\s*(1[89]\d{2}|20\d{2})$/.exec(term);
     if (closed) return Number.parseInt(closed[1], 10);
   }
 
@@ -382,4 +379,26 @@ export function categoryCountLabel(
  */
 export function personCountLabel(count: number): string {
   return `${count} ${count === 1 ? "личност" : "личности"}`;
+}
+
+/**
+ * „38 настапи" / „1 настап" and „16 голови" / „1 гол" — the same singular rule as
+ * every other count on the site (D-2.02-12): only 1 takes the singular.
+ *
+ * Added at 3.27 for the Репрезентативци card, which is the first surface to
+ * print a figure that needs its own noun rather than a bare number in a column.
+ * The Играчи card still prints its count bare beside the name, with an `sr-only`
+ * qualifier — that layout is unchanged.
+ *
+ * These label a WHOLE-CAREER figure wherever they are used today. They are
+ * deliberately scope-neutral all the same: the label states the noun, and the
+ * caller states the scope („Цела кариера: …"), so neither can silently start
+ * describing the other's numbers.
+ */
+export function appearanceCountLabel(count: number): string {
+  return `${count} ${count === 1 ? "настап" : "настапи"}`;
+}
+
+export function goalCountLabel(count: number): string {
+  return `${count} ${count === 1 ? "гол" : "голови"}`;
 }

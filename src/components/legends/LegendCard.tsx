@@ -7,14 +7,30 @@ import {
 import { PlaceholderChip } from "@/components/home/PlaceholderChip";
 import { Reveal } from "@/components/home/Reveal";
 import { focusOnNavy, focusOnPaper } from "@/lib/focus";
-import { initials, orderedRoles } from "@/lib/people";
+import {
+  appearanceCountLabel,
+  goalCountLabel,
+  initials,
+  orderedRoles,
+  type LegendCategory,
+} from "@/lib/people";
 import { RoleChips } from "./RoleChips";
 
 export type LegendCardData = {
   name: string | null;
   slug: string;
   role: string[] | null;
-  playingYears: string | null;
+  /**
+   * Every field below `role` is **optional as of 3.27**, and that is the type
+   * doing real work rather than being loosened for convenience.
+   *
+   * The server projects a card for the tab it will appear in and sends only the
+   * facts that tab renders (`/legendi/page.tsx`), so a Тренери card genuinely
+   * has no `legendRank` and no `careerStats` on it — not null, absent. Required
+   * fields would have forced a `null` for each, which is the same bundle payload
+   * and a weaker statement about what a coaching card is.
+   */
+  playingYears?: string | null;
   /** The book's all-time rank (1–80), or null for anyone it does not rank —
    *  every trainer and president, and the unranked players. */
   legendRank?: number | null;
@@ -27,6 +43,18 @@ export type LegendCardData = {
    *  not list a printed figure for (3.19, owner: „кај сите играчи треба да има
    *  бројка на натпревари"). */
   careerStats?: { appearances: number | null } | null;
+  /** The years the man COACHED — never his playing span. Rendered on the
+   *  Тренери card only (3.27). */
+  trainerYears?: string | null;
+  /** The years he served as president or official. Претседатели card only. */
+  officialYears?: string | null;
+  /** WHOLE-CAREER figures — every club plus the national team, from public
+   *  records. Rendered on the Репрезентативци card only, and never mixed with
+   *  or substituted for `careerStats`, which is Belasica-only and has different
+   *  provenance (D-2.01-3, OV-47). `sourceNote` is deliberately NOT here: the
+   *  card prints no provenance, so the note would be bundle weight nobody
+   *  reads. The person page selects it separately and renders it. */
+  nationalStats?: { appearances: number | null; goals: number | null } | null;
   /** Already resolved to a CDN URL by the server, via `framedImage()`. This
    *  card is reached through `LegendsBrowser`'s client boundary on /legendi, so
    *  it may not hold a raw Sanity asset or import the URL builder (D-3.09-1). */
@@ -54,6 +82,7 @@ export type LegendCardData = {
  */
 export function LegendCard({
   person,
+  category = "player",
   delayIndex = 0,
   onNavy = false,
   priority = false,
@@ -63,6 +92,21 @@ export function LegendCard({
   sizes = "(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw",
 }: {
   person: LegendCardData;
+  /**
+   * **The tab this card is in — which decides what it shows (3.27).**
+   *
+   * Passed in rather than derived from `person.role`, and the difference is the
+   * whole point: one man can be a player, a coach and an international at once,
+   * so his own roles cannot say which of his facts belong on the card. Only the
+   * category he is being listed under can. Deriving it here is what produced the
+   * defect this replaced — a coach's card carrying his player ranking.
+   *
+   * Defaults to `"player"`, which is exactly what the homepage marquee renders:
+   * its ten are selected by `legendRank` in GROQ and it prints rank, years and
+   * appearances. The default keeps that surface byte-identical and out of this
+   * phase's scope.
+   */
+  category?: LegendCategory;
   delayIndex?: number;
   /** Set for a card inside a navy block; default is a white card on paper. */
   onNavy?: boolean;
@@ -73,7 +117,25 @@ export function LegendCard({
   sizes?: string;
 }) {
   const roles = orderedRoles(person.role);
-  const years = person.playingYears?.trim() || null;
+
+  /**
+   * **One span per category (3.27).** Each tab prints the years that belong to
+   * it and nothing else: a coach's card said „1982–1990" when that was when he
+   * PLAYED, which on a page headed Тренери reads as when he coached. Ace's
+   * instruction was that the years follow the role.
+   *
+   * Репрезентативци prints no span at all. `playingYears` is the man's Belasica
+   * span, so printing it under a heading about his career elsewhere is the same
+   * category error as printing his Belasica appearance count there (D-3.27-6).
+   */
+  const years =
+    category === "player"
+      ? person.playingYears?.trim() || null
+      : category === "trainer"
+        ? person.trainerYears?.trim() || null
+        : category === "president"
+          ? person.officialYears?.trim() || null
+          : null;
 
   // The count is now independent of the rank (3.19). Until then it showed only
   // for the eighty players the book ranks AND prints a figure for, so most of
@@ -89,15 +151,63 @@ export function LegendCard({
   // A person with neither renders no number — never a zero, a dash or a chip,
   // because the archive simply does not hold one (content truth; the no-`0`
   // rule from 2.04). `!= null` rather than falsiness, so a genuine recorded 0
-  // survives, exactly as on the person page. Trainers and officials are
-  // unaffected in practice: no one outside the Играчи band carries
-  // `careerStats.appearances` today, and the field is only ever read, never
-  // derived.
-  const rank = person.legendRank ?? null;
+  // survives, exactly as on the person page.
+  //
+  // **Both are Играчи-only since 3.27.** The rank is the book's ranking of
+  // PLAYERS and the count is the Belasica figure it is built on; neither
+  // describes a man's coaching or his presidency, and on the Репрезентативци tab
+  // the Belasica count actively contradicts the heading above it (OV-47).
+  //
+  // Until 3.27 the safety here was accidental — trainers and officials were
+  // unaffected only because nobody outside Играчи happened to carry
+  // `careerStats.appearances`. That is no longer the mechanism, and it is a good
+  // thing: 34 of the 211 are cross-listed, and the day a coach is given a career
+  // total the old reasoning would have printed it under Тренери. The TAB decides
+  // now, so a coach who is also ranked keeps his rank on Играчи and carries
+  // neither the rank nor the count into Тренери.
+  const rank = category === "player" ? (person.legendRank ?? null) : null;
   const career = person.careerStats?.appearances;
   const appearances =
-    person.legendAppearances?.trim() ||
-    (career != null ? String(career) : null);
+    category === "player"
+      ? person.legendAppearances?.trim() ||
+        (career != null ? String(career) : null)
+      : null;
+
+  /**
+   * The Репрезентативци figures — the man's WHOLE career, every club plus the
+   * national team, which is the only scope that makes sense on a tab about what
+   * he did beyond Беласица.
+   *
+   * Read from `nationalStats` and from nowhere else. There is deliberately **no
+   * fallback to `careerStats`**: the two have different scopes and different
+   * sources, so substituting one would print a number whose provenance the
+   * reader cannot determine — exactly OV-47. Where the whole-career figure has
+   * not been compiled yet the line simply does not render.
+   *
+   * `!= null` rather than falsiness, so a genuine recorded 0 survives — a
+   * defender really can have scored none for his country, and „0 голови" is then
+   * a fact rather than a gap.
+   *
+   * **Empty for all ten men today**, because this phase adds the field and
+   * enters no data into it (the numbers come from Ace and from public records,
+   * and a script inventing them would be inventing facts). The Репрезентативци
+   * cards therefore show a name and chips until the content pass fills them in.
+   */
+  const nationalApps =
+    category === "international"
+      ? (person.nationalStats?.appearances ?? null)
+      : null;
+  const nationalGoals =
+    category === "international" ? (person.nationalStats?.goals ?? null) : null;
+  const wholeCareer =
+    nationalApps != null || nationalGoals != null
+      ? [
+          nationalApps != null ? appearanceCountLabel(nationalApps) : null,
+          nationalGoals != null ? goalCountLabel(nationalGoals) : null,
+        ]
+          .filter(Boolean)
+          .join(", ")
+      : null;
 
   // Quieter than the name, on whichever surface the card sits: `paper/80` is
   // 9.90:1 on navy, `neutral-500` is 6.69:1 on the white card. Both clear AA
@@ -183,6 +293,18 @@ export function LegendCard({
                 clear a chip is exactly what content-truth forbids, so the line
                 simply does not render. */}
             {years && <p className={cn("mt-3 text-small", quiet)}>{years}</p>}
+
+            {/* Репрезентативци only. The scope is stated in the line itself —
+                „Цела кариера" — because that is the one thing a reader cannot
+                infer from a bare number, and because the same card shows a
+                Belasica figure on the Играчи tab. Never rendered beside the
+                Belasica count: the two never appear on the same card, so there
+                is no surface where a reader must guess which is which. */}
+            {wholeCareer && (
+              <p className={cn("mt-3 text-small tabular-nums", quiet)}>
+                Цела кариера: {wholeCareer}
+              </p>
+            )}
           </div>
         </Link>
       </Reveal>

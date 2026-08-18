@@ -42,6 +42,37 @@ export const person = defineType({
       type: "string",
       description: "На пр. 1982–1990.",
     }),
+    // The two role-scoped year spans (3.27). Until now `playingYears` was the
+    // only span the model held, so a coach's card and a president's card could
+    // show nothing else — or, worse, could show a PLAYING span under a heading
+    // about coaching. One field per role means each page states the years that
+    // belong on it.
+    //
+    // Both are plain strings, deliberately, exactly like `playingYears`: the
+    // sources give spans („2024–2026"), open-ended terms („2015–") and single
+    // years, and a date pair could hold none of those without inventing a
+    // precision the archive does not have.
+    //
+    // NOT derived, and never to be. `buildTrainerYearIndex` and
+    // `tenureSortYear` derive a coach's and an official's latest year at build
+    // time, but those produce a SORT KEY that is never rendered (D-3.13-4).
+    // These two fields are displayed facts and are typed by a human from a real
+    // source. Leave empty until then: the card omits the line rather than
+    // showing a guess.
+    defineField({
+      name: "trainerYears",
+      title: "Години како тренер",
+      type: "string",
+      description:
+        "Периодот во кој лицето било ТРЕНЕР на Беласица, на пр. 2024–2026. Тука не се пишуваат години на играње — за тоа е полето „Години на играње“. Остави празно ако не е познат периодот.",
+    }),
+    defineField({
+      name: "officialYears",
+      title: "Години во раководството",
+      type: "string",
+      description:
+        "Периодот во кој лицето било претседател или функционер, на пр. 2015–2024 или 2015– ако мандатот трае. Тука не се пишуваат години на играње. Остави празно ако не е познат периодот.",
+    }),
     // The club's all-time appearance ranking, transcribed from chapter 9 of Ace
     // Stojanov's book („50 играчи на Беласица со најмногу првенствени
     // натпревари", continued to 80). It is the ordering `/legendi` uses for the
@@ -93,12 +124,65 @@ export const person = defineType({
     // placeholder on the page, never an invented or summed number.
     defineField({
       name: "careerStats",
-      title: "Кариерна статистика",
+      // „(Беласица)" added to the TITLE at 3.27. The field's meaning has not
+      // changed — it is the same Belasica-only authoritative total it has been
+      // since 2.01 — but `nationalStats` now sits directly beneath it in the
+      // same form, and two objects both labelled „статистика" is how a
+      // whole-career figure ends up typed into the Belasica field. The label
+      // states the scope so the person entering it cannot mix them up.
+      title: "Кариерна статистика (Беласица)",
       type: "object",
       options: { collapsible: true, collapsed: false },
+      description:
+        "Само настапи и голови ЗА БЕЛАСИЦА. За целата кариера постои полето подолу.",
       fields: [
         defineField({ name: "appearances", title: "Настапи", type: "number" }),
         defineField({ name: "goals", title: "Голови", type: "number" }),
+      ],
+    }),
+    // Whole-career figures — every club plus the national team (3.27).
+    //
+    // **Separate from `careerStats`, and it must stay separate.** `careerStats`
+    // is Belasica-only and authoritative (D-2.01-3); these numbers are a
+    // different scope from a different source (public records, compiled by
+    // hand). Merging the two, or letting either fall back to the other, would
+    // put a figure on the page whose provenance a reader cannot determine —
+    // which is the defect already on the register as OV-47. So: never summed,
+    // never substituted, and rendered under its own label everywhere.
+    //
+    // This is what the Репрезентативци tab shows. Until 3.27 that tab rendered
+    // `careerStats` — a man's BELASICA appearances — under a heading about his
+    // international career: Горан Пандев's card read „38" beside his name, his
+    // Беласица count, on the one page about everything he did elsewhere.
+    //
+    // `sourceNote` is not decoration. It is the reason this field can carry a
+    // number the club's own records do not back: the provenance travels with the
+    // figure and is rendered beside it on the person page.
+    defineField({
+      name: "nationalStats",
+      title: "Статистика од целата кариера",
+      type: "object",
+      options: { collapsible: true, collapsed: true },
+      description:
+        "Настапи и голови од ЦЕЛАТА кариера — сите клубови и репрезентацијата заедно. Ова НЕ е статистиката за Беласица. Се пополнува од јавни извори.",
+      fields: [
+        defineField({
+          name: "appearances",
+          title: "Настапи (цела кариера)",
+          type: "number",
+        }),
+        defineField({
+          name: "goals",
+          title: "Голови (цела кариера)",
+          type: "number",
+        }),
+        defineField({
+          name: "sourceNote",
+          title: "Извор на бројките",
+          type: "string",
+          description:
+            "Од каде се земени бројките, кратко — на пр. „Според Трансфермаркт, 2026“. Се прикажува на страницата на личноста, до бројките, за да може читателот да провери од каде се.",
+        }),
       ],
     }),
     // NB: the person→photos relationship is single-direction (D-2.01-1). A
