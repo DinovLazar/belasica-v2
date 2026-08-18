@@ -3032,3 +3032,91 @@
 - **Alternatives considered:** *Write test data to Sanity* — rejected: forbidden, and it would have put invented figures on a real person's live page. *Ship unverified* — rejected: the recorded-`0` rule is exactly the kind of thing `||` instead of `!= null` breaks silently, and „0 голови" would have vanished.
 - **Consequences:** Proven in built output: „Кариера / Беласица Настапи 127 Голови 13 / Цела кариера Настапи 412 **Голови 0** / Според Трансфермаркт, 2026. / Периоди Тренер 2024–2026 Раководство 2015–2024", and the card line „Цела кариера: 412 настапи, 0 голови". The two figure sets rendered under separate labels and were never summed. ⚠️ **412/0 are invented test numbers and exist nowhere in Sanity, in the repo, or on the deployed site.**
 - **Links:** Phase 3.27, DoD; D-3.27-5; D-3.27-2.
+
+### D-3.28-1 · 2026-08-18 · Статички увоз од книгата, наместо внесување во Sanity — и цената што ја носи
+- **Status:** Accepted
+- **Context:** The brief fixes the route as an owner decision: the season page renders results and squads from the tracked book data as a build-time import, not from Sanity, not by parsing the existing Portable Text.
+- **Decision:** Implemented as specified. `scripts/build-season-tables.mjs` projects `data/book/*.json` into `src/content/season-tables.ts`; the season page imports it. `match.ts` stays unregistered, `schemaTypes/index.ts` is byte-identical, and **no Sanity write occurred**.
+- **Alternatives considered:** *Parse the published `results` Portable Text* — rejected by the brief: those lines are human-written and vary in shape, and a misparse puts a wrong score on a season page. *Ingest `matches.json` as a `match` type* — the better long-term answer, still open as human-step 19.
+- **Consequences:** ⚠️ **These tables are NOT editable in Studio.** Exactly the trade „Разно" made at D-3.16-2: a correction Аце wants is a code change, a regeneration and a deploy. On the register as an owed item. The existing `results` and `lineupAndStats` fields are **untouched** in the dataset — 96 and 84 documents carry them, unchanged — so his text stays recoverable.
+- **Links:** Phase 3.28, task 1; D-3.16-2; D-2.01-2; D-3.11-1.
+
+### D-3.28-2 · 2026-08-18 · Прекинувачот е отсуство на податоци, не знаменце
+- **Status:** Accepted
+- **Context:** The brief requires that a season gaining structured data later starts rendering a table with no code change.
+- **Decision:** The generator omits a season from the module entirely when it yields nothing, and `seasonTablesFor(slug)` returns `null`. The page renders the table when the lookup hits and the Portable Text when it misses. There is no flag, no allow-list and no per-season branch anywhere in the code.
+- **Alternatives considered:** *A curated list of „table seasons"* — rejected: it is a second source of truth that goes stale the first time the data changes.
+- **Consequences:** Regenerating after a data change is the whole deployment step. Verified in the built output: 92 seasons render a results table and 4 render prose; 73 render a squad table and 11 render prose.
+- **Links:** Phase 3.28, task 5; D-2.02-3; D-3.01-6.
+
+### D-3.28-3 · 2026-08-18 · Групирање по `stage`, со враќање на `competition` — зашто „Куп" не постои во податоците
+- **Status:** Accepted
+- **Context:** The brief specifies grouping „by competition first — Првенство, Куп, Квалификации", while instructing that the real values be read rather than assumed. They were.
+- **Decision:** Group by `stage` where a match has one, falling back to `competition`. **The brief's axis does not exist in the data.** `competitionType` is `league` for all 2.252 typed matches and `null` for 15 — there is **no cup type at all**, and the 7 rows matching /куп/ are the opponent **Шкупи**. `competition` holds **31 distinct league names** (Прва македонска лига 1.203, Втора македонска лига 266, Штипски потсојуз 87…), so grouping on it alone is a no-op on the 72 seasons that played in one league. What actually separates a run of matches is `stage` — **53 ties across 17 seasons** (Финале 8, Полуфинале 8, Бараж 5, and six kinds of Квалификации).
+- **Alternatives considered:** *Group by `competition` verbatim* — rejected with the owner: it prints a league's name over the only table on the page. *Nest both axes* — rejected: the nesting only pays off on 17 of 96 seasons.
+- **Consequences:** Presented to Lazar with the measurements and chosen by him. The four „divergent" seasons now **explain themselves on the page**: 1987/88 shows „Прва македонска лига" (17+19) and, separately, „Финале на квалификациите за влез во Втората југословенска лига" (2) — which is precisely why its count exceeds the book's league-only summary table. ⚠️ **The DoD item „Ace confirms cup matches belong in their own tables" has nothing to confirm — the book's season section records no cup ties.**
+- **Links:** Phase 3.28, task 3; `data/book/extraction-report.md`.
+
+### D-3.28-4 · 2026-08-18 · Колоната „Коло" се самоизостава — постои во 12 од 2.267 натпревари
+- **Status:** Accepted
+- **Context:** The brief gives „Коло" its own column and a DoD item.
+- **Decision:** Kept, rendering per group only where some match in that group carries a round — as the brief specifies. Measured first: **`round` is set on 12 of 2.267 matches (0,53 %)**, in two seasons only, `1930/31` and `1938/39`.
+- **Alternatives considered:** *Drop the column* — offered to Lazar with the measurement; he chose to keep it. *Render it always* — rejected by the brief and by sense: a blank column on 94 of 96 seasons.
+- **Consequences:** The column is absent — not blank — on 94 season pages. Proven on a single page: `1938-39` renders four tables, and „Група Струмица" has **three** header cells while „Провинциска лига", „Полуфинале" and „Финале" have **four**.
+- **Links:** Phase 3.28, task 3.
+
+### D-3.28-5 · 2026-08-18 · Бројките кај стрелците се печатат без единица — книгата не е доследна
+- **Status:** Accepted
+- **Context:** The brief says „scorers with minutes", and `data/book/extraction-report.md` line 18 calls the figures „3270 гола со минута на постигнување".
+- **Decision:** Render the numbers exactly as the book prints them, with **no minute marker, no label and no unit**. The report's claim does not hold across the whole extract: **1.323 of the 1.435 numbered matches contain a number above 12 and are demonstrably minutes**, but the book also prints „Беласица – Локомотива (Гевгелија) 5:0 (Иванов 4, Чулевски)", where 4 is a goal *count* — **112 matches carry only low numbers, and 27 of them sum exactly to Беласица's goals when read as counts**.
+- **Alternatives considered:** *Print „41′"* — rejected: it asserts a minute on 27+ matches where the book means a tally. *Suppress the ambiguous ones* — rejected: it drops recorded figures. *„Fix" the extraction* — out of scope and unverifiable without the book.
+- **Consequences:** „Ашиков 28, 54, 89 · Стојанов 38" renders with the figures muted and unlabelled, so it reads correctly under either meaning and claims neither. ⚠️ **Owed to Аце: the 27 ambiguous matches should be read against the book.** ⚠️ `extraction-report.md` overstates its own certainty here and is left unedited — it is the archive of the extraction, not this phase's document.
+- **Links:** Phase 3.28, task 3; content-truth.
+
+### D-3.28-6 · 2026-08-18 · Телефонот не се лизга странично — редот станува мрежа под `sm`
+- **Status:** Accepted
+- **Context:** The brief forbids sideways scrolling on a phone and requires the scorers to move beneath their row below `sm`. This deliberately **departs from D-2.02-10**, which had `StandingsTable` keep all nine columns and scroll horizontally on the grounds that hiding columns drops recorded data.
+- **Decision:** One `<table>`, one DOM. Below `sm` each `<tr>` is `display: grid` and the scorers cell spans the full width on a second line; from `sm` up the rows are real table rows with the scorers back in column four. No data is hidden at any width, so D-2.02-10's objection does not apply.
+- **Alternatives considered:** *Two markups, one per breakpoint* — rejected: it duplicates the DOM and doubles the a11y surface. *`overflow-x: auto`* — rejected by the brief.
+- **Consequences:** Three defects were found by measuring rather than looking, and all three are fixed. **(a)** The scorer spans butted together with no whitespace between them, so the browser had **no inline break opportunity** and a four-scorer cell ran **429 px inside a 335 px column**; the separator is now its own element with real spaces. **(b)** The wrapper carried `overflow-hidden`, which would have **silently clipped** that overflow rather than revealing it — removed, so nothing can be cut off unseen. **(c)** A grid item defaults to `min-width: auto` and would not shrink below its longest word, pushing the round column's tables **6 px** past the container; the match cell is now `min-w-0 break-words` and the round column 2,25rem. **Measured after the fix: page `scrollWidth` = `clientWidth` = 375, and 0 tables overflow their container**, on `1987-88` (38 matches), `1938-39` (4 groups) and `2018-19`.
+- **Links:** Phase 3.28, task 3; D-2.02-10.
+
+### D-3.28-7 · 2026-08-18 · Имињата се врзуваат само на точно совпаѓање — 1 од 1.982 реда
+- **Status:** Accepted
+- **Context:** The brief says to link squad names to `/legendi/<slug>` via `PersonChip` „only where a person document with that slug actually exists".
+- **Decision:** Link only on an **exact, whole-string** match between the book's squad string and a published person's `name`. Measured first: **82,7 % of the 831 distinct squad strings are initial-and-surname** („К. Костадинов") while person documents hold full names („Коце Костадинов"), and **121 surnames carry more than one distinct book string** — Митев has ten, Василев eight, Николов seven.
+- **Alternatives considered:** *Match on surname* — rejected, and this is the important one: it would resolve far more rows and would assert an identity the book does not make, which is exactly the merge **D-3.11-2** refused. *Match on initial + surname where unique* — same objection, weaker form. *Order-insensitive matching* — investigated, because the book writes „Трајков Ѓорѓи" where a person document says „Ѓорѓи Трајков"; it would gain nothing, since the seasons written in full-name form (2025/26, 2012/13) are precisely those excluded by D-3.28-9.
+- **Consequences:** **1 of 1.982 rendered squad rows links** (Давид Стојков); 759 distinct names render as plain text. ⚠️ **The feature is, in practice, inert** — one underlined name among 1.981 plain ones. Reported to Lazar as a finding: the honest choices are to keep it, or to drop squad linking until a verified alias map exists. Kept, per his instruction to link exact matches only.
+- **Links:** Phase 3.28, task 4; D-3.11-2.
+
+### D-3.28-8 · 2026-08-18 · `PersonChip` не е употребен — тоа е `<li>`, не ќелија во табела
+- **Status:** Accepted
+- **Context:** The brief names `PersonChip` as the linking component.
+- **Decision:** Used a plain inline `<Link>` in the name cell instead. `PersonChip` is **legacy, unrendered since 3.04 (D-3.04-6)**, and renders an `<li>` containing a bordered chip with an orange dot — it cannot be placed inside a `<td>` without invalid markup, and it is styled for a row of trainer chips, not for a name in a table.
+- **Alternatives considered:** *Wrap it in a `<ul>` inside the cell* — rejected: valid but absurd, a one-item list per row. *Un-legacy and refactor `PersonChip`* — rejected: out of scope, and it is still unrendered everywhere else.
+- **Consequences:** The link carries the same navy + mist underline treatment `SeasonRecordList` already uses for links, and the shared `focusOnPaper` ring. `PersonChip`, `SquadTable` and `StandingsTable` all remain legacy and unrendered; this phase resurrected none of them.
+- **Links:** Phase 3.28, task 4; D-3.04-6.
+
+### D-3.28-9 · 2026-08-18 · Состав без статистика не се прикажува како табела — инаку се губат броеви
+- **Status:** Accepted
+- **Context:** Caught by the byte-for-byte comparison against `main`, not by reading the code. `2025-26`'s staff section differed, and the difference was a **loss**.
+- **Decision:** The generator emits a season's squad only when at least one row carries `apps` or `goals`. **Ten seasons list a roster with no statistics at all** — 1942, 1943/44, 1945/48, 1948/49, 1951, 1952, 1952/53, 1955/56, 2012/13 and 2025/26 — and for those the published Portable Text is strictly richer. On `2025-26` the prose reads „1. Трајков Ѓорѓи (2004) 22+0/0", carrying appearances and goals; the structured rows carry a birth year and a position and **no figures**, so the table rendered two empty columns where real numbers had been.
+- **Alternatives considered:** *Ship it and note the gap* — rejected outright: the DoD calls a drop a failure, not a finding, and it would have replaced Аце's numbers with blanks on the current season. *Special-case 2025/26* — rejected: nine other seasons have the same shape, and a rule beats a list.
+- **Consequences:** Squad tables fell from 83 seasons to **73**, and those 10 keep their prose. **After the fix, seasons showing a squad: 84 before, 84 after — no change.** ⚠️ The structured rows for those ten hold a **position** („голман", „одбрана", „средина", „напад") that the prose does not; nothing renders it today, and it is a candidate for a later phase.
+- **Links:** Phase 3.28, task 4; DoD.
+
+### D-3.28-10 · 2026-08-18 · Генераторот го поседува форматот на генерираната датотека
+- **Status:** Accepted
+- **Context:** Running prettier over this phase's files reformatted `src/content/season-tables.ts`, after which `--check` reported the module stale on every run although the data had not changed.
+- **Decision:** Added a `.prettierignore` — the repo had none — listing the generated module, plus `.next/` and `node_modules/`. The generator is the single authority on that file's formatting.
+- **Alternatives considered:** *Run prettier inside the generator* — rejected: it makes a 1,2 MB write depend on prettier's API and slows every regeneration. *Drop `--check`* — rejected: it is the only proof the committed module matches the data.
+- **Consequences:** `node scripts/build-season-tables.mjs --check` exits 0 and is the reviewer's proof. ⚠️ **`.prettierignore` is new and repo-wide**; it excludes only generated and build output, and `prettier --check` on this phase's hand-written files passes.
+- **Links:** Phase 3.28, task 1.
+
+### D-3.28-11 · 2026-08-18 · Заглавието на табелата ја носи типографијата на `u-label`, но не и портокаловата лента
+- **Status:** Accepted
+- **Context:** `u-label` renders a 6px orange bar via `::before`. Applied to every column header it put an orange bar before „НАТПРЕВАР", „РЕЗУЛТАТ" and „СТРЕЛЦИ" inside the navy band — three markers per table, and more on a multi-group page.
+- **Decision:** Column headers use the same type tokens (`font-sans text-overline font-bold tracking-overline uppercase`) **without** the bar. The есен/пролет row keeps its `u-label` and its single marker, where it reads as the part divider it is.
+- **Alternatives considered:** *Keep `u-label` everywhere* — rejected on looking at it: the band read as decoration rather than as a table header. *Add a `u-label-plain` utility* — rejected: the brief forbids a new token, and four Tailwind utilities on two elements need no abstraction.
+- **Consequences:** **No new `brand.md` token and no new CSS utility** — the values are the existing `--text-overline` / `--tracking-overline` theme tokens. One orange marker per есен/пролет group, none in the header band.
+- **Links:** Phase 3.28, task 3; `brand.md` §Typography.
