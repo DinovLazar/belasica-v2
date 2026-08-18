@@ -21,8 +21,11 @@ import {
   type SeasonRecord,
 } from "@/components/archive/SeasonRecordBoard";
 import { SeasonRecordList } from "@/components/archive/SeasonRecordList";
+import { SeasonResultsTable } from "@/components/archive/SeasonResultsTable";
+import { SeasonSquadTable } from "@/components/archive/SeasonSquadTable";
 import { SeasonStory } from "@/components/archive/SeasonStory";
 import { SectionHeading } from "@/components/archive/SectionHeading";
+import { seasonTablesFor } from "@/content/season-tables";
 import { PlaceholderChip } from "@/components/home/PlaceholderChip";
 import { Reveal } from "@/components/home/Reveal";
 import { SectionOverline } from "@/components/home/SectionOverline";
@@ -103,6 +106,14 @@ const SEASON_QUERY = /* groq */ `
       "width": image.asset->metadata.dimensions.width,
       "height": image.asset->metadata.dimensions.height
     },
+  // Every published person, name and slug only (3.28). The squad table links a
+  // name ONLY on an exact whole-string match, so this is the index that decides
+  // it -- read live rather than baked into the generated module, so a person
+  // Аце adds tomorrow starts resolving without a regeneration.
+  "people": *[_type == "person" && defined(slug.current) && defined(name)]{
+    name,
+    "slug": slug.current
+  },
   "previousSeason": *[_type == "season" && defined(slug.current)
       && (decade < ^.decade
           || (decade == ^.decade && slug.current < ^.slug.current))]
@@ -131,6 +142,7 @@ type SeasonData = {
   tablePhoto: LeadPhoto | null;
   record: SeasonRecord | null;
   gallery: ArchivePhoto[] | null;
+  people: { name: string | null; slug: string | null }[] | null;
   previousSeason: SeasonNeighbour | null;
   nextSeason: SeasonNeighbour | null;
 };
@@ -265,10 +277,32 @@ export default async function SeasonPage({
   // section shows its content or its one-line empty note. Most of the 96
   // seasons are sparse in at least one field, and those are genuine source
   // gaps, not defects — the note says so rather than inventing filler.
+  // 3.28 — the structured tables the book yields for this season, if any. The
+  // module holds 93 of the 96 seasons; a miss here is what makes Аце's prose
+  // render instead, and it is the ABSENCE of data that decides, never a flag
+  // someone sets. A season that gains rows later starts rendering a table on
+  // the next regeneration, with no change to this file (D-3.28-2).
+  const tables = seasonTablesFor(season.slug);
+  const matchGroups = tables?.matchGroups ?? [];
+  const squadRows = tables?.squad ?? [];
+  const showResultsTable = matchGroups.length > 0;
+  const showSquadTable = squadRows.length > 0;
+
+  // Exact person name → slug. Only a whole-string hit becomes a link; see
+  // `SeasonSquadTable` for why nothing looser is allowed to (D-3.28-7).
+  const personSlugs = new Map<string, string>(
+    (season.people ?? [])
+      .filter(
+        (person): person is { name: string; slug: string } =>
+          Boolean(person.name) && Boolean(person.slug),
+      )
+      .map((person) => [person.name, person.slug]),
+  );
+
   const present: Record<SectionKey, boolean> = {
     table: Boolean(tablePhoto) || Boolean(record),
-    staff: Boolean(trainer) || lineup.length > 0,
-    results: results.length > 0,
+    staff: Boolean(trainer) || lineup.length > 0 || showSquadTable,
+    results: results.length > 0 || showResultsTable,
     story: story.length > 0,
     gallery: gallery.length > 0,
   };
@@ -424,8 +458,16 @@ export default async function SeasonPage({
                     {SECTIONS.results.heading}
                   </SectionHeading>
                 </Reveal>
+                {/* The table OR the prose — never both. Two surfaces
+                    describing the same match differently is the defect recorded
+                    at D-3.19-3, and it was caught then only because someone
+                    counted. */}
                 <Reveal delayIndex={1} className="mt-8">
-                  <SeasonRecordList blocks={results} variant="results" />
+                  {showResultsTable ? (
+                    <SeasonResultsTable groups={matchGroups} />
+                  ) : (
+                    <SeasonRecordList blocks={results} variant="results" />
+                  )}
                 </Reveal>
               </Container>
             </section>
@@ -474,14 +516,22 @@ export default async function SeasonPage({
                   </Reveal>
                 )}
 
-                {lineup.length > 0 && (
+                {(showSquadTable || lineup.length > 0) && (
                   <Reveal delayIndex={2} className="mt-10">
                     <h3 className="u-h3 text-navy">Состав и статистика</h3>
-                    <SeasonRecordList
-                      blocks={lineup}
-                      variant="roster"
-                      className="mt-5"
-                    />
+                    {showSquadTable ? (
+                      <SeasonSquadTable
+                        rows={squadRows}
+                        personSlugs={personSlugs}
+                        className="mt-5"
+                      />
+                    ) : (
+                      <SeasonRecordList
+                        blocks={lineup}
+                        variant="roster"
+                        className="mt-5"
+                      />
+                    )}
                   </Reveal>
                 )}
               </Container>

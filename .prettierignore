@@ -1,0 +1,9 @@
+# Generated, and formatted by its own generator. Prettier and
+# `scripts/build-season-tables.mjs` disagree on how to print 1,2 MB of nested
+# data, and letting both touch it makes `--check` fail after every format run —
+# so the generator owns this file's formatting outright (3.28).
+src/content/season-tables.ts
+
+# Build output and dependencies.
+.next/
+node_modules/

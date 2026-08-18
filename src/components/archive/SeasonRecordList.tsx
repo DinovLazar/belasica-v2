@@ -165,8 +165,10 @@ function rosterDividerKey(blocks: PortableTextBlock[]): string | null {
  * hidden from the accessibility tree: the numbered list it separates already
  * reads correctly without it (D-3.17-4).
  */
-function RosterDivider() {
-  return <div aria-hidden className="mt-4 mb-1 h-px bg-mist" />;
+export function RosterDivider({ className }: { className?: string } = {}) {
+  return (
+    <div aria-hidden className={cn("mt-4 mb-1 h-px bg-mist", className)} />
+  );
 }
 
 // The results config is static and built once, like `SeasonStory`'s map. The
