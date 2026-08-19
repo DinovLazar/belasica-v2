@@ -65,7 +65,7 @@ Reserved IDs `D-3.25-1, -3, -4, -5, -6` were **not** used; this phase used `D-3.
   - `person-gjorgje-tanushev` — **created**: Ѓорѓе Танушев · `gjorgje-tanushev` · `["player"]` · rank 160 · 48 настапи · „2007–2010".
   - `person-vasko-nikolov` — **created**: Васко Николов · `vasko-nikolov` · `["player"]` · rank 162 · 46 настапи · no `playingYears`, no `goals`.
   - All four patched-then-published; both write calls reported „Changes were saved to drafts", and a separate publish promoted all four. **No secret was created, stored or transferred in this phase.**
-- **Repo:** `src/_project-state/current-state.md`, `src/_project-state/decisions.md`, `src/_project-state/file-map.md`, and this report. Branch `phase-3.32-tail-determined`. PR link: added on open.
+- **Repo:** `src/_project-state/current-state.md`, `src/_project-state/decisions.md`, `src/_project-state/file-map.md`, and this report. Branch `phase-3.32-tail-determined`. **PR:** https://github.com/DinovLazar/belasica-v2/pull/59 · **Vercel preview:** https://belasica-v2-msslbbs5y-sunset-services-team.vercel.app — verified on the deployment itself, not only the local build: all four person pages return **200**, Ѓорѓе Танушев „Настапи 48", Васко Николов „Настапи 46" (and nothing after it — no „0", no span), Игор Ѓузелов „Настапи 50 · За репрезентацијата Настапи 18 Голови 1", Дервиш Хаџиосмановиќ „Настапи 47 Голови 20", and `/legendi` reads **„212 личности"**.
 
 ## 6. State updates done (mandatory for Code phases)
 
