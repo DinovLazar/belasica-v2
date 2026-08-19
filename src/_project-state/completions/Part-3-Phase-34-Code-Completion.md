@@ -52,6 +52,24 @@ The pipeline is the razno/season-tables one: the `.docx` is committed as provena
 
 ---
 
+## 2b. Vercel PR preview — and the 5 things for Lazar to eyeball
+
+**Preview:** https://belasica-v2-ay68mmcn8-sunset-services-team.vercel.app/statistika · **PR [#60](https://github.com/DinovLazar/belasica-v2/pull/60)**
+
+Verified on the **deployed** build, not just locally: `/statistika` returns **200**, all three anchors present, and the ten tables render **35 · 48 · 93 · 76 · 13 · 30 · 25 · 7 · 25 · 16** rows — the last seven being the new content, matching the source exactly.
+
+**Five things to look at (Lazar, ideally with Аце):**
+
+1. **The blank seasons.** Scroll „Најдобри стрелци по сезони" to **1951., 1952/53, 1955/56 и 2012/13** — each should be the season and a dash, with **no name invented**. Confirm those are the only four he has no scorer for.
+2. **The ties.** **1966/67, 1971/72, 1982/83, 1988/89, 1995/96** should each show **two names** stacked, with their goal figures lined up beside them.
+3. **⚠️ The rank numbering (OV-85).** In **„ВТОРА ЈУГОСЛОВЕНСКА ЛИГА - НАТПРЕВАРИ"** look at ranks **18, 19, 20, 20** (40, 40, 39, 38) and in **„ВТОРА ЈУГОСЛОВЕНСКА ЛИГА - ГОЛОВИ"** at **5, 5, 7** (12, 10, 10). These are printed exactly as Аце wrote them. **Does he want them left, or renumbered?**
+4. **⚠️ The missing attribution (OV-86).** The three sections end with no „Извор:" line, unlike every „Разно" page. **What wording does Аце want**, given these figures come from „БЕЛАСИЦА - статистика и разно.docx" and not from the book?
+5. **The three-point note.** In „Прва македонска лига", the fourth paragraph is his own caveat about 1992/93 and 1993/94. Confirm it reads correctly — and note that the balance table higher up the page still shows **1992/93 at 34 points**, which is the two-point era. **Deliberately not reconciled.**
+
+Also worth a glance: on a phone, the wide tables scroll sideways **inside their own frame** and the page itself must never scroll sideways.
+
+---
+
 ## 3. Decisions I made during this phase
 
 - **D-3.34-1** — Аце's document was not in the repo; it was located on disk (`~/Downloads/БЕЛАСИЦА - статистика и разно.docx`) and committed under the brief's own path. **Fifth stale-brief-premise incident.**
