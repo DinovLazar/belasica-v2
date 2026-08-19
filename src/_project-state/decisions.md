@@ -3340,3 +3340,75 @@
 - **Alternatives considered:** _Fix (b) as a one-character edit_ — tempting, and rejected: the brief's stop-and-report instruction is unambiguous, and a static file that hardcodes a roster size will go stale again on the very next phase, so the honest fix is a rule about that file, not a digit. _Fix (a) in the Studio schema_ — rejected: it is a `src/sanity/` change, and D-3.30-5's precedent for exceeding a scope boundary rested on a contradiction that misleads an **editor at the moment of typing**; a stale numeric range in a hint does not rise to that.
 - **Consequences:** ⚠️ **`public/llms.txt` now states a roster size that is wrong by one in the opposite direction** — this phase did not create the error but did move the true number past it. It is a live factual claim on a served file, so it is raised rather than left silent (**OV-84**). The code comments are historical annotations, already stale before this phase, and were not touched. **Nothing under `src/` changed in this phase** — `git diff` confirms it.
 - **Links:** OV-84; D-3.30-5; `CLAUDE.md` content-truth rule.
+
+### D-3.34-1 · 2026-08-19 · Аце's document was not in the repo; it was located on disk and committed under the brief's own path
+
+- **Status:** Accepted (deviation from the brief's Context and Task 2)
+- **Context:** The brief names `data/book/sources/belasica-statistika-razno.docx` and says „(Lazar places it in the repo; commit it as provenance)". **The `data/book/sources/` directory did not exist**, and no `.docx` was anywhere in the repo or its history. A disk search found one document whose content matches the brief's six blocks exactly: `~/Downloads/БЕЛАСИЦА - статистика и разно.docx` — the Macedonian of the brief's transliterated filename. **This is the fifth time a brief has carried a premise the repo contradicts** (3.11, 3.13, 3.24, 3.32).
+- **Decision:** Copy that file to the brief's path unchanged and commit it (SHA-256 `7cf8ab94fbe6c09068ad5fc37c560459cde802d667288e65f3270304f2d955d0`, 22.000 bytes), then extract from the committed copy rather than from `~/Downloads`, so the provenance chain starts inside the repo.
+- **Alternatives considered:** _Stop and wait for Lazar to place the file_ — rejected: the document was identified with certainty (its six blocks match the brief's §„The six blocks“ item for item, including the exact blank seasons and ties the brief predicts), so waiting would have blocked a fully determined phase on a file move. _Extract from `~/Downloads` and commit only the markdown_ — rejected: the brief requires the `.docx` as provenance, and a transcription whose source is not committed cannot be re-verified by a reviewer.
+- **Consequences:** The extraction is reproducible from the repo alone. ⚠️ **Lazar should confirm this is the intended document** — it is the only candidate on disk, but its identity rests on content matching, not on him having placed it.
+- **Links:** D-3.32-1; D-3.16-2; `data/book/sources/belasica-statistika-razno.docx`.
+
+### D-3.34-2 · 2026-08-19 · The three sections were appended at the end of the page, not inserted before „Клупски рекорди"
+
+- **Status:** Accepted (deviation from the brief's literal §Scope wording)
+- **Context:** The brief says to add the sections „after «Севкупен биланс»", and describes the page as „Клупски рекорди → Најдобри стрелци → Најмногу настапи → Севкупен биланс". **That order is stale.** The records section was moved to CLOSE the page on 2026-08-09 („the curated records close the page (owner)"), so the live order is Стрелци → Настапи → Биланс → Рекорди. Taken literally against the stale order, „after «Севкупен биланс»" would now insert the three new sections *between* Биланс and Рекорди.
+- **Decision:** Append all three after „Клупски рекорди", at the very end of the page.
+- **Alternatives considered:** _Insert between Биланс and Рекорди, matching the words literally_ — rejected: the brief's own §Out-of-scope says the four existing sections must be left untouched, and splitting them apart is a change to them; the instruction's evident intent, written against a page where records came first, was „at the end". _Ask before proceeding_ — rejected: both readings still place the sections after „Севкупен биланс", so the DoD is satisfied either way and no factual claim turns on it.
+- **Consequences:** The DoD's „in order after «Севкупен биланс»" holds literally — all three do follow it. The four existing sections stay contiguous and, verified by `git diff main`, **the page diff removes zero lines**. ⚠️ If the owner wanted Аце's tables interleaved with the curated records, that is a reorder a follow-on can make cheaply.
+- **Links:** D-3.13-1; `src/app/(site)/statistika/page.tsx`.
+
+### D-3.34-3 · 2026-08-19 · A new fixed `SourceTable` rather than reusing the sortable `StatTable`
+
+- **Status:** Accepted
+- **Context:** The brief requires these tables to be „fixed, server-rendered… sortability is neither needed nor wanted", because Аце's ranking and chronology ARE the content and a sort control that reordered shared ranks would misrepresent them. The page's existing `StatTable` is a `"use client"` component whose every header is a sort button.
+- **Decision:** Add `src/components/stats/SourceTable.tsx` — the same visual contract (navy header, `zebra` striping, mist hairlines, `—` for an unknown cell, horizontal scroll region with `role="region"` + `tabIndex`), with the sorting removed and the client boundary dropped.
+- **Alternatives considered:** _Add a `sortable={false}` prop to `StatTable`_ — rejected: it would keep a client bundle and a `useState` for a table that never changes, and would leave a dead sorting code path on four shipped tables it does not serve. _Reuse `SeasonSquadTable`'s markup_ — rejected: that is the archive's table style (hairline rows, no zebra, no scroll region), not this page's, and the brief says to reuse the page's table look.
+- **Consequences:** `/statistika` First Load JS is **117 kB**, unchanged. Cells are `ReactNode`, which is what lets one season row stack the two names of a tie. ⚠️ Two table components now exist side by side; the header comment on each states which to reach for.
+- **Links:** D-2.02-10; D-3.09-6; `brand.md` §Components „Stats table".
+
+### D-3.34-4 · 2026-08-19 · No source-attribution line was written for the three new sections
+
+- **Status:** Accepted — opens OV-86
+- **Context:** The „Разно" pages end with an attribution (`RAZNO_SOURCE_CREDIT`, „Извор: Аце Стојанов, «ФК Беласица – гордоста на Струмица», 2025 година.", D-3.16-12). These three sections come from a **different** document — „БЕЛАСИЦА - статистика и разно.docx" — not from the book, so that string cannot be reused without misattributing.
+- **Decision:** Ship no attribution line, and raise the gap. The brief is explicit that „Claude writes no prose of its own here", and an attribution sentence naming a document is prose that makes a claim about provenance.
+- **Alternatives considered:** _Reuse the razno credit_ — rejected outright: it would state the figures came from the book when they came from a separate statistics document. _Compose a new credit naming the statistics document_ — rejected: it is exactly the invented prose the brief forbids, and the wording of a public attribution is the owner's call.
+- **Consequences:** ⚠️ **Three sections of figures currently render with no stated source**, where the rest of the site's transcribed content is attributed (**OV-86**). Provenance is fully recorded in the repo (the `.docx`, the transcription and the generator), just not on the page.
+- **Links:** OV-86; D-3.16-12; `src/content/razno.ts`.
+
+### D-3.34-5 · 2026-08-19 · Аце's three internally inconsistent rank numbers were rendered exactly as written
+
+- **Status:** Accepted — opens OV-85
+- **Context:** Verified programmatically across all six ranked tables. Four are internally consistent. Two are not: in „ВТОРА ЈУГОСЛОВЕНСКА ЛИГА - НАТПРЕВАРИ" ranks **18 and 19 hold the same value (40)** while ranks **20 and 20 hold different values (39 and 38)**; in „ВТОРА ЈУГОСЛОВЕНСКА ЛИГА - ГОЛОВИ" rank **5 is given to both 12 and 10**, and 10 also appears at rank 7. ⚠️ **Every table's VALUES are correctly ordered** — only the numerals are out of step.
+- **Decision:** Render his numerals unchanged. Do not renumber, do not silently drop a rank, do not annotate the row on the page.
+- **Alternatives considered:** _Recompute ranks from the values_ — rejected: it is precisely the „correction" the content-truth rule forbids, and it would publish numbers Аце never wrote. _Mark the rows with a footnote on the page_ — rejected: the footnote would be this phase's prose asserting that Аце made a mistake, which is his call to make, not the archive's.
+- **Consequences:** ⚠️ **Three visible rank numerals do not follow from their own tables** (**OV-85**). They are flagged for Аце rather than fixed. The generator's header records the same, so a future editor cannot mistake them for a parsing bug.
+- **Links:** OV-85; `CLAUDE.md` content-truth rule; `scripts/build-statistika-extra.mjs`.
+
+### D-3.34-6 · 2026-08-19 · The bare rule Аце drew inside the appearances table is recorded but not rendered
+
+- **Status:** Accepted — opens OV-87
+- **Context:** Source line **L209** is a bare `__________________________` sitting between rank 11 and rank 12 of „над 60 настапи". Elsewhere in the document a run of underscores means one of two different things: a season he has no scorer for (block A), or a separator between blocks. Inside a ranked table it is neither, and the document never says what it marks.
+- **Decision:** Carry it in the data as `MACEDONIAN_LEAGUE.unrenderedDividerLines` and render nothing.
+- **Alternatives considered:** _Draw the rule in the table_ — rejected: a line across a ranking asserts a grouping („the top eleven"), and he wrote no such words; the squad tables' own divider is drawn only because two stated conditions hold (D-3.17-4), and neither applies here. _Drop it from the data entirely_ — rejected: it would erase a mark he made, and the next person to diff the module against the source would find a line unaccounted for.
+- **Consequences:** The table reads as one unbroken 25-row ranking, which is what his numbering says it is. ⚠️ **If the rule was meant to mark something, that meaning is not on the page** (**OV-87**).
+- **Links:** OV-87; D-3.17-4; `src/content/statistika-extra.ts`.
+
+### D-3.34-7 · 2026-08-19 · The generated module is listed in `.prettierignore`, following the season-tables precedent
+
+- **Status:** Accepted
+- **Context:** `scripts/build-statistika-extra.mjs --check` diffs the committed `src/content/statistika-extra.ts` byte for byte against a fresh generation. If Prettier reformatted the file, `--check` would fail after every format run — the exact problem D-3.28-10 recorded for `season-tables.ts`.
+- **Decision:** Add `src/content/statistika-extra.ts` to `.prettierignore` with a comment stating the reason, exactly as the existing entry does.
+- **Alternatives considered:** _Make the generator emit Prettier-formatted output_ — rejected: it would add a Prettier dependency to a script whose whole virtue is that it depends on nothing, and the precedent already exists.
+- **Consequences:** `--check` passes after `prettier --write` on every hand-written path this phase touched (verified). The generator owns the file's formatting outright. ⚠️ Two generated modules are now Prettier-exempt; no hand-written file is.
+- **Links:** D-3.28-10; `.prettierignore`.
+
+### D-3.34-8 · 2026-08-19 · The jump rail now overflows horizontally at desktop widths, and was left to scroll rather than re-labelled
+
+- **Status:** Accepted — opens OV-88
+- **Context:** The rail grew from 4 items to 7. Measured at 1280 px: content **1583 px** inside a **1248 px** scroller — **335 px of overflow**, so „Прва македонска лига" and part of „Југословенска лига" sit off-screen until the rail is scrolled. `JumpNav` is built to scroll (`min-w-max` + `overflow-x-auto`), so nothing is broken, but this is the first page where it overflows on a desktop viewport rather than only on a phone.
+- **Decision:** Keep the labels and let the rail scroll. Raise the overflow.
+- **Alternatives considered:** _Shorten the new labels_ — rejected on measurement, not taste: the longest new label is 283 px, so even cutting it to „Стрелци по сезони" leaves ~252 px of overflow. **No label wording closes a 335 px gap at seven items**, and shortening would also break D-3.13-1, which requires each label to lead its heading. _Let the rail wrap to two rows_ — rejected: `JumpNav` is shared by `/arhiva` and `/legendi`, so changing its layout is a three-page change and out of this phase's scope.
+- **Consequences:** ⚠️ **Two of the seven jump targets are not visible at 1280 px without scrolling the rail** (**OV-88**). No horizontal scroll on the page itself at either 1280 or 375, verified. ⚠️ The first new label is the full heading „Најдобри стрелци по сезони" rather than its opening words, deliberately: the existing rail already has „Најдобри стрелци" pointing at a different table, and two identical labels would jump to two different places.
+- **Links:** OV-88; D-3.13-1; D-2.02-17; `src/components/JumpNav.tsx`.

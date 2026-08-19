@@ -13,6 +13,18 @@ import {
   type StatRow,
 } from "@/components/stats/StatTable";
 import { Reveal } from "@/components/home/Reveal";
+import {
+  PlainRankedSourceTable,
+  RankedSourceTable,
+  SeasonScorersTable,
+} from "@/components/stats/AceTables";
+import {
+  MACEDONIAN_LEAGUE,
+  SEASON_SCORERS,
+  SEASON_SCORERS_COLUMN_LINE,
+  SEASON_SCORERS_INTRO,
+  YUGOSLAV_TABLES,
+} from "@/content/statistika-extra";
 import { seasonCountLabel } from "@/lib/archive";
 import {
   aggregateClubBalance,
@@ -253,6 +265,14 @@ export default async function StatisticsPage() {
     ...(recordGroups.length > 0
       ? [{ id: "rekordi", label: "Клупски рекорди" }]
       : []),
+    // The three transcribed sections (3.34). Each label still leads its
+    // heading (D-3.13-1); the first carries the heading's full wording rather
+    // than its opening words alone, because „Најдобри стрелци“ on its own is
+    // already the label of the Sanity-backed section at the top of the page
+    // and two identical rail labels would jump to two different tables.
+    { id: "strelci-sezoni", label: "Најдобри стрелци по сезони" },
+    { id: "jugoslavija", label: "Југословенска лига" },
+    { id: "makedonija", label: "Прва македонска лига" },
   ];
 
   // Sorting „Сезона" descending must mean newest first, whatever a title looks
@@ -491,6 +511,120 @@ export default async function StatisticsPage() {
           </Container>
         </section>
       )}
+
+      {/* ──────────────────────────────────────────────────────────────────
+          Аце's transcribed statistics, Phase 3.34.
+
+          Three sections, appended after the four Sanity-backed ones above,
+          which are untouched. The brief said „after «Севкупен биланс»“ while
+          believing „Клупски рекорди“ still LED this page; it has closed it
+          since 2026-08-09, so appending here satisfies that instruction
+          literally — these do follow the balance — and keeps the four
+          existing sections contiguous instead of splitting them (D-3.34-2).
+
+          Every figure, name, period and sentence below is read from
+          `src/content/statistika-extra.ts`, generated from Аце's document.
+          Nothing on these three sections is authored here.
+          ────────────────────────────────────────────────────────────────── */}
+
+      <section
+        id="strelci-sezoni"
+        aria-labelledby="season-scorers-heading"
+        className="scroll-mt-[calc(var(--spacing-header)+3.25rem)] border-t border-mist py-section"
+      >
+        <Container>
+          <Reveal>
+            <SectionHeading id="season-scorers-heading">
+              Најдобри стрелци по сезони
+            </SectionHeading>
+            {/* His own sentence above the table, not a description of it
+                written here. */}
+            <p className="mt-4 max-w-measure text-small text-neutral-700">
+              {SEASON_SCORERS_INTRO}
+            </p>
+          </Reveal>
+          <div className="mt-8">
+            <SeasonScorersTable
+              rows={SEASON_SCORERS}
+              columnLine={SEASON_SCORERS_COLUMN_LINE}
+            />
+          </div>
+        </Container>
+      </section>
+
+      <section
+        id="jugoslavija"
+        aria-labelledby="yugoslav-heading"
+        className="scroll-mt-[calc(var(--spacing-header)+3.25rem)] border-t border-mist py-section"
+      >
+        <Container>
+          <Reveal>
+            <SectionHeading id="yugoslav-heading">
+              Југословенска лига
+            </SectionHeading>
+          </Reveal>
+
+          {/* Four ranked tables, each under Аце's own ALL-CAPS header and each
+              carrying his intro and his tail lines verbatim. */}
+          {YUGOSLAV_TABLES.map((table) => (
+            <div key={table.line} className="mt-12 first:mt-8">
+              <h3 className="u-h3 text-navy">{table.heading}</h3>
+              <RankedSourceTable
+                intro={table.intro}
+                columnLine={table.columnLine}
+                rows={table.rows}
+                tail={table.tail}
+                caption={table.heading}
+                scrollLabel={`${table.heading} — скролувај хоризонтално`}
+              />
+            </div>
+          ))}
+        </Container>
+      </section>
+
+      <section
+        id="makedonija"
+        aria-labelledby="macedonian-heading"
+        className="scroll-mt-[calc(var(--spacing-header)+3.25rem)] border-t border-mist py-section"
+      >
+        <Container>
+          <Reveal>
+            <SectionHeading id="macedonian-heading">
+              Прва македонска лига
+            </SectionHeading>
+          </Reveal>
+
+          <h3 className="u-h3 mt-8 text-navy">{MACEDONIAN_LEAGUE.heading}</h3>
+
+          {/* The 14-season aggregate and the three lines under it. The last of
+              them is Аце's own note that he counted 1992/93 and 1993/94 wins as
+              three points though they were two at the time — it travels with
+              the paragraphs it qualifies, and neither it nor the season tables
+              (which still show 1992/93 at 34 points) was reconciled to the
+              other. */}
+          <div className="mt-5 max-w-measure space-y-4 text-body text-neutral-700">
+            {MACEDONIAN_LEAGUE.narrative.map((paragraph, i) => (
+              <p key={i}>{paragraph}</p>
+            ))}
+          </div>
+
+          <div className="mt-10">
+            <PlainRankedSourceTable
+              table={MACEDONIAN_LEAGUE.appearances}
+              caption="Играчи со над 60 првенствени настапи во Првата македонска лига"
+              scrollLabel="Настапи во Првата македонска лига — скролувај хоризонтално"
+            />
+          </div>
+
+          <div className="mt-10">
+            <PlainRankedSourceTable
+              table={MACEDONIAN_LEAGUE.goals}
+              caption="Најефикасни играчи во Првата македонска лига"
+              scrollLabel="Голови во Првата македонска лига — скролувај хоризонтално"
+            />
+          </div>
+        </Container>
+      </section>
     </>
   );
 }
