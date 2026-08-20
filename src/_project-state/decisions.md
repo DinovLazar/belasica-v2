@@ -3468,3 +3468,57 @@
 - **Alternatives considered:** _Record the bare year_ — rejected: it leaves a standing instruction in a document that expires. _A comment in the JSON-LD builder_ — not rejected, but not sufficient on its own; the fact file is where someone checks before adding a claim.
 - **Consequences:** The permanent exclusion now travels with the fact that would otherwise invite breaking it. „За нас" is untouched; its „104 години историја" is now backed rather than merely consistent. ⚠️ „104" is fixed copy and will read 105 in 2027 — correct for the 2026 launch, and recorded on the fact's own line.
 - **Links:** `facts.md`; `CLAUDE.md` §Content truth.
+
+### D-3.36-1 · 2026-08-20 · The 2025/26 squad name carries the birth year, because the prose prints it inside the name
+
+- **Status:** Accepted
+- **Context:** `SeasonSquadRow` is `no · player · apps · goals`. There is no birth-year column, and the 2025/26 prose prints every player as „3. Милушев Александар (1988) 30+0/9" under its own header line „Играч (година на раѓање) — старт+измена/голови". Dropping the year to fit the shape would delete information the page shows today, on a phase whose entire job is to lose nothing while changing the presentation.
+- **Decision:** `player` is the printed string, parenthetical included: `"Милушев Александар (1988)"`. The extraction also keeps `birthYear` as its own numeric field in `data/book/season-2025-26.json`, so the figure is machine-readable there if a column is ever wanted.
+- **Alternatives considered:** _Drop the year_ — rejected: information loss, and the prose it replaces carries it. _Add a fifth column_ — rejected: it changes `SeasonSquadTable`, which the brief puts out of scope, and 92 of 93 seasons have no birth year to put in it. _A new field on `SeasonSquadRow` rendered only when present_ — same objection, and it would have been a component change.
+- **Consequences:** The „Име" column reads „Милушев Александар (1988)". This is the same treatment the book's own extract already gives „А. Милушев (кап)" on 2024/25 — a parenthetical that lives inside the name string — so the two seasons are consistent. ⚠️ It also means the name string can never match a `person` document, which was already true for a different reason (see D-3.36-6).
+- **Links:** D-3.36-3; D-3.36-6; `data/book/season-2025-26.json`; `src/components/archive/SeasonSquadTable.tsx`.
+
+### D-3.36-2 · 2026-08-20 · The half-season label loses its trailing colon and nothing else
+
+- **Status:** Accepted
+- **Context:** The prose introduces each half with „Есенска полусезона:" — a list-introducing colon. `SeasonMatchPart.label` renders its string as-is in the part header, and the book's own 154 phase strings („Есенски дел 1988", „Пролет 1948") carry no punctuation, because they were never sentence lead-ins.
+- **Decision:** Strip the trailing colon; carry the rest verbatim, wording and all. The labels ship as „Есенска полусезона" and „Пролетна полусезона" — not normalised to the book's „Есенски дел", and not given a year the prose does not print.
+- **Alternatives considered:** _Keep the colon_ — rejected: a dangling colon in a table header row is prose punctuation stranded in a table. _Rewrite to the book's „Есенски дел 2025"_ — rejected outright: it invents a year and overwrites Аце's wording, which is exactly the reconciliation the brief forbids.
+- **Consequences:** 2025/26 is the only season whose part labels read „полусезона". That is Аце's word for it and the page says what he wrote. The colon is the only character removed anywhere in this extraction.
+- **Links:** D-3.28-3; `scripts/extract-season-2025-26.mjs` (`PART_LINE`).
+
+### D-3.36-3 · 2026-08-20 · настапи = старт + измена, computed, on Аце's own two figures
+
+- **Status:** Accepted
+- **Context:** The prose gives „30+0/9" — starts, substitute appearances, goals. The „Настапи" column wants one number. The brief permits this arithmetic explicitly, as the same class as D-3.30-3.
+- **Decision:** `apps = starts + subs`, computed in the extraction and stored alongside both operands (`starts`, `subs`, `apps`) so the sum is always checkable against its inputs. `goals` is carried verbatim, never derived.
+- **Alternatives considered:** _Render „30+0" as a string in the Настапи column_ — rejected: the column is `number | null` across 73 other seasons and a string there is not comparable with any of them. _Leave `apps` null and show nothing_ — rejected: the figure is plainly derivable from figures Аце gave, and a blank column would be a worse page than the prose it replaces.
+- **Consequences:** All 35 rows carry both настапи and голови; none ships a fabricated `0`, because the prose gives a figure for every row. This is the same shape the book's own 2024/25 rows already use (`starts` / `subs` / `apps` all present), so the two seasons' tables are built the same way.
+- **Links:** D-3.30-3; D-3.36-1; `scripts/extract-season-2025-26.mjs` (`extractSquad`).
+
+### D-3.36-4 · 2026-08-20 · „Спироски 12" ships as printed, against „Спиркоски" in five other lines
+
+- **Status:** Accepted
+- **Context:** One match line reads „Слога (В) - Беласица 1:2 (Спироски 12, Капсаров 43)". Five other lines spell the same scorer „Спиркоски", and the squad row is „Спиркоски Бојан (1995) 14+0/9". Counting the match lines gives Спиркоски 8 + Спироски 1 = 9, exactly the squad's 9 — so the two are the same man and the one-line spelling is a slip in Аце's text.
+- **Decision:** Carry it verbatim. No correction, no merge, no note on the page.
+- **Alternatives considered:** _Fix the spelling_ — rejected: the content-truth rule and this brief both say no name is respelled, and the archive's whole value is that it prints its source. _Add an editorial marker beside it_ — rejected: it asserts a judgement on Аце's text on his own club's archive, and the same argument would apply to the book's hundreds of OCR quirks that ship untouched (D-3.02S-3).
+- **Consequences:** The „Стрелци" cell for that one match reads „Спироски 12". A reader counting scorers by name will find 15 distinct strings for 14 scorers plus own goals. ⚠️ **Flagged to Аце** as OV-90, for him to correct in Studio if he wants — where it will flow through on the next extraction.
+- **Links:** D-3.02S-3; D-3.28-7; OV-90; Phase 3.36 completion report §7.
+
+### D-3.36-5 · 2026-08-20 · The generator gains a second input rather than a Sanity client
+
+- **Status:** Accepted
+- **Context:** 2025/26's figures are in Sanity, not the book. The direct route — teach `build-season-tables.mjs` to query Sanity — would give the generator a network dependency and destroy the property its `--check` rests on: that the committed module is provably the projection of committed inputs, verifiable offline by anyone.
+- **Decision:** Split it. `scripts/extract-season-2025-26.mjs` fetches once from the public query API (no token, public-read dataset) and commits `data/book/season-2025-26.json` with a provenance header naming Sanity, the document and the fields. `build-season-tables.mjs` reads that committed file as a second local input and still opens no client, holds no token and makes no network call.
+- **Alternatives considered:** _Query Sanity from the generator_ — rejected as above. _Hand-write the JSON_ — rejected: nothing would then prove the file matches the document, and the extractor's `--check` does exactly that. _Put the rows in `data/book/matches.json`_ — rejected and forbidden: that file is the book's provenance and 2025/26 is not in the book.
+- **Consequences:** Two provenances in one module, each stated in the file that carries it. ⚠️ A Studio correction to 2025/26's prose no longer reaches the page on its own: it needs `node scripts/extract-season-2025-26.mjs`, a regeneration and a deploy — the same cost D-3.28-1 already records for the other 92 seasons, now extended to the one season that was previously live-editable. Proven offline: with `globalThis.fetch` sabotaged to throw, the generator's `--check` passes and the extractor fails on its first call.
+- **Links:** D-3.28-1; D-3.28-2; D-3.16-2; `data/book/season-2025-26.json`.
+
+### D-3.36-6 · 2026-08-20 · No 2025/26 squad name becomes a link, and none is reordered to make one
+
+- **Status:** Accepted
+- **Context:** `SeasonSquadTable` links a name only on an exact whole-string match to a published `person` (D-3.28-7). The 2025/26 prose writes „Презиме Име" („Трајков Ѓорѓи"); the person documents write „Име Презиме" („Ѓорѓи Трајков"). Measured against all 212 published people: **0 of 35 rows match as printed, 7 would match if the two words were swapped** (Трајков, Попоски, Милушев, Сулев, Коцев, Стојков, Стојанов).
+- **Decision:** Change nothing. The rows render as plain text, exactly as printed.
+- **Alternatives considered:** _Reverse the word order before matching_ — rejected: it is respelling a name to manufacture a link, which the brief forbids by name, and a two-word swap is a guess about which word is the surname that fails on any name where it is not. _Special-case the seven_ — rejected: a hand-kept list of identity assertions is the merge D-3.11-2 refused.
+- **Consequences:** ⚠️ Seven players who have a page on this site are not linked from their own season's squad table. **This is not a regression** — the prose roster it replaces linked nobody either — but it is a real gap, and it is the same gap the archive already carries: 1 of 1.982 rendered squad rows across all seasons is a link. The fix is a name-matching phase, not this one.
+- **Links:** D-3.28-7; D-3.28-8; D-3.11-2; Phase 3.36 completion report §7 (carryover).
