@@ -50,6 +50,11 @@ Everything downstream then happened by itself. `seasonTablesFor("2025-26")` stop
 - ⚠️ **OV-89 — confirm what the table switch stops displaying** (below, §7). This is the one thing in the phase that a machine cannot decide.
 - ⚠️ **OV-90 — the „Спироски"/„Спиркоски" split**, if he wants it corrected in Studio.
 
+**Vercel PR preview — [PR #62](https://github.com/DinovLazar/belasica-v2/pull/62), build SUCCESS:**
+[https://belasica-v2-git-phase-336-season-20-658b74-sunset-services-team.vercel.app/arhiva/2025-26](https://belasica-v2-git-phase-336-season-20-658b74-sunset-services-team.vercel.app/arhiva/2025-26)
+
+Verified against the **deployed** preview, not just the local build: HTTP 200, **two tables** („Втора македонска лига" 33 `<tr>`, „Состав и статистика" 37 `<tr>`), **30 match rows**, both part labels („Есенска полусезона", „Пролетна полусезона"), **all 35 squad names present**, **the stale 26-row roster absent**, and the стручен штаб / претседател / prose-header lines confirmed no longer served. „Спироски 12" is served verbatim, as decided.
+
 **Five-item eyeball checklist for Lazar (on `/arhiva/2025-26`, preview):**
 
 1. The „Резултати и стрелци" section shows a table headed **Втора македонска лига**, split into **Есенска полусезона** and **Пролетна полусезона**, 15 matches each.
