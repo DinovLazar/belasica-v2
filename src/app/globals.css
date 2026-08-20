@@ -440,8 +440,10 @@
  * Scroll-rail edge fade (3.35, OV-88) — the affordance for the sticky
  * jump rails: `JumpNav` (/arhiva, /statistika) and the /legendi tab rail
  * that copies its surface. `/statistika` grew 4 → 7 items and overflows
- * its own scroller by ~335px at 1280; /arhiva's 11 decades always did.
- * The rail scrolled, but nothing said so.
+ * its own scroller by 335px at 1280 — the only rail that overflows on a
+ * desktop. `/arhiva` (11 decades) and `/legendi` (4 tabs) both measure 0px
+ * there and overflow only on a phone (664px and 174px at 375), so for them
+ * this is a mobile affordance. Every one of them scrolled; none said so.
  *
  * The mask sits on the SCROLLER, which has no background of its own — the
  * `navy-2` fill is on the parent <nav>. So the links dissolve INTO the
