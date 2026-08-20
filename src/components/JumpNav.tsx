@@ -44,7 +44,10 @@ export function JumpNav({
           height — every call site's `scroll-mt-[calc(var(--spacing-header)
           +3.25rem)]` was derived from it, so any change to these paddings must
           keep the container+link vertical total at 12px per side. */}
-      <div className="relative mx-auto w-full max-w-page overflow-x-auto px-5 py-1 md:px-8">
+      {/* `rail-fade` (globals.css) fades whichever edge still has content
+          off-screen — paint only, so the rail's measured height, and every
+          call site's scroll-margin derived from it, are unchanged. */}
+      <div className="rail-fade relative mx-auto w-full max-w-page overflow-x-auto px-5 py-1 md:px-8">
         <ul className="flex min-w-max items-center gap-5">
           {items.map((item) => (
             <li key={item.id}>

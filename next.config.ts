@@ -28,6 +28,26 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Permanent redirects for paths that were public and are now gone.
+  //
+  // `/legendi/tomche-eftimov` was the ranked Ефтимов page until Phase
+  // 3.25-Cowork merged the two documents for the same man onto
+  // `person-tome-eftimov` and unpublished the duplicate (D-3.25-2). Nothing on
+  // the site links to the old path any more, but Аце shared it, so the link he
+  // handed out 404s. `permanent: true` is a 308 — the survivor's slug was read
+  // from the published data (`*[_type == "person" && name match "*Ефтимов*"]`),
+  // not assumed. The duplicate is unpublished, not deleted; if it were ever
+  // republished this rule would shadow it, which is the intended outcome —
+  // there is one Ефтимов page and it is `tome-eftimov`.
+  async redirects() {
+    return [
+      {
+        source: "/legendi/tomche-eftimov",
+        destination: "/legendi/tome-eftimov",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -3412,3 +3412,59 @@
 - **Alternatives considered:** _Shorten the new labels_ — rejected on measurement, not taste: the longest new label is 283 px, so even cutting it to „Стрелци по сезони" leaves ~252 px of overflow. **No label wording closes a 335 px gap at seven items**, and shortening would also break D-3.13-1, which requires each label to lead its heading. _Let the rail wrap to two rows_ — rejected: `JumpNav` is shared by `/arhiva` and `/legendi`, so changing its layout is a three-page change and out of this phase's scope.
 - **Consequences:** ⚠️ **Two of the seven jump targets are not visible at 1280 px without scrolling the rail** (**OV-88**). No horizontal scroll on the page itself at either 1280 or 375, verified. ⚠️ The first new label is the full heading „Најдобри стрелци по сезони" rather than its opening words, deliberately: the existing rail already has „Најдобри стрелци" pointing at a different table, and two identical labels would jump to two different places.
 - **Links:** OV-88; D-3.13-1; D-2.02-17; `src/components/JumpNav.tsx`.
+
+## Phase 3.35 — Code (pre-launch cleanup: five contained fixes)
+
+### D-3.35-1 · 2026-08-20 · The rail affordance is a scroll-driven edge mask on the scroller, not a static gradient and not a layout change
+
+- **Status:** Accepted — resolves OV-88
+- **Context:** OV-88 (D-3.34-8): `/statistika`'s rail overflows its own scroller by **335px** at 1280 with nothing to say so. The brief's hard constraint is that the rail's rendered height must not change, because every anchored target's `scroll-mt-[calc(var(--spacing-header)+3.25rem)]` was derived from it. That rules out wrapping, a padding change, and any added element in flow.
+- **Decision:** `.rail-fade` in `globals.css` — a `mask-image` on the **scroller** (which paints no background of its own; the `navy-2` fill is on the parent `<nav>`), with the two ramp widths held in `@property`-registered lengths and driven by `animation-timeline: scroll(self inline)`. No fade at the start on the left, none at the end on the right, both mid-rail. `scroll-padding-inline: 2.5rem` so a focused item never comes to rest under a ramp. Everything is inside `@supports (animation-timeline: scroll(self inline))`.
+- **Alternatives considered:** _A static right-edge gradient_ — rejected: it would sit on rails that do not overflow (`/arhiva` and `/legendi` both measure **0px overflow at 1280**) and would still be showing at the scroll end, asserting content that is not there. _A painted scrim over the band_ — rejected: it needs the `navy-2` value restated as a gradient stop, a colour hardcoded outside `brand.md`. _A JS scroll listener with class toggles_ — rejected: it makes `JumpNav` a client component on `/arhiva` and `/statistika`, where it is server-only today.
+- **Consequences:** Height is provably untouched: measured with and against the class on all three pages at 1280 and 375 — **47/47px** everywhere except `/statistika` at 1280 (**62/62px**, the extra 15px being the classic scrollbar this headless Chrome draws), and all 7 `/statistika` and 11 `/arhiva` anchors land at **top 130px**, the same value the deployed `main` returns. Base state (no support, or content that fits, when the timeline is inactive) computes to a **fully opaque mask** — verified: `linear-gradient(to right, rgba(0,0,0,0), rgb(0,0,0) 0px, rgb(0,0,0) 100%, rgba(0,0,0,0))`, which is today's rail exactly. ⚠️ Because the timeline is the rail's **own** inline scroll, page scrolling never runs it; the cost is a paint on that one element while the rail is dragged. ⚠️ Text inside a 40px ramp is partially transparent while it is on its way out of view — inherent to the pattern, and the item is fully opaque once scrolled to.
+- **Links:** OV-88; D-3.34-8; D-2.02-17; D-3.17-6; `src/app/globals.css`; `src/components/JumpNav.tsx`.
+
+### D-3.35-2 · 2026-08-20 · `/legendi` does not import `JumpNav` — it carries a second copy of the rail's surface, and both copies got the affordance
+
+- **Status:** Accepted
+- **Context:** The brief states that „`JumpNav` is shared by `/arhiva`, `/legendi`, `/statistika`" and that `/legendi` pulls it client-side. Read against the code, that is not what `/legendi` does: `LegendsBrowser.tsx` renders its own `role="tablist"` rail whose comment says it „takes `JumpNav`'s exact surface" — same `sticky top-header z-30 bg-navy-2`, same scroller classes, same link styling — because a tab holds its orange rule permanently and a jump link does not. Editing `JumpNav.tsx` alone would have left `/legendi` without the affordance, while the DoD asks for it on all three pages.
+- **Decision:** Apply `.rail-fade` to both scrollers and leave the duplication in place.
+- **Alternatives considered:** _Extract the shared surface so `/legendi` really does use `JumpNav`_ — rejected: it is a refactor of a client component's tab machinery (roving tabindex, arrow keys, press-scroll offset) inside a five-item cleanup phase, against a brief that says not to let any item grow.
+- **Consequences:** All three rails carry the affordance. Verified after the change that `/legendi`'s tabs still switch (`aria-selected` moves to „Тренери" and back) and its sticky offset is still `78px`. ⚠️ **Two copies of one rail surface remain**; the next change to either must be made twice. `/legendi` measures **0px overflow at 1280** and **174px at 375**, so the fade is a mobile affordance there, not a desktop one.
+- **Links:** D-3.35-1; D-3.17-6; `src/components/legends/LegendsBrowser.tsx`.
+
+### D-3.35-3 · 2026-08-20 · The blanket reduced-motion reset is overridden for this one animation
+
+- **Status:** Accepted
+- **Context:** `globals.css` zeroes `animation-duration` on `*` under `prefers-reduced-motion: reduce` with `!important`. A scroll-driven animation has no duration of its own; zeroed, it does not stop — it pins to its **end** frame, which would draw the left fade at the scroll start and no fade on the right. The affordance would be not merely absent but wrong, and only for the users who asked for less motion.
+- **Decision:** `animation-duration: auto !important` on `.rail-fade`, documented in place. Reduced-motion users keep the affordance.
+- **Alternatives considered:** _Drop the fade entirely under reduced motion_ — rejected: it removes a usability cue from the people most likely to need it, and nothing here moves on its own. This is a position readout, like a scrollbar; the user's own scrolling is the only thing that changes it.
+- **Consequences:** One documented `!important` in a stylesheet that otherwise reserves them for the reveal-on-scroll fallback. ⚠️ The blanket `0.01ms` reset stays as it is — an intentional alternative for the project's timed motion is out of this phase's scope.
+- **Links:** D-3.35-1; `src/app/globals.css` §Motion baseline.
+
+### D-3.35-4 · 2026-08-20 · The fade shipped on mechanical proof; its visual read is owed, because this session's browser never composited a frame
+
+- **Status:** Accepted — carries an owed item to Lazar
+- **Context:** The brief's fallback is to „leave the scroll as-is and report it" if a clean CSS fade proves unreliable across the three pages. It did not prove unreliable — it proved **unverifiable here**. The session's browser pane is not displayed: `document.visibilityState` is `hidden`, screenshots time out because nothing is compositing, and `requestAnimationFrame` never fires. Scroll-driven animations do not advance in a document that is not rendering — confirmed independently by building a `ScrollTimeline` in JS and attaching a plain opacity animation to it: it stayed at `currentTime: null` after the scroller was scrolled.
+- **Decision:** Ship, on the evidence that layout **is** computed in this environment (real numbers: 1583px content in a 1248px scroller) so every mechanical claim could be measured, plus a direct check of the mask arithmetic at each keyframe by setting the two registered properties by hand and reading the computed `mask-image` back. Hand the visual read to Lazar on the Vercel preview, which the brief already assigns to him for two of the three pages.
+- **Alternatives considered:** _Take the fallback and revert to a bare scroll_ — rejected: the fallback exists to protect the shared component and its offsets, and both were measured to be untouched, so reverting would trade a verified-safe fix for a known-unfixed defect on the strength of a missing screenshot. _Wait for a session that can render_ — rejected: it blocks four unrelated fixes behind one screenshot.
+- **Consequences:** ⚠️ **Nobody has yet seen the fade.** What is proven: height, anchor landing, no page-level horizontal scroll, the base state's opacity, the mask geometry at 0% / mid / 100%, and that the `@supports` guard matched (computed `animation-timeline: scroll(self inline)`, `animation-name: rail-fade-edges`). What is not: how it looks. If it reads badly, removing it is deleting one class from two files and one block from `globals.css`.
+- **Links:** D-3.35-1; Phase 3.35 completion report §Owed to Lazar.
+
+### D-3.35-5 · 2026-08-20 · Task 5 (commit the 3.25-Cowork report) was already closed at 3.30, so nothing was committed
+
+- **Status:** Accepted
+- **Context:** The brief says „Lazar provides the 3.25-Cowork completion report file" and asks for it to be committed and its five reserved IDs logged. All of it is already on `main`: the report is at `completions/Part-3-Phase-25-Cowork-Completion.md` (17,638 bytes, committed in `2d691a5`, Phase 3.30), `D-3.25-1/-3/-4/-5/-6` are logged from its own §3, `D-3.25-2` appears once, and OV-69 in `current-state.md` already reads RESOLVED 2026-08-18 (3.30-Code, D-3.30-6). No file was supplied with this brief.
+- **Decision:** Verify and record; write nothing. Re-committing a duplicate, or re-logging the five IDs, would be the one thing the reservation note exists to prevent.
+- **Alternatives considered:** _Ask Lazar for the file anyway_ — rejected: the file on `main` is the real report, not a stub; it names the decisions, the counts and the two owed items (OV-72, OV-73) that later phases already picked up.
+- **Consequences:** OV-69 needed no change — it was already closed. ⚠️ The brief was written against a state that predates 3.30; noted so the next reader does not go looking for a missing commit.
+- **Links:** OV-69; D-3.30-6; D-3.29-1; D-3.25-1 … D-3.25-6.
+
+### D-3.35-6 · 2026-08-20 · The founding-year entry records the structured-data exclusion alongside the year
+
+- **Status:** Accepted
+- **Context:** `facts.md` now carries **1922** as VERIFIED. The obvious next move for any future reader — and the one the brief forbids — is to feed it to the JSON-LD as `foundingDate`, because a verified founding year is exactly what that property wants. The prohibition lived only in the brief, which nobody reads again after the phase closes.
+- **Decision:** Put the exclusion in the fact itself: the entry states that the year is recorded but not published as structured data, because the site is an unofficial archive and not the club.
+- **Alternatives considered:** _Record the bare year_ — rejected: it leaves a standing instruction in a document that expires. _A comment in the JSON-LD builder_ — not rejected, but not sufficient on its own; the fact file is where someone checks before adding a claim.
+- **Consequences:** The permanent exclusion now travels with the fact that would otherwise invite breaking it. „За нас" is untouched; its „104 години историја" is now backed rather than merely consistent. ⚠️ „104" is fixed copy and will read 105 in 2027 — correct for the 2026 launch, and recorded on the fact's own line.
+- **Links:** `facts.md`; `CLAUDE.md` §Content truth.
