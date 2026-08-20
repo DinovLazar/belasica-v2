@@ -1,9 +1,20 @@
 /**
- * Generates `src/content/season-tables.ts` from the tracked book extract
- * (`data/book/matches.json` + `data/book/seasons.json`), Phase 3.28.
+ * Generates `src/content/season-tables.ts` from the tracked extracts, Phase
+ * 3.28 — the book (`data/book/matches.json` + `data/book/seasons.json`) and,
+ * since 3.36, one season that is not in the book at all.
  *
- * ⚠️ READ-ONLY. This script opens no Sanity client, holds no token and writes
- * nothing outside `src/content/season-tables.ts` and its report. It is the same
+ * ⚠️ **Two inputs, two provenances.** The book's match extract ends with spring
+ * 2025, so it holds 0 matches for 2025/26. That season's figures are Аце's own,
+ * entered into the Sanity season document in August 2026 and extracted to
+ * `data/book/season-2025-26.json` by `scripts/extract-season-2025-26.mjs`. That
+ * file states its provenance in its own header field; this generator merges it
+ * as a second input and changes nothing about the first (D-3.36-5).
+ *
+ * ⚠️ READ-ONLY, AND OFFLINE. This script opens no Sanity client, holds no
+ * token, makes no network call, and writes nothing outside
+ * `src/content/season-tables.ts` and its report. The 3.36 input does not change
+ * that: the *extraction* fetched once and is committed; the generator reads the
+ * committed JSON, so `--check` still passes on a machine with no network. It is the same
  * discipline `scripts/fill-season-content.mjs` follows, minus the write path
  * that one has: there is nothing here to `--commit`.
  *
@@ -110,11 +121,15 @@ function buildSeason(bookSeason, matches) {
 
   // ⚠️ A squad with no statistics is not „Состав и статистика", and shipping it
   // as one LOSES information. Ten seasons list a roster without appearances or
-  // goals — 2025/26 among them, where the published prose reads „1. Трајков
-  // Ѓорѓи (2004) 22+0/0" and carries both figures the extract lacks. Rendering
-  // the table there would replace real numbers with two empty columns, which is
-  // the drop this phase is forbidden to cause. So a statless squad is simply
-  // not emitted, and the prose keeps the section (D-3.28-9).
+  // goals, and the guard is what keeps their richer prose on the page
+  // (D-3.28-9).
+  //
+  // ⚠️ **3.36 depends on this line and does not weaken it.** The book's 2025/26
+  // entry is a 26-name PRE-SEASON roster („Трајков Ѓорѓи 2004 голман" — birth
+  // year and position, no настапи, no голови), superseded by Аце's final
+  // 35-player list. This guard is the only thing that stops that stale roster
+  // rendering, so it stays exactly as it was; the real 2025/26 squad arrives on
+  // the separate input below and never passes through here.
   const hasStats = squad.some((p) => p.apps != null || p.goals != null);
 
   return {
@@ -133,13 +148,46 @@ for (const m of matches) {
   bySeason.get(m.seasonId).push(m);
 }
 
-const built = seasons
+const fromBook = seasons
   .map((s) => buildSeason(s, bySeason.get(s.id) ?? []))
   // A season with neither structured matches nor a structured squad is not in
   // the module at all, so the page's lookup misses and the prose renders. The
   // switch is the absence of data, never a flag.
-  .filter((s) => s.matchGroups.length > 0 || s.squad.length > 0)
-  .sort((a, b) => a.slug.localeCompare(b.slug));
+  .filter((s) => s.matchGroups.length > 0 || s.squad.length > 0);
+
+/* ------------------------------------------------------------------ *
+ * Second input — 2025/26, and only 2025/26 (Phase 3.36).
+ *
+ * `data/book/season-2025-26.json` is committed, states its own provenance, and
+ * is the ONLY season here that does not come from the book. It is read exactly
+ * like the book's own rows — `buildSeason` is not modified, and the season is
+ * grouped and split into есен/пролет parts by the same rules as the other 92.
+ *
+ * ⚠️ The book must contribute NOTHING to this slug. If it ever did, two
+ * different sources would be describing one season and the last writer would
+ * win silently — the class of defect D-3.19-3 records. So it is asserted rather
+ * than assumed: the run fails loudly instead of shipping a merge nobody chose.
+ * ------------------------------------------------------------------ */
+const supplement = read("data/book/season-2025-26.json");
+
+const bookRowsForSupplement = fromBook.filter(
+  (s) => s.slug === supplement.slug,
+);
+if (bookRowsForSupplement.length > 0) {
+  console.error(
+    `✗ the book extract now yields rows for „${supplement.slug}" — two sources ` +
+      `for one season. Resolve which one is authoritative before regenerating.`,
+  );
+  process.exit(1);
+}
+
+const built = [
+  ...fromBook,
+  buildSeason(
+    { id: supplement.seasonId, squad: supplement.squad },
+    supplement.matches,
+  ),
+].sort((a, b) => a.slug.localeCompare(b.slug));
 
 const HEADER = `/**
  * Structured season results and squads, Phase 3.28.
@@ -158,7 +206,15 @@ const HEADER = `/**
  * deploy — not a Studio edit. That cost is on the register in
  * \`current-state.md\`.
  *
- * Every row here traces to one line of the book. The tracing field itself
+ * ⚠️ **One season is not from the book: \`2025-26\`.** The book's match extract
+ * ends with spring 2025 and holds zero matches for it. Its 30 results and its
+ * 35-player squad come from the published Sanity season document, entered in
+ * August 2026 from Аце's own material, and were extracted to
+ * \`data/book/season-2025-26.json\` — which carries the provenance in the file —
+ * by \`scripts/extract-season-2025-26.mjs\` (D-3.36-5). Every other season here
+ * is the book's.
+ *
+ * Every book row traces to one line of the book. The tracing field itself
  * (\`sourceLine\`) is deliberately NOT carried into this module — it would
  * roughly double the bundle for a string no surface renders. It stays in
  * \`data/book/*.json\`, which is tracked, and the two are joined by
@@ -266,14 +322,23 @@ const roundCount = withMatches.reduce(
   0,
 );
 
+const supplementMatches = supplement.matches.length;
+
 const report = `# Покриеност — структурирани табели по сезона (Фаза 3.28)
 
 ⚠️ Генерирано од \`scripts/build-season-tables.mjs\`. Не се уредува рачно.
+
+⚠️ **Два извора.** Сите сезони освен една доаѓаат од извадокот на книгата.
+Сезоната \`${supplement.slug}\` (${supplementMatches} натпревари, ${supplement.squad.length} играчи) доаѓа
+од објавениот \`season\` документ во Sanity — внесен во август 2026 од материјалот
+на Аце — бидејќи извадокот на книгата завршува со пролетта 2025 и не содржи ниту
+еден натпревар од неа (Фаза 3.36).
 
 | Мерка | Вредност |
 |---|---|
 | Сезони во книгата | ${seasons.length} |
 | Сезони во модулот | ${built.length} |
+| Од нив, надвор од книгата | 1 (\`${supplement.slug}\`) |
 | Сезони со структурирани натпревари | ${withMatches.length} |
 | Сезони со структуриран состав | ${withSquad.length} |
 | Натпревари вкупно | ${matchCount} |

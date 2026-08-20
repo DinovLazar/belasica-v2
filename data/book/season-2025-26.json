@@ -1,0 +1,1416 @@
+{
+  "provenance": {
+    "source": "sanity",
+    "projectId": "f8rmnfry",
+    "dataset": "production",
+    "documentSlug": "2025-26",
+    "fields": [
+      "results",
+      "lineupAndStats"
+    ],
+    "note": "Од објавениот season документ во Sanity — внесен во август 2026 од материјалот на Аце Стојанов. НЕ е од книгата „ФК Беласица – гордоста на Струмица“: нејзиниот извадок завршува со пролетта 2025 и не содржи ниту еден натпревар од 2025/26.",
+    "extractedBy": "scripts/extract-season-2025-26.mjs",
+    "phase": "3.36"
+  },
+  "seasonId": "2025/26",
+  "slug": "2025-26",
+  "title": "„Сезона 2025/26“",
+  "competition": "Втора македонска лига",
+  "derivedRecord": {
+    "played": 30,
+    "wins": 18,
+    "draws": 4,
+    "losses": 8,
+    "goalsFor": 57,
+    "goalsAgainst": 21
+  },
+  "matchCount": 30,
+  "matches": [
+    {
+      "seasonId": "2025/26",
+      "order": 1,
+      "date": null,
+      "month": null,
+      "competition": "Втора македонска лига",
+      "competitionType": "league",
+      "phase": "Есенска полусезона",
+      "stage": null,
+      "round": null,
+      "homeTeam": "Охрид",
+      "awayTeam": "Беласица",
+      "homeGoals": 1,
+      "awayGoals": 1,
+      "score": "1:1",
+      "venue": "away",
+      "opponent": "Охрид",
+      "belasicaGoals": 1,
+      "opponentGoals": 1,
+      "result": "D",
+      "scorers": [
+        {
+          "player": "Дебрешлиоски",
+          "minutes": [
+            6
+          ]
+        }
+      ],
+      "notes": [],
+      "sourceLine": "Охрид - Беласица 1:1 (Дебрешлиоски 6)"
+    },
+    {
+      "seasonId": "2025/26",
+      "order": 2,
+      "date": null,
+      "month": null,
+      "competition": "Втора македонска лига",
+      "competitionType": "league",
+      "phase": "Есенска полусезона",
+      "stage": null,
+      "round": null,
+      "homeTeam": "Беласица",
+      "awayTeam": "Скопје",
+      "homeGoals": 3,
+      "awayGoals": 2,
+      "score": "3:2",
+      "venue": "home",
+      "opponent": "Скопје",
+      "belasicaGoals": 3,
+      "opponentGoals": 2,
+      "result": "W",
+      "scorers": [
+        {
+          "player": "Дебрешлиоски",
+          "minutes": [
+            35
+          ]
+        },
+        {
+          "player": "автогол",
+          "minutes": [
+            69
+          ]
+        },
+        {
+          "player": "Капсаров",
+          "minutes": [
+            85
+          ]
+        }
+      ],
+      "notes": [],
+      "sourceLine": "Беласица - Скопје 3:2 (Дебрешлиоски 35, автогол 69, Капсаров 85)"
+    },
+    {
+      "seasonId": "2025/26",
+      "order": 3,
+      "date": null,
+      "month": null,
+      "competition": "Втора македонска лига",
+      "competitionType": "league",
+      "phase": "Есенска полусезона",
+      "stage": null,
+      "round": null,
+      "homeTeam": "Гол. Коњаре",
+      "awayTeam": "Беласица",
+      "homeGoals": 1,
+      "awayGoals": 7,
+      "score": "1:7",
+      "venue": "away",
+      "opponent": "Гол. Коњаре",
+      "belasicaGoals": 7,
+      "opponentGoals": 1,
+      "result": "W",
+      "scorers": [
+        {
+          "player": "Спиркоски",
+          "minutes": [
+            20,
+            59,
+            75
+          ]
+        },
+        {
+          "player": "Коцев",
+          "minutes": [
+            52,
+            65
+          ]
+        },
+        {
+          "player": "Милушев",
+          "minutes": [
+            83
+          ]
+        },
+        {
+          "player": "автогол",
+          "minutes": [
+            40
+          ]
+        }
+      ],
+      "notes": [],
+      "sourceLine": "Гол. Коњаре - Беласица 1:7 (Спиркоски 20, 59, 75, Коцев 52, 65, Милушев 83, автогол 40)"
+    },
+    {
+      "seasonId": "2025/26",
+      "order": 4,
+      "date": null,
+      "month": null,
+      "competition": "Втора македонска лига",
+      "competitionType": "league",
+      "phase": "Есенска полусезона",
+      "stage": null,
+      "round": null,
+      "homeTeam": "Беласица",
+      "awayTeam": "Детонит",
+      "homeGoals": 1,
+      "awayGoals": 0,
+      "score": "1:0",
+      "venue": "home",
+      "opponent": "Детонит",
+      "belasicaGoals": 1,
+      "opponentGoals": 0,
+      "result": "W",
+      "scorers": [
+        {
+          "player": "Спиркоски",
+          "minutes": [
+            37
+          ]
+        }
+      ],
+      "notes": [],
+      "sourceLine": "Беласица - Детонит 1:0 (Спиркоски 37)"
+    },
+    {
+      "seasonId": "2025/26",
+      "order": 5,
+      "date": null,
+      "month": null,
+      "competition": "Втора македонска лига",
+      "competitionType": "league",
+      "phase": "Есенска полусезона",
+      "stage": null,
+      "round": null,
+      "homeTeam": "Слога (В)",
+      "awayTeam": "Беласица",
+      "homeGoals": 1,
+      "awayGoals": 2,
+      "score": "1:2",
+      "venue": "away",
+      "opponent": "Слога (В)",
+      "belasicaGoals": 2,
+      "opponentGoals": 1,
+      "result": "W",
+      "scorers": [
+        {
+          "player": "Спироски",
+          "minutes": [
+            12
+          ]
+        },
+        {
+          "player": "Капсаров",
+          "minutes": [
+            43
+          ]
+        }
+      ],
+      "notes": [],
+      "sourceLine": "Слога (В) - Беласица 1:2 (Спироски 12, Капсаров 43)"
+    },
+    {
+      "seasonId": "2025/26",
+      "order": 6,
+      "date": null,
+      "month": null,
+      "competition": "Втора македонска лига",
+      "competitionType": "league",
+      "phase": "Есенска полусезона",
+      "stage": null,
+      "round": null,
+      "homeTeam": "Тетекс",
+      "awayTeam": "Беласица",
+      "homeGoals": 0,
+      "awayGoals": 1,
+      "score": "0:1",
+      "venue": "away",
+      "opponent": "Тетекс",
+      "belasicaGoals": 1,
+      "opponentGoals": 0,
+      "result": "W",
+      "scorers": [
+        {
+          "player": "Коцев",
+          "minutes": [
+            2
+          ]
+        }
+      ],
+      "notes": [],
+      "sourceLine": "Тетекс - Беласица 0:1 (Коцев 2)"
+    },
+    {
+      "seasonId": "2025/26",
+      "order": 7,
+      "date": null,
+      "month": null,
+      "competition": "Втора македонска лига",
+      "competitionType": "league",
+      "phase": "Есенска полусезона",
+      "stage": null,
+      "round": null,
+      "homeTeam": "Беласица",
+      "awayTeam": "Шкендија",
+      "homeGoals": 0,
+      "awayGoals": 1,
+      "score": "0:1",
+      "venue": "home",
+      "opponent": "Шкендија",
+      "belasicaGoals": 0,
+      "opponentGoals": 1,
+      "result": "L",
+      "scorers": [],
+      "notes": [],
+      "sourceLine": "Беласица - Шкендија 0:1"
+    },
+    {
+      "seasonId": "2025/26",
+      "order": 8,
+      "date": null,
+      "month": null,
+      "competition": "Втора македонска лига",
+      "competitionType": "league",
+      "phase": "Есенска полусезона",
+      "stage": null,
+      "round": null,
+      "homeTeam": "Осогово",
+      "awayTeam": "Беласица",
+      "homeGoals": 3,
+      "awayGoals": 1,
+      "score": "3:1",
+      "venue": "away",
+      "opponent": "Осогово",
+      "belasicaGoals": 1,
+      "opponentGoals": 3,
+      "result": "L",
+      "scorers": [
+        {
+          "player": "Милушев",
+          "minutes": [
+            74
+          ]
+        }
+      ],
+      "notes": [],
+      "sourceLine": "Осогово - Беласица 3:1 (Милушев 74)"
+    },
+    {
+      "seasonId": "2025/26",
+      "order": 9,
+      "date": null,
+      "month": null,
+      "competition": "Втора македонска лига",
+      "competitionType": "league",
+      "phase": "Есенска полусезона",
+      "stage": null,
+      "round": null,
+      "homeTeam": "Беласица",
+      "awayTeam": "Победа (Пр)",
+      "homeGoals": 1,
+      "awayGoals": 2,
+      "score": "1:2",
+      "venue": "home",
+      "opponent": "Победа (Пр)",
+      "belasicaGoals": 1,
+      "opponentGoals": 2,
+      "result": "L",
+      "scorers": [
+        {
+          "player": "Коцев",
+          "minutes": [
+            47
+          ]
+        }
+      ],
+      "notes": [],
+      "sourceLine": "Беласица - Победа (Пр) 1:2 (Коцев 47)"
+    },
+    {
+      "seasonId": "2025/26",
+      "order": 10,
+      "date": null,
+      "month": null,
+      "competition": "Втора македонска лига",
+      "competitionType": "league",
+      "phase": "Есенска полусезона",
+      "stage": null,
+      "round": null,
+      "homeTeam": "Кожуф",
+      "awayTeam": "Беласица",
+      "homeGoals": 0,
+      "awayGoals": 2,
+      "score": "0:2",
+      "venue": "away",
+      "opponent": "Кожуф",
+      "belasicaGoals": 2,
+      "opponentGoals": 0,
+      "result": "W",
+      "scorers": [
+        {
+          "player": "Капсаров",
+          "minutes": [
+            25
+          ]
+        },
+        {
+          "player": "Спиркоски",
+          "minutes": [
+            75
+          ]
+        }
+      ],
+      "notes": [],
+      "sourceLine": "Кожуф - Беласица 0:2 (Капсаров 25, Спиркоски 75)"
+    },
+    {
+      "seasonId": "2025/26",
+      "order": 11,
+      "date": null,
+      "month": null,
+      "competition": "Втора македонска лига",
+      "competitionType": "league",
+      "phase": "Есенска полусезона",
+      "stage": null,
+      "round": null,
+      "homeTeam": "Беласица",
+      "awayTeam": "Вардар (Нег)",
+      "homeGoals": 8,
+      "awayGoals": 1,
+      "score": "8:1",
+      "venue": "home",
+      "opponent": "Вардар (Нег)",
+      "belasicaGoals": 8,
+      "opponentGoals": 1,
+      "result": "W",
+      "scorers": [
+        {
+          "player": "Коцев",
+          "minutes": [
+            20,
+            34
+          ]
+        },
+        {
+          "player": "Капсаров",
+          "minutes": [
+            22
+          ]
+        },
+        {
+          "player": "Спиркоски",
+          "minutes": [
+            24,
+            41
+          ]
+        },
+        {
+          "player": "Милушев",
+          "minutes": [
+            53,
+            67
+          ]
+        },
+        {
+          "player": "Секирски",
+          "minutes": [
+            79
+          ]
+        }
+      ],
+      "notes": [],
+      "sourceLine": "Беласица - Вардар (Нег) 8:1 (Коцев 20, 34, Капсаров 22, Спиркоски 24, 41, Милушев 53, 67, Секирски 79)"
+    },
+    {
+      "seasonId": "2025/26",
+      "order": 12,
+      "date": null,
+      "month": null,
+      "competition": "Втора македонска лига",
+      "competitionType": "league",
+      "phase": "Есенска полусезона",
+      "stage": null,
+      "round": null,
+      "homeTeam": "Брегалница (Ш)",
+      "awayTeam": "Беласица",
+      "homeGoals": 0,
+      "awayGoals": 1,
+      "score": "0:1",
+      "venue": "away",
+      "opponent": "Брегалница (Ш)",
+      "belasicaGoals": 1,
+      "opponentGoals": 0,
+      "result": "W",
+      "scorers": [
+        {
+          "player": "Капсаров",
+          "minutes": [
+            81
+          ]
+        }
+      ],
+      "notes": [],
+      "sourceLine": "Брегалница (Ш) - Беласица 0:1 (Капсаров 81)"
+    },
+    {
+      "seasonId": "2025/26",
+      "order": 13,
+      "date": null,
+      "month": null,
+      "competition": "Втора македонска лига",
+      "competitionType": "league",
+      "phase": "Есенска полусезона",
+      "stage": null,
+      "round": null,
+      "homeTeam": "Беласица",
+      "awayTeam": "Новаци",
+      "homeGoals": 0,
+      "awayGoals": 1,
+      "score": "0:1",
+      "venue": "home",
+      "opponent": "Новаци",
+      "belasicaGoals": 0,
+      "opponentGoals": 1,
+      "result": "L",
+      "scorers": [],
+      "notes": [],
+      "sourceLine": "Беласица - Новаци 0:1"
+    },
+    {
+      "seasonId": "2025/26",
+      "order": 14,
+      "date": null,
+      "month": null,
+      "competition": "Втора македонска лига",
+      "competitionType": "league",
+      "phase": "Есенска полусезона",
+      "stage": null,
+      "round": null,
+      "homeTeam": "Каменица Саса",
+      "awayTeam": "Беласица",
+      "homeGoals": 0,
+      "awayGoals": 2,
+      "score": "0:2",
+      "venue": "away",
+      "opponent": "Каменица Саса",
+      "belasicaGoals": 2,
+      "opponentGoals": 0,
+      "result": "W",
+      "scorers": [
+        {
+          "player": "Спиркоски",
+          "minutes": [
+            33
+          ]
+        },
+        {
+          "player": "Манев",
+          "minutes": [
+            76
+          ]
+        }
+      ],
+      "notes": [],
+      "sourceLine": "Каменица Саса - Беласица 0:2 (Спиркоски 33, Манев 76)"
+    },
+    {
+      "seasonId": "2025/26",
+      "order": 15,
+      "date": null,
+      "month": null,
+      "competition": "Втора македонска лига",
+      "competitionType": "league",
+      "phase": "Есенска полусезона",
+      "stage": null,
+      "round": null,
+      "homeTeam": "Беласица",
+      "awayTeam": "Преспа",
+      "homeGoals": 3,
+      "awayGoals": 1,
+      "score": "3:1",
+      "venue": "home",
+      "opponent": "Преспа",
+      "belasicaGoals": 3,
+      "opponentGoals": 1,
+      "result": "W",
+      "scorers": [
+        {
+          "player": "Милушев",
+          "minutes": [
+            47,
+            89
+          ]
+        },
+        {
+          "player": "Сулев",
+          "minutes": [
+            65
+          ]
+        }
+      ],
+      "notes": [],
+      "sourceLine": "Беласица - Преспа 3:1 (Милушев 47, 89, Сулев 65)"
+    },
+    {
+      "seasonId": "2025/26",
+      "order": 16,
+      "date": null,
+      "month": null,
+      "competition": "Втора македонска лига",
+      "competitionType": "league",
+      "phase": "Пролетна полусезона",
+      "stage": null,
+      "round": null,
+      "homeTeam": "Беласица",
+      "awayTeam": "Охрид",
+      "homeGoals": 0,
+      "awayGoals": 1,
+      "score": "0:1",
+      "venue": "home",
+      "opponent": "Охрид",
+      "belasicaGoals": 0,
+      "opponentGoals": 1,
+      "result": "L",
+      "scorers": [],
+      "notes": [],
+      "sourceLine": "Беласица - Охрид 0:1"
+    },
+    {
+      "seasonId": "2025/26",
+      "order": 17,
+      "date": null,
+      "month": null,
+      "competition": "Втора македонска лига",
+      "competitionType": "league",
+      "phase": "Пролетна полусезона",
+      "stage": null,
+      "round": null,
+      "homeTeam": "Скопје",
+      "awayTeam": "Беласица",
+      "homeGoals": 1,
+      "awayGoals": 0,
+      "score": "1:0",
+      "venue": "away",
+      "opponent": "Скопје",
+      "belasicaGoals": 0,
+      "opponentGoals": 1,
+      "result": "L",
+      "scorers": [],
+      "notes": [],
+      "sourceLine": "Скопје - Беласица 1:0"
+    },
+    {
+      "seasonId": "2025/26",
+      "order": 18,
+      "date": null,
+      "month": null,
+      "competition": "Втора македонска лига",
+      "competitionType": "league",
+      "phase": "Пролетна полусезона",
+      "stage": null,
+      "round": null,
+      "homeTeam": "Беласица",
+      "awayTeam": "Гол. Коњаре",
+      "homeGoals": 4,
+      "awayGoals": 0,
+      "score": "4:0",
+      "venue": "home",
+      "opponent": "Гол. Коњаре",
+      "belasicaGoals": 4,
+      "opponentGoals": 0,
+      "result": "W",
+      "scorers": [
+        {
+          "player": "Шуку",
+          "minutes": [
+            14,
+            60
+          ]
+        },
+        {
+          "player": "Сулев",
+          "minutes": [
+            35
+          ]
+        },
+        {
+          "player": "Крстев",
+          "minutes": [
+            79
+          ]
+        }
+      ],
+      "notes": [],
+      "sourceLine": "Беласица - Гол. Коњаре 4:0 (Шуку 14, 60, Сулев 35, Крстев 79)"
+    },
+    {
+      "seasonId": "2025/26",
+      "order": 19,
+      "date": null,
+      "month": null,
+      "competition": "Втора македонска лига",
+      "competitionType": "league",
+      "phase": "Пролетна полусезона",
+      "stage": null,
+      "round": null,
+      "homeTeam": "Детонит",
+      "awayTeam": "Беласица",
+      "homeGoals": 0,
+      "awayGoals": 1,
+      "score": "0:1",
+      "venue": "away",
+      "opponent": "Детонит",
+      "belasicaGoals": 1,
+      "opponentGoals": 0,
+      "result": "W",
+      "scorers": [
+        {
+          "player": "Крстев",
+          "minutes": [
+            67
+          ]
+        }
+      ],
+      "notes": [],
+      "sourceLine": "Детонит - Беласица 0:1 (Крстев 67)"
+    },
+    {
+      "seasonId": "2025/26",
+      "order": 20,
+      "date": null,
+      "month": null,
+      "competition": "Втора македонска лига",
+      "competitionType": "league",
+      "phase": "Пролетна полусезона",
+      "stage": null,
+      "round": null,
+      "homeTeam": "Беласица",
+      "awayTeam": "Слога (Вин)",
+      "homeGoals": 3,
+      "awayGoals": 0,
+      "score": "3:0",
+      "venue": "home",
+      "opponent": "Слога (Вин)",
+      "belasicaGoals": 3,
+      "opponentGoals": 0,
+      "result": "W",
+      "scorers": [
+        {
+          "player": "Милушев",
+          "minutes": [
+            8
+          ]
+        },
+        {
+          "player": "Иљази",
+          "minutes": [
+            67,
+            92
+          ]
+        }
+      ],
+      "notes": [],
+      "sourceLine": "Беласица - Слога (Вин) 3:0 (Милушев 8, Иљази 67, 92)"
+    },
+    {
+      "seasonId": "2025/26",
+      "order": 21,
+      "date": null,
+      "month": null,
+      "competition": "Втора македонска лига",
+      "competitionType": "league",
+      "phase": "Пролетна полусезона",
+      "stage": null,
+      "round": null,
+      "homeTeam": "Беласица",
+      "awayTeam": "Тетекс",
+      "homeGoals": 3,
+      "awayGoals": 1,
+      "score": "3:1",
+      "venue": "home",
+      "opponent": "Тетекс",
+      "belasicaGoals": 3,
+      "opponentGoals": 1,
+      "result": "W",
+      "scorers": [
+        {
+          "player": "Иљази",
+          "minutes": [
+            47
+          ]
+        },
+        {
+          "player": "Шуку",
+          "minutes": [
+            70
+          ]
+        },
+        {
+          "player": "Сулев",
+          "minutes": [
+            88
+          ]
+        }
+      ],
+      "notes": [],
+      "sourceLine": "Беласица - Тетекс 3:1 (Иљази 47, Шуку 70, Сулев 88)"
+    },
+    {
+      "seasonId": "2025/26",
+      "order": 22,
+      "date": null,
+      "month": null,
+      "competition": "Втора македонска лига",
+      "competitionType": "league",
+      "phase": "Пролетна полусезона",
+      "stage": null,
+      "round": null,
+      "homeTeam": "Шкендија (А)",
+      "awayTeam": "Беласица",
+      "homeGoals": 0,
+      "awayGoals": 0,
+      "score": "0:0",
+      "venue": "away",
+      "opponent": "Шкендија (А)",
+      "belasicaGoals": 0,
+      "opponentGoals": 0,
+      "result": "D",
+      "scorers": [],
+      "notes": [],
+      "sourceLine": "Шкендија (А) - Беласица 0:0"
+    },
+    {
+      "seasonId": "2025/26",
+      "order": 23,
+      "date": null,
+      "month": null,
+      "competition": "Втора македонска лига",
+      "competitionType": "league",
+      "phase": "Пролетна полусезона",
+      "stage": null,
+      "round": null,
+      "homeTeam": "Беласица",
+      "awayTeam": "Осогово",
+      "homeGoals": 0,
+      "awayGoals": 0,
+      "score": "0:0",
+      "venue": "home",
+      "opponent": "Осогово",
+      "belasicaGoals": 0,
+      "opponentGoals": 0,
+      "result": "D",
+      "scorers": [],
+      "notes": [],
+      "sourceLine": "Беласица - Осогово 0:0"
+    },
+    {
+      "seasonId": "2025/26",
+      "order": 24,
+      "date": null,
+      "month": null,
+      "competition": "Втора македонска лига",
+      "competitionType": "league",
+      "phase": "Пролетна полусезона",
+      "stage": null,
+      "round": null,
+      "homeTeam": "Победа (Прил)",
+      "awayTeam": "Беласица",
+      "homeGoals": 0,
+      "awayGoals": 5,
+      "score": "0:5",
+      "venue": "away",
+      "opponent": "Победа (Прил)",
+      "belasicaGoals": 5,
+      "opponentGoals": 0,
+      "result": "W",
+      "scorers": [
+        {
+          "player": "Шуку",
+          "minutes": [
+            16,
+            57,
+            63
+          ]
+        },
+        {
+          "player": "Иљази",
+          "minutes": [
+            26,
+            55
+          ]
+        }
+      ],
+      "notes": [],
+      "sourceLine": "Победа (Прил) - Беласица 0:5 (Шуку 16, 57, 63, Иљази 26, 55)"
+    },
+    {
+      "seasonId": "2025/26",
+      "order": 25,
+      "date": null,
+      "month": null,
+      "competition": "Втора македонска лига",
+      "competitionType": "league",
+      "phase": "Пролетна полусезона",
+      "stage": null,
+      "round": null,
+      "homeTeam": "Беласица",
+      "awayTeam": "Кожуф",
+      "homeGoals": 0,
+      "awayGoals": 0,
+      "score": "0:0",
+      "venue": "home",
+      "opponent": "Кожуф",
+      "belasicaGoals": 0,
+      "opponentGoals": 0,
+      "result": "D",
+      "scorers": [],
+      "notes": [],
+      "sourceLine": "Беласица - Кожуф 0:0"
+    },
+    {
+      "seasonId": "2025/26",
+      "order": 26,
+      "date": null,
+      "month": null,
+      "competition": "Втора македонска лига",
+      "competitionType": "league",
+      "phase": "Пролетна полусезона",
+      "stage": null,
+      "round": null,
+      "homeTeam": "Вардар (Нег)",
+      "awayTeam": "Беласица",
+      "homeGoals": 1,
+      "awayGoals": 4,
+      "score": "1:4",
+      "venue": "away",
+      "opponent": "Вардар (Нег)",
+      "belasicaGoals": 4,
+      "opponentGoals": 1,
+      "result": "W",
+      "scorers": [
+        {
+          "player": "Шуку",
+          "minutes": [
+            6
+          ]
+        },
+        {
+          "player": "Иљази",
+          "minutes": [
+            10
+          ]
+        },
+        {
+          "player": "Крстев",
+          "minutes": [
+            64
+          ]
+        },
+        {
+          "player": "автогол",
+          "minutes": [
+            77
+          ]
+        }
+      ],
+      "notes": [],
+      "sourceLine": "Вардар (Нег) - Беласица 1:4 (Шуку 6, Иљази 10, Крстев 64, автогол 77)"
+    },
+    {
+      "seasonId": "2025/26",
+      "order": 27,
+      "date": null,
+      "month": null,
+      "competition": "Втора македонска лига",
+      "competitionType": "league",
+      "phase": "Пролетна полусезона",
+      "stage": null,
+      "round": null,
+      "homeTeam": "Беласица",
+      "awayTeam": "Брегалница",
+      "homeGoals": 0,
+      "awayGoals": 1,
+      "score": "0:1",
+      "venue": "home",
+      "opponent": "Брегалница",
+      "belasicaGoals": 0,
+      "opponentGoals": 1,
+      "result": "L",
+      "scorers": [],
+      "notes": [],
+      "sourceLine": "Беласица - Брегалница 0:1"
+    },
+    {
+      "seasonId": "2025/26",
+      "order": 28,
+      "date": null,
+      "month": null,
+      "competition": "Втора македонска лига",
+      "competitionType": "league",
+      "phase": "Пролетна полусезона",
+      "stage": null,
+      "round": null,
+      "homeTeam": "Новаци",
+      "awayTeam": "Беласица",
+      "homeGoals": 1,
+      "awayGoals": 0,
+      "score": "1:0",
+      "venue": "away",
+      "opponent": "Новаци",
+      "belasicaGoals": 0,
+      "opponentGoals": 1,
+      "result": "L",
+      "scorers": [],
+      "notes": [],
+      "sourceLine": "Новаци - Беласица 1:0"
+    },
+    {
+      "seasonId": "2025/26",
+      "order": 29,
+      "date": null,
+      "month": null,
+      "competition": "Втора македонска лига",
+      "competitionType": "league",
+      "phase": "Пролетна полусезона",
+      "stage": null,
+      "round": null,
+      "homeTeam": "Беласица",
+      "awayTeam": "Каменица Саса",
+      "homeGoals": 1,
+      "awayGoals": 0,
+      "score": "1:0",
+      "venue": "home",
+      "opponent": "Каменица Саса",
+      "belasicaGoals": 1,
+      "opponentGoals": 0,
+      "result": "W",
+      "scorers": [
+        {
+          "player": "Милушев",
+          "minutes": [
+            77
+          ]
+        }
+      ],
+      "notes": [],
+      "sourceLine": "Беласица - Каменица Саса 1:0 (Милушев 77)"
+    },
+    {
+      "seasonId": "2025/26",
+      "order": 30,
+      "date": null,
+      "month": null,
+      "competition": "Втора македонска лига",
+      "competitionType": "league",
+      "phase": "Пролетна полусезона",
+      "stage": null,
+      "round": null,
+      "homeTeam": "Преспа",
+      "awayTeam": "Беласица",
+      "homeGoals": 1,
+      "awayGoals": 3,
+      "score": "1:3",
+      "venue": "away",
+      "opponent": "Преспа",
+      "belasicaGoals": 3,
+      "opponentGoals": 1,
+      "result": "W",
+      "scorers": [
+        {
+          "player": "Милушев",
+          "minutes": [
+            11
+          ]
+        },
+        {
+          "player": "Дончев",
+          "minutes": [
+            57
+          ]
+        },
+        {
+          "player": "Делов",
+          "minutes": [
+            79
+          ]
+        }
+      ],
+      "notes": [],
+      "sourceLine": "Преспа - Беласица 1:3 (Милушев 11, Дончев 57, Делов 79)"
+    }
+  ],
+  "squad": [
+    {
+      "no": 1,
+      "player": "Трајков Ѓорѓи (2004)",
+      "birthYear": 2004,
+      "starts": 22,
+      "subs": 0,
+      "apps": 22,
+      "goals": 0,
+      "sourceLine": "1. Трајков Ѓорѓи (2004) 22+0/0"
+    },
+    {
+      "no": 2,
+      "player": "Попоски Борјан (2004)",
+      "birthYear": 2004,
+      "starts": 26,
+      "subs": 1,
+      "apps": 27,
+      "goals": 0,
+      "sourceLine": "2. Попоски Борјан (2004) 26+1/0"
+    },
+    {
+      "no": 3,
+      "player": "Милушев Александар (1988)",
+      "birthYear": 1988,
+      "starts": 30,
+      "subs": 0,
+      "apps": 30,
+      "goals": 9,
+      "sourceLine": "3. Милушев Александар (1988) 30+0/9"
+    },
+    {
+      "no": 4,
+      "player": "Дебрешлиоски Марио (2002)",
+      "birthYear": 2002,
+      "starts": 14,
+      "subs": 0,
+      "apps": 14,
+      "goals": 2,
+      "sourceLine": "4. Дебрешлиоски Марио (2002) 14+0/2"
+    },
+    {
+      "no": 5,
+      "player": "Манев Коста (1993)",
+      "birthYear": 1993,
+      "starts": 22,
+      "subs": 0,
+      "apps": 22,
+      "goals": 1,
+      "sourceLine": "5. Манев Коста (1993) 22+0/1"
+    },
+    {
+      "no": 6,
+      "player": "Младеновски Стефан (2004)",
+      "birthYear": 2004,
+      "starts": 15,
+      "subs": 7,
+      "apps": 22,
+      "goals": 0,
+      "sourceLine": "6. Младеновски Стефан (2004) 15+7/0"
+    },
+    {
+      "no": 7,
+      "player": "Сулев Стефан (1989)",
+      "birthYear": 1989,
+      "starts": 21,
+      "subs": 5,
+      "apps": 26,
+      "goals": 3,
+      "sourceLine": "7. Сулев Стефан (1989) 21+5/3"
+    },
+    {
+      "no": 8,
+      "player": "Томовски Горан (1998)",
+      "birthYear": 1998,
+      "starts": 21,
+      "subs": 1,
+      "apps": 22,
+      "goals": 0,
+      "sourceLine": "8. Томовски Горан (1998) 21+1/0"
+    },
+    {
+      "no": 9,
+      "player": "Спиркоски Бојан (1995)",
+      "birthYear": 1995,
+      "starts": 14,
+      "subs": 0,
+      "apps": 14,
+      "goals": 9,
+      "sourceLine": "9. Спиркоски Бојан (1995) 14+0/9"
+    },
+    {
+      "no": 10,
+      "player": "Коцев Александар (2003)",
+      "birthYear": 2003,
+      "starts": 15,
+      "subs": 0,
+      "apps": 15,
+      "goals": 6,
+      "sourceLine": "10. Коцев Александар (2003) 15+0/6"
+    },
+    {
+      "no": 11,
+      "player": "Капсаров Костадин (2005)",
+      "birthYear": 2005,
+      "starts": 11,
+      "subs": 3,
+      "apps": 14,
+      "goals": 5,
+      "sourceLine": "11. Капсаров Костадин (2005) 11+3/5"
+    },
+    {
+      "no": 12,
+      "player": "Ахтаров Спаско (2006)",
+      "birthYear": 2006,
+      "starts": 8,
+      "subs": 3,
+      "apps": 11,
+      "goals": 0,
+      "sourceLine": "12. Ахтаров Спаско (2006) 8+3/0"
+    },
+    {
+      "no": 13,
+      "player": "Стојков Давид (2001)",
+      "birthYear": 2001,
+      "starts": 12,
+      "subs": 2,
+      "apps": 14,
+      "goals": 0,
+      "sourceLine": "13. Стојков Давид (2001) 12+2/0"
+    },
+    {
+      "no": 14,
+      "player": "Делов Виктор (2007)",
+      "birthYear": 2007,
+      "starts": 11,
+      "subs": 2,
+      "apps": 13,
+      "goals": 1,
+      "sourceLine": "14. Делов Виктор (2007) 11+2/1"
+    },
+    {
+      "no": 15,
+      "player": "Стојанов Благој (1999)",
+      "birthYear": 1999,
+      "starts": 11,
+      "subs": 0,
+      "apps": 11,
+      "goals": 0,
+      "sourceLine": "15. Стојанов Благој (1999) 11+0/0"
+    },
+    {
+      "no": 16,
+      "player": "Шуку Ерион (2004)",
+      "birthYear": 2004,
+      "starts": 10,
+      "subs": 4,
+      "apps": 14,
+      "goals": 7,
+      "sourceLine": "16. Шуку Ерион (2004) 10+4/7"
+    },
+    {
+      "no": 17,
+      "player": "Наумоски Марио (2000)",
+      "birthYear": 2000,
+      "starts": 10,
+      "subs": 4,
+      "apps": 14,
+      "goals": 0,
+      "sourceLine": "17. Наумоски Марио (2000) 10+4/0"
+    },
+    {
+      "no": 18,
+      "player": "Иљази Бујар (2000)",
+      "birthYear": 2000,
+      "starts": 10,
+      "subs": 3,
+      "apps": 13,
+      "goals": 6,
+      "sourceLine": "18. Иљази Бујар (2000) 10+3/6"
+    },
+    {
+      "no": 19,
+      "player": "Крстев Живко (2005)",
+      "birthYear": 2005,
+      "starts": 8,
+      "subs": 11,
+      "apps": 19,
+      "goals": 3,
+      "sourceLine": "19. Крстев Живко (2005) 8+11/3"
+    },
+    {
+      "no": 20,
+      "player": "Дончев Глигор (1998)",
+      "birthYear": 1998,
+      "starts": 7,
+      "subs": 13,
+      "apps": 20,
+      "goals": 1,
+      "sourceLine": "20. Дончев Глигор (1998) 7+13/1"
+    },
+    {
+      "no": 21,
+      "player": "Цикарски Мите (1993)",
+      "birthYear": 1993,
+      "starts": 7,
+      "subs": 2,
+      "apps": 9,
+      "goals": 0,
+      "sourceLine": "21. Цикарски Мите (1993) 7+2/0"
+    },
+    {
+      "no": 22,
+      "player": "Најденов Бојан (1991)",
+      "birthYear": 1991,
+      "starts": 7,
+      "subs": 1,
+      "apps": 8,
+      "goals": 0,
+      "sourceLine": "22. Најденов Бојан (1991) 7+1/0"
+    },
+    {
+      "no": 23,
+      "player": "Ристовски Давид (2006)",
+      "birthYear": 2006,
+      "starts": 6,
+      "subs": 6,
+      "apps": 12,
+      "goals": 0,
+      "sourceLine": "23. Ристовски Давид (2006) 6+6/0"
+    },
+    {
+      "no": 24,
+      "player": "Шаренковски Мартин (2006)",
+      "birthYear": 2006,
+      "starts": 4,
+      "subs": 7,
+      "apps": 11,
+      "goals": 0,
+      "sourceLine": "24. Шаренковски Мартин (2006) 4+7/0"
+    },
+    {
+      "no": 25,
+      "player": "Митев Филип (2006)",
+      "birthYear": 2006,
+      "starts": 4,
+      "subs": 5,
+      "apps": 9,
+      "goals": 0,
+      "sourceLine": "25. Митев Филип (2006) 4+5/0"
+    },
+    {
+      "no": 26,
+      "player": "Костов Марио (2005)",
+      "birthYear": 2005,
+      "starts": 2,
+      "subs": 15,
+      "apps": 17,
+      "goals": 0,
+      "sourceLine": "26. Костов Марио (2005) 2+15/0"
+    },
+    {
+      "no": 27,
+      "player": "Цониќ Максим (2006)",
+      "birthYear": 2006,
+      "starts": 1,
+      "subs": 7,
+      "apps": 8,
+      "goals": 0,
+      "sourceLine": "27. Цониќ Максим (2006) 1+7/0"
+    },
+    {
+      "no": 28,
+      "player": "Секирски Стефан (2008)",
+      "birthYear": 2008,
+      "starts": 1,
+      "subs": 6,
+      "apps": 7,
+      "goals": 1,
+      "sourceLine": "28. Секирски Стефан (2008) 1+6/1"
+    },
+    {
+      "no": 29,
+      "player": "Мустафа Ерсан (2006)",
+      "birthYear": 2006,
+      "starts": 0,
+      "subs": 5,
+      "apps": 5,
+      "goals": 0,
+      "sourceLine": "29. Мустафа Ерсан (2006) 0+5/0"
+    },
+    {
+      "no": 30,
+      "player": "Томе Осман (2008)",
+      "birthYear": 2008,
+      "starts": 0,
+      "subs": 4,
+      "apps": 4,
+      "goals": 0,
+      "sourceLine": "30. Томе Осман (2008) 0+4/0"
+    },
+    {
+      "no": 31,
+      "player": "Петејчук Анатолиј (2002)",
+      "birthYear": 2002,
+      "starts": 0,
+      "subs": 3,
+      "apps": 3,
+      "goals": 0,
+      "sourceLine": "31. Петејчук Анатолиј (2002) 0+3/0"
+    },
+    {
+      "no": 32,
+      "player": "Метин Ќерими (2002)",
+      "birthYear": 2002,
+      "starts": 0,
+      "subs": 3,
+      "apps": 3,
+      "goals": 0,
+      "sourceLine": "32. Метин Ќерими (2002) 0+3/0"
+    },
+    {
+      "no": 33,
+      "player": "Трендов Петар (2008)",
+      "birthYear": 2008,
+      "starts": 0,
+      "subs": 3,
+      "apps": 3,
+      "goals": 0,
+      "sourceLine": "33. Трендов Петар (2008) 0+3/0"
+    },
+    {
+      "no": 34,
+      "player": "Митров Апостол (2008)",
+      "birthYear": 2008,
+      "starts": 0,
+      "subs": 2,
+      "apps": 2,
+      "goals": 0,
+      "sourceLine": "34. Митров Апостол (2008) 0+2/0"
+    },
+    {
+      "no": 35,
+      "player": "Младенов Славе (2009)",
+      "birthYear": 2009,
+      "starts": 0,
+      "subs": 2,
+      "apps": 2,
+      "goals": 0,
+      "sourceLine": "35. Младенов Славе (2009) 0+2/0"
+    }
+  ],
+  "staffAndNotes": [
+    "Состав и статистика:",
+    "Играч (година на раѓање) — старт+измена/голови",
+    "Стручен штаб:",
+    "Стојанов Панче — главен тренер",
+    "Митев Благој — помошен тренер",
+    "Манчев Димче — кондиционен тренер",
+    "Муканов Филип — тренер на голмани",
+    "Претседател на клуб:",
+    "Васков Славчо - Пинда"
+  ]
+}

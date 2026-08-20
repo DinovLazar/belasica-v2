@@ -15,7 +15,15 @@
  * deploy — not a Studio edit. That cost is on the register in
  * `current-state.md`.
  *
- * Every row here traces to one line of the book. The tracing field itself
+ * ⚠️ **One season is not from the book: `2025-26`.** The book's match extract
+ * ends with spring 2025 and holds zero matches for it. Its 30 results and its
+ * 35-player squad come from the published Sanity season document, entered in
+ * August 2026 from Аце's own material, and were extracted to
+ * `data/book/season-2025-26.json` — which carries the provenance in the file —
+ * by `scripts/extract-season-2025-26.mjs` (D-3.36-5). Every other season here
+ * is the book's.
+ *
+ * Every book row traces to one line of the book. The tracing field itself
  * (`sourceLine`) is deliberately NOT carried into this module — it would
  * roughly double the bundle for a string no surface renders. It stays in
  * `data/book/*.json`, which is tracked, and the two are joined by
@@ -47947,6 +47955,751 @@ const SEASON_TABLES: Record<string, SeasonTables> = {
         "no": 36,
         "player": "Г. Бучков",
         "apps": 1,
+        "goals": 0
+      }
+    ]
+  },
+  "2025-26": {
+    "slug": "2025-26",
+    "matchGroups": [
+      {
+        "title": "Втора македонска лига",
+        "parts": [
+          {
+            "label": "Есенска полусезона",
+            "matches": [
+              {
+                "home": "Охрид",
+                "away": "Беласица",
+                "score": "1:1",
+                "round": null,
+                "scorers": [
+                  {
+                    "player": "Дебрешлиоски",
+                    "minutes": [
+                      6
+                    ]
+                  }
+                ]
+              },
+              {
+                "home": "Беласица",
+                "away": "Скопје",
+                "score": "3:2",
+                "round": null,
+                "scorers": [
+                  {
+                    "player": "Дебрешлиоски",
+                    "minutes": [
+                      35
+                    ]
+                  },
+                  {
+                    "player": "автогол",
+                    "minutes": [
+                      69
+                    ]
+                  },
+                  {
+                    "player": "Капсаров",
+                    "minutes": [
+                      85
+                    ]
+                  }
+                ]
+              },
+              {
+                "home": "Гол. Коњаре",
+                "away": "Беласица",
+                "score": "1:7",
+                "round": null,
+                "scorers": [
+                  {
+                    "player": "Спиркоски",
+                    "minutes": [
+                      20,
+                      59,
+                      75
+                    ]
+                  },
+                  {
+                    "player": "Коцев",
+                    "minutes": [
+                      52,
+                      65
+                    ]
+                  },
+                  {
+                    "player": "Милушев",
+                    "minutes": [
+                      83
+                    ]
+                  },
+                  {
+                    "player": "автогол",
+                    "minutes": [
+                      40
+                    ]
+                  }
+                ]
+              },
+              {
+                "home": "Беласица",
+                "away": "Детонит",
+                "score": "1:0",
+                "round": null,
+                "scorers": [
+                  {
+                    "player": "Спиркоски",
+                    "minutes": [
+                      37
+                    ]
+                  }
+                ]
+              },
+              {
+                "home": "Слога (В)",
+                "away": "Беласица",
+                "score": "1:2",
+                "round": null,
+                "scorers": [
+                  {
+                    "player": "Спироски",
+                    "minutes": [
+                      12
+                    ]
+                  },
+                  {
+                    "player": "Капсаров",
+                    "minutes": [
+                      43
+                    ]
+                  }
+                ]
+              },
+              {
+                "home": "Тетекс",
+                "away": "Беласица",
+                "score": "0:1",
+                "round": null,
+                "scorers": [
+                  {
+                    "player": "Коцев",
+                    "minutes": [
+                      2
+                    ]
+                  }
+                ]
+              },
+              {
+                "home": "Беласица",
+                "away": "Шкендија",
+                "score": "0:1",
+                "round": null,
+                "scorers": []
+              },
+              {
+                "home": "Осогово",
+                "away": "Беласица",
+                "score": "3:1",
+                "round": null,
+                "scorers": [
+                  {
+                    "player": "Милушев",
+                    "minutes": [
+                      74
+                    ]
+                  }
+                ]
+              },
+              {
+                "home": "Беласица",
+                "away": "Победа (Пр)",
+                "score": "1:2",
+                "round": null,
+                "scorers": [
+                  {
+                    "player": "Коцев",
+                    "minutes": [
+                      47
+                    ]
+                  }
+                ]
+              },
+              {
+                "home": "Кожуф",
+                "away": "Беласица",
+                "score": "0:2",
+                "round": null,
+                "scorers": [
+                  {
+                    "player": "Капсаров",
+                    "minutes": [
+                      25
+                    ]
+                  },
+                  {
+                    "player": "Спиркоски",
+                    "minutes": [
+                      75
+                    ]
+                  }
+                ]
+              },
+              {
+                "home": "Беласица",
+                "away": "Вардар (Нег)",
+                "score": "8:1",
+                "round": null,
+                "scorers": [
+                  {
+                    "player": "Коцев",
+                    "minutes": [
+                      20,
+                      34
+                    ]
+                  },
+                  {
+                    "player": "Капсаров",
+                    "minutes": [
+                      22
+                    ]
+                  },
+                  {
+                    "player": "Спиркоски",
+                    "minutes": [
+                      24,
+                      41
+                    ]
+                  },
+                  {
+                    "player": "Милушев",
+                    "minutes": [
+                      53,
+                      67
+                    ]
+                  },
+                  {
+                    "player": "Секирски",
+                    "minutes": [
+                      79
+                    ]
+                  }
+                ]
+              },
+              {
+                "home": "Брегалница (Ш)",
+                "away": "Беласица",
+                "score": "0:1",
+                "round": null,
+                "scorers": [
+                  {
+                    "player": "Капсаров",
+                    "minutes": [
+                      81
+                    ]
+                  }
+                ]
+              },
+              {
+                "home": "Беласица",
+                "away": "Новаци",
+                "score": "0:1",
+                "round": null,
+                "scorers": []
+              },
+              {
+                "home": "Каменица Саса",
+                "away": "Беласица",
+                "score": "0:2",
+                "round": null,
+                "scorers": [
+                  {
+                    "player": "Спиркоски",
+                    "minutes": [
+                      33
+                    ]
+                  },
+                  {
+                    "player": "Манев",
+                    "minutes": [
+                      76
+                    ]
+                  }
+                ]
+              },
+              {
+                "home": "Беласица",
+                "away": "Преспа",
+                "score": "3:1",
+                "round": null,
+                "scorers": [
+                  {
+                    "player": "Милушев",
+                    "minutes": [
+                      47,
+                      89
+                    ]
+                  },
+                  {
+                    "player": "Сулев",
+                    "minutes": [
+                      65
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": "Пролетна полусезона",
+            "matches": [
+              {
+                "home": "Беласица",
+                "away": "Охрид",
+                "score": "0:1",
+                "round": null,
+                "scorers": []
+              },
+              {
+                "home": "Скопје",
+                "away": "Беласица",
+                "score": "1:0",
+                "round": null,
+                "scorers": []
+              },
+              {
+                "home": "Беласица",
+                "away": "Гол. Коњаре",
+                "score": "4:0",
+                "round": null,
+                "scorers": [
+                  {
+                    "player": "Шуку",
+                    "minutes": [
+                      14,
+                      60
+                    ]
+                  },
+                  {
+                    "player": "Сулев",
+                    "minutes": [
+                      35
+                    ]
+                  },
+                  {
+                    "player": "Крстев",
+                    "minutes": [
+                      79
+                    ]
+                  }
+                ]
+              },
+              {
+                "home": "Детонит",
+                "away": "Беласица",
+                "score": "0:1",
+                "round": null,
+                "scorers": [
+                  {
+                    "player": "Крстев",
+                    "minutes": [
+                      67
+                    ]
+                  }
+                ]
+              },
+              {
+                "home": "Беласица",
+                "away": "Слога (Вин)",
+                "score": "3:0",
+                "round": null,
+                "scorers": [
+                  {
+                    "player": "Милушев",
+                    "minutes": [
+                      8
+                    ]
+                  },
+                  {
+                    "player": "Иљази",
+                    "minutes": [
+                      67,
+                      92
+                    ]
+                  }
+                ]
+              },
+              {
+                "home": "Беласица",
+                "away": "Тетекс",
+                "score": "3:1",
+                "round": null,
+                "scorers": [
+                  {
+                    "player": "Иљази",
+                    "minutes": [
+                      47
+                    ]
+                  },
+                  {
+                    "player": "Шуку",
+                    "minutes": [
+                      70
+                    ]
+                  },
+                  {
+                    "player": "Сулев",
+                    "minutes": [
+                      88
+                    ]
+                  }
+                ]
+              },
+              {
+                "home": "Шкендија (А)",
+                "away": "Беласица",
+                "score": "0:0",
+                "round": null,
+                "scorers": []
+              },
+              {
+                "home": "Беласица",
+                "away": "Осогово",
+                "score": "0:0",
+                "round": null,
+                "scorers": []
+              },
+              {
+                "home": "Победа (Прил)",
+                "away": "Беласица",
+                "score": "0:5",
+                "round": null,
+                "scorers": [
+                  {
+                    "player": "Шуку",
+                    "minutes": [
+                      16,
+                      57,
+                      63
+                    ]
+                  },
+                  {
+                    "player": "Иљази",
+                    "minutes": [
+                      26,
+                      55
+                    ]
+                  }
+                ]
+              },
+              {
+                "home": "Беласица",
+                "away": "Кожуф",
+                "score": "0:0",
+                "round": null,
+                "scorers": []
+              },
+              {
+                "home": "Вардар (Нег)",
+                "away": "Беласица",
+                "score": "1:4",
+                "round": null,
+                "scorers": [
+                  {
+                    "player": "Шуку",
+                    "minutes": [
+                      6
+                    ]
+                  },
+                  {
+                    "player": "Иљази",
+                    "minutes": [
+                      10
+                    ]
+                  },
+                  {
+                    "player": "Крстев",
+                    "minutes": [
+                      64
+                    ]
+                  },
+                  {
+                    "player": "автогол",
+                    "minutes": [
+                      77
+                    ]
+                  }
+                ]
+              },
+              {
+                "home": "Беласица",
+                "away": "Брегалница",
+                "score": "0:1",
+                "round": null,
+                "scorers": []
+              },
+              {
+                "home": "Новаци",
+                "away": "Беласица",
+                "score": "1:0",
+                "round": null,
+                "scorers": []
+              },
+              {
+                "home": "Беласица",
+                "away": "Каменица Саса",
+                "score": "1:0",
+                "round": null,
+                "scorers": [
+                  {
+                    "player": "Милушев",
+                    "minutes": [
+                      77
+                    ]
+                  }
+                ]
+              },
+              {
+                "home": "Преспа",
+                "away": "Беласица",
+                "score": "1:3",
+                "round": null,
+                "scorers": [
+                  {
+                    "player": "Милушев",
+                    "minutes": [
+                      11
+                    ]
+                  },
+                  {
+                    "player": "Дончев",
+                    "minutes": [
+                      57
+                    ]
+                  },
+                  {
+                    "player": "Делов",
+                    "minutes": [
+                      79
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "squad": [
+      {
+        "no": 1,
+        "player": "Трајков Ѓорѓи (2004)",
+        "apps": 22,
+        "goals": 0
+      },
+      {
+        "no": 2,
+        "player": "Попоски Борјан (2004)",
+        "apps": 27,
+        "goals": 0
+      },
+      {
+        "no": 3,
+        "player": "Милушев Александар (1988)",
+        "apps": 30,
+        "goals": 9
+      },
+      {
+        "no": 4,
+        "player": "Дебрешлиоски Марио (2002)",
+        "apps": 14,
+        "goals": 2
+      },
+      {
+        "no": 5,
+        "player": "Манев Коста (1993)",
+        "apps": 22,
+        "goals": 1
+      },
+      {
+        "no": 6,
+        "player": "Младеновски Стефан (2004)",
+        "apps": 22,
+        "goals": 0
+      },
+      {
+        "no": 7,
+        "player": "Сулев Стефан (1989)",
+        "apps": 26,
+        "goals": 3
+      },
+      {
+        "no": 8,
+        "player": "Томовски Горан (1998)",
+        "apps": 22,
+        "goals": 0
+      },
+      {
+        "no": 9,
+        "player": "Спиркоски Бојан (1995)",
+        "apps": 14,
+        "goals": 9
+      },
+      {
+        "no": 10,
+        "player": "Коцев Александар (2003)",
+        "apps": 15,
+        "goals": 6
+      },
+      {
+        "no": 11,
+        "player": "Капсаров Костадин (2005)",
+        "apps": 14,
+        "goals": 5
+      },
+      {
+        "no": 12,
+        "player": "Ахтаров Спаско (2006)",
+        "apps": 11,
+        "goals": 0
+      },
+      {
+        "no": 13,
+        "player": "Стојков Давид (2001)",
+        "apps": 14,
+        "goals": 0
+      },
+      {
+        "no": 14,
+        "player": "Делов Виктор (2007)",
+        "apps": 13,
+        "goals": 1
+      },
+      {
+        "no": 15,
+        "player": "Стојанов Благој (1999)",
+        "apps": 11,
+        "goals": 0
+      },
+      {
+        "no": 16,
+        "player": "Шуку Ерион (2004)",
+        "apps": 14,
+        "goals": 7
+      },
+      {
+        "no": 17,
+        "player": "Наумоски Марио (2000)",
+        "apps": 14,
+        "goals": 0
+      },
+      {
+        "no": 18,
+        "player": "Иљази Бујар (2000)",
+        "apps": 13,
+        "goals": 6
+      },
+      {
+        "no": 19,
+        "player": "Крстев Живко (2005)",
+        "apps": 19,
+        "goals": 3
+      },
+      {
+        "no": 20,
+        "player": "Дончев Глигор (1998)",
+        "apps": 20,
+        "goals": 1
+      },
+      {
+        "no": 21,
+        "player": "Цикарски Мите (1993)",
+        "apps": 9,
+        "goals": 0
+      },
+      {
+        "no": 22,
+        "player": "Најденов Бојан (1991)",
+        "apps": 8,
+        "goals": 0
+      },
+      {
+        "no": 23,
+        "player": "Ристовски Давид (2006)",
+        "apps": 12,
+        "goals": 0
+      },
+      {
+        "no": 24,
+        "player": "Шаренковски Мартин (2006)",
+        "apps": 11,
+        "goals": 0
+      },
+      {
+        "no": 25,
+        "player": "Митев Филип (2006)",
+        "apps": 9,
+        "goals": 0
+      },
+      {
+        "no": 26,
+        "player": "Костов Марио (2005)",
+        "apps": 17,
+        "goals": 0
+      },
+      {
+        "no": 27,
+        "player": "Цониќ Максим (2006)",
+        "apps": 8,
+        "goals": 0
+      },
+      {
+        "no": 28,
+        "player": "Секирски Стефан (2008)",
+        "apps": 7,
+        "goals": 1
+      },
+      {
+        "no": 29,
+        "player": "Мустафа Ерсан (2006)",
+        "apps": 5,
+        "goals": 0
+      },
+      {
+        "no": 30,
+        "player": "Томе Осман (2008)",
+        "apps": 4,
+        "goals": 0
+      },
+      {
+        "no": 31,
+        "player": "Петејчук Анатолиј (2002)",
+        "apps": 3,
+        "goals": 0
+      },
+      {
+        "no": 32,
+        "player": "Метин Ќерими (2002)",
+        "apps": 3,
+        "goals": 0
+      },
+      {
+        "no": 33,
+        "player": "Трендов Петар (2008)",
+        "apps": 3,
+        "goals": 0
+      },
+      {
+        "no": 34,
+        "player": "Митров Апостол (2008)",
+        "apps": 2,
+        "goals": 0
+      },
+      {
+        "no": 35,
+        "player": "Младенов Славе (2009)",
+        "apps": 2,
         "goals": 0
       }
     ]
