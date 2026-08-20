@@ -1,0 +1,91 @@
+[
+  {
+    "path": "/",
+    "fails": [],
+    "unresolved": []
+  },
+  {
+    "path": "/arhiva",
+    "fails": [],
+    "unresolved": []
+  },
+  {
+    "path": "/arhiva/1992-93",
+    "fails": [],
+    "unresolved": []
+  },
+  {
+    "path": "/arhiva/1922-26",
+    "fails": [],
+    "unresolved": []
+  },
+  {
+    "path": "/arhiva/1943",
+    "fails": [],
+    "unresolved": []
+  },
+  {
+    "path": "/arhiva/2025-26",
+    "fails": [],
+    "unresolved": []
+  },
+  {
+    "path": "/legendi",
+    "fails": [],
+    "unresolved": []
+  },
+  {
+    "path": "/legendi/goran-pandev",
+    "fails": [],
+    "unresolved": []
+  },
+  {
+    "path": "/statistika",
+    "fails": [],
+    "unresolved": []
+  },
+  {
+    "path": "/razno",
+    "fails": [],
+    "unresolved": []
+  },
+  {
+    "path": "/razno/kup-na-uefa",
+    "fails": [],
+    "unresolved": []
+  },
+  {
+    "path": "/za-nas",
+    "fails": [],
+    "unresolved": []
+  },
+  {
+    "path": "/kontakt",
+    "fails": [],
+    "unresolved": [
+      {
+        "selector": "div > div.border.border-mist.bg-white > p.mt-3 > span.inline-flex.max-w-full.items-center",
+        "text": "[PLACEHOLDER: адреса за примање пораки (Formspree) ]",
+        "color": "rgb(94, 92, 85)",
+        "bg": "rgb(247, 244, 236)",
+        "fontSize": 14,
+        "fontWeight": 400,
+        "large": false,
+        "required": 4.5,
+        "ratio": 6.09,
+        "pass": true,
+        "bgImageAncestor": "div > div.border.border-mist.bg-white > p.mt-3 > span.inline-flex.max-w-full.items-center"
+      }
+    ]
+  },
+  {
+    "path": "/pravni-informacii",
+    "fails": [],
+    "unresolved": []
+  },
+  {
+    "path": "/ne-postoi-404-test",
+    "fails": [],
+    "unresolved": []
+  }
+]

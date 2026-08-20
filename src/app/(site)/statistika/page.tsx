@@ -321,9 +321,10 @@ export default async function StatisticsPage() {
       <section
         id="strelci"
         aria-labelledby="scorers-heading"
-        // Clear BOTH sticky bars when jumped to: the site header
-        // (`--spacing-header`) plus the jump rail's own height.
-        className="scroll-mt-[calc(var(--spacing-header)+3.25rem)] py-section"
+        // Scroll clearance is the scroller's `scroll-padding-top`
+        // (globals.css) — jump links, `scrollIntoView()` and keyboard focus
+        // all take the same offset (SC 2.4.11).
+        className="py-section"
       >
         <Container>
           <Reveal>
@@ -375,7 +376,7 @@ export default async function StatisticsPage() {
       <section
         id="nastapi"
         aria-labelledby="appearances-heading"
-        className="scroll-mt-[calc(var(--spacing-header)+3.25rem)] border-t border-mist py-section"
+        className="border-t border-mist py-section"
       >
         <Container>
           <Reveal>
@@ -423,7 +424,7 @@ export default async function StatisticsPage() {
       <section
         id="bilans"
         aria-labelledby="balance-heading"
-        className="scroll-mt-[calc(var(--spacing-header)+3.25rem)] border-t border-mist py-section"
+        className="border-t border-mist py-section"
       >
         <Container>
           <Reveal>
@@ -499,7 +500,7 @@ export default async function StatisticsPage() {
         <section
           id="rekordi"
           aria-labelledby="records-heading"
-          className="scroll-mt-[calc(var(--spacing-header)+3.25rem)] border-t border-mist py-section"
+          className="border-t border-mist py-section"
         >
           <Container>
             <Reveal>
@@ -530,7 +531,7 @@ export default async function StatisticsPage() {
       <section
         id="strelci-sezoni"
         aria-labelledby="season-scorers-heading"
-        className="scroll-mt-[calc(var(--spacing-header)+3.25rem)] border-t border-mist py-section"
+        className="border-t border-mist py-section"
       >
         <Container>
           <Reveal>
@@ -555,7 +556,7 @@ export default async function StatisticsPage() {
       <section
         id="jugoslavija"
         aria-labelledby="yugoslav-heading"
-        className="scroll-mt-[calc(var(--spacing-header)+3.25rem)] border-t border-mist py-section"
+        className="border-t border-mist py-section"
       >
         <Container>
           <Reveal>
@@ -585,7 +586,7 @@ export default async function StatisticsPage() {
       <section
         id="makedonija"
         aria-labelledby="macedonian-heading"
-        className="scroll-mt-[calc(var(--spacing-header)+3.25rem)] border-t border-mist py-section"
+        className="border-t border-mist py-section"
       >
         <Container>
           <Reveal>

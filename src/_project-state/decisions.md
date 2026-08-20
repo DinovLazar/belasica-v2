@@ -3522,3 +3522,57 @@
 - **Alternatives considered:** _Reverse the word order before matching_ — rejected: it is respelling a name to manufacture a link, which the brief forbids by name, and a two-word swap is a guess about which word is the surname that fails on any name where it is not. _Special-case the seven_ — rejected: a hand-kept list of identity assertions is the merge D-3.11-2 refused.
 - **Consequences:** ⚠️ Seven players who have a page on this site are not linked from their own season's squad table. **This is not a regression** — the prose roster it replaces linked nobody either — but it is a real gap, and it is the same gap the archive already carries: 1 of 1.982 rendered squad rows across all seasons is a link. The fix is a name-matching phase, not this one.
 - **Links:** D-3.28-7; D-3.28-8; D-3.11-2; Phase 3.36 completion report §7 (carryover).
+
+### D-a11y-1 · 2026-08-20 · Branch `a11y-remediation`, not `phase-X.YY-<slug>`
+
+- **Status:** Accepted
+- **Context:** CLAUDE.md fixes the branch name to `phase-X.YY-<slug>`, cut from `main`, one at a time. This work is not a numbered phase: it came from a standing accessibility-remediation prompt that names the branch `a11y-remediation` twice, once in the instructions and once in its Definition of Done, and it cuts across every route rather than delivering a phase's scope.
+- **Decision:** Use `a11y-remediation`. Everything else in CLAUDE.md is honoured as written — decisions logged here, `current-state.md` and `file-map.md` synced, a completion report filed, `npm run build` and `npm run lint` clean before the commit.
+- **Alternatives considered:** _Rename it `phase-3.37-a11y-remediation`_ — rejected: the instruction names the branch as a checkable deliverable, and inventing a phase number for work that has no brief in `briefs/` would put a fake entry in the phase sequence. _Ask and block_ — rejected: the conflict is a naming convention, not a question about what to build.
+- **Consequences:** One branch in the repo's history does not match the phase-branch pattern. The completion report is filed as `Part-3-Phase-A11Y-Completion.md` so it sorts beside the others without claiming a phase number.
+- **Links:** `docs/accessibility-report.md`; CLAUDE.md §Branch & PR rules.
+
+### D-a11y-2 · 2026-08-20 · `scroll-padding-top` on the scroller replaces every `scroll-mt-*` call site
+
+- **Status:** Accepted
+- **Context:** SC 2.4.11 Focus Not Obscured (AA, new in WCAG 2.2) was failing. Shift+Tab scrolls the newly focused element to the top of the viewport, which is where the 78px sticky header sits, so short controls landed **entirely** underneath it — measured on `/arhiva/1992-93` („Назад кон архивата" at y=35, „Сите сезони од 1990-ти" at y=0) and on `/statistika` (six season links at y=0, 45 and 94, the last under the rail rather than the header). The eleven `scroll-mt-*` call sites this repo had were the right answer for a jump link and do nothing for focus: focus scrolling has no author hook on the target.
+- **Decision:** Put the offset on the scroller — `html { scroll-padding-top: var(--spacing-header) }`, and `calc(var(--spacing-header) + var(--spacing-rail))` under `html:has([data-sticky-rail])` — and **delete every `scroll-mt-*`**. `JumpNav` and the `/legendi` tab rail mark themselves with `data-sticky-rail`, so the tier follows what actually rendered rather than a list of routes. `--spacing-rail` is a new token holding the `3.25rem` that was previously written out inside each `calc()`.
+- **Alternatives considered:** _Keep `scroll-mt-*` and add `scroll-padding-top`_ — rejected on measurement: they **stack**. With both at 130px a section landed 260px down instead of 130. _Add `scroll-padding-top` only, keeping the class as dead weight_ — same defect. _A JS focus handler that scrolls the element clear_ — rejected: it fights the browser's own scrolling, runs on every Tab, and does nothing without JS.
+- **Consequences:** One source for the offset instead of eleven, and it now covers jump links, `scrollIntoView()` **and** keyboard focus. `LegendsBrowser`'s tab-press scroll reads its clearance from `document.documentElement`'s `scrollPaddingTop` rather than the section's `scrollMarginTop`. Anchor landings are unchanged — re-measured at exactly 130px on `/statistika`, the same as before. Any future sticky bar must set `data-sticky-rail` or focus will hide under it again.
+- **Links:** `src/app/globals.css` („Scroll clearance"); `docs/accessibility-report.md` §2 finding 1 and §4.
+
+### D-a11y-3 · 2026-08-20 · The results table keeps `scope`; pa11y's `H43` is a tool defect and is documented, not obeyed
+
+- **Status:** Accepted
+- **Context:** pa11y reported `H43.HeadersRequired` once per results table, 91 times, asking for explicit `headers`/`id` on every cell because the table has header cells at two levels (column heads in `<thead>`, a half-season label per `<tbody>`).
+- **Decision:** Keep `scope="col"` + `scope="rowgroup"`, with one `<tbody>` per half-season, and document the 91 errors as a false positive.
+- **Alternatives considered:** _Do what the tool asks_ — **implemented, measured, and reverted.** With a correct `headers` list on every cell it switches to `H43.IncorrectAttr` and demands that an **autumn** match also name the **spring** half-season: „Expected `c1 g1 g2` but found `c1 g1`". Its H43 check does not honour `<tbody>` boundaries, so complying would tell a screen-reader user that every autumn fixture belongs to spring too. A twelve-line standalone reproduction with no site code in it is committed at `docs/a11y-scan-after/pa11y-H43-tbody-repro.html`. _One `<table>` per half-season_ — rejected: two independently auto-sized tables no longer share column widths, which is a visual change accessibility does not require. _Demote the label to a `<td>`_ — rejected: it destroys the very relationship the fix exists to state.
+- **Consequences:** 91 pa11y errors remain and are explained in the report §7. Verified directly instead: in Chrome's accessibility tree „ЕСЕНСКИ ДЕЛ 1992" is exposed as a **rowheader** over its own group (it was a **columnheader** before, i.e. a header for every column of the table), and axe-core — the engine Lighthouse and most compliance vendors use — reports nothing on these tables.
+- **Links:** `src/components/archive/SeasonResultsTable.tsx` (the ⚠️ note above `GroupTable`); `docs/accessibility-report.md` §7.
+
+### D-a11y-4 · 2026-08-20 · Redundant `alt` is removed rather than reworded
+
+- **Status:** Accepted
+- **Context:** axe reported `image-redundant-alt` on **141 of 212 person pages**: the portrait's `alt` was the person's name, and the `<h1>` beside it is the same name. The same duplication existed unflagged on season cards, legend cards and any gallery photo whose caption is printed underneath it.
+- **Decision:** By context. `PersonHero` says what the image **is** — „Архивски портрет" — never the name. `LegendCard` and an uncaptioned `SeasonCard` photo take `alt=""`, because they sit inside a link whose own heading already names the target and an alt there makes the link announce it twice. A gallery photo takes `alt=""` **when it has a caption**, because that caption is rendered in the `<figcaption>` directly below; with no caption it keeps „Архивска фотографија".
+- **Alternatives considered:** _„Портрет на <име>"_ — rejected: still the name, still duplicated, and now longer. _Leave it, since the rule is tagged best-practice rather than WCAG_ — rejected: it was the only axe violation anywhere on the site, and the DoD asks for zero.
+- **Consequences:** No content is lost — every string removed was already on screen within the same figure or link. Screen-reader users stop hearing names twice. axe-core now reports **0 violations across all 324 URLs at both widths**.
+- **Links:** `docs/accessibility-report.md` §2 finding 12.
+
+### D-a11y-5 · 2026-08-20 · `aria-disabled` is emitted only when true
+
+- **Status:** Accepted
+- **Context:** The contact form's submit button was `disabled` while submitting, which blurs it — every browser then drops focus on `<body>`, sending a keyboard user to the top of the document (SC 2.4.3). The fix is `aria-disabled`, which announces the state without removing the control from the tab order.
+- **Decision:** Emit it only when true (`submitting || undefined`), and keep the `disabled:` style variants for the branch where the button really is disabled.
+- **Alternatives considered:** _`aria-disabled={submitting}` unconditionally_ — **tried, and it introduced a false axe failure.** In the endpoint-unset branch the button sits inside a `<fieldset disabled>` at `opacity-60`; an explicit `aria-disabled="false"` overrode that inheritance for tooling, so axe stopped treating it as an inactive component — which SC 1.4.3 exempts — and reported its dimmed 4.29:1 as a contrast violation. It also contradicted the element's own state.
+- **Consequences:** Focus survives a submit. A screenshot diff caught one pixel-level regression from the same edit — dropping `disabled:opacity-70` made the switched-off button a shade darker — and it was put back, so `/kontakt` is now pixel-identical to before.
+- **Links:** `src/components/contact/ContactForm.tsx`; `docs/accessibility-report.md` §1 („Was the design changed?").
+
+### D-a11y-6 · 2026-08-20 · The audit tooling stays out of `package.json`
+
+- **Status:** Accepted
+- **Context:** The audit needed axe-core, pa11y, Lighthouse and a browser driver. CLAUDE.md requires every added dependency to be pinned and appended to `00_stack-and-config.md`.
+- **Decision:** Add none. The five committed scanners in `scripts/a11y/` drive the `puppeteer-core` and `axe-core` that already arrive under `node_modules` with the existing `lighthouse` devDependency, and point at the machine's own Chrome. `pa11y@9.0.1` and `@axe-core/cli@4.11.0` were installed in a scratch directory outside the repo and are reproducible with `npx`. **`package.json` and `package-lock.json` are untouched by this branch**, so `00_stack-and-config.md` needs no entry.
+- **Alternatives considered:** _Add `pa11y` and `@axe-core/cli` as devDependencies_ — rejected: two more transitive trees (including a second Chromium download) carried forever for tooling that runs a few times a year.
+- **Consequences:** Re-running the scans needs one `npx` line, documented in `scripts/a11y/README.md`. Nothing about the site's build or bundle changed.
+- **Links:** `scripts/a11y/README.md`.

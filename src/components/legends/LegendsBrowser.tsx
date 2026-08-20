@@ -4,7 +4,7 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Container } from "@/components/Container";
 import { PageHeader } from "@/components/PageHeader";
-import { focusOnNavy } from "@/lib/focus";
+import { focusOnNavy, focusOnPaper } from "@/lib/focus";
 import {
   CATEGORY_ANCHOR,
   CATEGORY_TAB_LABEL,
@@ -85,6 +85,10 @@ export function LegendsBrowser({
   const inputId = useId();
   const tabsId = useId();
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  // Clearing the search unmounts the clear button, which is the element the
+  // click or the Enter press was ON. Focus has to be handed somewhere first or
+  // the browser drops it on <body> (measured) — see `clearSearch` below.
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const needle = normalise(query);
   const searching = needle.length > 0;
@@ -127,6 +131,23 @@ export function LegendsBrowser({
       ? requested
       : (selectable[0] ?? null);
 
+  /**
+   * Empty the field and put focus back in it (WCAG 2.4.3 Focus Order).
+   *
+   * The button only exists while `query` is non-empty, so clearing it removes
+   * the very element that was focused. Measured before this: `activeElement`
+   * came back as `<body>`, which sends a keyboard user to the top of the
+   * document and a screen-reader user to the start of the page — from a
+   * control whose entire purpose is to let them carry on typing. The field is
+   * also where a sighted user's cursor visibly goes, so this is the same
+   * behaviour the browser's own search-cancel button has; that one is
+   * suppressed here in favour of a single clear affordance.
+   */
+  function clearSearch() {
+    setQuery("");
+    inputRef.current?.focus();
+  }
+
   function openTab(category: LegendCategory) {
     setRequested(category);
     setPress((previous) => ({ category, nth: (previous?.nth ?? 0) + 1 }));
@@ -143,11 +164,16 @@ export function LegendsBrowser({
     // would silently scroll to the wrong place if it ever did.
     if (!section || section.getClientRects().length === 0) return;
 
-    // The clearance for the two sticky bars is read off the section's own
-    // `scroll-mt-*` rather than restated here, so it stays right if the header
-    // token or the rail's height ever change.
+    // The clearance for the two sticky bars is read off the SCROLLER's
+    // `scroll-padding-top` rather than restated here, so it stays right if the
+    // header token or the rail's height ever change. It moved there from the
+    // section's own `scroll-mt-*` when that offset was unified for SC 2.4.11:
+    // `scroll-padding` is the one inset the browser also applies to the focus
+    // scroll, which no author hook can reach.
     const clearance =
-      parseFloat(getComputedStyle(section).scrollMarginTop) || 0;
+      parseFloat(
+        getComputedStyle(document.documentElement).scrollPaddingTop,
+      ) || 0;
     const top = Math.max(
       0,
       section.getBoundingClientRect().top + window.scrollY - clearance,
@@ -208,6 +234,7 @@ export function LegendsBrowser({
             <SearchGlyph />
 
             <input
+              ref={inputRef}
               id={inputId}
               type="search"
               value={query}
@@ -231,11 +258,22 @@ export function LegendsBrowser({
             {query.length > 0 && (
               <button
                 type="button"
-                onClick={() => setQuery("")}
+                onClick={clearSearch}
                 className={cn(
                   "absolute inset-y-0 right-0 flex w-10 items-center justify-center",
-                  "text-paper/80 hover:text-paper",
-                  focusOnNavy,
+                  // ⚠️ This sits INSIDE the field, so it is measured against the
+                  // field's white — not against the navy block around it. It
+                  // was `text-paper/80`, the on-navy ink, which put the glyph
+                  // at 1.05:1 on white: the only visual indication that the
+                  // control exists at all was invisible (SC 1.4.11 needs 3:1;
+                  // pixel-sampled, not computed). `neutral-500` is the same ink
+                  // the search glyph on the other end of the field already
+                  // uses — 6.71:1 on white — so the two ends of the field now
+                  // match rather than one of them disappearing.
+                  "text-neutral-500 hover:text-ink",
+                  // Navy ring, not the orange on-navy one: the ring is drawn on
+                  // the white field, where orange is 2.6:1 and navy is 14.95:1.
+                  focusOnPaper,
                 )}
               >
                 <span className="sr-only">Исчисти го пребарувањето</span>
@@ -271,7 +309,7 @@ export function LegendsBrowser({
           two bands of one block, horizontally scrollable rather than wrapping.
           No new token: the only thing a tab does that a jump link did not is
           hold the orange rule permanently when it is the open one. */}
-      <div className="sticky top-header z-30 bg-navy-2">
+      <div data-sticky-rail className="sticky top-header z-30 bg-navy-2">
         {/* Same `rail-fade` as `JumpNav` — this rail is a copy of its
             surface, so it gets the same scroll affordance (3.35). */}
         <div className="rail-fade relative mx-auto w-full max-w-page overflow-x-auto px-5 py-1 md:px-8">

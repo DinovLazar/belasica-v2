@@ -1,0 +1,257 @@
+[
+  {
+    "path": "/",
+    "undersized": [
+      {
+        "tag": "A",
+        "label": "Прескокни на содржина",
+        "cls": "sr-only focus:not-sr-only focus:absolute focus:left-4 focus:",
+        "w": 1,
+        "h": 1,
+        "nearestCentreDistance": 153.7,
+        "nearest": "ФК Беласица",
+        "spacingExceptionPasses": true,
+        "inlineException": false,
+        "fails": false
+      }
+    ]
+  },
+  {
+    "path": "/arhiva",
+    "undersized": [
+      {
+        "tag": "A",
+        "label": "Прескокни на содржина",
+        "cls": "sr-only focus:not-sr-only focus:absolute focus:left-4 focus:",
+        "w": 1,
+        "h": 1,
+        "nearestCentreDistance": 153.7,
+        "nearest": "ФК Беласица",
+        "spacingExceptionPasses": true,
+        "inlineException": false,
+        "fails": false
+      }
+    ]
+  },
+  {
+    "path": "/arhiva/1992-93",
+    "undersized": [
+      {
+        "tag": "A",
+        "label": "Прескокни на содржина",
+        "cls": "sr-only focus:not-sr-only focus:absolute focus:left-4 focus:",
+        "w": 1,
+        "h": 1,
+        "nearestCentreDistance": 153.7,
+        "nearest": "ФК Беласица",
+        "spacingExceptionPasses": true,
+        "inlineException": false,
+        "fails": false
+      }
+    ]
+  },
+  {
+    "path": "/arhiva/1922-26",
+    "undersized": [
+      {
+        "tag": "A",
+        "label": "Прескокни на содржина",
+        "cls": "sr-only focus:not-sr-only focus:absolute focus:left-4 focus:",
+        "w": 1,
+        "h": 1,
+        "nearestCentreDistance": 153.7,
+        "nearest": "ФК Беласица",
+        "spacingExceptionPasses": true,
+        "inlineException": false,
+        "fails": false
+      }
+    ]
+  },
+  {
+    "path": "/arhiva/1943",
+    "undersized": [
+      {
+        "tag": "A",
+        "label": "Прескокни на содржина",
+        "cls": "sr-only focus:not-sr-only focus:absolute focus:left-4 focus:",
+        "w": 1,
+        "h": 1,
+        "nearestCentreDistance": 153.7,
+        "nearest": "ФК Беласица",
+        "spacingExceptionPasses": true,
+        "inlineException": false,
+        "fails": false
+      }
+    ]
+  },
+  {
+    "path": "/arhiva/2025-26",
+    "undersized": [
+      {
+        "tag": "A",
+        "label": "Прескокни на содржина",
+        "cls": "sr-only focus:not-sr-only focus:absolute focus:left-4 focus:",
+        "w": 1,
+        "h": 1,
+        "nearestCentreDistance": 153.7,
+        "nearest": "ФК Беласица",
+        "spacingExceptionPasses": true,
+        "inlineException": false,
+        "fails": false
+      }
+    ]
+  },
+  {
+    "path": "/legendi",
+    "undersized": [
+      {
+        "tag": "A",
+        "label": "Прескокни на содржина",
+        "cls": "sr-only focus:not-sr-only focus:absolute focus:left-4 focus:",
+        "w": 1,
+        "h": 1,
+        "nearestCentreDistance": 153.7,
+        "nearest": "ФК Беласица",
+        "spacingExceptionPasses": true,
+        "inlineException": false,
+        "fails": false
+      }
+    ]
+  },
+  {
+    "path": "/legendi/goran-pandev",
+    "undersized": [
+      {
+        "tag": "A",
+        "label": "Прескокни на содржина",
+        "cls": "sr-only focus:not-sr-only focus:absolute focus:left-4 focus:",
+        "w": 1,
+        "h": 1,
+        "nearestCentreDistance": 153.7,
+        "nearest": "ФК Беласица",
+        "spacingExceptionPasses": true,
+        "inlineException": false,
+        "fails": false
+      }
+    ]
+  },
+  {
+    "path": "/statistika",
+    "undersized": [
+      {
+        "tag": "A",
+        "label": "Прескокни на содржина",
+        "cls": "sr-only focus:not-sr-only focus:absolute focus:left-4 focus:",
+        "w": 1,
+        "h": 1,
+        "nearestCentreDistance": 153.7,
+        "nearest": "ФК Беласица",
+        "spacingExceptionPasses": true,
+        "inlineException": false,
+        "fails": false
+      }
+    ]
+  },
+  {
+    "path": "/razno",
+    "undersized": [
+      {
+        "tag": "A",
+        "label": "Прескокни на содржина",
+        "cls": "sr-only focus:not-sr-only focus:absolute focus:left-4 focus:",
+        "w": 1,
+        "h": 1,
+        "nearestCentreDistance": 153.7,
+        "nearest": "ФК Беласица",
+        "spacingExceptionPasses": true,
+        "inlineException": false,
+        "fails": false
+      }
+    ]
+  },
+  {
+    "path": "/razno/kup-na-uefa",
+    "undersized": [
+      {
+        "tag": "A",
+        "label": "Прескокни на содржина",
+        "cls": "sr-only focus:not-sr-only focus:absolute focus:left-4 focus:",
+        "w": 1,
+        "h": 1,
+        "nearestCentreDistance": 153.7,
+        "nearest": "ФК Беласица",
+        "spacingExceptionPasses": true,
+        "inlineException": false,
+        "fails": false
+      }
+    ]
+  },
+  {
+    "path": "/za-nas",
+    "undersized": [
+      {
+        "tag": "A",
+        "label": "Прескокни на содржина",
+        "cls": "sr-only focus:not-sr-only focus:absolute focus:left-4 focus:",
+        "w": 1,
+        "h": 1,
+        "nearestCentreDistance": 153.7,
+        "nearest": "ФК Беласица",
+        "spacingExceptionPasses": true,
+        "inlineException": false,
+        "fails": false
+      }
+    ]
+  },
+  {
+    "path": "/kontakt",
+    "undersized": [
+      {
+        "tag": "A",
+        "label": "Прескокни на содржина",
+        "cls": "sr-only focus:not-sr-only focus:absolute focus:left-4 focus:",
+        "w": 1,
+        "h": 1,
+        "nearestCentreDistance": 153.7,
+        "nearest": "ФК Беласица",
+        "spacingExceptionPasses": true,
+        "inlineException": false,
+        "fails": false
+      }
+    ]
+  },
+  {
+    "path": "/pravni-informacii",
+    "undersized": [
+      {
+        "tag": "A",
+        "label": "Прескокни на содржина",
+        "cls": "sr-only focus:not-sr-only focus:absolute focus:left-4 focus:",
+        "w": 1,
+        "h": 1,
+        "nearestCentreDistance": 153.7,
+        "nearest": "ФК Беласица",
+        "spacingExceptionPasses": true,
+        "inlineException": false,
+        "fails": false
+      }
+    ]
+  },
+  {
+    "path": "/ne-postoi-404-test",
+    "undersized": [
+      {
+        "tag": "A",
+        "label": "Прескокни на содржина",
+        "cls": "sr-only focus:not-sr-only focus:absolute focus:left-4 focus:",
+        "w": 1,
+        "h": 1,
+        "nearestCentreDistance": 153.7,
+        "nearest": "ФК Беласица",
+        "spacingExceptionPasses": true,
+        "inlineException": false,
+        "fails": false
+      }
+    ]
+  }
+]

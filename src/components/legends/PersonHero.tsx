@@ -47,7 +47,14 @@ export function PersonHero({
             {portrait ? (
               <PhotoFrame
                 image={portrait}
-                alt={name ?? "Архивски портрет"}
+                // „Архивски портрет", never the name. The <h1> two elements
+                // down IS the name, so `alt={name}` had a screen reader read it
+                // twice in a row — flagged by axe as `image-redundant-alt` on
+                // 141 of the 212 person pages. The archive holds no caption for
+                // these scans, so the name was the whole of the alt and there
+                // was nothing else in it to keep; what is left states what the
+                // image is and claims nothing the archive has not verified.
+                alt="Архивски портрет"
                 ratio="4/5"
                 fit="cover"
                 sizes="(min-width:768px) 300px, 100vw"

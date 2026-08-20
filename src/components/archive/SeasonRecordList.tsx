@@ -96,7 +96,11 @@ function componentsFor(
             {...(external
               ? { target: "_blank", rel: "noopener noreferrer" }
               : {})}
-            className={`text-navy underline decoration-mist decoration-2 underline-offset-4 hover:decoration-orange ${focusOnPaper}`}
+            // No `decoration-mist`: at 1.19:1 on paper the underline was
+            // invisible, leaving a link inside prose distinguished from the
+            // text around it by colour alone (SC 1.4.1). Inheriting
+            // `currentColor` puts it at navy's 14.95:1.
+            className={`text-navy underline decoration-2 underline-offset-4 hover:decoration-orange ${focusOnPaper}`}
           >
             {children}
           </Link>

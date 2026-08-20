@@ -75,11 +75,20 @@
   --spacing-section: clamp(3rem, 5vw, 4.5rem);
 
   /* Sticky site-header height (brand.md §Spacing & layout). Anything that
-     sticks BELOW the header offsets by this (`top-header`), and anchor targets
-     clear it with `scroll-mt-header`. Measured on the rendered SiteHeader at
-     both 375 and 1280: 6px orange bar + 12 + 48px crest block + 12 = 78px.
-     Keep in sync if the header's bar, padding or crest size ever changes. */
+     sticks BELOW the header offsets by this (`top-header`), and everything the
+     page scrolls to clears it through `scroll-padding-top` on the scroller (see
+     „Scroll clearance" below). Measured on the rendered SiteHeader at both 375
+     and 1280: 6px orange bar + 12 + 48px crest block + 12 = 78px. Keep in sync
+     if the header's bar, padding or crest size ever changes. */
   --spacing-header: 4.875rem; /* 78px */
+
+  /* The sticky jump rail's own height, where a page has one (`JumpNav`, and
+     the /legendi tab rail that copies its surface). Was written out as the
+     literal `3.25rem` inside eleven `scroll-mt-[calc(...)]` call sites; it is a
+     token now because `scroll-padding-top` is the only place left that needs
+     it. Measured on the rendered rail: 4px container padding + 39px link + 4px
+     = 47px, rounded to the 52px the anchor offsets were already using. */
+  --spacing-rail: 3.25rem; /* 52px */
 
   /* Corner radii — 0 everywhere. Hard blocks are the direction (brand.md
      §Spacing & layout). Kept as named tokens so the existing `rounded-card` /
@@ -333,6 +342,40 @@
 }
 
 /* ------------------------------------------------------------------ *
+ * Scroll clearance — SC 2.4.11 Focus Not Obscured (Minimum), AA.
+ *
+ * The site header is `sticky top-0` and 78px tall, and two pages stack a
+ * second sticky rail under it. Anchor targets used to clear that chrome with
+ * their own `scroll-mt-*`, which is correct for a jump link and does nothing
+ * at all for KEYBOARD FOCUS: Shift+Tab scrolls the focused element to the top
+ * of the viewport, which is exactly where the header is. Measured before this
+ * rule, at 1280×800 — on /arhiva/1992-93 „Назад кон архивата" (39px tall)
+ * came to rest at y=35 and „Сите сезони од 1990-ти" at y=0, both ENTIRELY
+ * underneath the 78px header, ring and all; on /statistika the season links in
+ * „Најдобри стрелци по сезони" landed at y=0, y=45 and y=94 — the last of them
+ * under the rail rather than the header. 2.4.11 is failed by a component that
+ * is entirely hidden, and these were.
+ *
+ * `scroll-padding-top` on the SCROLLER fixes both cases at once, because it is
+ * the one offset the browser applies to every scroll-into-view — an anchor
+ * jump, `scrollIntoView()`, and the focus scroll that has no author hook at
+ * all. It therefore REPLACES the per-target `scroll-mt-*`: the two stack
+ * (measured — a 130px margin plus 130px of padding landed the section 260px
+ * down instead of 130), so the call sites were removed in the same change and
+ * this is now the single source for the offset.
+ *
+ * Two tiers, matching the only two sticky configurations the site has. The
+ * rail marks itself with `data-sticky-rail`, so the tier follows the rendered
+ * page rather than a list of routes that would drift.
+ * ------------------------------------------------------------------ */
+html {
+  scroll-padding-top: var(--spacing-header);
+}
+html:has([data-sticky-rail]) {
+  scroll-padding-top: calc(var(--spacing-header) + var(--spacing-rail));
+}
+
+/* ------------------------------------------------------------------ *
  * Focus rings — brand.md §Color. 3px, because a loud interface with a timid
  * ring is not actually loud. Navy on light (14.95:1), orange on navy (5.81:1).
  * Consumed through src/lib/focus.ts so call sites stay declarative.
@@ -451,9 +494,9 @@
  * token, nothing to keep in sync with brand.md.
  *
  * Height is untouched by design. Masking is paint-only: no wrap, no
- * padding change, no extra element in flow — so every anchored target's
- * `scroll-mt-[calc(var(--spacing-header)+3.25rem)]`, which was derived
- * from the rail's rendered height, still lands on the right offset.
+ * padding change, no extra element in flow — so `--spacing-rail`, which was
+ * derived from the rail's rendered height and now feeds the scroller's
+ * `scroll-padding-top`, still lands every jump on the right offset.
  *
  * The fade is driven by the scroller's OWN scroll position, so it says
  * where you are, not merely that something exists: no left fade at the

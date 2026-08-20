@@ -245,8 +245,11 @@ export default async function RaznoTopicPage({
             key={meta.id}
             id={isSplit ? meta.id : undefined}
             aria-labelledby={isSplit ? headingId : undefined}
+            // Scroll clearance is the scroller's `scroll-padding-top`
+            // (globals.css), not a per-section `scroll-mt-*` — the two stack,
+            // and only `scroll-padding` also offsets keyboard focus (SC 2.4.11).
             className={cn(
-              "scroll-mt-header py-section",
+              "py-section",
               index > 0 && "border-t border-mist",
             )}
           >

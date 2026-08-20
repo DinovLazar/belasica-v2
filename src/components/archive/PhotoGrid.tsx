@@ -81,7 +81,15 @@ export function PhotoGrid({
         const frame = (
           <PhotoFrame
             image={photo.image}
-            alt={photo.caption ?? "Архивска фотографија"}
+            // A captioned scan takes `alt=""`, because the caption is rendered
+            // right below it in this figure's own `<figcaption>` — repeating it
+            // in the alt had a screen reader read the same sentence twice
+            // (axe `image-redundant-alt`, hit wherever a caption happens to be
+            // the whole description, e.g. a portrait captioned „Роберт
+            // Христовски" under a heading of the same name). Where the archive
+            // holds no caption there is no visible text to repeat, so the alt
+            // still says what the image is.
+            alt={photo.caption ? "" : "Архивска фотографија"}
             ratio="3/2"
             fit="contain"
             sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"

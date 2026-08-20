@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { BackToTop } from "@/components/BackToTop";
@@ -34,6 +35,25 @@ import { focusOnNavy, focusOnPaper } from "@/lib/focus";
  * ⚠️ The three Macedonian strings were supplied by the orchestrator and have
  * **not** been read by a native speaker. Recorded as an owed item.
  */
+/**
+ * The page needs a title of its own (SC 2.4.2 Page Titled).
+ *
+ * Without this export the route inherited the root layout's `title.default` and
+ * every 404 on the site was served as „ФК Беласица — неофицијална архива" —
+ * byte-identical to the homepage's. A title is the first thing a screen reader
+ * announces and the label a tab and a bookmark carry, so „the page you asked
+ * for does not exist" was the one thing the page never said in the one place
+ * that gets read first. Measured before the change: `curl` on an unknown path
+ * and on `/` returned the same `<title>`.
+ *
+ * `robots: noindex` rides along for the same reason it belongs on any 404 —
+ * this is not a page to put in an index.
+ */
+export const metadata: Metadata = {
+  title: "Страницата не постои",
+  robots: { index: false, follow: true },
+};
+
 export default function NotFound() {
   return (
     <>

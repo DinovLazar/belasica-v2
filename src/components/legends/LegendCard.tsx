@@ -232,7 +232,11 @@ export function LegendCard({
           {person.portrait ? (
             <PhotoFrameView
               image={person.portrait}
-              alt={person.name ?? "Архивски портрет"}
+              // Decorative INSIDE THE LINK: the card's own heading, two
+              // elements below, is the person's name, so an alt of the name
+              // made the link announce „<name> <name>". The portrait carries no
+              // information the card does not already state in text.
+              alt=""
               ratio="4/5"
               fit="cover"
               sizes={sizes}

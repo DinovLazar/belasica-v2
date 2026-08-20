@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PlaceholderChip } from "@/components/home/PlaceholderChip";
 import { focusOnPaper } from "@/lib/focus";
 import { cn } from "@/lib/utils";
@@ -42,13 +42,34 @@ export function ContactForm({
   successMessage?: string;
 }) {
   const [status, setStatus] = useState<Status>("idle");
+  const resultRef = useRef<HTMLDivElement>(null);
+
+  /**
+   * Move focus to the result panel once the submit resolves — WCAG 2.4.3 and
+   * 4.1.3.
+   *
+   * Two things went wrong without it, and they compound. Focus was on the
+   * submit button at the moment of submission; on `success` the whole form is
+   * replaced by the panel below, so that button is unmounted and the browser
+   * drops focus on `<body>` — a keyboard user is silently returned to the top
+   * of the document. And the panel carries its live-region role in the same
+   * insertion that carries its text, which screen readers announce
+   * unreliably: a region has to be in the DOM before its contents change for
+   * the change to be a change. Landing focus on the panel makes the
+   * announcement the focus move itself, which does not depend on live-region
+   * timing at all. `tabIndex={-1}` makes it a focus target without adding a
+   * tab stop.
+   */
+  useEffect(() => {
+    if (status === "success" || status === "error") resultRef.current?.focus();
+  }, [status]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!endpoint) return;
+    // Guards the second press, which `disabled` used to guard. See the button.
+    if (status === "submitting") return;
 
-    // Read the values before the inputs are disabled — a disabled control is
-    // excluded from FormData, so building the body first keeps every field.
     const body = new FormData(event.currentTarget);
 
     setStatus("submitting");
@@ -89,6 +110,17 @@ export function ContactForm({
         {/* A disabled fieldset switches off every control at once, so the
             button cannot submit and no field is editable. */}
         <fieldset disabled className="mt-6 opacity-60">
+          {/* A `<fieldset>` with no `<legend>` has no accessible name, so a
+              screen-reader user meets a group boundary that announces nothing
+              (SC 1.3.1 / 4.1.2). Visually hidden rather than rendered: the
+              notice directly above already says this in the page's own voice,
+              and a second visible heading would repeat it. The name carries the
+              REASON as well as the label — reaching a disabled control and
+              being told only that it is disabled is the part that leaves
+              someone stuck. */}
+          <legend className="sr-only">
+            Контакт формулар — сѐ уште не е активен
+          </legend>
           <FormFields />
           <div className="mt-6">
             <SubmitButton status="idle" />
@@ -101,6 +133,8 @@ export function ContactForm({
   if (status === "success") {
     return (
       <div
+        ref={resultRef}
+        tabIndex={-1}
         role="status"
         aria-live="polite"
         className="border border-mist bg-white p-6 md:p-8"
@@ -120,6 +154,8 @@ export function ContactForm({
     <div>
       {status === "error" && (
         <div
+          ref={resultRef}
+          tabIndex={-1}
           role="alert"
           className="mb-6 border border-error bg-white p-4"
         >
@@ -134,7 +170,13 @@ export function ContactForm({
       )}
 
       <form onSubmit={handleSubmit}>
-        <FormFields disabled={status === "submitting"} />
+        {/* NOT disabled while submitting. Disabling a focused control blurs it
+            and the browser hands focus to `<body>` — so pressing Enter inside
+            „Порака" used to send the visitor to the top of the document for the
+            length of the request. Nothing needs the lock: `body` is read from
+            the form before the request starts, and `handleSubmit` returns early
+            on a second submit. */}
+        <FormFields />
         <div className="mt-6">
           <SubmitButton status={status} />
         </div>
@@ -144,13 +186,16 @@ export function ContactForm({
 }
 
 /**
- * The three fields, shared by the live form and the disabled variant. Kept
+ * The three fields, shared by the live form and the disabled variant. The
+ * disabled variant switches them off through the `<fieldset disabled>` around
+ * them rather than per input, and the live form no longer disables them at all
+ * while a request is in flight (see the note at the call site). Kept
  * uncontrolled: on the `error → idle` return the inputs keep whatever the
  * visitor typed, since the same DOM nodes stay mounted (§5, „fields retain the
  * user's input"). `required` + `type="email"` give native validation and
  * announce the requirement to assistive tech; the visible `*` is `aria-hidden`.
  */
-function FormFields({ disabled }: { disabled?: boolean }) {
+function FormFields() {
   return (
     <div className="space-y-5">
       <p className="text-small text-neutral-500">
@@ -165,7 +210,6 @@ function FormFields({ disabled }: { disabled?: boolean }) {
           type="text"
           required
           autoComplete="name"
-          disabled={disabled}
           placeholder="Вашето име"
           className={inputClass}
         />
@@ -178,7 +222,6 @@ function FormFields({ disabled }: { disabled?: boolean }) {
           type="email"
           required
           autoComplete="email"
-          disabled={disabled}
           placeholder="ime@example.com"
           className={inputClass}
         />
@@ -190,7 +233,6 @@ function FormFields({ disabled }: { disabled?: boolean }) {
           name="message"
           required
           rows={6}
-          disabled={disabled}
           placeholder="Вашата порака"
           className={cn(inputClass, "resize-y")}
         />
@@ -245,11 +287,33 @@ function SubmitButton({ status }: { status: Status }) {
   return (
     <button
       type="submit"
-      disabled={submitting}
-      aria-busy={submitting}
+      // `aria-disabled`, not `disabled` (WCAG 2.4.3). This button is the
+      // element that has focus at the moment of submission; disabling it blurs
+      // it, and every browser then drops focus on `<body>`. `aria-disabled`
+      // announces the same state and keeps the control focusable, so the
+      // visitor stays where they pressed. The second press it used to block is
+      // blocked in `handleSubmit` instead.
+      //
+      // Emitted only when it is TRUE. `aria-disabled="false"` is not a no-op:
+      // in the endpoint-unset branch this button sits inside a
+      // `<fieldset disabled>` at `opacity-60`, and an explicit "false"
+      // overrode that inheritance for tooling — axe stopped treating the
+      // button as an inactive component (which SC 1.4.3 exempts) and reported
+      // its dimmed 4.29:1 as a contrast failure. It also contradicted the
+      // element's own state. Absent, the fieldset speaks for it.
+      aria-disabled={submitting || undefined}
+      aria-busy={submitting || undefined}
       className={cn(
         "inline-flex min-w-[13rem] items-center justify-center bg-navy px-6 py-3 text-body font-bold text-paper",
-        "transition-colors hover:bg-navy/90 disabled:cursor-not-allowed disabled:opacity-70",
+        "transition-colors hover:bg-navy/90",
+        // `disabled:` still earns its place: in the endpoint-unset branch this
+        // button inherits `:disabled` from the `<fieldset disabled>` around it,
+        // and dropping the variant made it render a shade darker than before —
+        // the one unintended pixel change this remediation produced, caught by
+        // a screenshot diff. It cannot fire in the live branch any more, where
+        // the button is never `disabled`; `submitting` covers that state.
+        "disabled:cursor-not-allowed disabled:opacity-70",
+        submitting && "cursor-not-allowed opacity-70 hover:bg-navy",
         focusOnPaper,
       )}
     >

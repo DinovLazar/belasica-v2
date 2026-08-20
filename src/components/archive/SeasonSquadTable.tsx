@@ -53,8 +53,17 @@ function PlayerName({
   return (
     <Link
       href={`/legendi/${slug}`}
+      // `decoration-mist` drew the underline at 1.19:1 against the paper
+      // ground — present in the markup, invisible on the page. In THIS column
+      // a name is a link only when the archive holds a person page for it, so
+      // the neighbouring rows are plain text in `neutral-700`, and navy against
+      // that is 1.44:1: with the underline gone to the eye, the link was
+      // distinguished by colour alone (SC 1.4.1). Dropping the decoration
+      // colour lets it inherit `currentColor` — navy, 14.95:1 — so the
+      // underline is the distinction it was always meant to be. Hover still
+      // swaps it to orange.
       className={cn(
-        "text-navy decoration-mist decoration-2 underline-offset-4 hover:decoration-orange",
+        "text-navy decoration-2 underline-offset-4 hover:decoration-orange",
         "underline",
         focusOnPaper,
       )}

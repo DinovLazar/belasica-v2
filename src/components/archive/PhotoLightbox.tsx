@@ -463,7 +463,20 @@ export function PhotoLightboxTrigger({
       type="button"
       // The caption is the photo's own description, so it is the button's
       // name; „Отвори" states what activating it does.
-      aria-label={`Отвори: ${label?.trim() || UNCAPTIONED}`}
+      //
+      // With no caption the name falls back to the photo's POSITION rather than
+      // to `UNCAPTIONED` alone. A season can hold seventeen uncaptioned scans,
+      // and every trigger then had the identical name „Отвори: Архивска
+      // фотографија" — a screen-reader user listing the page's buttons got
+      // seventeen indistinguishable rows and no way to tell which one they had
+      // already opened. The number is the position in the grid the reader is
+      // looking at, so it is true of the page without claiming anything about
+      // the photograph.
+      aria-label={
+        label?.trim()
+          ? `Отвори: ${label.trim()}`
+          : `Отвори: ${UNCAPTIONED} ${index + 1}`
+      }
       onClick={(event) => context.open(index, event.currentTarget)}
       className={cn(
         "group relative block w-full cursor-pointer",

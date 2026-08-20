@@ -337,9 +337,12 @@ export default async function SeasonPage({
   // bottom rule) already terminates that edge, so a rule there reads as a
   // stray line.
   const firstSection = isEmpty ? "empty" : order[0];
+  // Scroll clearance is the scroller's `scroll-padding-top` (globals.css),
+  // not a per-section `scroll-mt-*` — the two stack, and only `scroll-padding`
+  // also offsets keyboard focus, which has no author hook (SC 2.4.11).
   const sectionClass = (key: string) =>
     cn(
-      "scroll-mt-header py-section",
+      "py-section",
       key !== firstSection && "border-t border-mist",
     );
 

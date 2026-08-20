@@ -61,7 +61,15 @@ function Scorers({ scorers }: { scorers: SeasonMatch["scorers"] }) {
           {index > 0 && (
             <>
               {" "}
-              <span aria-hidden className="text-mist">
+              {/* `text-mist` here measured 1.19:1 against the paper ground —
+                  below the 4.5:1 SC 1.4.3 asks of text, and flagged as an error
+                  on all 91 season pages that carry a scorer list. It is the
+                  same ink as the minutes it separates now (6.09:1), which is
+                  also the reading it should have had: a separator that cannot
+                  be seen is not separating anything. `aria-hidden` stays — the
+                  real whitespace either side is what a screen reader needs, and
+                  it is what lets the line break between scorers. */}
+              <span aria-hidden className="text-neutral-500">
                 ·
               </span>{" "}
             </>
@@ -81,6 +89,26 @@ function Scorers({ scorers }: { scorers: SeasonMatch["scorers"] }) {
   );
 }
 
+/**
+ * ⚠️ Header association here is `scope`, and it is NOT going to become
+ * `headers`/`id` — this is the second time that has been tried.
+ *
+ * The column heads live in `<thead>` and each half-season's label is a
+ * `<th scope="rowgroup">` heading the `<tbody>` it opens. That is the canonical
+ * HTML for this shape and Chrome resolves it correctly — measured on the
+ * rendered page, „Есенски дел 1992" is exposed as `rowheader`, and every match
+ * cell resolves to its column head plus that one row-group head.
+ *
+ * pa11y (HTML_CodeSniffer) reports `H43.HeadersRequired` on this table anyway,
+ * once per table, 91 times across the season pages. Its advice was followed and
+ * reverted: with a correct `headers` list on every cell it then reports
+ * `H43.IncorrectAttr` and asks for BOTH half-seasons on every match — „Expected
+ * `c1 g1 g2` but found `c1 g1`" — because its H43 implementation does not
+ * honour `<tbody>` boundaries. Complying would tell a screen-reader user that
+ * every autumn fixture also belongs to the spring half-season, which is false.
+ * A 12-line reproduction is committed beside the scan output at
+ * `docs/a11y-scan-after/pa11y-H43-tbody-repro.html`.
+ */
 function GroupTable({ group }: { group: SeasonMatchGroup }) {
   const showRound = hasRound(group);
 
@@ -118,26 +146,38 @@ function GroupTable({ group }: { group: SeasonMatchGroup }) {
             >
               Резултат
             </th>
-            {/* Hidden below `sm`: down there the scorers sit under the row, not
-                in a column, so a column head would label nothing. */}
+            {/* Visually hidden below `sm` — where the scorers sit under the
+                row rather than in a column, so a visible column head would
+                label nothing — but NOT removed. It was `hidden`, and the cell
+                it heads still renders down there: the row then had a third
+                cell with no header, so „Андреев 75, Гошев 80" was announced as
+                a bare value with nothing to say what it was (SC 1.3.1).
+                `sr-only` is `position: absolute`, so it takes no grid track and
+                the phone layout is unchanged. */}
             <th
               scope="col"
-              className="font-sans text-overline font-bold tracking-overline uppercase hidden px-2 py-2.5 sm:table-cell sm:px-3"
+              className="font-sans text-overline font-bold tracking-overline uppercase sr-only px-2 py-2.5 sm:not-sr-only sm:table-cell sm:px-3"
             >
               Стрелци
             </th>
           </tr>
         </thead>
-        <tbody>
-          {group.parts.map((part) => (
-            <PartRows
-              key={part.label ?? "—"}
-              part={part}
-              showRound={showRound}
-              rowGrid={rowGrid}
-            />
-          ))}
-        </tbody>
+        {/* One `<tbody>` PER PART, not one for the table. „Есенски дел 1988"
+            is a header for the rows that follow it, and the only scope that
+            says so is `rowgroup` — which is defined as „the remaining cells in
+            this row group" and therefore needs the group to end where the part
+            does. It was a single `<tbody>` with the label carrying
+            `scope="colgroup"`, i.e. announced as a header for every COLUMN of
+            the table, on all 91 season pages that split into two half-seasons.
+            Multiple `<tbody>` elements render identically. */}
+        {group.parts.map((part) => (
+          <PartRows
+            key={part.label ?? "—"}
+            part={part}
+            showRound={showRound}
+            rowGrid={rowGrid}
+          />
+        ))}
       </table>
     </div>
   );
@@ -155,13 +195,13 @@ function PartRows({
   const span = showRound ? 4 : 3;
 
   return (
-    <>
+    <tbody>
       {/* Есен / пролет — the book's own wording („Есенски дел 1988"), which
           carries the year. A part with no label is the whole group. */}
       {part.label && (
         <tr className="grid sm:table-row">
           <th
-            scope="colgroup"
+            scope="rowgroup"
             colSpan={span}
             className="u-label col-span-full border-b border-mist bg-zebra px-3 py-2 text-left text-neutral-500 sm:table-cell"
           >
@@ -204,7 +244,7 @@ function PartRows({
           </td>
         </tr>
       ))}
-    </>
+    </tbody>
   );
 }
 

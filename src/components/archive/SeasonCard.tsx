@@ -61,7 +61,14 @@ export function SeasonCard({
         >
           <PhotoFrame
             image={season.leadPhoto?.image ?? null}
-            alt={season.leadPhoto?.caption ?? `Фотографија од ${season.title}`}
+            // A real caption is real information and stays. The FALLBACK does
+            // not: „Фотографија од Сезона 1992/93" only repeated the card's own
+            // <h3>, one element below and inside the same link, so the link
+            // announced the season twice and the reader learned nothing about
+            // the photograph. With no caption the archive knows nothing about
+            // the scan beyond which season it belongs to — which the card
+            // already says — so it is decorative here.
+            alt={season.leadPhoto?.caption ?? ""}
             ratio="3/2"
             sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"
             width={800}
