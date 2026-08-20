@@ -272,7 +272,9 @@ export function LegendsBrowser({
           No new token: the only thing a tab does that a jump link did not is
           hold the orange rule permanently when it is the open one. */}
       <div className="sticky top-header z-30 bg-navy-2">
-        <div className="relative mx-auto w-full max-w-page overflow-x-auto px-5 py-1 md:px-8">
+        {/* Same `rail-fade` as `JumpNav` — this rail is a copy of its
+            surface, so it gets the same scroll affordance (3.35). */}
+        <div className="rail-fade relative mx-auto w-full max-w-page overflow-x-auto px-5 py-1 md:px-8">
           <div
             role="tablist"
             aria-label="Теми"

@@ -435,3 +435,108 @@
     rgb(247 244 236 / 0.18) 6px
   );
 }
+
+/* ------------------------------------------------------------------ *
+ * Scroll-rail edge fade (3.35, OV-88) — the affordance for the sticky
+ * jump rails: `JumpNav` (/arhiva, /statistika) and the /legendi tab rail
+ * that copies its surface. `/statistika` grew 4 → 7 items and overflows
+ * its own scroller by ~335px at 1280; /arhiva's 11 decades always did.
+ * The rail scrolled, but nothing said so.
+ *
+ * The mask sits on the SCROLLER, which has no background of its own — the
+ * `navy-2` fill is on the parent <nav>. So the links dissolve INTO the
+ * band rather than under a painted scrim: no new colour, no gradient
+ * token, nothing to keep in sync with brand.md.
+ *
+ * Height is untouched by design. Masking is paint-only: no wrap, no
+ * padding change, no extra element in flow — so every anchored target's
+ * `scroll-mt-[calc(var(--spacing-header)+3.25rem)]`, which was derived
+ * from the rail's rendered height, still lands on the right offset.
+ *
+ * The fade is driven by the scroller's OWN scroll position, so it says
+ * where you are, not merely that something exists: no left fade at the
+ * start, no right fade at the end. When the content fits, the scroll
+ * timeline is inactive, the animation never applies, and the base rule
+ * below is a full-width opaque mask — visually identical to no mask at
+ * all. That is the graceful degradation for browsers without scroll-driven
+ * animations too (@supports), which is why the base state is the no-fade
+ * one rather than a static gradient.
+ * ------------------------------------------------------------------ */
+@property --rail-fade-start {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+@property --rail-fade-end {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+.rail-fade {
+  /* Both zero = a mask with two zero-width ramps = fully opaque. */
+  --rail-fade-start: 0px;
+  --rail-fade-end: 0px;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 var(--rail-fade-start),
+    #000 calc(100% - var(--rail-fade-end)),
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 var(--rail-fade-start),
+    #000 calc(100% - var(--rail-fade-end)),
+    transparent
+  );
+}
+
+@supports (animation-timeline: scroll(self inline)) {
+  /* 40px: wide enough to read as a fade at 375, and narrower than the
+     shortest rail label, so a label is never wholly swallowed by it.
+     The ramps reach full width early (12%) and hold, so mid-rail both
+     edges are fully faded — a linear 0→100% would leave both at half. */
+  @keyframes rail-fade-edges {
+    0% {
+      --rail-fade-start: 0px;
+      --rail-fade-end: 2.5rem;
+    }
+    12% {
+      --rail-fade-start: 2.5rem;
+      --rail-fade-end: 2.5rem;
+    }
+    88% {
+      --rail-fade-start: 2.5rem;
+      --rail-fade-end: 2.5rem;
+    }
+    100% {
+      --rail-fade-start: 2.5rem;
+      --rail-fade-end: 0px;
+    }
+  }
+
+  .rail-fade {
+    animation-name: rail-fade-edges;
+    /* Longhands, not the `animation` shorthand: the shorthand resets
+       `animation-timeline` to `auto` and would silently unhook the rule. */
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: scroll(self inline);
+    /* `!important` overrides the blanket reduced-motion reset above, which
+       zeroes `animation-duration` on `*`. That reset is right for timed
+       motion and wrong here: this animation has no duration of its own —
+       it is a position readout, like a scrollbar, and nothing moves unless
+       the user scrolls. Zeroed, it would pin the rail to its END frame and
+       show the fade on the wrong side. Reduced-motion users keep the
+       affordance. */
+    animation-duration: auto !important;
+    /* Keyboard focus must not come to rest under a fade. Tabbing (and the
+       /legendi tab rail's arrow keys) scrolls the focused item flush to the
+       edge, which is exactly where the ramp is; the same inset pushes it
+       clear. Declared here, not on the base rule, so a browser without the
+       fade keeps today's scrolling untouched. */
+    scroll-padding-inline: 2.5rem;
+  }
+}
