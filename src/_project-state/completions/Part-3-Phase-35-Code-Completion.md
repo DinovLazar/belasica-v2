@@ -44,6 +44,8 @@ Three smaller things: the plain-text file that describes the archive to AI searc
   4. `/legendi` — the four tabs fit on desktop, so again **no fade**; on a phone (or a narrow window) the right edge should fade. Click through the tabs and confirm nothing about them changed.
   5. Any of the three — click a rail link and confirm the heading it jumps to lands clear of the rail, exactly as before.
 - **The redirect on the deployed preview.** Open `<preview>/legendi/tomche-eftimov` — it should land on „Томе Ефтимов" with the URL rewritten to `/legendi/tome-eftimov`. (Аце's link is the reason this exists.)
+- **Confirmed on the deployed preview before this report was filed** (so Lazar's checks start from a known-good state): `/legendi/tomche-eftimov` returns **308** to `/legendi/tome-eftimov`, which returns **200** with `<title>Томе Ефтимов · ФК Беласица</title>`; `rail-fade` is present in the served HTML of all three rail pages; `/llms.txt` line 11 reads „212 личности". What remains owed is only what a machine cannot check: **how the fade looks**.
+
 - **A native read of nothing new.** This phase shipped **no new user-facing Macedonian copy** — the only Macedonian it touched is one digit in `llms.txt`. No humanizer pass was needed or run.
 
 ## 3. Decisions I made during this phase
@@ -69,7 +71,7 @@ Everything the brief put out of scope stayed out: OV-64, OV-85, OV-86, OV-87, th
 
 ## 5. Changed files / deliverables
 
-Branch `phase-3.35-cleanup` → PR to `main`. Six files, all edits, no adds/renames/deletes:
+Branch `phase-3.35-cleanup` → **PR [#61](https://github.com/DinovLazar/belasica-v2/pull/61)** → `main`. **Vercel PR preview:** https://belasica-v2-git-phase-335-cleanup-sunset-services-team.vercel.app (build SUCCESS). Six files, all edits, no adds/renames/deletes:
 
 - `src/app/globals.css` — the `.rail-fade` block: two `@property` lengths, the base mask, and an `@supports (animation-timeline: scroll(self inline))` block holding the keyframes, the timeline wiring, `animation-duration: auto !important` and `scroll-padding-inline: 2.5rem`.
 - `src/components/JumpNav.tsx` — `rail-fade` on the scroller (+ comment).
