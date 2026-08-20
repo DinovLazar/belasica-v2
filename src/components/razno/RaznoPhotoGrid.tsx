@@ -83,7 +83,11 @@ export function RaznoPhotoGrid({
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={photo.src}
-                        alt={caption ?? ""}
+                        // Always `""`: this figure renders `caption` visibly in
+                        // its own `<figcaption>` below, so an alt carrying the
+                        // same string is the same sentence read twice. Same
+                        // rule as `PhotoGrid`.
+                        alt=""
                         width={photo.width}
                         height={photo.height}
                         loading="lazy"

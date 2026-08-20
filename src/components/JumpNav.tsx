@@ -15,9 +15,10 @@ export type JumpItem = { id: string; label: string };
  * stacked bands of one block rather than a dark bar over a light one.
  *
  * Callers pass only the items that actually rendered — the rail can never
- * offer a jump to a section that self-omitted. Every anchored target carries
- * `scroll-mt-[calc(var(--spacing-header)+3.25rem)]`, derived from this rail's
- * own height (see the padding comment below).
+ * offer a jump to a section that self-omitted. Anchored targets no longer carry
+ * a `scroll-mt-*` of their own: `data-sticky-rail` below puts the page on the
+ * two-bar `scroll-padding-top` tier in `globals.css`, which is the single
+ * offset for jump links, `scrollIntoView()` and keyboard focus alike.
  *
  * A server component on purpose: it holds no state and needs none. `/legendi`
  * imports it into a client component because its bands are filtered in the
@@ -38,15 +39,24 @@ export function JumpNav({
   if (items.length < 2) return null;
 
   return (
-    <nav aria-label={ariaLabel} className="sticky top-header z-30 bg-navy-2">
+    <nav
+      aria-label={ariaLabel}
+      // Marks the page as carrying a SECOND sticky bar, so `globals.css`
+      // gives the scroller the two-bar `scroll-padding-top` (SC 2.4.11).
+      // An attribute on the rail itself, not a route list: the tier then
+      // follows what actually rendered — this component returns null for a
+      // single item, and on that page there is no second bar to clear.
+      data-sticky-rail
+      className="sticky top-header z-30 bg-navy-2"
+    >
       {/* Vertical rhythm is split container/link (py-1 + py-2) so each link is
           a ≥24px tap target (WCAG 2.5.8) while the rail keeps its measured
-          height — every call site's `scroll-mt-[calc(var(--spacing-header)
-          +3.25rem)]` was derived from it, so any change to these paddings must
-          keep the container+link vertical total at 12px per side. */}
+          height — `--spacing-rail` was derived from it, so any change to these
+          paddings must keep the container+link vertical total at 12px per side
+          or that token has to move with it. */}
       {/* `rail-fade` (globals.css) fades whichever edge still has content
-          off-screen — paint only, so the rail's measured height, and every
-          call site's scroll-margin derived from it, are unchanged. */}
+          off-screen — paint only, so the rail's measured height, and the
+          `--spacing-rail` token derived from it, are unchanged. */}
       <div className="rail-fade relative mx-auto w-full max-w-page overflow-x-auto px-5 py-1 md:px-8">
         <ul className="flex min-w-max items-center gap-5">
           {items.map((item) => (

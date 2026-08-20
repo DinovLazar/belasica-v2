@@ -62,10 +62,9 @@ export function CategoryGrid({
     <section
       id={anchorId}
       aria-labelledby={headingId}
-      // Clear BOTH sticky bars when jumped to: the site header
-      // (`--spacing-header`) plus the tab rail's own height, or the heading
-      // lands underneath them. Same offset as /arhiva's decade sections.
-      className="scroll-mt-[calc(var(--spacing-header)+3.25rem)]"
+      // Scroll clearance is no longer set here: the scroller's
+      // `scroll-padding-top` (globals.css) carries it for jump links,
+      // `scrollIntoView()` and keyboard focus alike (SC 2.4.11).
     >
       <header>
         {/* The 6px orange bar caps the section, exactly as it caps a decade on

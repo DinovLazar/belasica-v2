@@ -13,9 +13,10 @@ export type SeasonAnchor = { id: string; label: string };
  * Deliberately **not sticky**, unlike the archive index's `DecadeJumpNav`.
  * A second sticky bar under the sticky site header would make every anchor
  * offset `--spacing-header` + this rail's own rendered height — exactly the
- * two-bar arithmetic D-2.02-13 flags as fragile, and it would need a second
- * measured token that drifts the moment the rail's padding changes. Sitting in
- * the flow, the single `scroll-mt-header` on each section is provably right.
+ * two-bar arithmetic D-2.02-13 flags as fragile. Sitting in the flow, this
+ * page needs the one-bar clearance, which is what it gets: it sets no
+ * `data-sticky-rail`, so `globals.css` leaves the scroller on the plain
+ * `scroll-padding-top: var(--spacing-header)` tier.
  */
 export function SeasonAnchorNav({
   anchors,

@@ -16,7 +16,8 @@ import { Container } from "@/components/Container";
  * the whole page reads as one bounded object. Restyled at 3.05 rather than
  * rewritten: it is still `sticky top-0` with the same burger and the same
  * `isActivePath` logic, so `--spacing-header` and every `top-header` /
- * `scroll-mt-header` consumer downstream survived with a re-measure only.
+ * `top-header` / `scroll-padding-top` consumer downstream survived with a
+ * re-measure only.
  *
  * Height arithmetic (kept in sync with `--spacing-header`, 78px):
  *   6px bar + 12px pad + 48px crest block + 12px pad = 78px.
@@ -59,7 +60,7 @@ export function SiteHeader() {
               h-12, not h-10: the tile was 40px of crest plus 4px of padding
               top and bottom. Dropping the padding and growing the crest to
               48px keeps this row — and therefore `--spacing-header` at 78px —
-              byte-identical, so every `scroll-mt-header` anchor still lands
+              byte-identical, so every anchor and focus scroll still lands
               flush. */}
           {/* A plain <img>, not next/image (3.09). The crest is `unoptimized`
               for a structural reason — Next will not optimize SVG without
@@ -96,7 +97,7 @@ export function SiteHeader() {
             Seven items do not fit on one row below 899px: between ~769 and
             898px they wrapped to two, which made this sticky header **101px**
             tall while `--spacing-header` still declared 78px, so every
-            `scroll-mt-header` anchor on the site landed ~23px underneath it —
+            anchor on the site landed ~23px underneath it —
             including iPad portrait at 810 and 820. The 768px break predates the
             seventh item and a gap reduction would not have cleared it.
             Raising the breakpoint hands everything below 1024px to the burger

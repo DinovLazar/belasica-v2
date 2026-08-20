@@ -176,8 +176,20 @@ export function StatTable({
                       column.numeric ? "justify-end" : "justify-start",
                     )}
                   >
-                    <span aria-hidden>{column.short}</span>
-                    <span className="sr-only">{column.full}</span>
+                    {/* The short label is NOT `aria-hidden` here, unlike the
+                        non-interactive heads in `SourceTable` and
+                        `StandingsTable`. This one is inside a BUTTON, so its
+                        accessible name is what SC 2.5.3 Label in Name measures
+                        against the visible text — and „ДГ" hidden behind
+                        „Дадени голови" meant the name did not contain the label
+                        a speech-input user can see and would say. The name is
+                        „ДГ Дадени голови" now: the visible text first, the
+                        expansion after it, on eight of the ten columns where
+                        the two differ. */}
+                    <span>{column.short}</span>
+                    {column.full !== column.short && (
+                      <span className="sr-only">{column.full}</span>
+                    )}
                     <Icon
                       aria-hidden
                       className={cn(

@@ -163,10 +163,10 @@ export default async function ArchivePage() {
                 key={decade}
                 id={decadeAnchor(decade)}
                 aria-labelledby={headingId}
-                // Clear BOTH sticky bars when jumped to: the site header
-                // (`--spacing-header`) plus the jump-nav's own height, or the
-                // heading lands underneath them.
-                className="scroll-mt-[calc(var(--spacing-header)+3.25rem)] py-section"
+                // Scroll clearance is no longer set here: the scroller's
+                // `scroll-padding-top` (globals.css) carries it for jump links,
+                // `scrollIntoView()` and keyboard focus alike (SC 2.4.11).
+                className="py-section"
               >
                 <Container>
                   <Reveal>

@@ -1,0 +1,467 @@
+
+=== / @ 1280px (Shift+Tab, from end) ===
+   1. BUTTON "Назад на врвот" [t=720 h=48] ring=3px/solid 
+   2. A "Правни информации" [t=618 h=35] ring=3px/solid 
+   3. A "Беласица на Инстаграм" [t=296 h=44] ring=3px/solid 
+   4. A "Беласица на Фејсбук" [t=248 h=44] ring=3px/solid 
+   5. A "info@belasicahistory.mk" [t=299 h=35] ring=3px/solid 
+   6. A "Контакт формулар" [t=252 h=35] ring=3px/solid 
+   7. A "Контакт" [t=510 h=35] ring=3px/solid 
+   8. A "За нас" [t=467 h=35] ring=3px/solid 
+   9. A "Разно" [t=424 h=35] ring=3px/solid 
+  10. A "Статистика" [t=381 h=35] ring=3px/solid 
+  11. A "Легенди" [t=338 h=35] ring=3px/solid 
+  12. A "Архива" [t=295 h=35] ring=3px/solid 
+  13. A "Почетна" [t=252 h=35] ring=3px/solid 
+  14. A "За насЗа овој проект" [t=378 h=122] ring=3px/solid 
+  15. A "РазноТеми од историјата" [t=378 h=122] ring=3px/solid 
+  16. A "СтатистикаРекорди и табели" [t=378 h=122] ring=3px/solid 
+  17. A "ЛегендиИграчи и личности" [t=378 h=122] ring=3px/solid 
+  18. A "АрхиваСезона по сезона" [t=378 h=122] ring=3px/solid 
+  19. A "Прочитај повеќе за младинската школа" [t=98 h=39] ring=3px/solid 
+  20. A "2020-ти6 сезони" [t=378 h=122] ring=3px/solid 
+  21. A "2010-ти10 сезони" [t=367 h=122] ring=3px/solid 
+  22. A "2000-ти10 сезони" [t=366 h=122] ring=3px/solid 
+  23. A "1990-ти10 сезони" [t=231 h=122] ring=3px/solid 
+  24. A "1980-ти10 сезони" [t=231 h=122] ring=3px/solid 
+  25. A "1970-ти10 сезони" [t=231 h=122] ring=3px/solid 
+  26. A "1960-ти10 сезони" [t=231 h=122] ring=3px/solid 
+  27. A "1950-ти12 сезони" [t=97 h=122] ring=3px/solid 
+  28. A "1940-ти6 сезони" [t=97 h=122] ring=3px/solid 
+  29. A "1930-ти10 сезони" [t=97 h=122] ring=3px/solid 
+  30. A "1920-ти2 сезони" [t=97 h=122] ring=3px/solid 
+  31. A "Сите рекорди и статистика" [t=411 h=39] ring=3px/solid 
+  32. A "Ранг 10.Панче ПантазиевИграчТренер1957/58 – " [t=78 h=451] ring=3px/solid 
+  33. A "Ранг 9.Томе ЕфтимовИграчТренер1950–1967" [t=69 h=451] ring=3px/solid 
+  34. A "Ранг 8.Љупчо Мафков260 настапиИграч1972–1983" [t=77 h=451] ring=3px/solid 
+  35. A "Ранг 7.Стефан Сулев261 настапиИграч2015–2025" [t=78 h=451] ring=3px/solid 
+  36. A "Ранг 6.Дончо Георгиев262 настапиИграч1973–19" [t=78 h=451] ring=3px/solid 
+  37. A "Ранг 5.Томе Стојанов328 настапиИграч1976–199" [t=213 h=451] ring=3px/solid 
+  38. A "Ранг 4.Костадин Секулов336 настапиИграч1974–" [t=213 h=451] ring=3px/solid 
+  39. A "Ранг 3.Ристо Панов366 настапиИграчТренер1980" [t=213 h=451] ring=3px/solid 
+  40. A "Ранг 2.Милан Василев383 настапиИграчТренер19" [t=213 h=451] ring=3px/solid 
+  41. A "Ранг 1.Петар Андреев555 настапиИграчТренер19" [t=213 h=451] ring=3px/solid 
+  42. A "Сите легенди" [t=134 h=39] ring=3px/solid 
+  43. A "За архивата" [t=410 h=39] ring=3px/solid 
+  44. A "Легенди на клубот" [t=78 h=54] ring=3px/solid 
+  45. A "Разгледај ја архивата" [t=78 h=54] ring=3px/solid 
+
+  SC 2.4.11 / 2.4.7 / 2.4.3 failures: 0
+
+=== /arhiva @ 1280px (Shift+Tab, from end) ===
+   1. BUTTON "Назад на врвот" [t=720 h=48] ring=3px/solid 
+   2. A "Правни информации" [t=618 h=35] ring=3px/solid 
+   3. A "Беласица на Инстаграм" [t=296 h=44] ring=3px/solid 
+   4. A "Беласица на Фејсбук" [t=248 h=44] ring=3px/solid 
+   5. A "info@belasicahistory.mk" [t=299 h=35] ring=3px/solid 
+   6. A "Контакт формулар" [t=252 h=35] ring=3px/solid 
+   7. A "Контакт" [t=510 h=35] ring=3px/solid 
+   8. A "За нас" [t=467 h=35] ring=3px/solid 
+   9. A "Разно" [t=424 h=35] ring=3px/solid 
+  10. A "Статистика" [t=381 h=35] ring=3px/solid 
+  11. A "Легенди" [t=338 h=35] ring=3px/solid 
+  12. A "Архива" [t=295 h=35] ring=3px/solid 
+  13. A "Почетна" [t=252 h=35] ring=3px/solid 
+  14. A "1920-ти„Беласица 1922–1926“" [t=294 h=342] ring=3px/solid 
+  15. A "1920-ти„Беласица 1926–1930“" [t=294 h=342] ring=3px/solid 
+  16. A "1930-ти„Сезона 1930/31“" [t=294 h=342] ring=3px/solid 
+  17. A "1930-ти„Сезона 1931/32“" [t=124 h=342] ring=3px/solid 
+  18. A "[PLACEHOLDER: фотографија од сезоната]1930-т" [t=129 h=342] ring=3px/solid 
+  19. A "1930-ти„Сезона 1933/34“" [t=130 h=342] ring=3px/solid 
+  20. A "1930-ти„Сезона 1934/35“" [t=294 h=342] ring=3px/solid 
+  21. A "1930-ти„Сезона 1935/36“" [t=294 h=342] ring=3px/solid 
+  22. A "1930-ти„Сезона 1936/37“" [t=294 h=342] ring=3px/solid 
+  23. A "1930-ти„Сезона 1937/38“" [t=129 h=342] ring=3px/solid 
+  24. A "1930-ти„Сезона 1938/39“" [t=130 h=342] ring=3px/solid 
+  25. A "1930-ти„Сезона 1939/40“" [t=130 h=342] ring=3px/solid 
+  26. A "1940-ти„Сезона 1940/41“" [t=294 h=342] ring=3px/solid 
+  27. A "1940-ти„Сезона 1942“" [t=284 h=342] ring=3px/solid 
+  28. A "1940-ти„Сезона 1943“" [t=282 h=342] ring=3px/solid 
+  29. A "1940-ти„Сезона 1944“" [t=129 h=342] ring=3px/solid 
+  30. A "1940-ти„Беласица 1945–1948“" [t=130 h=342] ring=3px/solid 
+  31. A "1940-ти„Сезона 1948/49“" [t=130 h=342] ring=3px/solid 
+  32. A "1950-ти„Сезона 1950“" [t=294 h=342] ring=3px/solid 
+  33. A "1950-ти„Сезона 1950/51“" [t=283 h=342] ring=3px/solid 
+  34. A "1950-ти„Сезона 1951“" [t=282 h=342] ring=3px/solid 
+  35. A "1950-ти„Сезона 1952“" [t=130 h=342] ring=3px/solid 
+  36. A "1950-ти„Сезона 1952/53“" [t=130 h=342] ring=3px/solid 
+  37. A "1950-ти„Сезона 1953/54“" [t=130 h=342] ring=3px/solid 
+  38. A "1950-ти„Сезона 1954/55“" [t=293 h=342] ring=3px/solid 
+  39. A "1950-ти„Сезона 1955/56“" [t=293 h=342] ring=3px/solid 
+  40. A "1950-ти„Сезона 1956/57“" [t=293 h=342] ring=3px/solid 
+  41. A "1950-ти„Сезона 1957/58“" [t=129 h=342] ring=3px/solid 
+  42. A "1950-ти„Сезона 1958/59“" [t=130 h=342] ring=3px/solid 
+  43. A "1950-ти„Сезона 1959/60“" [t=130 h=342] ring=3px/solid 
+  44. A "1960-ти„Сезона 1960/61“" [t=285 h=342] ring=3px/solid 
+  45. A "1960-ти„Сезона 1961/62“" [t=125 h=342] ring=3px/solid 
+
+  SC 2.4.11 / 2.4.7 / 2.4.3 failures: 0
+
+=== /arhiva/1992-93 @ 1280px (Shift+Tab, from end) ===
+   1. BUTTON "Назад на врвот" [t=720 h=48] ring=3px/solid 
+   2. A "Правни информации" [t=618 h=35] ring=3px/solid 
+   3. A "Беласица на Инстаграм" [t=296 h=44] ring=3px/solid 
+   4. A "Беласица на Фејсбук" [t=248 h=44] ring=3px/solid 
+   5. A "info@belasicahistory.mk" [t=299 h=35] ring=3px/solid 
+   6. A "Контакт формулар" [t=252 h=35] ring=3px/solid 
+   7. A "Контакт" [t=510 h=35] ring=3px/solid 
+   8. A "За нас" [t=467 h=35] ring=3px/solid 
+   9. A "Разно" [t=424 h=35] ring=3px/solid 
+  10. A "Статистика" [t=381 h=35] ring=3px/solid 
+  11. A "Легенди" [t=338 h=35] ring=3px/solid 
+  12. A "Архива" [t=295 h=35] ring=3px/solid 
+  13. A "Почетна" [t=252 h=35] ring=3px/solid 
+  14. A "Назад кон архивата" [t=419 h=39] ring=3px/solid 
+  15. A "Сите сезони од 1990-ти" [t=368 h=39] ring=3px/solid 
+  16. A "Следна сезона„Сезона 1993/94“" [t=236 h=92] ring=3px/solid 
+  17. A "Претходна сезона„Сезона 1991/92“" [t=236 h=92] ring=3px/solid 
+  18. BUTTON "Отвори: Архивска фотографија 16" [t=78 h=249] ring=3px/solid 
+  19. BUTTON "Отвори: Архивска фотографија 15" [t=309 h=249] ring=3px/solid 
+  20. BUTTON "Отвори: Архивска фотографија 14" [t=302 h=249] ring=3px/solid 
+  21. BUTTON "Отвори: Архивска фотографија 13" [t=302 h=249] ring=3px/solid 
+  22. BUTTON "Отвори: Архивска фотографија 12" [t=77 h=249] ring=3px/solid 
+  23. BUTTON "Отвори: Архивска фотографија 11" [t=78 h=249] ring=3px/solid 
+  24. BUTTON "Отвори: Архивска фотографија 10" [t=78 h=249] ring=3px/solid 
+  25. BUTTON "Отвори: Архивска фотографија 9" [t=314 h=249] ring=3px/solid 
+  26. BUTTON "Отвори: Архивска фотографија 8" [t=314 h=249] ring=3px/solid 
+  27. BUTTON "Отвори: Архивска фотографија 7" [t=314 h=249] ring=3px/solid 
+  28. BUTTON "Отвори: Архивска фотографија 6" [t=77 h=249] ring=3px/solid 
+  29. BUTTON "Отвори: Архивска фотографија 5" [t=78 h=249] ring=3px/solid 
+  30. BUTTON "Отвори: Архивска фотографија 4" [t=78 h=249] ring=3px/solid 
+  31. BUTTON "Отвори: Архивска фотографија 3" [t=315 h=249] ring=3px/solid 
+  32. BUTTON "Отвори: Младата екипа на Беласица со Купот на Македонија, 1993" [t=303 h=249] ring=3px/solid 
+  33. BUTTON "Отвори: Екипа на ФК Беласица, есен 1992" [t=303 h=249] ring=3px/solid 
+  34. A "Фотографии" [t=419 h=39] ring=3px/solid 
+  35. A "Табела" [t=419 h=39] ring=3px/solid 
+  36. A "Играчи" [t=419 h=39] ring=3px/solid 
+  37. A "Резултати" [t=419 h=39] ring=3px/solid 
+  38. A "Преглед" [t=419 h=39] ring=3px/solid 
+  39. A "Архива" [t=142 h=24] ring=3px/solid 
+  40. A "Почетна" [t=142 h=24] ring=3px/solid 
+  41. A "Контакт" [t=19 h=47] ring=3px/solid 
+  42. A "За нас" [t=19 h=47] ring=3px/solid 
+  43. A "Разно" [t=19 h=47] ring=3px/solid 
+  44. A "Статистика" [t=19 h=47] ring=3px/solid 
+  45. A "Легенди" [t=19 h=47] ring=3px/solid 
+
+  SC 2.4.11 / 2.4.7 / 2.4.3 failures: 0
+
+=== /legendi @ 1280px (Shift+Tab, from end) ===
+   1. BUTTON "Назад на врвот" [t=720 h=48] ring=3px/solid 
+   2. A "Правни информации" [t=618 h=35] ring=3px/solid 
+   3. A "Беласица на Инстаграм" [t=296 h=44] ring=3px/solid 
+   4. A "Беласица на Фејсбук" [t=248 h=44] ring=3px/solid 
+   5. A "info@belasicahistory.mk" [t=299 h=35] ring=3px/solid 
+   6. A "Контакт формулар" [t=252 h=35] ring=3px/solid 
+   7. A "Контакт" [t=510 h=35] ring=3px/solid 
+   8. A "За нас" [t=467 h=35] ring=3px/solid 
+   9. A "Разно" [t=424 h=35] ring=3px/solid 
+  10. A "Статистика" [t=381 h=35] ring=3px/solid 
+  11. A "Легенди" [t=338 h=35] ring=3px/solid 
+  12. A "Архива" [t=295 h=35] ring=3px/solid 
+  13. A "Почетна" [t=252 h=35] ring=3px/solid 
+  14. A "ВНРанг 162.Васко Николов46 настапиИграч" [t=170 h=590] ring=3px/solid 
+  15. A "Ранг 161.Дервиш Хаџиосмановиќ47 настапиИграч" [t=122 h=650] ring=3px/solid 
+  16. A "ЃТРанг 160.Ѓорѓе Танушев48 настапиИграч2007–" [t=129 h=650] ring=3px/solid 
+  17. A "Ранг 154.Игор Ѓузелов50 настапиИграч1993–199" [t=130 h=650] ring=3px/solid 
+  18. A "Ранг 135.Миле Боев60 настапиИграч1983–1986" [t=141 h=648] ring=3px/solid 
+  19. A "Ранг 135.Живко Јурчевски60 настапиИграч2007–" [t=141 h=648] ring=3px/solid 
+  20. A "Ранг 135.Димитар Трендов - Цацко60 настапиИг" [t=141 h=648] ring=3px/solid 
+  21. A "Ранг 135.Атанас Малинов - Пата60 настапиИгра" [t=153 h=623] ring=3px/solid 
+  22. A "Ранг 131.Предраг Савески61 настапиИграч2009–" [t=153 h=623] ring=3px/solid 
+  23. A "Ранг 131.Коче Чачев61 настапиИграч2005–2015" [t=153 h=623] ring=3px/solid 
+  24. A "Ранг 131.Благој Истатов (јуниор)61 настапиИг" [t=130 h=623] ring=3px/solid 
+  25. A "Ранг 131.Атанас Грнчаров61 настапиИграч1972–" [t=130 h=623] ring=3px/solid 
+  26. A "Ранг 129.Васко Коцев63 настапиИграч2020–2023" [t=130 h=623] ring=3px/solid 
+  27. A "Ранг 129.Александар Крстев63 настапиИграч200" [t=153 h=623] ring=3px/solid 
+  28. A "Ранг 127.Давид Калпачки64 настапиИграч2017–2" [t=153 h=623] ring=3px/solid 
+  29. A "Ранг 127.Алекса Пандев - Леце64 настапиИграч" [t=153 h=623] ring=3px/solid 
+  30. A "Ранг 125.Кире Манолев66 настапиИграч1972–197" [t=129 h=625] ring=3px/solid 
+  31. A "Ранг 125.Благој Ашиков66 настапиИграчТренер1" [t=130 h=625] ring=3px/solid 
+  32. A "Ранг 124.Дарко Божинов67 настапиИграч2005–20" [t=130 h=625] ring=3px/solid 
+  33. A "Ранг 120.Зоран Митев68 настапиИграч1984–1998" [t=153 h=623] ring=3px/solid 
+  34. A "Ранг 120.Зоран Андонов68 настапиИграч1999–20" [t=153 h=623] ring=3px/solid 
+  35. A "Ранг 120.Ѓорги Марков68 настапиИграч2007–202" [t=153 h=623] ring=3px/solid 
+  36. A "Ранг 120.Борјан Попоски68 настапиИграч2024–2" [t=130 h=623] ring=3px/solid 
+  37. A "Ранг 118.Ристо Панчуров69 настапиИграч1966–1" [t=130 h=623] ring=3px/solid 
+  38. A "Ранг 118.Благој Стојанов69 настапиИграч2016–" [t=130 h=623] ring=3px/solid 
+  39. A "Ранг 116.Мите Николов70 настапиИграч1972–197" [t=152 h=623] ring=3px/solid 
+  40. A "Ранг 116.Ѓорѓи Трајков70 настапиИграч2023–" [t=152 h=623] ring=3px/solid 
+  41. A "Ранг 113.Ристо Зафиров70–75 настапиИграч1959" [t=152 h=623] ring=3px/solid 
+  42. A "Ранг 113.Орце Падешки70–75 настапиИграч2011–" [t=129 h=623] ring=3px/solid 
+  43. A "Ранг 113.Љубомир Георгиев70–75 настапиИграч2" [t=130 h=623] ring=3px/solid 
+  44. A "Ранг 112.Сашко Димов72 настапиИграч2004–2008" [t=130 h=623] ring=3px/solid 
+  45. A "Ранг 110.Јован Василев73 настапиИграч1990–19" [t=153 h=623] ring=3px/solid 
+
+  SC 2.4.11 / 2.4.7 / 2.4.3 failures: 0
+
+=== /legendi/goran-pandev @ 1280px (Shift+Tab, from end) ===
+   1. BUTTON "Назад на врвот" [t=720 h=48] ring=3px/solid 
+   2. A "Правни информации" [t=618 h=35] ring=3px/solid 
+   3. A "Беласица на Инстаграм" [t=296 h=44] ring=3px/solid 
+   4. A "Беласица на Фејсбук" [t=248 h=44] ring=3px/solid 
+   5. A "info@belasicahistory.mk" [t=299 h=35] ring=3px/solid 
+   6. A "Контакт формулар" [t=252 h=35] ring=3px/solid 
+   7. A "Контакт" [t=510 h=35] ring=3px/solid 
+   8. A "За нас" [t=467 h=35] ring=3px/solid 
+   9. A "Разно" [t=424 h=35] ring=3px/solid 
+  10. A "Статистика" [t=381 h=35] ring=3px/solid 
+  11. A "Легенди" [t=338 h=35] ring=3px/solid 
+  12. A "Архива" [t=295 h=35] ring=3px/solid 
+  13. A "Почетна" [t=252 h=35] ring=3px/solid 
+  14. A "Сите легенди" [t=420 h=39] ring=3px/solid 
+  15. A "Легенди" [t=142 h=24] ring=3px/solid 
+  16. A "Почетна" [t=142 h=24] ring=3px/solid 
+  17. A "Контакт" [t=19 h=47] ring=3px/solid 
+  18. A "За нас" [t=19 h=47] ring=3px/solid 
+  19. A "Разно" [t=19 h=47] ring=3px/solid 
+  20. A "Статистика" [t=19 h=47] ring=3px/solid 
+  21. A "Легенди" [t=19 h=47] ring=3px/solid 
+  22. A "Архива" [t=19 h=47] ring=3px/solid 
+  23. A "Почетна" [t=19 h=47] ring=3px/solid 
+  24. A "ФК Беласица" [t=18 h=48] ring=3px/solid 
+  25. A "Прескокни на содржина" [t=16 h=37] ring=3px/solid 
+  26. <body> — end of tab order
+
+  SC 2.4.11 / 2.4.7 / 2.4.3 failures: 0
+
+=== /statistika @ 1280px (Shift+Tab, from end) ===
+   1. BUTTON "Назад на врвот" [t=720 h=48] ring=3px/solid 
+   2. A "Правни информации" [t=618 h=35] ring=3px/solid 
+   3. A "Беласица на Инстаграм" [t=296 h=44] ring=3px/solid 
+   4. A "Беласица на Фејсбук" [t=248 h=44] ring=3px/solid 
+   5. A "info@belasicahistory.mk" [t=299 h=35] ring=3px/solid 
+   6. A "Контакт формулар" [t=252 h=35] ring=3px/solid 
+   7. A "Контакт" [t=510 h=35] ring=3px/solid 
+   8. A "За нас" [t=467 h=35] ring=3px/solid 
+   9. A "Разно" [t=424 h=35] ring=3px/solid 
+  10. A "Статистика" [t=381 h=35] ring=3px/solid 
+  11. A "Легенди" [t=338 h=35] ring=3px/solid 
+  12. A "Архива" [t=295 h=35] ring=3px/solid 
+  13. A "Почетна" [t=252 h=35] ring=3px/solid 
+  14. DIV "Голови во Првата македонска лига — скролувај хоризонтално" [t=78 h=774] ring=3px/solid 
+  15. DIV "Настапи во Првата македонска лига — скролувај хоризонтално" [t=-129 h=1188] ring=3px/solid 
+  16. DIV "ВТОРА ЈУГОСЛОВЕНСКА ЛИГА - ГОЛОВИ — скролувај хоризонтално" [t=285 h=360] ring=3px/solid 
+  17. DIV "ВТОРА ЈУГОСЛОВЕНСКА ЛИГА - НАТПРЕВАРИ — скролувај хоризонтално" [t=-129 h=1188] ring=3px/solid 
+  18. DIV "ВТОРА И ТРЕТА ЈУГОСЛОВЕНСКА ЛИГА - НАТПРЕВАРИ — скролувај хоризонтално" [t=-244 h=1418] ring=3px/solid 
+  19. DIV "ВТОРА И ТРЕТА ЈУГОСЛОВЕНСКА ЛИГА - ГОЛОВИ — скролувај хоризонтално" [t=147 h=636] ring=3px/solid 
+  20. DIV "Најдобри стрелци по сезони — скролувај хоризонтално" [t=-1371 h=3672] ring=3px/solid 
+  21. A "„Беласица 1926–1930“" [t=453 h=24] ring=3px/solid 
+  22. A "„Сезона 1930/31“" [t=404 h=24] ring=3px/solid 
+  23. A "„Сезона 1931/32“" [t=355 h=24] ring=3px/solid 
+  24. A "„Сезона 1932/33“" [t=306 h=24] ring=3px/solid 
+  25. A "„Сезона 1933/34“" [t=257 h=24] ring=3px/solid 
+  26. A "„Сезона 1934/35“" [t=208 h=24] ring=3px/solid 
+  27. A "„Сезона 1935/36“" [t=159 h=24] ring=3px/solid 
+  28. A "„Сезона 1937/38“" [t=130 h=24] ring=3px/solid 
+  29. A "„Сезона 1938/39“" [t=453 h=24] ring=3px/solid 
+  30. A "„Сезона 1939/40“" [t=404 h=24] ring=3px/solid 
+  31. A "„Сезона 1940/41“" [t=355 h=24] ring=3px/solid 
+  32. A "„Сезона 1943“" [t=306 h=24] ring=3px/solid 
+  33. A "„Сезона 1944“" [t=257 h=24] ring=3px/solid 
+  34. A "„Беласица 1945–1948“" [t=208 h=24] ring=3px/solid 
+  35. A "„Сезона 1948/49“" [t=159 h=24] ring=3px/solid 
+  36. A "„Сезона 1950“" [t=130 h=24] ring=3px/solid 
+  37. A "„Сезона 1950/51“" [t=453 h=24] ring=3px/solid 
+  38. A "„Сезона 1951“" [t=404 h=24] ring=3px/solid 
+  39. A "„Сезона 1952“" [t=355 h=24] ring=3px/solid 
+  40. A "„Сезона 1952/53“" [t=306 h=24] ring=3px/solid 
+  41. A "„Сезона 1953/54“" [t=257 h=24] ring=3px/solid 
+  42. A "„Сезона 1954/55“" [t=208 h=24] ring=3px/solid 
+  43. A "„Сезона 1955/56“" [t=159 h=24] ring=3px/solid 
+  44. A "„Сезона 1956/57“" [t=130 h=24] ring=3px/solid 
+  45. A "„Сезона 1957/58“" [t=453 h=24] ring=3px/solid 
+
+  SC 2.4.11 / 2.4.7 / 2.4.3 failures: 0
+
+=== /razno @ 1280px (Shift+Tab, from end) ===
+   1. BUTTON "Назад на врвот" [t=720 h=48] ring=3px/solid 
+   2. A "Правни информации" [t=618 h=35] ring=3px/solid 
+   3. A "Беласица на Инстаграм" [t=296 h=44] ring=3px/solid 
+   4. A "Беласица на Фејсбук" [t=248 h=44] ring=3px/solid 
+   5. A "info@belasicahistory.mk" [t=299 h=35] ring=3px/solid 
+   6. A "Контакт формулар" [t=252 h=35] ring=3px/solid 
+   7. A "Контакт" [t=510 h=35] ring=3px/solid 
+   8. A "За нас" [t=467 h=35] ring=3px/solid 
+   9. A "Разно" [t=424 h=35] ring=3px/solid 
+  10. A "Статистика" [t=381 h=35] ring=3px/solid 
+  11. A "Легенди" [t=338 h=35] ring=3px/solid 
+  12. A "Архива" [t=295 h=35] ring=3px/solid 
+  13. A "Почетна" [t=252 h=35] ring=3px/solid 
+  14. A "Навивачи „Ајдуци“Од „Блу Драгон“ во 1988 год" [t=236 h=406] ring=3px/solid 
+  15. A "Стадион „Благој Истатов“Од теренот отворен в" [t=71 h=434] ring=3px/solid 
+  16. A "Дербито со ТиверијаДваесет и девет струмички" [t=77 h=434] ring=3px/solid 
+  17. A "Средби со ПартизанЧетири гостувања на Партиз" [t=78 h=434] ring=3px/solid 
+  18. A "Виареџо купОсум изданија на „Копа карневале“" [t=208 h=462] ring=3px/solid 
+  19. A "Младинска школаГенерациите од кои излегоа Па" [t=208 h=462] ring=3px/solid 
+  20. A "Куп на УЕФАДвете европски учества на Беласиц" [t=208 h=462] ring=3px/solid 
+  21. A "Почетна" [t=142 h=24] ring=3px/solid 
+  22. A "Контакт" [t=19 h=47] ring=3px/solid 
+  23. A "За нас" [t=19 h=47] ring=3px/solid 
+  24. A "Разно" [t=19 h=47] ring=3px/solid 
+  25. A "Статистика" [t=19 h=47] ring=3px/solid 
+  26. A "Легенди" [t=19 h=47] ring=3px/solid 
+  27. A "Архива" [t=19 h=47] ring=3px/solid 
+  28. A "Почетна" [t=19 h=47] ring=3px/solid 
+  29. A "ФК Беласица" [t=18 h=48] ring=3px/solid 
+  30. A "Прескокни на содржина" [t=16 h=37] ring=3px/solid 
+  31. <body> — end of tab order
+
+  SC 2.4.11 / 2.4.7 / 2.4.3 failures: 0
+
+=== /razno/kup-na-uefa @ 1280px (Shift+Tab, from end) ===
+   1. BUTTON "Назад на врвот" [t=720 h=48] ring=3px/solid 
+   2. A "Правни информации" [t=618 h=35] ring=3px/solid 
+   3. A "Беласица на Инстаграм" [t=296 h=44] ring=3px/solid 
+   4. A "Беласица на Фејсбук" [t=248 h=44] ring=3px/solid 
+   5. A "info@belasicahistory.mk" [t=299 h=35] ring=3px/solid 
+   6. A "Контакт формулар" [t=252 h=35] ring=3px/solid 
+   7. A "Контакт" [t=510 h=35] ring=3px/solid 
+   8. A "За нас" [t=467 h=35] ring=3px/solid 
+   9. A "Разно" [t=424 h=35] ring=3px/solid 
+  10. A "Статистика" [t=381 h=35] ring=3px/solid 
+  11. A "Легенди" [t=338 h=35] ring=3px/solid 
+  12. A "Архива" [t=295 h=35] ring=3px/solid 
+  13. A "Почетна" [t=252 h=35] ring=3px/solid 
+  14. A "Сите теми" [t=420 h=39] ring=3px/solid 
+  15. A "Следна темаМладинска школа" [t=287 h=92] ring=3px/solid 
+  16. BUTTON "Отвори: Архивска фотографија 6" [t=72 h=249] ring=3px/solid 
+  17. BUTTON "Отвори: Архивска фотографија 5" [t=78 h=249] ring=3px/solid 
+  18. BUTTON "Отвори: Архивска фотографија 4" [t=78 h=249] ring=3px/solid 
+  19. BUTTON "Отвори: Архивска фотографија 3" [t=314 h=249] ring=3px/solid 
+  20. BUTTON "Отвори: Архивска фотографија 2" [t=314 h=249] ring=3px/solid 
+  21. BUTTON "Отвори: Архивска фотографија 1" [t=314 h=249] ring=3px/solid 
+  22. A "Фотографии" [t=324 h=39] ring=3px/solid 
+  23. A "Рекорди" [t=324 h=39] ring=3px/solid 
+  24. A "Преглед" [t=324 h=39] ring=3px/solid 
+  25. A "Разно" [t=142 h=24] ring=3px/solid 
+  26. A "Почетна" [t=142 h=24] ring=3px/solid 
+  27. A "Контакт" [t=19 h=47] ring=3px/solid 
+  28. A "За нас" [t=19 h=47] ring=3px/solid 
+  29. A "Разно" [t=19 h=47] ring=3px/solid 
+  30. A "Статистика" [t=19 h=47] ring=3px/solid 
+  31. A "Легенди" [t=19 h=47] ring=3px/solid 
+  32. A "Архива" [t=19 h=47] ring=3px/solid 
+  33. A "Почетна" [t=19 h=47] ring=3px/solid 
+  34. A "ФК Беласица" [t=18 h=48] ring=3px/solid 
+  35. A "Прескокни на содржина" [t=16 h=37] ring=3px/solid 
+  36. <body> — end of tab order
+
+  SC 2.4.11 / 2.4.7 / 2.4.3 failures: 0
+
+=== /za-nas @ 1280px (Shift+Tab, from end) ===
+   1. A "Правни информации" [t=618 h=35] ring=3px/solid 
+   2. A "Беласица на Инстаграм" [t=296 h=44] ring=3px/solid 
+   3. A "Беласица на Фејсбук" [t=248 h=44] ring=3px/solid 
+   4. A "info@belasicahistory.mk" [t=299 h=35] ring=3px/solid 
+   5. A "Контакт формулар" [t=252 h=35] ring=3px/solid 
+   6. A "Контакт" [t=510 h=35] ring=3px/solid 
+   7. A "За нас" [t=467 h=35] ring=3px/solid 
+   8. A "Разно" [t=424 h=35] ring=3px/solid 
+   9. A "Статистика" [t=381 h=35] ring=3px/solid 
+  10. A "Легенди" [t=338 h=35] ring=3px/solid 
+  11. A "Архива" [t=295 h=35] ring=3px/solid 
+  12. A "Почетна" [t=252 h=35] ring=3px/solid 
+  13. A "Томе Стојанов" [t=427 h=25] ring=3px/solid 
+  14. A "Почетна" [t=142 h=24] ring=3px/solid 
+  15. A "Контакт" [t=19 h=47] ring=3px/solid 
+  16. A "За нас" [t=19 h=47] ring=3px/solid 
+  17. A "Разно" [t=19 h=47] ring=3px/solid 
+  18. A "Статистика" [t=19 h=47] ring=3px/solid 
+  19. A "Легенди" [t=19 h=47] ring=3px/solid 
+  20. A "Архива" [t=19 h=47] ring=3px/solid 
+  21. A "Почетна" [t=19 h=47] ring=3px/solid 
+  22. A "ФК Беласица" [t=18 h=48] ring=3px/solid 
+  23. A "Прескокни на содржина" [t=16 h=37] ring=3px/solid 
+  24. <body> — end of tab order
+
+  SC 2.4.11 / 2.4.7 / 2.4.3 failures: 0
+
+=== /kontakt @ 1280px (Shift+Tab, from end) ===
+   1. A "Правни информации" [t=618 h=35] ring=3px/solid 
+   2. A "Беласица на Инстаграм" [t=296 h=44] ring=3px/solid 
+   3. A "Беласица на Фејсбук" [t=248 h=44] ring=3px/solid 
+   4. A "info@belasicahistory.mk" [t=299 h=35] ring=3px/solid 
+   5. A "Контакт формулар" [t=252 h=35] ring=3px/solid 
+   6. A "Контакт" [t=510 h=35] ring=3px/solid 
+   7. A "За нас" [t=467 h=35] ring=3px/solid 
+   8. A "Разно" [t=424 h=35] ring=3px/solid 
+   9. A "Статистика" [t=381 h=35] ring=3px/solid 
+  10. A "Легенди" [t=338 h=35] ring=3px/solid 
+  11. A "Архива" [t=295 h=35] ring=3px/solid 
+  12. A "Почетна" [t=252 h=35] ring=3px/solid 
+  13. A "Беласица на Инстаграм" [t=417 h=44] ring=3px/solid 
+  14. A "Беласица на Фејсбук" [t=369 h=44] ring=3px/solid 
+  15. A "info@belasicahistory.mk" [t=286 h=35] ring=3px/solid 
+  16. A "Почетна" [t=142 h=24] ring=3px/solid 
+  17. A "Контакт" [t=19 h=47] ring=3px/solid 
+  18. A "За нас" [t=19 h=47] ring=3px/solid 
+  19. A "Разно" [t=19 h=47] ring=3px/solid 
+  20. A "Статистика" [t=19 h=47] ring=3px/solid 
+  21. A "Легенди" [t=19 h=47] ring=3px/solid 
+  22. A "Архива" [t=19 h=47] ring=3px/solid 
+  23. A "Почетна" [t=19 h=47] ring=3px/solid 
+  24. A "ФК Беласица" [t=18 h=48] ring=3px/solid 
+  25. A "Прескокни на содржина" [t=16 h=37] ring=3px/solid 
+  26. <body> — end of tab order
+
+  SC 2.4.11 / 2.4.7 / 2.4.3 failures: 0
+
+=== /pravni-informacii @ 1280px (Shift+Tab, from end) ===
+   1. BUTTON "Назад на врвот" [t=720 h=48] ring=3px/solid 
+   2. A "Правни информации" [t=618 h=35] ring=3px/solid 
+   3. A "Беласица на Инстаграм" [t=296 h=44] ring=3px/solid 
+   4. A "Беласица на Фејсбук" [t=248 h=44] ring=3px/solid 
+   5. A "info@belasicahistory.mk" [t=299 h=35] ring=3px/solid 
+   6. A "Контакт формулар" [t=252 h=35] ring=3px/solid 
+   7. A "Контакт" [t=510 h=35] ring=3px/solid 
+   8. A "За нас" [t=467 h=35] ring=3px/solid 
+   9. A "Разно" [t=424 h=35] ring=3px/solid 
+  10. A "Статистика" [t=381 h=35] ring=3px/solid 
+  11. A "Легенди" [t=338 h=35] ring=3px/solid 
+  12. A "Архива" [t=295 h=35] ring=3px/solid 
+  13. A "Почетна" [t=252 h=35] ring=3px/solid 
+  14. A "info@belasicahistory.mk" [t=413 h=36] ring=3px/solid 
+  15. A "Почетна" [t=142 h=24] ring=3px/solid 
+  16. A "Контакт" [t=19 h=47] ring=3px/solid 
+  17. A "За нас" [t=19 h=47] ring=3px/solid 
+  18. A "Разно" [t=19 h=47] ring=3px/solid 
+  19. A "Статистика" [t=19 h=47] ring=3px/solid 
+  20. A "Легенди" [t=19 h=47] ring=3px/solid 
+  21. A "Архива" [t=19 h=47] ring=3px/solid 
+  22. A "Почетна" [t=19 h=47] ring=3px/solid 
+  23. A "ФК Беласица" [t=18 h=48] ring=3px/solid 
+  24. A "Прескокни на содржина" [t=16 h=37] ring=3px/solid 
+  25. <body> — end of tab order
+
+  SC 2.4.11 / 2.4.7 / 2.4.3 failures: 0
+
+=== /nema-takva-stranica @ 1280px (Shift+Tab, from end) ===
+   1. A "Правни информации" [t=618 h=35] ring=3px/solid 
+   2. A "Беласица на Инстаграм" [t=296 h=44] ring=3px/solid 
+   3. A "Беласица на Фејсбук" [t=248 h=44] ring=3px/solid 
+   4. A "info@belasicahistory.mk" [t=299 h=35] ring=3px/solid 
+   5. A "Контакт формулар" [t=252 h=35] ring=3px/solid 
+   6. A "Контакт" [t=510 h=35] ring=3px/solid 
+   7. A "За нас" [t=467 h=35] ring=3px/solid 
+   8. A "Разно" [t=424 h=35] ring=3px/solid 
+   9. A "Статистика" [t=381 h=35] ring=3px/solid 
+  10. A "Легенди" [t=338 h=35] ring=3px/solid 
+  11. A "Архива" [t=295 h=35] ring=3px/solid 
+  12. A "Почетна" [t=252 h=35] ring=3px/solid 
+  13. A "Легенди" [t=418 h=43] ring=3px/solid 
+  14. A "Архива" [t=367 h=43] ring=3px/solid 
+  15. A "Почетна" [t=316 h=43] ring=3px/solid 
+  16. A "Почетна" [t=142 h=24] ring=3px/solid 
+  17. A "Контакт" [t=19 h=47] ring=3px/solid 
+  18. A "За нас" [t=19 h=47] ring=3px/solid 
+  19. A "Разно" [t=19 h=47] ring=3px/solid 
+  20. A "Статистика" [t=19 h=47] ring=3px/solid 
+  21. A "Легенди" [t=19 h=47] ring=3px/solid 
+  22. A "Архива" [t=19 h=47] ring=3px/solid 
+  23. A "Почетна" [t=19 h=47] ring=3px/solid 
+  24. A "ФК Беласица" [t=18 h=48] ring=3px/solid 
+  25. A "Прескокни на содржина" [t=16 h=37] ring=3px/solid 
+  26. <body> — end of tab order
+
+  SC 2.4.11 / 2.4.7 / 2.4.3 failures: 0
