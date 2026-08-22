@@ -47,7 +47,7 @@ Fields as deployed to workspace **`belasica-v2`** (the real one). Eleven fields,
 | `role`              | `array<string>`     | **210 / 210** |
 | `bio`               | `array<block>`      | **210 / 210** |
 | `playingYears`      | `string`            | **145 / 210** |
-| `legendRank`        | `number`            | **138 / 210** |
+| `legendRank`        | `number`            | **162 / 231** |
 | `careerStats`       | `object`            | **132 / 210** |
 | `legendAppearances` | `string`            | **90 / 210**  |
 | `trainerYears`      | `string`            | **45 / 210**  |
@@ -84,16 +84,24 @@ carry two, **0** carry three.
 
 ### `legendRank`
 
-**138 of 210** carry it. All 138 also carry `player` in `role`; **0** ranked people lack the
-player role. Values are the book's all-time appearance ranking.
+**162 of 231** carry it (re-measured 2026-08-22). All 162 also carry `player` in `role`; **0**
+ranked people lack the player role. Values are Аце's all-time appearance ranking.
+
+**UNIQUE since D-RANKS-1** — 162 people, 162 distinct values, min **1**, max **163**, and **161**
+is the only empty slot in that range (reserved for З. Ивановски, OV-81). Ties no longer exist:
+where Аце's competition-style list gave four men rank 135 and resumed at 139, each now holds his
+own number inside that same span, ordered alphabetically. ⚠️ That within-group order is
+**DERIVED**, not stated by Аце — see `facts.md`. Uniqueness is validated in Studio but **not** by
+the HTTP mutate API; re-check `count(*[defined(legendRank)])` against
+`count(array::unique(*[defined(legendRank)].legendRank))` after any bulk write.
 
 ### The four „Легенди" bands, as the site actually computes them
 
-Live on `/legendi`, heading reads **„210 личности"**.
+Live on `/legendi`, heading reads **„231 личности"**.
 
 | tab             | rule                  | source             | count   |
 | --------------- | --------------------- | ------------------ | ------- |
-| Играчи          | `defined(legendRank)` | Sanity             | **138** |
+| Играчи          | `defined(legendRank)` | Sanity             | **162** |
 | Тренери         | `"trainer" in role`   | Sanity             | **68**  |
 | Претседатели    | `"president" in role` | Sanity             | **29**  |
 | Репрезентативци | membership list       | **code, not data** | **10**  |
