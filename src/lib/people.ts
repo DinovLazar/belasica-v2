@@ -147,14 +147,17 @@ export type RankedPerson = {
  *
  * Three tiers, in this order:
  *
- *  1. `legendRank` — the book's own list of the eighty most-capped players.
+ *  1. `legendRank` — Аце's own list of the 162 most-capped players.
  *     It is the ranking, not a proxy for it, and it is used ahead of
- *     `careerStats.appearances` because fifteen of those eighty are ranked on a
+ *     `careerStats.appearances` because 23 of those 162 are ranked on a
  *     count the book states only as a range („120–135"): sorting on the number
  *     alone would drop Панче Пантазиев (#9) and Васо Цветков (#20) to the
- *     bottom of the page. Where the book shares a rank across several players
- *     (54–55, 57–60 …) they all carry the first number of the span and the name
- *     breaks the tie, which is exactly how the book prints them.
+ *     bottom of the page. Since D-RANKS-1 the rank is **unique per player**, so
+ *     the `compareByName` fallback below no longer fires for ranked men — it is
+ *     kept because it is what DEFINED their order when ties still existed, and
+ *     the new numbers were assigned in exactly this sequence. Changing it would
+ *     not reorder the ladder today, but it would silently break the rule the
+ *     stored numbers were derived from.
  *  2. Players the book does not rank, by recorded career appearances, most
  *     first — so a player with a real number still beats one with none.
  *  3. Everyone else, alphabetically.

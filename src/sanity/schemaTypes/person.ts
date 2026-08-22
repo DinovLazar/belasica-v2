@@ -77,25 +77,57 @@ export const person = defineType({
     // Stojanov's book („50 играчи на Беласица со најмногу првенствени
     // натпревари", continued to 80). It is the ordering `/legendi` uses for the
     // Играчи band (D-3.12-2) and is NOT derived from `careerStats.appearances`:
-    // fifteen of the eighty are ranked on a count the book gives only as a range
+    // 23 of the 162 are ranked on a count the list gives only as a range
     // („120–135"), so a sort on the number alone would drop them — Панче
     // Пантазиев (#9) and Васо Цветков (#20) among them — to the bottom of the
-    // page. Shared ranks in the book (54–55, 57–60 …) are entered as the first
-    // number of the span, so both people sort together and the name breaks the
-    // tie. Leave empty for anyone the book does not rank.
+    // page.
+    //
+    // **Every ranked player carries a rank of his own** — the field is unique
+    // across the whole ladder (D-RANKS-1). Аце's own list is competition-style
+    // („1224"): where several men share an appearance count he gives them all
+    // the first number of the span and leaves the rest of the span empty — four
+    // men at 60 настапи were all „135", and the list resumed at 139. That is
+    // faithful to his page but reads as a data fault on a card that prints one
+    // number, so each man now takes his own number FROM WITHIN THE SPAN HIS
+    // GROUP ALREADY OWNED, ordered by name — the order the ladder already
+    // displayed them in. No player's position on the ladder changed; only the
+    // printed number did. ⚠️ The order WITHIN a former tie is derived, not
+    // stated by Аце — see `facts.md`.
+    //
+    // Leave empty for anyone the list does not rank.
     defineField({
       name: "legendRank",
       title: "Ранг по настапи (книга)",
       type: "number",
       description:
-        "Место на ранг-листата од книгата (1–80). Остави празно ако лицето не е на листата.",
-      validation: (rule) => rule.integer().positive(),
+        "Место на ранг-листата од книгата (1–163). Секој играч има свој број — не се повторува. Остави празно ако лицето не е на листата.",
+      // Uniqueness is enforced here so a rank cannot be duplicated by hand in
+      // Studio, which is how the four-way tie at 135 would come back. This is a
+      // STUDIO guard only — the HTTP mutate API does not run schema validation,
+      // so a script can still write a duplicate. Re-check after any bulk write.
+      validation: (rule) =>
+        rule
+          .integer()
+          .positive()
+          .custom(async (rank, context) => {
+            if (rank == null) return true;
+            const id = context.document?._id?.replace(/^drafts\./, "");
+            const taken = await context
+              .getClient({ apiVersion: "2026-07-15" })
+              .fetch(
+                `count(*[_type == "person" && legendRank == $rank && !(_id in [$id, "drafts." + $id])])`,
+                { rank, id },
+              );
+            return taken === 0
+              ? true
+              : `Рангот ${rank} е веќе зафатен од друг играч. Секој ранг се доделува само еднаш.`;
+          }),
     }),
     // The appearance count the rank is built on, printed beside the rank on the
     // legend cards.
     //
     // A **STRING, not a number** — and that is the whole point (D-3.15-4). The
-    // book gives nine of the eighty a RANGE rather than a figure („120–135"),
+    // list gives 23 of the 162 a RANGE rather than a figure („120–135"),
     // which is exactly why the ranking is `legendRank` and not a sort on
     // `careerStats.appearances` (D-3.12-2). A number field could not hold what
     // the book actually says, and rounding a range to one of its ends would
