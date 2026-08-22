@@ -28,7 +28,7 @@ The four figures Ace gave as ranges („55–60", „50–55") ship as ranges. N
 - **A native read of the completed tail on the preview.** ⚠️ **Screenshots below the fold could not be captured this session** — the in-app browser stopped compositing (the same limitation 3.35 and 3.36 recorded), so scrolled screenshots return a stale or blank frame. Layout **is** computed and was measured numerically, and the served HTML was read with `curl`, so nothing here is asserted from a picture — but the human visual read is genuinely owed.
 - **Five-item eyeball checklist**, on `https://belasica-v2-3b5g3a4l8-sunset-services-team.vercel.app/legendi` (Играчи tab, scroll to the bottom):
   1. The ladder ends at **163 · Васко Николов**, and **161 holds nobody** — 160 is a two-way tie, so the next rank is 162. That is Ace's numbering, not a bug.
-  2. **Four rows show a range instead of a number** — Ефински and Караманов at „55–60" (both rank 145), Калкашлиев and Ѓорѓи Панов at „50–55" (both 157). ⚠️ **Confirm with Ace that the en dash is right** — he typed a hyphen; the archive's other fifteen ranges all use an en dash (D-3.33-2). One patch either way.
+  2. **Four rows show a range instead of a number** — Ефински and Караманов at „55–60" (both rank 145), Калкашлиев and Ѓорѓи Панов at „50–55" (both 157). ⚠️ **Confirm with Ace that the en dash is right** — he typed a hyphen; the archive's other nineteen ranges all use an en dash (D-3.33-2). One patch either way.
   3. **Коста Ефински now carries two chips, „Играч Тренер"** (D-3.33-3). Confirm he really did play 1953–58 — his existing biography only records him coaching 1957/58.
   4. **Игор Ѓузелов reads 1992–1995**, changed from the 1993–1995 that 3.32 entered (D-3.33-4). This is a public fact changed on one source — Ace's newer list. Confirm.
   5. The nineteen new men show an **initials tile and no photograph, no biography and no goals** — that is the accepted state, the same as Танушев and Николов today. Nothing was invented to fill them.
@@ -36,8 +36,8 @@ The four figures Ace gave as ranges („55–60", „50–55") ship as ranges. N
 
 ## 3. Decisions I made during this phase
 
-- **D-3.33-1** · The two range figures go into `legendAppearances` and `careerStats.appearances` is left unset · **why:** the brief required the rendering mechanism to be measured before writing; `legendAppearances` is a `string` that has existed for exactly this since D-3.15-4, already holds fifteen ranges, and is read **first** by both `LegendCard.tsx` and `legendi/[slug]/page.tsx`, so a card and its page can never disagree · **rejected:** writing a midpoint or an endpoint into the number field, which invents a statistic · **logged in `decisions.md`: yes.**
-- **D-3.33-2** · The ranges are written with an **en dash**, not the hyphen Ace typed · **why:** all fifteen existing ranges use one, the schema's own Studio description gives „120–135", and D-3.15-4 states the rule; the brief itself mandates an en dash for `playingYears` one rule later. The **figures are verbatim** — only the glyph is normalised · **rejected:** following the brief's glyph literally, which would make these the only hyphen ranges among seventeen and would silently contradict a logged decision the brief never mentions · **logged in `decisions.md`: yes.** ⚠️ **This is the one departure from the brief's literal text; see §4.**
+- **D-3.33-1** · The two range figures go into `legendAppearances` and `careerStats.appearances` is left unset · **why:** the brief required the rendering mechanism to be measured before writing; `legendAppearances` is a `string` that has existed for exactly this since D-3.15-4, already holds nineteen ranges, and is read **first** by both `LegendCard.tsx` and `legendi/[slug]/page.tsx`, so a card and its page can never disagree · **rejected:** writing a midpoint or an endpoint into the number field, which invents a statistic · **logged in `decisions.md`: yes.**
+- **D-3.33-2** · The ranges are written with an **en dash**, not the hyphen Ace typed · **why:** all nineteen existing ranges use one, the schema's own Studio description gives „120–135", and D-3.15-4 states the rule; the brief itself mandates an en dash for `playingYears` one rule later. The **figures are verbatim** — only the glyph is normalised · **rejected:** following the brief's glyph literally, which would make these the only hyphen ranges among twenty-three and would silently contradict a logged decision the brief never mentions · **logged in `decisions.md`: yes.** ⚠️ **This is the one departure from the brief's literal text; see §4.**
 - **D-3.33-3** · Коста Ефински gains the `player` role · **why:** he was `["trainer"]` alone, and the Играчи tab is `defined(legendRank)` — a rank without the role would have made him the **only** ranked person lacking it (measured before the write: 0 of 142 lacked it; after: 0 of 162). Ranking a man on a list of appearances asserts he played · **rejected:** ranking him and leaving the role, which breaks an invariant and puts a card reading only „Тренер" in the players' ladder · **logged in `decisions.md`: yes.**
 - **D-3.33-4** · Ѓузелов's playing years follow Ace's newer list (1993–1995 → 1992–1995) · **why:** the brief settles it — Ace is the source and his latest statement governs · **rejected:** keeping the stored span and querying it · **logged in `decisions.md`: yes.**
 - **D-3.33-5** · Written with the write token already in `.env.local`, not a newly minted one · **why:** 23 ordered mutations exceed what the MCP path can express (rule 4 requires Николов 162→163 to land **before** Хаџиосмановиќ 161→162), but minting a fresh token into a public repo is what D-3.32-2 rightly refused; the existing token is already gitignored (`.gitignore:34`, confirmed with `git check-ignore`) · **rejected:** a new committed token; the MCP · **logged in `decisions.md`: yes.**
@@ -71,7 +71,7 @@ The four figures Ace gave as ranges („55–60", „50–55") ship as ranges. N
 ## 7. Risks, surprises, what the next phase needs to know
 
 - **The slug convention was derived, not guessed — and that caught a real bug.** A transliteration map was built and validated against **all 212 live slugs**; the first version reproduced 203 and failed on 9, every failure the same letter: **џ is `dzh`, not `dj`**. Corrected, the map reproduces all 212 exactly. Had it not been checked, `Ѓорѓе Џонов` would have shipped as `gjorgje-djonov` — a permanent, wrong, public URL. **Any future phase creating people should re-run that validation rather than trusting a hand-written map.**
-- **`legendAppearances` cannot be sorted or thresholded numerically.** Seventeen people now carry a range there. It happens not to matter today — `/statistika`'s „Најмногу настапи" ranks `careerStats.appearances` with `APPEARANCE_MIN = 130`, and **no tail entry reaches 130 either way** — but a future phase that lowers that cut will silently omit the seventeen.
+- **`legendAppearances` cannot be sorted or thresholded numerically.** Twenty-three people now carry a range there. It happens not to matter today — `/statistika`'s „Најмногу настапи" ranks `careerStats.appearances` with `APPEARANCE_MIN = 130`, and **no tail entry reaches 130 either way** — but a future phase that lowers that cut will silently omit the twenty-three.
 - **The ladder is deliberately not monotonic around the four range rows.** A „55–60" sits below a 56 and a „50–55" below a 50, because Ace placed uncertain-era figures by his own judgment. **Any monotonicity check must exclude them** or it will report four false failures.
 - **Rank 161 holds nobody and that is correct.** 160 is a two-way tie, so the next rank is 162. Expect this to be reported as a bug by anyone reading the ladder cold.
 - **The re-rank ordering mattered and was honoured.** Николов 162→163 was committed **before** Хаџиосмановиќ 161→162, so 162 was vacated before it was re-occupied; at no point did two documents share a rank they should not.
@@ -127,7 +127,7 @@ The four figures Ace gave as ranges („55–60", „50–55") ship as ranges. N
        person-mite-kalkashliev · person-gjorgji-panov · person-zlate-milosovski
 ```
 
-Each created document carries exactly: `name`, `slug`, `role: ["player"]`, `legendRank`, `playingYears`, and **one** figure — `careerStats.appearances` for the fifteen numeric, `legendAppearances` for the four ranges. **No `bio`, no portrait, no goals** — matching the four documents 3.32 created.
+Each created document carries exactly: `name`, `slug`, `role: ["player"]`, `legendRank`, `playingYears`, and **one** figure — `careerStats.appearances` for the **sixteen** numeric, `legendAppearances` for the **three** ranges (the fourth range document is Ефински, patched not created). **No `bio`, no portrait, no goals** — matching the four documents 3.32 created.
 
 **Counts, before → after:**
 
@@ -142,3 +142,16 @@ Each created document carries exactly: `name`, `slug`, `role: ["player"]`, `lege
 | drafts | 0 | **0** | 0 ✅ |
 | unique slugs / unique ids | 212 / 212 | **231 / 231** | all unique ✅ |
 | build page count | 331 (3.36) | **350** | +19 ✅ |
+
+**Split of the four range documents** (verified live): **three were created** — Панче Караманов (145), Мите Калкашлиев (157), Ѓорѓи Панов (157) — and **one was patched**, Коста Ефински (145), who already existed. Of the 19 created documents, **16 carry `careerStats.appearances` and 3 carry `legendAppearances`; 0 carry both and 0 carry neither.**
+
+---
+
+### Correction filed 2026-08-22, after the phase merged
+
+Two counts stated in the first version of this report and in D-3.33-1/-2 were wrong and have been corrected in place:
+
+- **The number of pre-existing ranges in `legendAppearances` is 19, not „fifteen".** The original figure was carried over from D-3.12-2's „fifteen of the eighty", which described the **book's** ranked players, not the field's contents. Measured directly: 23 ranges now, 4 written by this phase, **19 pre-existing**. The argument of D-3.33-2 is unaffected — every one of the 19 uses an en dash.
+- **The numeric/range split of the creations is 16/3, not „fifteen"/four.** Four documents carry a range, but only three of them were created; the fourth, Ефински, was patched.
+
+Nothing about the data changed — these were description errors in the report and in two decision entries, not write errors. The live figures in §8 were correct throughout.
