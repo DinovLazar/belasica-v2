@@ -3576,3 +3576,48 @@
 - **Alternatives considered:** _Add `pa11y` and `@axe-core/cli` as devDependencies_ — rejected: two more transitive trees (including a second Chromium download) carried forever for tooling that runs a few times a year.
 - **Consequences:** Re-running the scans needs one `npx` line, documented in `scripts/a11y/README.md`. Nothing about the site's build or bundle changed.
 - **Links:** `scripts/a11y/README.md`.
+
+### D-3.33-1 · 2026-08-22 · The two range figures go into `legendAppearances`, and `careerStats.appearances` is left unset
+
+- **Status:** Accepted
+- **Context:** Four of the 24 tail entries carry a figure Аце printed as a **range** — Коста Ефински and Панче Караманов at „55–60", Мите Калкашлиев and Ѓорѓи Панов at „50–55". The brief required the mechanism to be measured before anything was written, and forbade coercing, averaging or taking an endpoint. `careerStats.appearances` is a `number` and cannot hold either string.
+- **Decision:** Write the range verbatim into **`legendAppearances`**, a `string`, and leave `careerStats.appearances` **unset** on those four. The field already exists for exactly this and is already carrying fifteen ranges (D-3.15-4). Both surfaces read it **first**: `LegendCard.tsx` (`person.legendAppearances?.trim() || careerStats.appearances`) and `legendi/[slug]/page.tsx` build the same `appearancesLabel` from the same precedence, so a card and its page can never disagree. The nineteen numeric entries take `careerStats.appearances`, following the four the 3.32 phase created.
+- **Alternatives considered:** _Write the midpoint or an endpoint into the number field_ — refused; it invents a statistic the archive does not hold. _Write the range into both fields_ — impossible, the number field rejects it.
+- **Consequences:** Verified in the built HTML, not merely reasoned about: all four render „55–60" / „50–55" on the `/legendi` ladder **and** under „Настапи" on their own pages. The four are absent from `/statistika`'s „Најмногу настапи" table — that table ranks `careerStats.appearances` and its cut is `APPEARANCE_MIN = 130`, so **no tail entry reaches it either way** and the omission changes nothing on screen. ⚠️ It does mean a range can never be sorted or thresholded numerically — the same limitation the other fifteen already carry.
+- **Links:** D-3.15-4; D-3.12-2; `src/components/legends/LegendCard.tsx`; `src/app/(site)/legendi/[slug]/page.tsx`.
+
+### D-3.33-2 · 2026-08-22 · The ranges are written with an EN DASH, not the hyphen Аце typed
+
+- **Status:** Accepted
+- **Context:** The brief transcribes the two ranges as „55-60" and „50-55" with an ASCII hyphen and calls them verbatim. Every one of the **fifteen** ranges already in `legendAppearances` uses an **en dash** („80–87", „100–110"), the schema's own Studio description gives „120–135" with an en dash, and D-3.15-4 states the rule as „the book's printed value verbatim, **en dash for ranges**".
+- **Decision:** Store „55–60" and „50–55" with an en dash. The **figures are verbatim** — both endpoints, no coercion, no average, no endpoint dropped; only the dash glyph is normalised, which is the same normalisation the brief itself mandates one rule later for `playingYears` („en-dash to match existing style").
+- **Alternatives considered:** _Follow the brief's glyph literally_ — rejected: it would make these two the only hyphen ranges among seventeen, visibly inconsistent in the same ladder column, and would silently contradict a logged decision the brief never mentions. The likeliest reading is that the brief's author did not know the field already held fifteen en-dashed ranges.
+- **Consequences:** ⚠️ **This is the one place this phase departs from the brief's literal text, and it is one patch to reverse in either direction.** Flagged for Lazar and Аце rather than left silent. The DoD's „renders 55-60 verbatim" is met in substance — the printed figure is unchanged — but the rendered glyph is „–", not „-".
+- **Links:** D-3.15-4; `src/sanity/schemaTypes/person.ts`.
+
+### D-3.33-3 · 2026-08-22 · Коста Ефински gains the `player` role when he gains a rank
+
+- **Status:** Accepted
+- **Context:** Ефински was the tail's only pre-existing man, and he was carrying `role: ["trainer"]` alone with a biography reading „Тренер на ФК Беласица во сезоната 1957/58." The brief said to assign him rank, figure and years, and said nothing about his role. But the „Играчи" tab is `defined(legendRank)`, so a rank alone would have put him in the players' ladder — and **all 142 ranked people carried `player`; not one did not** (measured before the write).
+- **Decision:** Set `role: ["trainer", "player"]`. He keeps his trainer role and his biography untouched; ranking him on a list of appearances asserts he played, so the role array is made to say so.
+- **Alternatives considered:** _Rank him and leave the role alone_ — rejected: he would have become the **only** ranked person without the player role, breaking an invariant the archive has held since 3.27, and his card would have sat in Играчи announcing „Тренер" and nothing else.
+- **Consequences:** Thirty-nine people already carry two roles and Дервиш Хаџиосмановиќ is `["trainer","player"]` exactly, so this is a precedent followed, not set. His card now shows both chips („Играч Тренер"), verified in the built HTML; he also keeps his „Периоди → Тренер 1957–1958" group on his own page. The invariant re-measured after the write: **0 of 162 ranked people lack the player role.**
+- **Links:** D-3.27-3; `docs/data-shapes.md`.
+
+### D-3.33-4 · 2026-08-22 · Ѓузелов's playing years follow Аце's newer list
+
+- **Status:** Accepted
+- **Context:** Phase 3.32 stored **1993–1995** for Игор Ѓузелов. Аце's list of 2026-08-21 gives **1992–1995** for the same man at the same rank and the same figure (50).
+- **Decision:** Overwrite with 1992–1995. Аце is the source and his latest statement governs; nothing else on the document changed.
+- **Alternatives considered:** _Keep the stored span and query it_ — rejected: the brief settles it explicitly, and a one-year correction from the owner needs no round trip.
+- **Consequences:** ⚠️ **A fact rendered on a public page changed without a second source** — worth Аце's eye on the preview, which is why it is called out in the report rather than buried. Verified live: his page and card now read 1992–1995.
+- **Links:** D-3.32-1; `src/_project-state/completions/Part-3-Phase-32-Completion.md`.
+
+### D-3.33-5 · 2026-08-22 · Written with the write token already in `.env.local`, not a newly minted one
+
+- **Status:** Accepted
+- **Context:** The brief specified a throwaway scratchpad script with a local write token, dry-run first. 3.32 refused the token entirely and used the authenticated MCP (D-3.32-2) — but that phase wrote four documents and this one writes **twenty-three**, past `patch_documents`' 25-per-call ceiling once creations and patches are counted together, and with an ordering requirement the MCP cannot express.
+- **Decision:** Run the scripted path, but read `SANITY_API_WRITE_TOKEN` from the **`.env.local` that already exists and is already gitignored** (`.gitignore:34`, confirmed with `git check-ignore`). No new token was minted, and every file of the script lives in the session scratchpad **outside the repository**.
+- **Alternatives considered:** _Mint a fresh token and write it into the repo_ — rejected for the reason D-3.32-2 gives: it puts a live credential in a public repo to do what an existing gitignored one already does. _Use the MCP_ — rejected: 23 ordered mutations, and rule 4 requires Николов 162→163 to land **before** Хаџиосмановиќ 161→162.
+- **Consequences:** `git diff` carries no token and no script; the branch touches `public/llms.txt` and the four state files only. The dry run printed all 23 mutations before any of them ran, and is reproduced in the completion report.
+- **Links:** D-3.32-2; `.gitignore`.
